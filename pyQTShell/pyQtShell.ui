@@ -1,0 +1,109 @@
+<ui version="4.0" >
+ <class>pyQTShell</class>
+ <widget class="QWidget" name="pyQTShell" >
+  <property name="windowModality" >
+   <enum>Qt::NonModal</enum>
+  </property>
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>800</height>
+   </rect>
+  </property>
+  <property name="focusPolicy" >
+   <enum>Qt::ClickFocus</enum>
+  </property>
+  <property name="windowTitle" >
+   <string/>
+  </property>
+  <layout class="QHBoxLayout" >
+   <item>
+    <widget class="QSplitter" name="splitter" >
+     <property name="lineWidth" >
+      <number>1</number>
+     </property>
+     <property name="midLineWidth" >
+      <number>0</number>
+     </property>
+     <property name="orientation" >
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="handleWidth" >
+      <number>8</number>
+     </property>
+     <widget class="QDockWidget" name="pyDockWidget" >
+      <property name="enabled" >
+       <bool>true</bool>
+      </property>
+      <property name="sizePolicy" >
+       <sizepolicy vsizetype="Maximum" hsizetype="Maximum" >
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize" >
+       <size>
+        <width>0</width>
+        <height>200</height>
+       </size>
+      </property>
+      <property name="baseSize" >
+       <size>
+        <width>0</width>
+        <height>200</height>
+       </size>
+      </property>
+      <property name="windowTitle" >
+       <string>Python Shell</string>
+      </property>
+      <widget class="QWidget" name="dockWidgetContents" >
+       <property name="sizePolicy" >
+        <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <layout class="QHBoxLayout" />
+      </widget>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+  <action name="actionAutoScale" >
+   <property name="text" >
+    <string>AutoScale</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+A</string>
+   </property>
+  </action>
+  <action name="actionPlotOptions" >
+   <property name="text" >
+    <string>Plot Options</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+T</string>
+   </property>
+  </action>
+  <action name="actionClear" >
+   <property name="text" >
+    <string>Clear</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+Shift+X</string>
+   </property>
+  </action>
+  <action name="actionZoom" >
+   <property name="text" >
+    <string>Zoom</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+Z</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
