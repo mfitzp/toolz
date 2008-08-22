@@ -81,12 +81,14 @@ class MyNavigationToolbar(NavigationToolbar) :
 
 
 class MPL_Widget(QWidget):
-	def __init__(self, parent = None):
-		QWidget.__init__(self, parent)
-		self.canvas = MyMplCanvas()
-		#self.toolbar = MyNavigationToolbar(self.canvas, self.canvas, direction = 'v')
-		self.hbox = QHBoxLayout()
-		#self.hbox.addWidget(self.toolbar)
-		self.hbox.addWidget(self.canvas)
-		self.setLayout(self.hbox)
+    def __init__(self, parent = None):
+        QWidget.__init__(self, parent)
+        self.canvas = MyMplCanvas()
+        #self.toolbar = MyNavigationToolbar(self.canvas, self.canvas, direction = 'v')
+        self.toolbar = NavigationToolbar(self.canvas, self.canvas)
+        self.toolbar.hide()
+        self.hbox = QHBoxLayout()
+        #self.hbox.addWidget(self.toolbar)
+        self.hbox.addWidget(self.canvas)
+        self.setLayout(self.hbox)
 

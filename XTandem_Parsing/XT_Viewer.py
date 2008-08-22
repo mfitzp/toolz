@@ -231,13 +231,8 @@ class XTViewer(ui_main.Ui_MainWindow):
             n+=1
 
     
-    def hZoomToggle(self):
-        if self.is_hZoom:
-            self.is_hZoom = False
-            #self.span.visible = False
-        else:
-            self.is_hZoom = True
-            #self.span.visible = True
+    def ZoomToggle(self):
+        self.plotWidget.toolbar.zoom()
     
     def onselect(self, xmin, xmax):
             #print xmin,  xmax
@@ -246,10 +241,11 @@ class XTViewer(ui_main.Ui_MainWindow):
                 self.plotWidget.canvas.draw()
                 
     def autoscale_plot(self):
+        self.plotWidget.toolbar.home()
         #self.rescale_plot()
-        self.plotWidget.canvas.ax.autoscale_view(tight = False, scalex=True, scaley=True)
+        #self.plotWidget.canvas.ax.autoscale_view(tight = False, scalex=True, scaley=True)
         #self.mzWidget.canvas.ax.set_ylim(self.mzYScale[0], self.mzYScale[1])
-        self.plotWidget.canvas.draw()
+        #self.plotWidget.canvas.draw()
     
     def toggleDraw(self):
         if self.drawProfile:
@@ -310,10 +306,10 @@ class XTViewer(ui_main.Ui_MainWindow):
         self.firstLoad = True
 
     def __additionalConnections__(self):
-        self.hZoom = QtGui.QAction("Horizontal Zoom",  self.MainWindow)
+        self.hZoom = QtGui.QAction("Zoom",  self.MainWindow)
         self.hZoom.setShortcut("Ctrl+Z")
         self.plotTabWidget.addAction(self.hZoom)
-        QtCore.QObject.connect(self.hZoom,QtCore.SIGNAL("triggered()"), self.hZoomToggle)
+        QtCore.QObject.connect(self.hZoom,QtCore.SIGNAL("triggered()"), self.ZoomToggle)
         
         self.actionAutoScale = QtGui.QAction("AutoScale",  self.MainWindow)
         self.actionAutoScale.setShortcut("Ctrl+A")
@@ -445,5 +441,4 @@ def run_main():
     
 
 if __name__ == "__main__":
-    
     run_main()
