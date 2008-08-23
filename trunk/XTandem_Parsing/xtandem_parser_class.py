@@ -1,6 +1,8 @@
 import re
 from xml.etree import cElementTree as ET
 import numpy as N
+import time
+
 try:
     import psyco
     psyco.full()
@@ -11,7 +13,7 @@ from xtandem_peptide import XT_peptide, XT_protein
 
 class XT_xml:
     def __init__(self, fileName,  evalue_cutoff = None,  ppm_cutoff = None):
-        
+        #t1 = time.clock()   
         self.fileName = fileName
         
         if evalue_cutoff:
@@ -95,7 +97,10 @@ class XT_xml:
         #print type(nextScores)
         self.hScores = N.array(hScores)
         self.nextScores = N.array(nextScores)
-
+        #t2 = time.clock()   
+        #print t2-t1,  'sec'
+        
+        
     def getProtDict(self,  XT_peplist):
         '''Accepts a list of peptides parsed from an X-Tandem xml file'''
         temp_dict = {}
