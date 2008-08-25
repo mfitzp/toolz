@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Documents and Settings\d3p483\Desktop\XTandem_Parsing\main.ui'
+# Form implementation generated from reading ui file 'C:\SVN\toolz\XTandem_Parsing\main.ui'
 #
-# Created: Wed Aug 20 16:41:44 2008
+# Created: Mon Aug 25 11:20:04 2008
 #      by: PyQt4 UI code generator 4.3.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -203,6 +203,7 @@ class Ui_MainWindow(object):
         self.actionHints = QtGui.QAction(MainWindow)
         self.actionHints.setObjectName("actionHints")
         self.menuFile.addAction(self.action_Open)
+        self.menuFile.addAction(self.action_Save)
         self.menuFile.addAction(self.action_Exit)
         self.menu_Edit.addAction(self.action_Cut)
         self.menu_Edit.addAction(self.action_Paste)
@@ -214,6 +215,7 @@ class Ui_MainWindow(object):
         self.menubar.addAction(self.menuData.menuAction())
         self.menubar.addAction(self.menu_Help.menuAction())
         self.toolBar.addAction(self.actionFileOpen)
+        self.toolBar.addAction(self.actionFileSave)
         self.toolBar.addAction(self.actionRunScript)
 
         self.retranslateUi(MainWindow)

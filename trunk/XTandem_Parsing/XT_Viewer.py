@@ -31,11 +31,11 @@ import ui_main
 from mpl_custom_widget import MPL_Widget
 from xtandem_parser_class import XT_xml
 import dbIO
-try:
-    import psyco
-    psyco.full()
-except:
-    print "Pysco not installed, try easy_install psyco at your command prompt"
+#try:
+#    import psyco
+#    psyco.full()
+#except:
+#    print "Pysco not installed, try easy_install psyco at your command prompt"
 
 class XTViewer(ui_main.Ui_MainWindow):
     def __init__(self, MainWindow):
@@ -98,6 +98,12 @@ class XTViewer(ui_main.Ui_MainWindow):
             self.firstLoad = False
 #        elif self.fileType != 'xml':
 #            print "mzML Selected"
+        elif self.fileType == 'h5':
+            self.curFile = XT_xml(filename,  parseFile = False)
+            dbIO.load_workspace(str(filename), self.curFile)
+            self.initiatePlot()
+            self.firstLoad = False
+            
         else:
             return QtGui.QMessageBox.information(self.MainWindow,'', "Problem loading data, check file")
         
@@ -106,8 +112,9 @@ class XTViewer(ui_main.Ui_MainWindow):
         if self.firstLoad:
             dataFileName = QtGui.QFileDialog.getOpenFileName(self.MainWindow,\
                                                              self.OpenDataText,\
-                                                             self.__curDir, 'X!Tandem XML (*.xml)')
-            self.loadFileXT(dataFileName)
+                                                             self.__curDir, 'X!Tandem XML (*.xml);; HDF5 File (*.h5)')
+            if dataFileName:
+                self.loadFileXT(dataFileName)
                 
         else:
             if self.__askConfirm__("Data Reset",self.ResetAllDataText):
@@ -116,9 +123,9 @@ class XTViewer(ui_main.Ui_MainWindow):
                 self.startup()
                 dataFileName = QtGui.QFileDialog.getOpenFileName(self.MainWindow,\
                                                                  self.OpenDataText,\
-                                                                 self.__curDir, 'X!Tandem XML (*.xml)')
+                                                                 self.__curDir, 'X!Tandem XML (*.xml);; HDF5 File (*.h5)')
                 if dataFileName:
-                    self.loadFile(dataFileName)
+                    self.loadFileXT(dataFileName)
     
     def __saveDataFile__(self):
         self.curFileName = QtGui.QFileDialog.getSaveFileName(self.MainWindow,\
@@ -146,7 +153,7 @@ class XTViewer(ui_main.Ui_MainWindow):
         #self.fragHandle = self.mzWidget.canvas.ax.axvline(xdata[self.fragIndex], ls = '--', color ='green')
         self.handleA.set_data(N.take(self.x, [self.pickIndex]), N.take(self.y, [self.pickIndex]))
         self.handleA.set_visible(True)
-        showText = '%s'%(self.curFile.pep_IDs[self.pickIndex])
+        showText = '%s'%(self.curFile.pepIDs[self.pickIndex])
         self.textHandle = self.plotWidget.canvas.ax.text(0.03, 0.95, showText, fontsize=9,\
                                         bbox=dict(facecolor='yellow', alpha=0.1),\
                                         transform=self.plotWidget.canvas.ax.transAxes, va='top')
@@ -300,10 +307,10 @@ class XTViewer(ui_main.Ui_MainWindow):
         self.plotTabWidget.addAction(self.actionAutoScale)
         QtCore.QObject.connect(self.actionAutoScale,QtCore.SIGNAL("triggered()"), self.autoscale_plot)
 
-        self.actionSave = QtGui.QAction("Save File",  self.MainWindow)
-        self.actionSave.setShortcut("Ctrl+S")
-        self.MainWindow.addAction(self.actionSave)
-        QtCore.QObject.connect(self.actionSave,QtCore.SIGNAL("triggered()"), self.__saveDataFile__)
+#        self.actionSave = QtGui.QAction("Save File",  self.MainWindow)
+#        self.actionSave.setShortcut("Ctrl+S")
+#        self.MainWindow.addAction(self.actionSave)
+#        QtCore.QObject.connect(self.actionSave,QtCore.SIGNAL("triggered()"), self.__saveDataFile__)
 
 #        self.actionAutoScaleChrom = QtGui.QAction("Autoscale",  self.chromWidget)
 #        self.chromWidget.addAction(self.actionAutoScaleChrom)
@@ -333,7 +340,7 @@ class XTViewer(ui_main.Ui_MainWindow):
         
         '''File menu actions slots'''
         QtCore.QObject.connect(self.action_Open,QtCore.SIGNAL("triggered()"),self.__readDataFile__)
-        #QtCore.QObject.connect(self.action_Save,QtCore.SIGNAL("triggered()"),self.__saveDataFile__)
+        QtCore.QObject.connect(self.action_Save,QtCore.SIGNAL("triggered()"),self.__saveDataFile__)
         QtCore.QObject.connect(self.actionFileOpen,QtCore.SIGNAL("triggered()"),self.__readDataFile__)
         QtCore.QObject.connect(self.actionAbout,QtCore.SIGNAL("triggered()"),self.__showAbout__)
         QtCore.QObject.connect(self.actionHints,QtCore.SIGNAL("triggered()"),self.__showHints__)
