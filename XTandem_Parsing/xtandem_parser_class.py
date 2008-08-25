@@ -111,7 +111,9 @@ class XT_xml:
                 temp_dict[pep.protID] = [pep]
         
         return temp_dict
-        
+    
+    
+    
         
 
 def onpick(event):

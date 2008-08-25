@@ -30,6 +30,7 @@ from matplotlib.widgets import SpanSelector
 import ui_main
 from mpl_custom_widget import MPL_Widget
 from xtandem_parser_class import XT_xml
+import dbIO
 try:
     import psyco
     psyco.full()
@@ -86,7 +87,7 @@ class XTViewer(ui_main.Ui_MainWindow):
         #self.chromWidget.canvas.mpl_connect('pick_event', self.OnPickChrom)
         self.plotWidget.canvas.mpl_connect('pick_event', self.OnPickPlot)
 
-    def loadFile(self,  filename):
+    def loadFileXT(self,  filename):
         if filename:
             self.fileType= str(filename).split('.')[-1]
         if self.fileType == 'xml':
@@ -106,8 +107,7 @@ class XTViewer(ui_main.Ui_MainWindow):
             dataFileName = QtGui.QFileDialog.getOpenFileName(self.MainWindow,\
                                                              self.OpenDataText,\
                                                              self.__curDir, 'X!Tandem XML (*.xml)')
-            self.loadFile(dataFileName)
-#                                                             
+            self.loadFileXT(dataFileName)
                 
         else:
             if self.__askConfirm__("Data Reset",self.ResetAllDataText):
@@ -117,8 +117,19 @@ class XTViewer(ui_main.Ui_MainWindow):
                 dataFileName = QtGui.QFileDialog.getOpenFileName(self.MainWindow,\
                                                                  self.OpenDataText,\
                                                                  self.__curDir, 'X!Tandem XML (*.xml)')
-                                                                 
-                self.loadFile(dataFileName)
+                if dataFileName:
+                    self.loadFile(dataFileName)
+    
+    def __saveDataFile__(self):
+        self.curFileName = QtGui.QFileDialog.getSaveFileName(self.MainWindow,\
+                                                             self.SaveDataText,\
+                                                             self.__curDir, 'HDF5 File (*.h5)')
+        if self.curFileName:
+            if self.curFile:
+                #print "File name is: %s" % (str(self.curFileName))
+                dbIO.save_workspace(str(self.curFileName),  self.curFile)
+            else:
+                return QtGui.QMessageBox.information(self.MainWindow,'', "A X!Tandem File must be loaded first before saving")
     
     def OnPickPlot(self, event):
 #        if not isinstance(event.artist, Line2D): 
@@ -145,32 +156,7 @@ class XTViewer(ui_main.Ui_MainWindow):
         #self.updateMZTab(self.fragIndex+1)
         #print "Frag Index", self.fragIndex
         #self.spectrumTabWidget.setCurrentIndex(self.fragIndex+1)
-        
-#    def OnPickChrom(self, event):
-#        if not isinstance(event.artist, Line2D): 
-#            return True
-#         
-#        line = event.artist
-#        self.indexA = event.ind[0]        
-#        xdata = line.get_xdata()
-#        ydata = line.get_ydata()
-#        self.handleA.set_visible(True)
-#        self.handleAline.set_visible(True)
-#        self.handleA.set_data([xdata[self.indexA]], [ydata[self.indexA]])
-#        
-#        #self.mzWidget.canvas.PlotTitle = str(int(xdata[self.indexA]))
-#        #print self.indexA,  xdata[self.indexA]
-#        if self.handleAline:
-#            self.handleAline.remove()
-#        curXlim = self.chromWidget.canvas.ax.get_xlim()
-#        self.handleAline  = self.chromWidget.canvas.ax.axvline(xdata[self.indexA], ls='--',\
-#                                        alpha=.4, color='blue')
-#                                        
-#        
-#        #self.spectrumTabWidget.setCurrentIndex(0)
-#        self.getMZScan(self.indexA)
-#        self.chromWidget.canvas.ax.set_xlim(curXlim)#needed to prevent autoscale of vline cursor
-#        self.chromWidget.canvas.draw()
+
         
     def __setupPlot__(self):
         self.handleA,  = self.plotWidget.canvas.ax.plot([0], [0], 'o',\
@@ -286,8 +272,6 @@ class XTViewer(ui_main.Ui_MainWindow):
         plotCT_menu.addAction(self.actionAutoScale)
         #plotCT_menu.addAction(self.actionToggleDraw)
         plotCT_menu.exec_(self.plotTabWidget.mapToGlobal(point))
-        
-
       
     def __setMessages__(self):
         '''This function is obvious'''
@@ -315,7 +299,12 @@ class XTViewer(ui_main.Ui_MainWindow):
         self.actionAutoScale.setShortcut("Ctrl+A")
         self.plotTabWidget.addAction(self.actionAutoScale)
         QtCore.QObject.connect(self.actionAutoScale,QtCore.SIGNAL("triggered()"), self.autoscale_plot)
-        
+
+        self.actionSave = QtGui.QAction("Save File",  self.MainWindow)
+        self.actionSave.setShortcut("Ctrl+S")
+        self.MainWindow.addAction(self.actionSave)
+        QtCore.QObject.connect(self.actionSave,QtCore.SIGNAL("triggered()"), self.__saveDataFile__)
+
 #        self.actionAutoScaleChrom = QtGui.QAction("Autoscale",  self.chromWidget)
 #        self.chromWidget.addAction(self.actionAutoScaleChrom)
 #        self.actionAutoScaleChrom.setShortcut("Ctrl+Shift+A")
@@ -344,6 +333,7 @@ class XTViewer(ui_main.Ui_MainWindow):
         
         '''File menu actions slots'''
         QtCore.QObject.connect(self.action_Open,QtCore.SIGNAL("triggered()"),self.__readDataFile__)
+        #QtCore.QObject.connect(self.action_Save,QtCore.SIGNAL("triggered()"),self.__saveDataFile__)
         QtCore.QObject.connect(self.actionFileOpen,QtCore.SIGNAL("triggered()"),self.__readDataFile__)
         QtCore.QObject.connect(self.actionAbout,QtCore.SIGNAL("triggered()"),self.__showAbout__)
         QtCore.QObject.connect(self.actionHints,QtCore.SIGNAL("triggered()"),self.__showHints__)
