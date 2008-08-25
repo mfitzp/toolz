@@ -124,6 +124,7 @@
      <string>&amp;File</string>
     </property>
     <addaction name="action_Open" />
+    <addaction name="action_Save" />
     <addaction name="action_Exit" />
    </widget>
    <widget class="QMenu" name="menu_Edit" >
@@ -174,6 +175,7 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionFileOpen" />
+   <addaction name="actionFileSave" />
    <addaction name="actionRunScript" />
   </widget>
   <action name="action_Edit" >

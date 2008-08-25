@@ -3,16 +3,16 @@ from xml.etree import cElementTree as ET
 import numpy as N
 import time
 
-try:
-    import psyco
-    psyco.full()
-except:
-    print "No psyco..."
+#try:
+#    import psyco
+#    psyco.full()
+#except:
+#    print "No psyco..."
     
 from xtandem_peptide import XT_peptide, XT_protein
 
 class XT_xml:
-    def __init__(self, fileName,  evalue_cutoff = None,  ppm_cutoff = None):
+    def __init__(self, fileName,  parseFile = True,  evalue_cutoff = None,  ppm_cutoff = None):
         #t1 = time.clock()   
         self.fileName = fileName
         
@@ -28,79 +28,120 @@ class XT_xml:
         #def parseXtandemResults(fileName):
         
         #self.pep_results = []
+        self.ppm_errors = None
+        self.theoMZs = None
+        self.scanIndex = None
+        self.pro_eVals = None
+        self.pep_eValues = None
+        self.pepLengths = None
+        self.hScores = None
+        self.nextScores = None
+        
+        self.pepIDs = []
+        self.proIDs = []
+        
         ppm_errors = []
         theoMZs = []
         scanIndex = []
         pro_eVals=[]
-        self.prot_IDs = []
         pep_eValues=[]
-        self.pep_IDs = []
         hScores = []
         nextScores = []
         pepLengths = []
         
         self.prot_dict = None
         
-        pttrn = re.compile('.*scan=(\d+)\s.*')
-        tree = ET.parse(fileName)
-        r = tree.getroot()
-  
-        n = 0
-        for c in r.getchildren():
-            if c.attrib['label'] != 'no model obtained':
-                description = c.find('group').find('note').text
-                scan = pttrn.match(description).group(1)
-                mhObs  = c.attrib['mh']
-                charge = c.attrib['z']
-                mzObs = (float(mhObs)+(int(charge)-1)*1.00727646688)/int(charge)        
-                for protein in c.findall('protein'):
-                    protID = protein.attrib['label']
-                    pro_eVal = float(protein.attrib['expect'])
-                    #prot_result = XT_protein(protID,  pro_eVal)
-                    for peptide in protein.findall('peptide'):
-                        for domain in peptide.findall('domain'):
-                            pepSeq = domain.attrib['seq']
-                            mhTheor = domain.attrib['mh']
-                            eValue = float(domain.attrib['expect'])
-                            hscore = float(domain.attrib['hyperscore'])
-                            nextscore = float(domain.attrib['nextscore'])
-                            mzTheor = (float(mhTheor)+(int(charge)-1)*1.00727646688)/int(charge)
-                            ppm = 1e6*(mzObs-mzTheor)/mzTheor
-                            #print type(eValue)
-                            #print type(ppm)
-                            if eValue < self.evalue_cutoff and abs(ppm) < self.ppm_cutoff:
-                                ppm_errors.append(float(ppm))
-                                theoMZs.append(mzTheor)
-                                scanIndex.append(int(scan))
-                                pro_eVals.append(pro_eVal)
-                                self.prot_IDs.append(protID)
-                                pep_eValues.append(eValue)
-                                self.pep_IDs.append(pepSeq)
-                                pepLengths.append(len(pepSeq))
-                                hScores.append(hscore)
-                                nextScores.append(nextscore)
-                                
-                                #pep_result = XT_peptide(float(ppm), mzTheor, int(scan), pro_eVal, protID, eValue, pepSeq, hscore, nextscore)
-                                #prot_result.addXTpep(pep_result)
-                                #self.pep_results.append(pep_result)
-                    #results.append(prot_result)
-        #return {fileName:getProtDict(results)}
-        #self.prot_dict = self.getProtDict(self.pep_results)
-        #self.pep_results = N.array(self.pep_results)
-        self.ppm_errors = N.array(ppm_errors)
-        self.theoMZs = N.array(theoMZs)
-        self.scanIndex = N.array(scanIndex)
-        self.pro_eVals = N.array(pro_eVals)
-        self.pep_eValues = N.array(pep_eValues)
-        self.pepLengths = N.array(pepLengths)
-        #print type(hScores)
-        #print type(nextScores)
-        self.hScores = N.array(hScores)
-        self.nextScores = N.array(nextScores)
-        #t2 = time.clock()   
-        #print t2-t1,  'sec'
-        
-        
+        if parseFile:        
+            pttrn = re.compile('.*scan=(\d+)\s.*')
+            tree = ET.parse(fileName)
+            r = tree.getroot()
+      
+            n = 0
+            for c in r.getchildren():
+                if c.attrib['label'] != 'no model obtained':
+                    description = c.find('group').find('note').text
+                    scan = pttrn.match(description).group(1)
+                    mhObs  = c.attrib['mh']
+                    charge = c.attrib['z']
+                    mzObs = (float(mhObs)+(int(charge)-1)*1.00727646688)/int(charge)        
+                    for protein in c.findall('protein'):
+                        protID = protein.attrib['label']
+                        pro_eVal = float(protein.attrib['expect'])
+                        #prot_result = XT_protein(protID,  pro_eVal)
+                        for peptide in protein.findall('peptide'):
+                            for domain in peptide.findall('domain'):
+                                pepSeq = domain.attrib['seq']
+                                mhTheor = domain.attrib['mh']
+                                eValue = float(domain.attrib['expect'])
+                                hscore = float(domain.attrib['hyperscore'])
+                                nextscore = float(domain.attrib['nextscore'])
+                                mzTheor = (float(mhTheor)+(int(charge)-1)*1.00727646688)/int(charge)
+                                ppm = 1e6*(mzObs-mzTheor)/mzTheor
+                                #print type(eValue)
+                                #print type(ppm)
+                                if eValue < self.evalue_cutoff and abs(ppm) < self.ppm_cutoff:
+                                    ppm_errors.append(float(ppm))
+                                    theoMZs.append(mzTheor)
+                                    scanIndex.append(int(scan))
+                                    pro_eVals.append(pro_eVal)
+                                    self.proIDs.append(protID)
+                                    pep_eValues.append(eValue)
+                                    self.pepIDs.append(pepSeq)
+                                    pepLengths.append(len(pepSeq))
+                                    hScores.append(hscore)
+                                    nextScores.append(nextscore)
+                                    
+                                    #pep_result = XT_peptide(float(ppm), mzTheor, int(scan), pro_eVal, protID, eValue, pepSeq, hscore, nextscore)
+                                    #prot_result.addXTpep(pep_result)
+                                    #self.pep_results.append(pep_result)
+                        #results.append(prot_result)
+            #return {fileName:getProtDict(results)}
+            #self.prot_dict = self.getProtDict(self.pep_results)
+            #self.pep_results = N.array(self.pep_results)
+            self.ppm_errors = N.array(ppm_errors)
+            self.theoMZs = N.array(theoMZs)
+            self.scanIndex = N.array(scanIndex)
+            self.pro_eVals = N.array(pro_eVals)
+            self.pep_eValues = N.array(pep_eValues)
+            self.pepLengths = N.array(pepLengths)
+            #print type(hScores)
+            #print type(nextScores)
+            self.hScores = N.array(hScores)
+            self.nextScores = N.array(nextScores)
+            #t2 = time.clock()   
+            #print t2-t1,  'sec'
+    
+    def setArrays(self, arrayDict):
+        '''Need to be in the following order:
+        [
+        pepIDs = []
+        pep_eValues= []
+        scanIndex = []
+        ppm_errors = []
+        theoMZs = []
+        hScores = []
+        nextScores = []
+        pepLengths= []
+        proIDs = []
+        pro_eVals
+        ]
+        '''
+        if arrayDict:
+            self.pepIDs = arrayDict.get('pepIDs')
+            self.pep_eValues= arrayDict.get('pep_eValues')
+            self.scanIndex = arrayDict.get('scanIndex')
+            self.ppm_errors = arrayDict.get('ppm_errors')
+            self.theoMZs = arrayDict.get('theoMZs')
+            self.hScores = arrayDict.get('hScores')
+            self.nextScores = arrayDict.get('nextScores')
+            self.pepLengths= arrayDict.get('pepLengths')
+            self.proIDs = arrayDict.get('proIDs')
+            self.pro_eVals = arrayDict.get('pro_eVals')
+    
+    def setFN(self, fileName):
+        if fileName:
+            self.fileName = fileName
+            
     def getProtDict(self,  XT_peplist):
         '''Accepts a list of peptides parsed from an X-Tandem xml file'''
         temp_dict = {}
