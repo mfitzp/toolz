@@ -72,7 +72,7 @@ class XTandemDB(object):
         pro_eVal REAL)'
             %tableName)
             
-    def get_XTValues(self, tableName, XT_xml):
+    def READ_XT_VALUES(self, tableName, XT_xml):
         t1 = time.clock()
         
         pepIDs = []

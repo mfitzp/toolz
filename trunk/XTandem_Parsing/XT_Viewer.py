@@ -37,6 +37,11 @@ import dbIO
 #except:
 #    print "Pysco not installed, try easy_install psyco at your command prompt"
 
+plot_colors = ['#297AA3','#A3293D','#3B9DCE','#293DA3','#5229A3','#8F29A3','#A3297A','#A35229',
+'#7AA329','#3DA329','#29A352','#29A38F','#A38F29','#3B9DCE','#6CB6DA','#CE6C3B','#DA916C',
+'#0080FF','#0000FF','#8000FF','#FF0080','#FF0000','#FF8000','#FFFF00','#80FF00',
+'#00FF00','#00FF80','#00FFFF','#3D9EFF','#7ABDFF','#FF9E3D','#FFBD7A']
+
 class XTViewer(ui_main.Ui_MainWindow):
     def __init__(self, MainWindow):
         self.MainWindow = MainWindow
@@ -50,7 +55,6 @@ class XTViewer(ui_main.Ui_MainWindow):
         self.startup()
         
         self.drawProfile = True
-    
  
     def startup(self):
 
@@ -63,11 +67,25 @@ class XTViewer(ui_main.Ui_MainWindow):
         self.deltascore=[]
         
         self.drawProfile = True
-        
+        self.plot_num = 0
         self.plotTabWidget.setCurrentIndex(0)
         
-        self.__setupPlot__()
+        self.curSelectInfo = {
+        'Index': None, 
+        'Peptide': None, 
+        'Peptide e-Value' : None, 
+        'Scan' : None, 
+        'ppm Error':None,
+        'Theoretical MZ':None, 
+        'Hyperscore':None,
+        'Next Hyperscore':None,
+        'Peptide Length':None, 
+        'Protein ID':None, 
+        'Protein e-Value':None
+        }
 
+        
+        self.__setupPlot__()
 
         self.plotWidget.canvas.mpl_connect('pick_event', self.OnPickPlot)
 
@@ -88,7 +106,7 @@ class XTViewer(ui_main.Ui_MainWindow):
         elif self.fileType == 'db':
             self.curFile = XT_xml(filename,  parseFile = False)      
             sqldb = dbIO.XTandemDB(str(filename), "testTables", createNew = False)#NEED TO FIX THE NAME
-            sqldb.get_XTValues(sqldb.curTblName, self.curFile)
+            sqldb.READ_XT_VALUES(sqldb.curTblName, self.curFile)
             sqldb.close()  
             self.initiatePlot()
             self.firstLoad = False
@@ -145,6 +163,7 @@ class XTViewer(ui_main.Ui_MainWindow):
         self.textHandle = self.plotWidget.canvas.ax.text(0.03, 0.95, showText, fontsize=9,\
                                         bbox=dict(facecolor='yellow', alpha=0.1),\
                                         transform=self.plotWidget.canvas.ax.transAxes, va='top')
+        self.updateSelectInfo(self.pickIndex)
         self.plotWidget.canvas.draw()
 
         
@@ -156,33 +175,11 @@ class XTViewer(ui_main.Ui_MainWindow):
         self.is_hZoom = False
     
     def initiatePlot(self):
-#        for item in self.curFile.pep_results:
-#            self.pep_eVal.append(item.pep_eVal)
-#            self.ppmlist.append(item.ppm)
-#            self.peplenlist.append(len(item.pep_seq)**1.5)
-#            self.pepseqlist.append(item.pep_seq)
-#            self.deltascore.append((item.hscore - item.nextscore))
-#            
-#        self.pep_eVal = N.array(self.pep_eVal)
-#        self.ppmlist = N.array(self.ppmlist)
-#        self.peplenlist = N.array(self.peplenlist)
-#        self.deltascore = N.array(self.deltascore)
-#        self.pep_results = []
-#        self.ppm_errors = []
-#        self.theoMZs = []
-#        self.scanID = []
-#        self.pro_eVals=[]
-#        self.prot_IDs = []
-#        self.pep_eValues=[]
-#        self.pep_seqs = []
-#        self.hScores = []
-#        self.nextScores = []
         
         self.x = self.curFile.dataDict.get('pep_eValues')
         self.y = (self.curFile.dataDict.get('hScores')-self.curFile.dataDict.get('nextScores'))
         sizeList = self.curFile.dataDict.get('pepLengths')**1.5
-        self.plotScatter = self.plotWidget.canvas.ax.scatter(self.x, self.y,  s = sizeList,  alpha = 0.3,  picker = 5)
-        
+        self.plotScatter = self.plotWidget.canvas.ax.scatter(self.x, self.y,  s = sizeList,  color = self.getPlotColor(),  alpha = 0.3,  picker = 5)
         self.plotWidget.canvas.ax.set_xscale('log')
         xmin = N.min(self.curFile.dataDict.get('pep_eValues'))/10
         xmax = N.max(self.curFile.dataDict.get('pep_eValues'))*10
@@ -194,17 +191,40 @@ class XTViewer(ui_main.Ui_MainWindow):
         self.plotWidget.canvas.format_labels()
         self.plotWidget.canvas.draw()
     
-   
+    def getPlotColor(self):
+        color = plot_colors[self.plot_num]
+        if self.plot_num is len(plot_colors)-1:
+            self.plot_num = 0
+        else:
+            self.plot_num+=1
+        return color
     
-    def updateScanInfo(self):
+    
+    
+    def updateSelectInfo(self,  index):
+
+        self.curSelectInfo['Index'] = str(index)
+        self.curSelectInfo['Peptide'] = self.curFile.dataDict.get('pepIDs')[index]
+        self.curSelectInfo['Peptide e-Value'] = str(self.curFile.dataDict.get('pep_eValues')[index])
+        self.curSelectInfo['Scan'] =str(self.curFile.dataDict.get('scanID')[index])
+        self.curSelectInfo['ppm Error'] =str(self.curFile.dataDict.get('ppm_errors')[index])
+        self.curSelectInfo['Theoretical MZ'] =str(self.curFile.dataDict.get('theoMZs')[index])
+        self.curSelectInfo['Hyperscore'] =str(self.curFile.dataDict.get('hScores')[index])
+        self.curSelectInfo['Next Hyperscore'] =str(self.curFile.dataDict.get('nextScores')[index])
+        self.curSelectInfo['Peptide Length'] =str(self.curFile.dataDict.get('pepLengths')[index])
+        self.curSelectInfo['Protein ID'] =self.curFile.dataDict.get('proIDs')[index]
+        self.curSelectInfo['Protein e-Value'] =str(self.curFile.dataDict.get('pro_eVals')[index])
+        
         n = 0
-        for item in self.curScanInfo.iteritems():
+        for item in self.curSelectInfo.iteritems():
             m = 0
             for entry in item:
                 newitem = QtGui.QTableWidgetItem(entry)
-                self.tableWidget.setItem(n,  m,  newitem)
+                self.SelectInfoWidget.setItem(n,  m,  newitem)
                 m+=1
             n+=1
+        
+        self.SelectInfoWidget.resizeColumnsToContents()
 
     
     def ZoomToggle(self):
@@ -240,20 +260,6 @@ class XTViewer(ui_main.Ui_MainWindow):
         #self.mzWidget.connect(self.mzWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self.mzWidgetContext)
         #self.chromWidget.connect(self.chromWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self.chromWidgetContext)
         self.plotTabWidget.connect(self.plotTabWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self.plotTabContext)
-
-#    def mzWidgetContext(self, point):
-#        '''Create a menu for mzWidget'''
-#        mzct_menu = QtGui.QMenu("Menu", self.mzWidget)
-#        mzct_menu.addAction(self.hZoom)
-#        mzct_menu.addAction(self.actionAutoScale)
-#        mzct_menu.exec_(self.mzWidget.mapToGlobal(point))
-#    
-#    def chromWidgetContext(self, point):
-#        '''Create a menu for mzWidget'''
-#        chromct_menu = QtGui.QMenu("Menu", self.chromWidget)
-#        chromct_menu.addAction(self.hZoomChrom)
-#        chromct_menu.addAction(self.actionAutoScaleChrom)
-#        chromct_menu.exec_(self.chromWidget.mapToGlobal(point))
     
     def plotTabContext(self, point):
         '''Create a menu for plotTabWidget'''
@@ -295,30 +301,14 @@ class XTViewer(ui_main.Ui_MainWindow):
 #        self.MainWindow.addAction(self.actionSave)
 #        QtCore.QObject.connect(self.actionSave,QtCore.SIGNAL("triggered()"), self.__saveDataFile__)
 
-#        self.actionAutoScaleChrom = QtGui.QAction("Autoscale",  self.chromWidget)
-#        self.chromWidget.addAction(self.actionAutoScaleChrom)
-#        self.actionAutoScaleChrom.setShortcut("Ctrl+Shift+A")
-#        QtCore.QObject.connect(self.actionAutoScaleChrom,QtCore.SIGNAL("triggered()"), self.autoscaleChrom)
 #        
 #        self.hZoomChrom = QtGui.QAction("Horizontal Zoom",  self.chromWidget)
 #        self.chromWidget.addAction(self.hZoomChrom)
 #        self.hZoomChrom.setShortcut("Ctrl+Shift+Z")
 #        QtCore.QObject.connect(self.hZoomChrom,QtCore.SIGNAL("triggered()"), self.hZoomToggleChrom)
         
-#        self.actionToggleDraw = QtGui.QAction("Toggle Draw Style",  self.spectrumTabWidget)
-#        self.spectrumTabWidget.addAction(self.actionToggleDraw)
-#        self.actionToggleDraw.setShortcut("Ctrl+D")
-#        QtCore.QObject.connect(self.actionToggleDraw,QtCore.SIGNAL("triggered()"), self.toggleDraw)
-        
-#        self.actionScanUp = QtGui.QAction("",  self.chromWidget)
-#        self.chromWidget.addAction(self.actionScanUp)
-#        self.actionScanUp.setShortcut("Up")
-#        QtCore.QObject.connect(self.actionScanUp,QtCore.SIGNAL("triggered()"), self.scanUp)
-#        
-#        self.actionScanDown = QtGui.QAction("",  self.chromWidget)
-#        self.chromWidget.addAction(self.actionScanDown)
-#        self.actionScanDown.setShortcut("Down")
-#        QtCore.QObject.connect(self.actionScanDown,QtCore.SIGNAL("triggered()"), self.scanDown)
+        '''Database Connection slots'''
+        QtCore.QObject.connect(self.openDBButton, QtCore.SIGNAL("clicked()"), self.setDBConnection)
         
         
         '''File menu actions slots'''
@@ -328,23 +318,23 @@ class XTViewer(ui_main.Ui_MainWindow):
         QtCore.QObject.connect(self.actionAbout,QtCore.SIGNAL("triggered()"),self.__showAbout__)
         QtCore.QObject.connect(self.actionHints,QtCore.SIGNAL("triggered()"),self.__showHints__)
         QtCore.QObject.connect(self.action_Exit,QtCore.SIGNAL("triggered()"),self.__exitProgram__)
-        #QtCore.QObject.connect(self.spectrumTabWidget,QtCore.SIGNAL("currentChanged(int)"),self.updateMZTab)
+
         QtCore.QMetaObject.connectSlotsByName(self.MainWindow)
     
-#    def scanUp(self):
-#        if self.curScanId:
-#            #self.curScanId+=1
-#            #self.getMZScan(self.curScanId, 1)
-#            #self.scanSBox.setValue(self.curScanId)
-#            print "Up"
-#    
-#    def scanDown(self):
-#        if self.curScanId:
-#            #self.curScanId-=1
-#            #self.getMZScan(self.curScanId,  0)
-#            #self.scanSBox.setValue(self.curScanId)
-#            print "Down"
+
+
+    def setDBConnection(self):    
+        dbName = QtGui.QFileDialog.getOpenFileName(self.MainWindow,\
+                                         'Select Database: ',\
+                                         self.__curDir, 'SQLite Database (*.db)')
+        if not dbName.isEmpty():
+            #print "Go Joe"
+            self.curDBPathName.setText(dbName)
+            #self.dbConnectRB    
     
+    
+    
+###########################################################    
     def __exitProgram__(self):
         if self.okToExit():
             self.MainWindow.close()
@@ -374,14 +364,14 @@ class XTViewer(ui_main.Ui_MainWindow):
   
     def __showAbout__(self):
         return QtGui.QMessageBox.information(self.MainWindow,
-                                            ("mzViewer V.0.1, July, 2008"),
-                                            ("<p><b>mzViewer</b> was written in Python by Brian H. Clowers (bhclowers@gmail.com).</p>"
+                                            ("X!Tandem Viewer V.0.1, August, 2008"),
+                                            ("<p><b>X!Tandem Viewer</b> was written in Python by Brian H. Clowers (bhclowers@gmail.com).</p>"
         "<p>Please keep in mind that the entire effort is very much a"
         " work in progress and that Brian won't quit his day job for programming."
-        " The original purpose of mzViewer was to provide a user-friendly, open-source tool"
-        " for examining common mass spectrometry data formats (e.g. mzXML, mzData, and mzML"
-        " using numpy and matplotlib.  Feel free to update"
-        " (preferably with documentation) mzViewer and please share your contributions"
+        " The original purpose of X!Tandem Viewer was to provide a user-friendly, open-source tool"
+        " for examining X!Tandem xml files and link them to a SQLite Database for further exploration "
+        " and concatenation of replicate experiments.  Please feel free to update X!Tandem Viewer"
+        " (preferably with documentation) and please share your contributions"
         " with the rest of the community.</p>"))
         
 
