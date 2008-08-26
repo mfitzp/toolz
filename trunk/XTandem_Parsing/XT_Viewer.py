@@ -47,7 +47,6 @@ class XTViewer(ui_main.Ui_MainWindow):
         self.__setMessages__()
         self.__initContextMenus__()
         self.__setupPlot__()
-        #self.__setupMZ__()
         self.startup()
         
         self.drawProfile = True
@@ -62,29 +61,14 @@ class XTViewer(ui_main.Ui_MainWindow):
         self.peplenlist=[]
         self.pepseqlist=[]
         self.deltascore=[]
-        #self.basePeak = True
-        #self.TIC = False
-        #self.curParentScan = None
-        #self.curScanInfo = None
-        #self.curScanId = None#current index
-        #self.fragScanList = []
-        #self.fragPlotList = []
-        #self.scanInfoList = []
-        #self.fragPlotted = 0#used to keep track of whether or not a fragment has been plotted
-        #self.fragIndex = None
         
         self.drawProfile = True
         
         self.plotTabWidget.setCurrentIndex(0)
-#        numTabs = self.spectrumTabWidget.count()
-#        j=1
-#        for i in range(1, numTabs):#this is a weird loop because each time you kill a tab it reorders the whole bunch
-#            self.spectrumTabWidget.removeTab(j)        
         
         self.__setupPlot__()
-        #self.__setupMZ__()
-        
-        #self.chromWidget.canvas.mpl_connect('pick_event', self.OnPickChrom)
+
+
         self.plotWidget.canvas.mpl_connect('pick_event', self.OnPickPlot)
 
     def loadFileXT(self,  filename):
@@ -92,15 +76,20 @@ class XTViewer(ui_main.Ui_MainWindow):
             self.fileType= str(filename).split('.')[-1]
         if self.fileType == 'xml':
             self.curFile = XT_xml(filename)
-            #self.curFile.getDocument(dataFileName)
             self.initiatePlot()
-            #self.getMZScan(0)
             self.firstLoad = False
-#        elif self.fileType != 'xml':
-#            print "mzML Selected"
+            
         elif self.fileType == 'h5':
             self.curFile = XT_xml(filename,  parseFile = False)
-            dbIO.load_workspace(str(filename), self.curFile)
+            dbIO.load_XT_HDF5(str(filename), self.curFile)
+            self.initiatePlot()
+            self.firstLoad = False
+            
+        elif self.fileType == 'db':
+            self.curFile = XT_xml(filename,  parseFile = False)      
+            sqldb = dbIO.XTandemDB(str(filename), "testTables", createNew = False)#NEED TO FIX THE NAME
+            sqldb.get_XTValues(sqldb.curTblName, self.curFile)
+            sqldb.close()  
             self.initiatePlot()
             self.firstLoad = False
             
@@ -112,7 +101,7 @@ class XTViewer(ui_main.Ui_MainWindow):
         if self.firstLoad:
             dataFileName = QtGui.QFileDialog.getOpenFileName(self.MainWindow,\
                                                              self.OpenDataText,\
-                                                             self.__curDir, 'X!Tandem XML (*.xml);; HDF5 File (*.h5)')
+                                                             self.__curDir, 'X!Tandem XML (*.xml);; HDF5 File (*.h5);;SQLite Database (*.db)')
             if dataFileName:
                 self.loadFileXT(dataFileName)
                 
@@ -123,46 +112,40 @@ class XTViewer(ui_main.Ui_MainWindow):
                 self.startup()
                 dataFileName = QtGui.QFileDialog.getOpenFileName(self.MainWindow,\
                                                                  self.OpenDataText,\
-                                                                 self.__curDir, 'X!Tandem XML (*.xml);; HDF5 File (*.h5)')
+                                                                 self.__curDir, 'X!Tandem XML (*.xml);; HDF5 File (*.h5);;SQLite Database (*.db)')
                 if dataFileName:
                     self.loadFileXT(dataFileName)
     
     def __saveDataFile__(self):
-        self.curFileName = QtGui.QFileDialog.getSaveFileName(self.MainWindow,\
+        saveFileName = QtGui.QFileDialog.getSaveFileName(self.MainWindow,\
                                                              self.SaveDataText,\
-                                                             self.__curDir, 'HDF5 File (*.h5)')
-        if self.curFileName:
+                                                             self.__curDir, 'HDF5 File (*.h5);;SQLite Database (*.db)')
+        if saveFileName:
             if self.curFile:
                 #print "File name is: %s" % (str(self.curFileName))
-                dbIO.save_workspace(str(self.curFileName),  self.curFile)
+                fileType= str(saveFileName).split('.')[-1]
+                if fileType=='h5':
+                    dbIO.save_XT_HDF5(str(saveFileName),  self.curFile)
+                elif fileType == 'db':
+                    sqldb = dbIO.XTandemDB(str(saveFileName), "testTables")#NEED TO FIX THE NAME
+                    sqldb.INSERT_XT_VALUES(sqldb.curTblName, self.curFile)
+                    sqldb.close()
             else:
                 return QtGui.QMessageBox.information(self.MainWindow,'', "A X!Tandem File must be loaded first before saving")
     
     def OnPickPlot(self, event):
-#        if not isinstance(event.artist, Line2D): 
-#            return True
-#        line = event.artist
         self.pickIndex = event.ind[0]
-        #xdata = line.get_xdata()
         try:
-            #self.fragHandle.remove()
             self.textHandle.remove()
         except:
             pass
-        #curXlim = self.mzWidget.canvas.ax.get_xlim()
-        #self.fragHandle = self.mzWidget.canvas.ax.axvline(xdata[self.fragIndex], ls = '--', color ='green')
         self.handleA.set_data(N.take(self.x, [self.pickIndex]), N.take(self.y, [self.pickIndex]))
         self.handleA.set_visible(True)
-        showText = '%s'%(self.curFile.pepIDs[self.pickIndex])
+        showText = '%s'%(self.curFile.dataDict.get('pepIDs')[self.pickIndex])
         self.textHandle = self.plotWidget.canvas.ax.text(0.03, 0.95, showText, fontsize=9,\
                                         bbox=dict(facecolor='yellow', alpha=0.1),\
                                         transform=self.plotWidget.canvas.ax.transAxes, va='top')
         self.plotWidget.canvas.draw()
-        #self.mzWidget.canvas.ax.set_xlim(curXlim)#needed to prevent autoscale of vline cursor
-        
-        #self.updateMZTab(self.fragIndex+1)
-        #print "Frag Index", self.fragIndex
-        #self.spectrumTabWidget.setCurrentIndex(self.fragIndex+1)
 
         
     def __setupPlot__(self):
@@ -187,7 +170,7 @@ class XTViewer(ui_main.Ui_MainWindow):
 #        self.pep_results = []
 #        self.ppm_errors = []
 #        self.theoMZs = []
-#        self.scanIndex = []
+#        self.scanID = []
 #        self.pro_eVals=[]
 #        self.prot_IDs = []
 #        self.pep_eValues=[]
@@ -195,14 +178,14 @@ class XTViewer(ui_main.Ui_MainWindow):
 #        self.hScores = []
 #        self.nextScores = []
         
-        self.x = self.curFile.pep_eValues
-        self.y = (self.curFile.hScores-self.curFile.nextScores)
-        sizeList = self.curFile.pepLengths**1.5
+        self.x = self.curFile.dataDict.get('pep_eValues')
+        self.y = (self.curFile.dataDict.get('hScores')-self.curFile.dataDict.get('nextScores'))
+        sizeList = self.curFile.dataDict.get('pepLengths')**1.5
         self.plotScatter = self.plotWidget.canvas.ax.scatter(self.x, self.y,  s = sizeList,  alpha = 0.3,  picker = 5)
         
         self.plotWidget.canvas.ax.set_xscale('log')
-        xmin = N.min(self.curFile.pep_eValues)/10
-        xmax = N.max(self.curFile.pep_eValues)*10
+        xmin = N.min(self.curFile.dataDict.get('pep_eValues'))/10
+        xmax = N.max(self.curFile.dataDict.get('pep_eValues'))*10
         self.plotWidget.canvas.ax.set_xlim(xmin, xmax)        
         
         self.plotWidget.canvas.xtitle="Peptide e-Value"
