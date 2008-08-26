@@ -13,7 +13,7 @@ from xtandem_peptide import XT_peptide, XT_protein
 
 class XT_xml:
     def __init__(self, fileName,  parseFile = True,  evalue_cutoff = None,  ppm_cutoff = None):
-        #t1 = time.clock()   
+        t1 = time.clock()   
         self.fileName = fileName
         
         if evalue_cutoff:
@@ -25,24 +25,22 @@ class XT_xml:
             self.ppm_cutoff = ppm_cutoff
         else:
             self.ppm_cutoff = 2  
-        #def parseXtandemResults(fileName):
-        
-        #self.pep_results = []
+            
         self.ppm_errors = None
         self.theoMZs = None
-        self.scanIndex = None
+        self.scanID = None
         self.pro_eVals = None
         self.pep_eValues = None
         self.pepLengths = None
         self.hScores = None
         self.nextScores = None
         
-        self.pepIDs = []
-        self.proIDs = []
+        pepIDs = []
+        proIDs = []
         
         ppm_errors = []
         theoMZs = []
-        scanIndex = []
+        scanID = []
         pro_eVals=[]
         pep_eValues=[]
         hScores = []
@@ -82,41 +80,38 @@ class XT_xml:
                                 if eValue < self.evalue_cutoff and abs(ppm) < self.ppm_cutoff:
                                     ppm_errors.append(float(ppm))
                                     theoMZs.append(mzTheor)
-                                    scanIndex.append(int(scan))
+                                    scanID.append(int(scan))
                                     pro_eVals.append(pro_eVal)
-                                    self.proIDs.append(protID)
+                                    proIDs.append(protID)
                                     pep_eValues.append(eValue)
-                                    self.pepIDs.append(pepSeq)
+                                    pepIDs.append(pepSeq)
                                     pepLengths.append(len(pepSeq))
                                     hScores.append(hscore)
                                     nextScores.append(nextscore)
-                                    
-                                    #pep_result = XT_peptide(float(ppm), mzTheor, int(scan), pro_eVal, protID, eValue, pepSeq, hscore, nextscore)
-                                    #prot_result.addXTpep(pep_result)
-                                    #self.pep_results.append(pep_result)
-                        #results.append(prot_result)
-            #return {fileName:getProtDict(results)}
-            #self.prot_dict = self.getProtDict(self.pep_results)
-            #self.pep_results = N.array(self.pep_results)
-            self.ppm_errors = N.array(ppm_errors)
-            self.theoMZs = N.array(theoMZs)
-            self.scanIndex = N.array(scanIndex)
-            self.pro_eVals = N.array(pro_eVals)
-            self.pep_eValues = N.array(pep_eValues)
-            self.pepLengths = N.array(pepLengths)
-            #print type(hScores)
-            #print type(nextScores)
-            self.hScores = N.array(hScores)
-            self.nextScores = N.array(nextScores)
-            #t2 = time.clock()   
-            #print t2-t1,  'sec'
+            
+            t2 = time.clock()
+            print "Initial Read Time (s): ",(t2-t1) 
+            self.iterLen = len(scanID)
+            self.dataDict = {
+                'pepIDs': pepIDs, 
+                'pep_eValues' : N.array(pep_eValues), 
+                'scanID' : N.array(scanID), 
+                'ppm_errors':N.array(ppm_errors),
+                'theoMZs':N.array(theoMZs), 
+                'hScores':N.array(hScores),
+                'nextScores':N.array(nextScores),
+                'pepLengths':N.array(pepLengths), 
+                'proIDs':proIDs, 
+                'pro_eVals':N.array(pro_eVals)
+                }
+            
     
     def setArrays(self, arrayDict):
         '''Need to be in the following order:
         [
         pepIDs = []
         pep_eValues= []
-        scanIndex = []
+        scanID = []
         ppm_errors = []
         theoMZs = []
         hScores = []
@@ -127,16 +122,17 @@ class XT_xml:
         ]
         '''
         if arrayDict:
-            self.pepIDs = arrayDict.get('pepIDs')
-            self.pep_eValues= arrayDict.get('pep_eValues')
-            self.scanIndex = arrayDict.get('scanIndex')
-            self.ppm_errors = arrayDict.get('ppm_errors')
-            self.theoMZs = arrayDict.get('theoMZs')
-            self.hScores = arrayDict.get('hScores')
-            self.nextScores = arrayDict.get('nextScores')
-            self.pepLengths= arrayDict.get('pepLengths')
-            self.proIDs = arrayDict.get('proIDs')
-            self.pro_eVals = arrayDict.get('pro_eVals')
+            self.dataDict = arrayDict
+#            self.pepIDs = arrayDict.get('pepIDs')
+#            self.pep_eValues= arrayDict.get('pep_eValues')
+#            self.scanID = arrayDict.get('scanID')
+#            self.ppm_errors = arrayDict.get('ppm_errors')
+#            self.theoMZs = arrayDict.get('theoMZs')
+#            self.hScores = arrayDict.get('hScores')
+#            self.nextScores = arrayDict.get('nextScores')
+#            self.pepLengths= arrayDict.get('pepLengths')
+#            self.proIDs = arrayDict.get('proIDs')
+#            self.pro_eVals = arrayDict.get('pro_eVals')
     
     def setFN(self, fileName):
         if fileName:

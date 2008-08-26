@@ -6,22 +6,7 @@ import numpy as N
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtGui import QFileDialog,  QApplication
 
-
-#    def __saveDataFile__(self):
-#        self.curFileName = QtGui.QFileDialog.getSaveFileName(self.MainWindow,\
-#                                                             self.SaveDataText,\
-#                                                             self.__curDir, 'SubPlot File (*.spf);;HDF5 File (*.h5)')
-#        if self.curFileName:
-#            #print "File name is: %s" % (str(self.curFileName))
-#            hdfIO.save_workspace(str(self.curFileName),  self.localVars.getPubDict(),  self.userScratchDict,  self.plotScripts)
-#    
-#    def __saveDataFileAs__(self):
-#        dataFileName = QtGui.QFileDialog.getSaveFileName(self.MainWindow,\
-#                                                         self.SaveDataText,\
-#                                                         self.__curDir,'Pqs data (*.pqs)')
-#        if dataFileName:
-#            print dataFileName
-#            print "Currently this function does not do anything"
+import time
 
 #class dbError(object):
 #    def __init__(self, msg):
@@ -31,31 +16,111 @@ from PyQt4.QtGui import QFileDialog,  QApplication
 #        return self.msg
 #        
 class XTandemDB(object):
-    '''Represents the interface to SQLite'''
-    CREATE_RESULTS_TABLE="""
-        CREATE TABLE IF NOT EXISTS xtResults(
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            pepID TEXT,
-            pep_eVal REAL,
-            scanID INTEGER,
-            ppm_error REAL,
-            theoMZ REAL,
-            hScore REAL,
-            nextScore REAL,
-            pepLen INTEGER,
-            propsID TEST,
-            pro_eVal REAL            
-            """
-    
-    GET_ALL_RESULTS = '''SELECT * FROM xtResults'''
-    GET_ITEM_RANGE = '''SELECT * FROM xtResults WHERE ?>=? and ?<=?'''
-    
-    def __init__(self,  db):#db is the path to the database on disk
-        self. cnx = sqlite3.connect(db)
+    '''Represents the interface to SQLite'''    
+    def __init__(self,  db, tableName, createNew=True):#db is the path to the database on disk
+        self.cnx = sql.connect(db)
         self.cur = self.cnx.cursor()
-        self.cur.execute(self.CREATE_RESULTS_TABLE)
-
-
+        self.curTblName = tableName
+        try:
+            if createNew:
+                self.CREATE_RESULTS_TABLE(tableName)            
+                self.cnx.commit()
+        except:
+            self.cnx.close()
+            raise
+    
+    def getCurrentTableName(self):
+        return self.curTblName
+    
+    def INSERT_XT_VALUES(self, tableName, XT_xml):
+        t1 = time.clock()
+        for i in xrange(XT_xml.iterLen):
+            self.cur.execute(
+                            'INSERT INTO "%s" VALUES (?,?,?,?,?,?,?,?,?,?,?)'%tableName,#again I know %s is not recommended but I don't know how to do this more elegantly.
+                            (
+                            i, 
+                            XT_xml.dataDict.get('pepIDs')[i], 
+                            XT_xml.dataDict.get('pep_eValues')[i], 
+                            XT_xml.dataDict.get('scanID')[i], 
+                            XT_xml.dataDict.get('ppm_errors')[i], 
+                            XT_xml.dataDict.get('theoMZs')[i], 
+                            XT_xml.dataDict.get('hScores')[i], 
+                            XT_xml.dataDict.get('nextScores')[i], 
+                            XT_xml.dataDict.get('pepLengths')[i], 
+                            XT_xml.dataDict.get('proIDs')[i], 
+                            XT_xml.dataDict.get('pro_eVals')[i] 
+                            ))
+        self.cnx.commit()
+        t2 = time.clock()
+        print "SQLite Commit Time (s): ", (t2-t1)
+        
+    def close(self):
+        self.cnx.close()
+        
+    def CREATE_RESULTS_TABLE(self, tableName):
+        self.curTblName = tableName
+        self.cur.execute('CREATE TABLE IF NOT EXISTS "%s"(id INTEGER PRIMARY KEY AUTOINCREMENT,\
+        pepID TEXT,\
+        pep_eVal REAL,\
+        scanID INTEGER,\
+        ppm_error REAL,\
+        theoMZ REAL,\
+        hScore REAL,\
+        nextScore REAL,\
+        pepLen INTEGER,\
+        proID TEXT,\
+        pro_eVal REAL)'
+            %tableName)
+            
+    def get_XTValues(self, tableName, XT_xml):
+        t1 = time.clock()
+        
+        pepIDs = []
+        pep_eValues= []
+        scanID = []
+        ppm_errors = []
+        theoMZs = []
+        hScores = []
+        nextScores = []
+        pepLengths= []
+        proIDs = []
+        pro_eVals = []
+        
+        self.cur.execute('SELECT * FROM "%s"'%tableName)
+        for row in self.cur.fetchall():
+            pepIDs.append(row[1])
+            pep_eValues.append(row[2])
+            scanID.append(row[3])
+            ppm_errors.append(row[4])
+            theoMZs.append(row[5])
+            hScores.append(row[6])
+            nextScores.append(row[7])
+            pepLengths.append(row[8])
+            proIDs.append(row[9])
+            pro_eVals.append(row[10])
+            
+        arrayDict = {
+                'pepIDs': pepIDs, 
+                'pep_eValues' : N.array(pep_eValues), 
+                'scanID' : N.array(scanID), 
+                'ppm_errors':N.array(ppm_errors),
+                'theoMZs':N.array(theoMZs), 
+                'hScores':N.array(hScores),
+                'nextScores':N.array(nextScores),
+                'pepLengths':N.array(pepLengths), 
+                'proIDs':proIDs, 
+                'pro_eVals':N.array(pro_eVals)
+                }
+        XT_xml.setArrays(arrayDict)
+        XT_xml.setFN(tableName)    
+        self.curTblName=tableName
+        
+        t2 = time.clock()
+        print "SQLite Read Time (s): ", (t2-t1)
+        
+#############################################        
+'''Begin HDF5 and PyTables Interface'''
+#############################################
 #Row class for PyTables
 class XTResultsTable(IsDescription):
     idnum = Int32Col()
@@ -70,7 +135,7 @@ class XTResultsTable(IsDescription):
     proID = StringCol(64)
     pro_eVal = Float64Col()
     
-def save_workspace(filename, xtXML):
+def save_XT_HDF5(filename, xtXML):
     #xtXML is an instance of XT_xml found i xtandem_parse_class.py
     
     xtTbl = True
@@ -83,18 +148,18 @@ def save_workspace(filename, xtXML):
         pepTbl.attrs.origFileName = str(xtXML.fileName)
         xtTbl = False
         peptide = pepTbl.row
-        for i in xrange(len(xtXML.scanIndex)):
+        for i in xrange(len(xtXML.dataDict.get('scanID'))):
             peptide['idnum'] = i
-            peptide['pepID'] = xtXML.pepIDs[i]
-            peptide['pep_eVal'] = xtXML. pep_eValues[i]
-            peptide['scanID'] = xtXML.scanIndex[i]
-            peptide['ppm_error'] = xtXML.ppm_errors[i]
-            peptide['theoMZ'] = xtXML.theoMZs[i]
-            peptide['hScore'] = xtXML.hScores[i]
-            peptide['nextScore'] = xtXML.nextScores[i]
-            peptide['pepLen'] = xtXML.pepLengths[i]
-            peptide['proID'] = xtXML.proIDs[i]
-            peptide['pro_eVal'] = xtXML.pro_eVals[i]
+            peptide['pepID'] = xtXML.dataDict.get('pepIDs')[i]
+            peptide['pep_eVal'] = xtXML.dataDict.get('pep_eValues')[i]
+            peptide['scanID'] = xtXML.dataDict.get('scanID')[i]
+            peptide['ppm_error'] = xtXML.dataDict.get('ppm_errors')[i]
+            peptide['theoMZ'] = xtXML.dataDict.get('theoMZs')[i]
+            peptide['hScore'] = xtXML.dataDict.get('hScores')[i]
+            peptide['nextScore'] = xtXML.dataDict.get('nextScores')[i]
+            peptide['pepLen'] = xtXML.dataDict.get('pepLengths')[i]
+            peptide['proID'] = xtXML.dataDict.get('proIDs')[i]
+            peptide['pro_eVal'] = xtXML.dataDict.get('pro_eVals')[i]
 
             peptide.append()
 
@@ -103,12 +168,12 @@ def save_workspace(filename, xtXML):
         pepTbl.flush()  
     hdf.close()
 
-def load_workspace(filename,  xtXML):
+def load_XT_HDF5(filename,  xtXML):
     if os.path.isfile(filename):
         
         pepIDs = []
         pep_eValues= []
-        scanIndex = []
+        scanID = []
         ppm_errors = []
         theoMZs = []
         hScores = []
@@ -128,7 +193,7 @@ def load_workspace(filename,  xtXML):
                     for row in node.iterrows():
                         pepIDs.append(row['pepID'])
                         pep_eValues.append(row['pep_eVal'])
-                        scanIndex.append(row['scanID'])
+                        scanID.append(row['scanID'])
                         ppm_errors.append(row['ppm_error'])
                         theoMZs.append(row['theoMZ'])
                         hScores.append(row['hScore'])
@@ -142,7 +207,7 @@ def load_workspace(filename,  xtXML):
         arrayDict = {
                         'pepIDs': pepIDs, 
                         'pep_eValues' : N.array(pep_eValues), 
-                        'scanIndex' : N.array(scanIndex), 
+                        'scanID' : N.array(scanID), 
                         'ppm_errors':N.array(ppm_errors),
                         'theoMZs':N.array(theoMZs), 
                         'hScores':N.array(hScores),
