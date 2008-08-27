@@ -1,4 +1,4 @@
-import os
+import os, sys
 import sqlite3 as sql
 from tables import *
 import numpy as N
@@ -15,12 +15,17 @@ import time
 #    def __str__(self):
 #        return self.msg
 #        
-class XTandemDB(object):
+class XT_DB(object):#X!Tandem Database Class
     '''Represents the interface to SQLite'''    
     def __init__(self,  db, tableName, createNew=True):#db is the path to the database on disk
-        self.cnx = sql.connect(db)
-        self.cur = self.cnx.cursor()
-        self.curTblName = tableName
+        self.dbOK = True
+        try:
+            self.cnx = sql.connect(db)
+            self.cur = self.cnx.cursor()
+            self.curTblName = tableName
+        except:
+            self.errorMsg = "Sorry: %s:%s"%(sys.exc_type, sys.exc_value)
+            self.dbOK = False
         try:
             if createNew:
                 self.CREATE_RESULTS_TABLE(tableName)            
@@ -32,23 +37,23 @@ class XTandemDB(object):
     def getCurrentTableName(self):
         return self.curTblName
     
-    def INSERT_XT_VALUES(self, tableName, XT_xml):
+    def INSERT_XT_VALUES(self, tableName, XT_RESULTS):
         t1 = time.clock()
-        for i in xrange(XT_xml.iterLen):
+        for i in xrange(XT_RESULTS.iterLen):
             self.cur.execute(
                             'INSERT INTO "%s" VALUES (?,?,?,?,?,?,?,?,?,?,?)'%tableName,#again I know %s is not recommended but I don't know how to do this more elegantly.
                             (
                             i, 
-                            XT_xml.dataDict.get('pepIDs')[i], 
-                            XT_xml.dataDict.get('pep_eValues')[i], 
-                            XT_xml.dataDict.get('scanID')[i], 
-                            XT_xml.dataDict.get('ppm_errors')[i], 
-                            XT_xml.dataDict.get('theoMZs')[i], 
-                            XT_xml.dataDict.get('hScores')[i], 
-                            XT_xml.dataDict.get('nextScores')[i], 
-                            XT_xml.dataDict.get('pepLengths')[i], 
-                            XT_xml.dataDict.get('proIDs')[i], 
-                            XT_xml.dataDict.get('pro_eVals')[i] 
+                            XT_RESULTS.dataDict.get('pepIDs')[i], 
+                            XT_RESULTS.dataDict.get('pep_eValues')[i], 
+                            XT_RESULTS.dataDict.get('scanID')[i], 
+                            XT_RESULTS.dataDict.get('ppm_errors')[i], 
+                            XT_RESULTS.dataDict.get('theoMZs')[i], 
+                            XT_RESULTS.dataDict.get('hScores')[i], 
+                            XT_RESULTS.dataDict.get('nextScores')[i], 
+                            XT_RESULTS.dataDict.get('pepLengths')[i], 
+                            XT_RESULTS.dataDict.get('proIDs')[i], 
+                            XT_RESULTS.dataDict.get('pro_eVals')[i] 
                             ))
         self.cnx.commit()
         t2 = time.clock()
@@ -72,7 +77,7 @@ class XTandemDB(object):
         pro_eVal REAL)'
             %tableName)
             
-    def READ_XT_VALUES(self, tableName, XT_xml):
+    def READ_XT_VALUES(self, tableName, XT_RESULTS):
         t1 = time.clock()
         
         pepIDs = []
@@ -111,8 +116,8 @@ class XTandemDB(object):
                 'proIDs':proIDs, 
                 'pro_eVals':N.array(pro_eVals)
                 }
-        XT_xml.setArrays(arrayDict)
-        XT_xml.setFN(tableName)    
+        XT_RESULTS.setArrays(arrayDict)
+        XT_RESULTS.setFN(tableName)    
         self.curTblName=tableName
         
         t2 = time.clock()
@@ -136,7 +141,7 @@ class XTResultsTable(IsDescription):
     pro_eVal = Float64Col()
     
 def save_XT_HDF5(filename, xtXML):
-    #xtXML is an instance of XT_xml found i xtandem_parse_class.py
+    #xtXML is an instance of XT_RESULTS found i xtandem_parse_class.py
     
     xtTbl = True
     

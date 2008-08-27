@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\SVN\toolz\XTandem_Parsing\main.ui'
 #
-# Created: Tue Aug 26 10:53:40 2008
+# Created: Tue Aug 26 18:01:12 2008
 #      by: PyQt4 UI code generator 4.3.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -12,7 +12,7 @@ from PyQt4 import QtCore, QtGui
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(QtCore.QSize(QtCore.QRect(0,0,1085,853).size()).expandedTo(MainWindow.minimumSizeHint()))
+        MainWindow.resize(QtCore.QSize(QtCore.QRect(0,0,1073,813).size()).expandedTo(MainWindow.minimumSizeHint()))
         MainWindow.setMinimumSize(QtCore.QSize(0,25))
 
         font = QtGui.QFont()
@@ -31,8 +31,8 @@ class Ui_MainWindow(object):
         self.hboxlayout1 = QtGui.QHBoxLayout()
         self.hboxlayout1.setObjectName("hboxlayout1")
 
-        self.plotTabWidget = QtGui.QTabWidget(self.centralwidget)
-        self.plotTabWidget.setObjectName("plotTabWidget")
+        self.mainTabWidget = QtGui.QTabWidget(self.centralwidget)
+        self.mainTabWidget.setObjectName("mainTabWidget")
 
         self.plotTab = QtGui.QWidget()
         self.plotTab.setObjectName("plotTab")
@@ -43,84 +43,178 @@ class Ui_MainWindow(object):
         self.plotWidget = MPL_Widget(self.plotTab)
         self.plotWidget.setObjectName("plotWidget")
         self.hboxlayout2.addWidget(self.plotWidget)
-        self.plotTabWidget.addTab(self.plotTab,"")
+        self.mainTabWidget.addTab(self.plotTab,"")
 
         self.configTab = QtGui.QWidget()
         self.configTab.setObjectName("configTab")
 
-        self.hboxlayout3 = QtGui.QHBoxLayout(self.configTab)
+        self.widget = QtGui.QWidget(self.configTab)
+        self.widget.setGeometry(QtCore.QRect(10,10,765,578))
+        self.widget.setObjectName("widget")
+
+        self.gridlayout = QtGui.QGridLayout(self.widget)
+        self.gridlayout.setObjectName("gridlayout")
+
+        self.label_4 = QtGui.QLabel(self.widget)
+        self.label_4.setObjectName("label_4")
+        self.gridlayout.addWidget(self.label_4,0,0,1,1)
+
+        self.label_5 = QtGui.QLabel(self.widget)
+        self.label_5.setObjectName("label_5")
+        self.gridlayout.addWidget(self.label_5,0,1,1,1)
+
+        self.db_TableList = QtGui.QListWidget(self.widget)
+        self.db_TableList.setObjectName("db_TableList")
+        self.gridlayout.addWidget(self.db_TableList,1,0,1,1)
+
+        self.db_XCols = QtGui.QListWidget(self.widget)
+        self.db_XCols.setObjectName("db_XCols")
+        self.gridlayout.addWidget(self.db_XCols,1,1,1,1)
+
+        self.label_6 = QtGui.QLabel(self.widget)
+        self.label_6.setObjectName("label_6")
+        self.gridlayout.addWidget(self.label_6,2,1,1,1)
+
+        self.db_YCols = QtGui.QListWidget(self.widget)
+        self.db_YCols.setObjectName("db_YCols")
+        self.gridlayout.addWidget(self.db_YCols,3,1,1,1)
+
+        self.hboxlayout3 = QtGui.QHBoxLayout()
         self.hboxlayout3.setObjectName("hboxlayout3")
+
+        self.cb_logy = QtGui.QCheckBox(self.widget)
+        self.cb_logy.setObjectName("cb_logy")
+        self.hboxlayout3.addWidget(self.cb_logy)
+
+        self.cb_logx = QtGui.QCheckBox(self.widget)
+        self.cb_logx.setObjectName("cb_logx")
+        self.hboxlayout3.addWidget(self.cb_logx)
+        self.gridlayout.addLayout(self.hboxlayout3,4,1,1,1)
 
         self.vboxlayout = QtGui.QVBoxLayout()
         self.vboxlayout.setObjectName("vboxlayout")
 
-        self.gridlayout = QtGui.QGridLayout()
-        self.gridlayout.setObjectName("gridlayout")
+        self.updatePlotBtn = QtGui.QPushButton(self.widget)
+        self.updatePlotBtn.setObjectName("updatePlotBtn")
+        self.vboxlayout.addWidget(self.updatePlotBtn)
 
-        self.label_4 = QtGui.QLabel(self.configTab)
-        self.label_4.setObjectName("label_4")
-        self.gridlayout.addWidget(self.label_4,0,0,1,1)
+        self.clearPlotBtn = QtGui.QPushButton(self.widget)
+        self.clearPlotBtn.setObjectName("clearPlotBtn")
+        self.vboxlayout.addWidget(self.clearPlotBtn)
+        self.gridlayout.addLayout(self.vboxlayout,3,0,1,1)
+        self.mainTabWidget.addTab(self.configTab,"")
 
-        self.label_5 = QtGui.QLabel(self.configTab)
-        self.label_5.setObjectName("label_5")
-        self.gridlayout.addWidget(self.label_5,0,1,1,1)
+        self.tab = QtGui.QWidget()
+        self.tab.setObjectName("tab")
 
-        self.db_TableList = QtGui.QListWidget(self.configTab)
-        self.db_TableList.setObjectName("db_TableList")
-        self.gridlayout.addWidget(self.db_TableList,1,0,1,1)
-
-        self.db_XCols = QtGui.QListWidget(self.configTab)
-        self.db_XCols.setObjectName("db_XCols")
-        self.gridlayout.addWidget(self.db_XCols,1,1,1,1)
-
-        self.addPlotButton = QtGui.QPushButton(self.configTab)
-        self.addPlotButton.setObjectName("addPlotButton")
-        self.gridlayout.addWidget(self.addPlotButton,2,0,1,1)
-
-        self.label_6 = QtGui.QLabel(self.configTab)
-        self.label_6.setObjectName("label_6")
-        self.gridlayout.addWidget(self.label_6,2,1,1,1)
-
-        self.db_YCols = QtGui.QListWidget(self.configTab)
-        self.db_YCols.setObjectName("db_YCols")
-        self.gridlayout.addWidget(self.db_YCols,3,1,1,1)
-
-        self.cb_logx = QtGui.QCheckBox(self.configTab)
-        self.cb_logx.setObjectName("cb_logx")
-        self.gridlayout.addWidget(self.cb_logx,5,0,1,1)
-
-        self.cb_logy = QtGui.QCheckBox(self.configTab)
-        self.cb_logy.setObjectName("cb_logy")
-        self.gridlayout.addWidget(self.cb_logy,5,1,1,1)
-        self.vboxlayout.addLayout(self.gridlayout)
-
-        self.vboxlayout1 = QtGui.QVBoxLayout()
+        self.vboxlayout1 = QtGui.QVBoxLayout(self.tab)
         self.vboxlayout1.setObjectName("vboxlayout1")
+
+        self.vboxlayout2 = QtGui.QVBoxLayout()
+        self.vboxlayout2.setObjectName("vboxlayout2")
 
         self.hboxlayout4 = QtGui.QHBoxLayout()
         self.hboxlayout4.setObjectName("hboxlayout4")
 
-        self.openDBButton = QtGui.QPushButton(self.configTab)
+        self.vboxlayout3 = QtGui.QVBoxLayout()
+        self.vboxlayout3.setObjectName("vboxlayout3")
+
+        self.label_2 = QtGui.QLabel(self.tab)
+        self.label_2.setObjectName("label_2")
+        self.vboxlayout3.addWidget(self.label_2)
+
+        self.listWidget = QtGui.QListWidget(self.tab)
+        self.listWidget.setObjectName("listWidget")
+        self.vboxlayout3.addWidget(self.listWidget)
+        self.hboxlayout4.addLayout(self.vboxlayout3)
+
+        self.vboxlayout4 = QtGui.QVBoxLayout()
+        self.vboxlayout4.setObjectName("vboxlayout4")
+
+        self.label_3 = QtGui.QLabel(self.tab)
+        self.label_3.setObjectName("label_3")
+        self.vboxlayout4.addWidget(self.label_3)
+
+        self.TblQueryTab = QtGui.QListWidget(self.tab)
+        self.TblQueryTab.setObjectName("TblQueryTab")
+        self.vboxlayout4.addWidget(self.TblQueryTab)
+        self.hboxlayout4.addLayout(self.vboxlayout4)
+        self.vboxlayout2.addLayout(self.hboxlayout4)
+
+        self.vboxlayout5 = QtGui.QVBoxLayout()
+        self.vboxlayout5.setObjectName("vboxlayout5")
+
+        self.label = QtGui.QLabel(self.tab)
+        self.label.setObjectName("label")
+        self.vboxlayout5.addWidget(self.label)
+
+        self.sqlQueryString = QtGui.QTextEdit(self.tab)
+        self.sqlQueryString.setObjectName("sqlQueryString")
+        self.vboxlayout5.addWidget(self.sqlQueryString)
+        self.vboxlayout2.addLayout(self.vboxlayout5)
+        self.vboxlayout1.addLayout(self.vboxlayout2)
+
+        self.vboxlayout6 = QtGui.QVBoxLayout()
+        self.vboxlayout6.setObjectName("vboxlayout6")
+
+        self.dbExecuteQuery = QtGui.QPushButton(self.tab)
+        self.dbExecuteQuery.setMaximumSize(QtCore.QSize(200,16777215))
+        self.dbExecuteQuery.setObjectName("dbExecuteQuery")
+        self.vboxlayout6.addWidget(self.dbExecuteQuery)
+
+        self.label_7 = QtGui.QLabel(self.tab)
+        self.label_7.setObjectName("label_7")
+        self.vboxlayout6.addWidget(self.label_7)
+
+        self.sqlErrorMessage = QtGui.QLineEdit(self.tab)
+        self.sqlErrorMessage.setObjectName("sqlErrorMessage")
+        self.vboxlayout6.addWidget(self.sqlErrorMessage)
+        self.vboxlayout1.addLayout(self.vboxlayout6)
+
+        self.vboxlayout7 = QtGui.QVBoxLayout()
+        self.vboxlayout7.setObjectName("vboxlayout7")
+
+        self.hboxlayout5 = QtGui.QHBoxLayout()
+        self.hboxlayout5.setObjectName("hboxlayout5")
+
+        self.openDBButton = QtGui.QPushButton(self.tab)
         self.openDBButton.setObjectName("openDBButton")
-        self.hboxlayout4.addWidget(self.openDBButton)
+        self.hboxlayout5.addWidget(self.openDBButton)
 
-        self.curDBPathName = QtGui.QLineEdit(self.configTab)
-        self.curDBPathName.setObjectName("curDBPathName")
-        self.hboxlayout4.addWidget(self.curDBPathName)
+        self.curDBpathname = QtGui.QLineEdit(self.tab)
+        self.curDBpathname.setObjectName("curDBpathname")
+        self.hboxlayout5.addWidget(self.curDBpathname)
 
-        self.dbConnectRB = QtGui.QRadioButton(self.configTab)
-        self.dbConnectRB.setObjectName("dbConnectRB")
-        self.hboxlayout4.addWidget(self.dbConnectRB)
-        self.vboxlayout1.addLayout(self.hboxlayout4)
+        self.dbConnect_RB = QtGui.QRadioButton(self.tab)
+        self.dbConnect_RB.setCheckable(True)
+        self.dbConnect_RB.setObjectName("dbConnect_RB")
+        self.hboxlayout5.addWidget(self.dbConnect_RB)
+        self.vboxlayout7.addLayout(self.hboxlayout5)
 
-        self.checkBox = QtGui.QCheckBox(self.configTab)
-        self.checkBox.setChecked(True)
-        self.checkBox.setObjectName("checkBox")
-        self.vboxlayout1.addWidget(self.checkBox)
-        self.vboxlayout.addLayout(self.vboxlayout1)
-        self.hboxlayout3.addLayout(self.vboxlayout)
-        self.plotTabWidget.addTab(self.configTab,"")
-        self.hboxlayout1.addWidget(self.plotTabWidget)
+        self.vboxlayout8 = QtGui.QVBoxLayout()
+        self.vboxlayout8.setObjectName("vboxlayout8")
+
+        self.hboxlayout6 = QtGui.QHBoxLayout()
+        self.hboxlayout6.setObjectName("hboxlayout6")
+
+        self.autoNameTblCB = QtGui.QCheckBox(self.tab)
+        self.autoNameTblCB.setChecked(True)
+        self.autoNameTblCB.setObjectName("autoNameTblCB")
+        self.hboxlayout6.addWidget(self.autoNameTblCB)
+
+        self.rstDBButton = QtGui.QPushButton(self.tab)
+        self.rstDBButton.setObjectName("rstDBButton")
+        self.hboxlayout6.addWidget(self.rstDBButton)
+        self.vboxlayout8.addLayout(self.hboxlayout6)
+
+        self.appendNewFilesCB = QtGui.QCheckBox(self.tab)
+        self.appendNewFilesCB.setChecked(True)
+        self.appendNewFilesCB.setObjectName("appendNewFilesCB")
+        self.vboxlayout8.addWidget(self.appendNewFilesCB)
+        self.vboxlayout7.addLayout(self.vboxlayout8)
+        self.vboxlayout1.addLayout(self.vboxlayout7)
+        self.mainTabWidget.addTab(self.tab,"")
+        self.hboxlayout1.addWidget(self.mainTabWidget)
 
         self.SelectInfoWidget = QtGui.QTableWidget(self.centralwidget)
 
@@ -135,7 +229,7 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.menubar = QtGui.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0,0,1085,22))
+        self.menubar.setGeometry(QtCore.QRect(0,0,1073,22))
 
         font = QtGui.QFont()
         font.setFamily("Arial")
@@ -283,22 +377,31 @@ class Ui_MainWindow(object):
         self.toolBar.addAction(self.actionRunScript)
 
         self.retranslateUi(MainWindow)
-        self.plotTabWidget.setCurrentIndex(0)
+        self.mainTabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow", "X!Tandem Results Viewer", None, QtGui.QApplication.UnicodeUTF8))
-        self.plotTabWidget.setTabText(self.plotTabWidget.indexOf(self.plotTab), QtGui.QApplication.translate("MainWindow", "Plot", None, QtGui.QApplication.UnicodeUTF8))
+        self.mainTabWidget.setTabText(self.mainTabWidget.indexOf(self.plotTab), QtGui.QApplication.translate("MainWindow", "Plot", None, QtGui.QApplication.UnicodeUTF8))
         self.label_4.setText(QtGui.QApplication.translate("MainWindow", "Database Tables:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_5.setText(QtGui.QApplication.translate("MainWindow", "X-Axis:", None, QtGui.QApplication.UnicodeUTF8))
-        self.addPlotButton.setText(QtGui.QApplication.translate("MainWindow", "Add Plot", None, QtGui.QApplication.UnicodeUTF8))
         self.label_6.setText(QtGui.QApplication.translate("MainWindow", "Y-Axis:", None, QtGui.QApplication.UnicodeUTF8))
-        self.cb_logx.setText(QtGui.QApplication.translate("MainWindow", "Log X", None, QtGui.QApplication.UnicodeUTF8))
         self.cb_logy.setText(QtGui.QApplication.translate("MainWindow", "Log Y", None, QtGui.QApplication.UnicodeUTF8))
+        self.cb_logx.setText(QtGui.QApplication.translate("MainWindow", "Log X", None, QtGui.QApplication.UnicodeUTF8))
+        self.updatePlotBtn.setText(QtGui.QApplication.translate("MainWindow", "Update Plot", None, QtGui.QApplication.UnicodeUTF8))
+        self.clearPlotBtn.setText(QtGui.QApplication.translate("MainWindow", "Clear Plot", None, QtGui.QApplication.UnicodeUTF8))
+        self.mainTabWidget.setTabText(self.mainTabWidget.indexOf(self.configTab), QtGui.QApplication.translate("MainWindow", "Define Plot", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_2.setText(QtGui.QApplication.translate("MainWindow", "Database Tables", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_3.setText(QtGui.QApplication.translate("MainWindow", "Table Fields", None, QtGui.QApplication.UnicodeUTF8))
+        self.label.setText(QtGui.QApplication.translate("MainWindow", "SQLite String:", None, QtGui.QApplication.UnicodeUTF8))
+        self.dbExecuteQuery.setText(QtGui.QApplication.translate("MainWindow", "Execute Query", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_7.setText(QtGui.QApplication.translate("MainWindow", "Data Base Error Message:", None, QtGui.QApplication.UnicodeUTF8))
         self.openDBButton.setText(QtGui.QApplication.translate("MainWindow", "Select Database", None, QtGui.QApplication.UnicodeUTF8))
-        self.dbConnectRB.setText(QtGui.QApplication.translate("MainWindow", "DB Connected?", None, QtGui.QApplication.UnicodeUTF8))
-        self.checkBox.setText(QtGui.QApplication.translate("MainWindow", "Append New Files to Database?", None, QtGui.QApplication.UnicodeUTF8))
-        self.plotTabWidget.setTabText(self.plotTabWidget.indexOf(self.configTab), QtGui.QApplication.translate("MainWindow", "Define Plot", None, QtGui.QApplication.UnicodeUTF8))
+        self.dbConnect_RB.setText(QtGui.QApplication.translate("MainWindow", "DB Connected?", None, QtGui.QApplication.UnicodeUTF8))
+        self.autoNameTblCB.setText(QtGui.QApplication.translate("MainWindow", "Auto Name Tables", None, QtGui.QApplication.UnicodeUTF8))
+        self.rstDBButton.setText(QtGui.QApplication.translate("MainWindow", "Clear and Reset Database", None, QtGui.QApplication.UnicodeUTF8))
+        self.appendNewFilesCB.setText(QtGui.QApplication.translate("MainWindow", "Append New Files to Database?", None, QtGui.QApplication.UnicodeUTF8))
+        self.mainTabWidget.setTabText(self.mainTabWidget.indexOf(self.tab), QtGui.QApplication.translate("MainWindow", "SQL Query", None, QtGui.QApplication.UnicodeUTF8))
         self.SelectInfoWidget.setRowCount(20)
         self.SelectInfoWidget.setColumnCount(2)
         self.SelectInfoWidget.clear()
