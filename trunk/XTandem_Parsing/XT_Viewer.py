@@ -62,6 +62,9 @@ class XTViewer(ui_main.Ui_MainWindow):
         self.curFile = None
         self.curFileName = None
         self.curDB = None
+        
+        
+        
         self.dbStatus = False
         
         self.plot_num = 0
@@ -84,8 +87,6 @@ class XTViewer(ui_main.Ui_MainWindow):
         
         self.__setupPlot__()
         self.plotWidget.canvas.mpl_connect('pick_event', self.OnPickPlot)
-        
-        self.setDBConnection()
 
     def loadFileXT(self, filename):
         if filename:
@@ -105,7 +106,7 @@ class XTViewer(ui_main.Ui_MainWindow):
             if not self.firstLoad:
                 if self.__askConfirm__("Data Reset",self.ResetAllDataText):
                     self.resetData()
-                    #self.resetDB()
+                    #self.resetDB()#Need to implement
                     self.startup()
             
             self.curFile = XT_RESULTS(filename,  parseFile = False)      
@@ -117,22 +118,16 @@ class XTViewer(ui_main.Ui_MainWindow):
             
         else:
             return QtGui.QMessageBox.information(self.MainWindow,'', "Problem loading data, check file")
-        
 
     def __readDataFile__(self):
-        dataFileName = QtGui.QFileDialog.getOpenFileName(self.MainWindow,\
-                                                         self.OpenDataText,\
-                                                         self.__curDir, 'X!Tandem XML (*.xml);; HDF5 File (*.h5);;SQLite Database (*.db)')
-        if dataFileName:
-            self.loadFileXT(dataFileName)
-                
-#        else:
-#
-#            dataFileName = QtGui.QFileDialog.getOpenFileName(self.MainWindow,\
-#                                                             self.OpenDataText,\
-#                                                             self.__curDir, 'X!Tandem XML (*.xml);; HDF5 File (*.h5);;SQLite Database (*.db)')
-#            if dataFileName:
-#                self.loadFileXT(dataFileName)
+        if self.dbStatus:
+            dataFileName = QtGui.QFileDialog.getOpenFileName(self.MainWindow,\
+                                                             self.OpenDataText,\
+                                                             self.__curDir, 'X!Tandem XML (*.xml);; HDF5 File (*.h5);;SQLite Database (*.db)')
+            if dataFileName:
+                self.loadFileXT(dataFileName)
+        else:
+            self.retryDBConnection()        
 
     def __saveDataFile__(self):
         saveFileName = QtGui.QFileDialog.getSaveFileName(self.MainWindow,\
@@ -313,7 +308,7 @@ class XTViewer(ui_main.Ui_MainWindow):
         QtCore.QMetaObject.connectSlotsByName(self.MainWindow)
     
     def setDBConnection(self):    
-        dbName = QtGui.QFileDialog.getOpenFileName(self.MainWindow,\
+        dbName = QtGui.QFileDialog.getSaveFileName(self.MainWindow,\
                                          'Select Database: ',\
                                          self.__curDir, 'SQLite Database (*.db)')
         if not dbName.isEmpty():
@@ -334,7 +329,7 @@ class XTViewer(ui_main.Ui_MainWindow):
     
     
     def retryDBConnection(self):
-        reply = QtGui.QMessageBox.question(self.MainWindow, "You Must Select a Valid SQLite DB Before Proceeding", "Retry Connection Now?",\
+        reply = QtGui.QMessageBox.question(self.MainWindow, "Database Connection Needed", "You Must Select a Valid SQLite DB Before Proceeding.  Retry Connection Now?",
                                            QtGui.QMessageBox.Yes|QtGui.QMessageBox.No)
         if reply == QtGui.QMessageBox.Yes:
             self.setDBConnection()
@@ -350,7 +345,7 @@ class XTViewer(ui_main.Ui_MainWindow):
             self.MainWindow.close()
     
     def okToExit(self):
-        reply = QtGui.QMessageBox.question(self.MainWindow, "Commit changes to database and exit? Discard to exit without saving.", "Save Changes & Exit?",\
+        reply = QtGui.QMessageBox.question(self.MainWindow, "Save Changes & Exit?", "Commit changes to database and exit? Discard to exit without saving.",\
                                            QtGui.QMessageBox.Yes|QtGui.QMessageBox.Discard|QtGui.QMessageBox.Cancel)
         if reply == QtGui.QMessageBox.Yes:
             if self.dbStatus:
