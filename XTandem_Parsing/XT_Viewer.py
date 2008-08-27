@@ -29,7 +29,7 @@ from matplotlib.widgets import SpanSelector
 #import GUI scripts
 import ui_main
 from mpl_custom_widget import MPL_Widget
-from xtandem_parser_class import XT_xml
+from xtandem_parser_class import XT_RESULTS
 import dbIO
 #try:
 #    import psyco
@@ -41,6 +41,8 @@ plot_colors = ['#297AA3','#A3293D','#3B9DCE','#293DA3','#5229A3','#8F29A3','#A32
 '#7AA329','#3DA329','#29A352','#29A38F','#A38F29','#3B9DCE','#6CB6DA','#CE6C3B','#DA916C',
 '#0080FF','#0000FF','#8000FF','#FF0080','#FF0000','#FF8000','#FFFF00','#80FF00',
 '#00FF00','#00FF80','#00FFFF','#3D9EFF','#7ABDFF','#FF9E3D','#FFBD7A']
+
+markers = ['o', 'd', 's', '^', '>', 'v', '<', 'd', 'p', 'h']
 
 class XTViewer(ui_main.Ui_MainWindow):
     def __init__(self, MainWindow):
@@ -54,21 +56,17 @@ class XTViewer(ui_main.Ui_MainWindow):
         self.__setupPlot__()
         self.startup()
         
-        self.drawProfile = True
  
     def startup(self):
 
         self.curFile = None
         self.curFileName = None
-        self.pep_eVal=[]
-        self.ppmlist=[]
-        self.peplenlist=[]
-        self.pepseqlist=[]
-        self.deltascore=[]
+        self.curDB = None
+        self.dbStatus = False
         
-        self.drawProfile = True
         self.plot_num = 0
-        self.plotTabWidget.setCurrentIndex(0)
+        self.marker_index = 0
+        self.mainTabWidget.setCurrentIndex(0)
         
         self.curSelectInfo = {
         'Index': None, 
@@ -83,29 +81,35 @@ class XTViewer(ui_main.Ui_MainWindow):
         'Protein ID':None, 
         'Protein e-Value':None
         }
-
         
         self.__setupPlot__()
-
         self.plotWidget.canvas.mpl_connect('pick_event', self.OnPickPlot)
+        
+        self.setDBConnection()
 
-    def loadFileXT(self,  filename):
+    def loadFileXT(self, filename):
         if filename:
             self.fileType= str(filename).split('.')[-1]
         if self.fileType == 'xml':
-            self.curFile = XT_xml(filename)
+            self.curFile = XT_RESULTS(filename)
             self.initiatePlot()
             self.firstLoad = False
             
         elif self.fileType == 'h5':
-            self.curFile = XT_xml(filename,  parseFile = False)
+            self.curFile = XT_RESULTS(filename,  parseFile = False)
             dbIO.load_XT_HDF5(str(filename), self.curFile)
             self.initiatePlot()
             self.firstLoad = False
             
         elif self.fileType == 'db':
-            self.curFile = XT_xml(filename,  parseFile = False)      
-            sqldb = dbIO.XTandemDB(str(filename), "testTables", createNew = False)#NEED TO FIX THE NAME
+            if not self.firstLoad:
+                if self.__askConfirm__("Data Reset",self.ResetAllDataText):
+                    self.resetData()
+                    #self.resetDB()
+                    self.startup()
+            
+            self.curFile = XT_RESULTS(filename,  parseFile = False)      
+            sqldb = dbIO.XT_DB(str(filename), "testTables", createNew = False)#NEED TO FIX THE NAME
             sqldb.READ_XT_VALUES(sqldb.curTblName, self.curFile)
             sqldb.close()  
             self.initiatePlot()
@@ -116,24 +120,20 @@ class XTViewer(ui_main.Ui_MainWindow):
         
 
     def __readDataFile__(self):
-        if self.firstLoad:
-            dataFileName = QtGui.QFileDialog.getOpenFileName(self.MainWindow,\
-                                                             self.OpenDataText,\
-                                                             self.__curDir, 'X!Tandem XML (*.xml);; HDF5 File (*.h5);;SQLite Database (*.db)')
-            if dataFileName:
-                self.loadFileXT(dataFileName)
+        dataFileName = QtGui.QFileDialog.getOpenFileName(self.MainWindow,\
+                                                         self.OpenDataText,\
+                                                         self.__curDir, 'X!Tandem XML (*.xml);; HDF5 File (*.h5);;SQLite Database (*.db)')
+        if dataFileName:
+            self.loadFileXT(dataFileName)
                 
-        else:
-            if self.__askConfirm__("Data Reset",self.ResetAllDataText):
-                self.plotWidget.canvas.ax.cla()
-                #self.chromWidget.canvas.ax.cla()
-                self.startup()
-                dataFileName = QtGui.QFileDialog.getOpenFileName(self.MainWindow,\
-                                                                 self.OpenDataText,\
-                                                                 self.__curDir, 'X!Tandem XML (*.xml);; HDF5 File (*.h5);;SQLite Database (*.db)')
-                if dataFileName:
-                    self.loadFileXT(dataFileName)
-    
+#        else:
+#
+#            dataFileName = QtGui.QFileDialog.getOpenFileName(self.MainWindow,\
+#                                                             self.OpenDataText,\
+#                                                             self.__curDir, 'X!Tandem XML (*.xml);; HDF5 File (*.h5);;SQLite Database (*.db)')
+#            if dataFileName:
+#                self.loadFileXT(dataFileName)
+
     def __saveDataFile__(self):
         saveFileName = QtGui.QFileDialog.getSaveFileName(self.MainWindow,\
                                                              self.SaveDataText,\
@@ -145,7 +145,7 @@ class XTViewer(ui_main.Ui_MainWindow):
                 if fileType=='h5':
                     dbIO.save_XT_HDF5(str(saveFileName),  self.curFile)
                 elif fileType == 'db':
-                    sqldb = dbIO.XTandemDB(str(saveFileName), "testTables")#NEED TO FIX THE NAME
+                    sqldb = dbIO.XT_DB(str(saveFileName), "testTables")#NEED TO FIX THE NAME
                     sqldb.INSERT_XT_VALUES(sqldb.curTblName, self.curFile)
                     sqldb.close()
             else:
@@ -177,8 +177,10 @@ class XTViewer(ui_main.Ui_MainWindow):
     def initiatePlot(self):
         
         self.x = self.curFile.dataDict.get('pep_eValues')
+        #self.x = self.curFile.dataDict.get('hScores')
         self.y = (self.curFile.dataDict.get('hScores')-self.curFile.dataDict.get('nextScores'))
         sizeList = self.curFile.dataDict.get('pepLengths')**1.5
+        #self.y = self.y**4
         self.plotScatter = self.plotWidget.canvas.ax.scatter(self.x, self.y,  s = sizeList,  color = self.getPlotColor(),  alpha = 0.3,  picker = 5)
         self.plotWidget.canvas.ax.set_xscale('log')
         xmin = N.min(self.curFile.dataDict.get('pep_eValues'))/10
@@ -186,7 +188,7 @@ class XTViewer(ui_main.Ui_MainWindow):
         self.plotWidget.canvas.ax.set_xlim(xmin, xmax)        
         
         self.plotWidget.canvas.xtitle="Peptide e-Value"
-        self.plotWidget.canvas.ytitle="Delta e-Value"
+        self.plotWidget.canvas.ytitle="Delta Hyperscore"
         self.plotWidget.canvas.PlotTitle = self.curFile.fileName
         self.plotWidget.canvas.format_labels()
         self.plotWidget.canvas.draw()
@@ -198,8 +200,6 @@ class XTViewer(ui_main.Ui_MainWindow):
         else:
             self.plot_num+=1
         return color
-    
-    
     
     def updateSelectInfo(self,  index):
 
@@ -220,7 +220,7 @@ class XTViewer(ui_main.Ui_MainWindow):
             m = 0
             for entry in item:
                 newitem = QtGui.QTableWidgetItem(entry)
-                self.SelectInfoWidget.setItem(n,  m,  newitem)
+                self.SelectInfoWidget.setItem(n, m, newitem)
                 m+=1
             n+=1
         
@@ -243,31 +243,22 @@ class XTViewer(ui_main.Ui_MainWindow):
         #self.mzWidget.canvas.ax.set_ylim(self.mzYScale[0], self.mzYScale[1])
         #self.plotWidget.canvas.draw()
     
-    def toggleDraw(self):
-        if self.drawProfile:
-            self.drawProfile = False
-            self.getMZScan(self.indexA)
-            print "Profile Draw Disabled"
-        else:
-            self.drawProfile = True
-            self.getMZScan(self.indexA)
-            print "Profile Draw Enabled"
             
     def __initContextMenus__(self):
         #self.mzWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
-        self.plotTabWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.mainTabWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         #self.chromWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         #self.mzWidget.connect(self.mzWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self.mzWidgetContext)
         #self.chromWidget.connect(self.chromWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self.chromWidgetContext)
-        self.plotTabWidget.connect(self.plotTabWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self.plotTabContext)
+        self.mainTabWidget.connect(self.mainTabWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self.plotTabContext)
     
     def plotTabContext(self, point):
-        '''Create a menu for plotTabWidget'''
-        plotCT_menu = QtGui.QMenu("Menu", self.plotTabWidget)
+        '''Create a menu for mainTabWidget'''
+        plotCT_menu = QtGui.QMenu("Menu", self.mainTabWidget)
         plotCT_menu.addAction(self.hZoom)
         plotCT_menu.addAction(self.actionAutoScale)
         #plotCT_menu.addAction(self.actionToggleDraw)
-        plotCT_menu.exec_(self.plotTabWidget.mapToGlobal(point))
+        plotCT_menu.exec_(self.mainTabWidget.mapToGlobal(point))
       
     def __setMessages__(self):
         '''This function is obvious'''
@@ -288,12 +279,12 @@ class XTViewer(ui_main.Ui_MainWindow):
     def __additionalConnections__(self):
         self.hZoom = QtGui.QAction("Zoom",  self.MainWindow)
         self.hZoom.setShortcut("Ctrl+Z")
-        self.plotTabWidget.addAction(self.hZoom)
+        self.mainTabWidget.addAction(self.hZoom)
         QtCore.QObject.connect(self.hZoom,QtCore.SIGNAL("triggered()"), self.ZoomToggle)
         
         self.actionAutoScale = QtGui.QAction("AutoScale",  self.MainWindow)
         self.actionAutoScale.setShortcut("Ctrl+A")
-        self.plotTabWidget.addAction(self.actionAutoScale)
+        self.mainTabWidget.addAction(self.actionAutoScale)
         QtCore.QObject.connect(self.actionAutoScale,QtCore.SIGNAL("triggered()"), self.autoscale_plot)
 
 #        self.actionSave = QtGui.QAction("Save File",  self.MainWindow)
@@ -321,30 +312,58 @@ class XTViewer(ui_main.Ui_MainWindow):
 
         QtCore.QMetaObject.connectSlotsByName(self.MainWindow)
     
-
-
     def setDBConnection(self):    
         dbName = QtGui.QFileDialog.getOpenFileName(self.MainWindow,\
                                          'Select Database: ',\
                                          self.__curDir, 'SQLite Database (*.db)')
         if not dbName.isEmpty():
-            #print "Go Joe"
-            self.curDBPathName.setText(dbName)
-            #self.dbConnectRB    
+            self.curDBpathname.setText(dbName)
+            self.curDB = dbIO.XT_DB(str(dbName), 'test',  createNew = False)
+            self.dbStatus = self.curDB.dbOK
+            if self.dbStatus:
+                self.dbConnect_RB.setChecked(True)
+                self.dbConnect_RB.setDown(True)
+                #self.dbConnect_RB.setCheckable(False)
+                
+            else:
+                reply = QtGui.QMessageBox.warning(self.MainWindow, "Database Connection Error",  self.curDB.errorMsg)
+                if reply == QtGui.QMessageBox.OK:
+                    self.retryDBConnection()
+        else:
+            self.retryDBConnection()
     
     
-    
-###########################################################    
+    def retryDBConnection(self):
+        reply = QtGui.QMessageBox.question(self.MainWindow, "You Must Select a Valid SQLite DB Before Proceeding", "Retry Connection Now?",\
+                                           QtGui.QMessageBox.Yes|QtGui.QMessageBox.No)
+        if reply == QtGui.QMessageBox.Yes:
+            self.setDBConnection()
+        else:
+            self.dbStatus = False
+###########################################################    \
+    def resetData(self):
+        self.plotWidget.canvas.ax.cla()
+        self.startup()
+        
     def __exitProgram__(self):
         if self.okToExit():
             self.MainWindow.close()
     
     def okToExit(self):
-        reply = QtGui.QMessageBox.question(self.MainWindow, "Confirm Quit", "Exit now?",\
-                                           QtGui.QMessageBox.Yes|QtGui.QMessageBox.No)
+        reply = QtGui.QMessageBox.question(self.MainWindow, "Commit changes to database and exit? Discard to exit without saving.", "Save Changes & Exit?",\
+                                           QtGui.QMessageBox.Yes|QtGui.QMessageBox.Discard|QtGui.QMessageBox.Cancel)
         if reply == QtGui.QMessageBox.Yes:
+            if self.dbStatus:
+                self.curDB.cnx.commit()
+                self.curDB.cnx.close()
             return True
-        else:
+            
+        elif reply == QtGui.QMessageBox.Discard:
+            if self.dbStatus:
+                self.curDB.cnx.close()
+            return True
+            
+        elif reply == QtGui.QMessageBox.Cancel:
             return False
     
     def __askConfirm__(self,title,message):
@@ -374,32 +393,6 @@ class XTViewer(ui_main.Ui_MainWindow):
         " (preferably with documentation) and please share your contributions"
         " with the rest of the community.</p>"))
         
-
-
-#class precursorTabWidget(QtGui.QWidget):
-#    def __init__(self, precursorScan,  parent, name=None):
-#        QtGui.QWidget.__init__(self,  parent.mzTab)
-#        #def makePrecursorTab(self, fragScan, tabName):
-#        #fragTab = QtGui.QWidget()
-#        self.parent = parent
-#        self.scan = precursorScan
-#        self.setWindowModality(QtCore.Qt.NonModal)
-#        self.setEnabled(True)
-#        if name:
-#            self.setObjectName(name)
-#        self.fragPlot = MPL_Widget(self)
-#        self.horizontalLayout = QtGui.QHBoxLayout()
-#        self.horizontalLayout.addWidget(self.fragPlot)
-#        self.precursorSpec = None
-#        self.scanInfo = None
-#        
-#        
-#    def updatePlot(self):
-#        self.precursorSpec, self.scanInfo = self.parent.curFile.getPreSpectrum(self.scan)
-#        self.fragPlot.canvas.ax.vlines(self.precursorSpec[0], 0, self.precursorSpec[1])
-#        self.fragPlot.canvas.PlotTitle = "Scan #%s"%(self.scanInfo.get('id'))
-#        self.fragPlot.canvas.draw()
-
 
 def run_main():
     import sys

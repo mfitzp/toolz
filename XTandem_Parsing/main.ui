@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1085</width>
-    <height>853</height>
+    <width>1073</width>
+    <height>813</height>
    </rect>
   </property>
   <property name="minimumSize" >
@@ -33,7 +33,7 @@
     <item>
      <layout class="QHBoxLayout" >
       <item>
-       <widget class="QTabWidget" name="plotTabWidget" >
+       <widget class="QTabWidget" name="mainTabWidget" >
         <property name="currentIndex" >
          <number>0</number>
         </property>
@@ -51,59 +51,188 @@
          <attribute name="title" >
           <string>Define Plot</string>
          </attribute>
-         <layout class="QHBoxLayout" >
+         <widget class="QWidget" name="" >
+          <property name="geometry" >
+           <rect>
+            <x>10</x>
+            <y>10</y>
+            <width>765</width>
+            <height>578</height>
+           </rect>
+          </property>
+          <layout class="QGridLayout" >
+           <item row="0" column="0" >
+            <widget class="QLabel" name="label_4" >
+             <property name="text" >
+              <string>Database Tables:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1" >
+            <widget class="QLabel" name="label_5" >
+             <property name="text" >
+              <string>X-Axis:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0" >
+            <widget class="QListWidget" name="db_TableList" />
+           </item>
+           <item row="1" column="1" >
+            <widget class="QListWidget" name="db_XCols" />
+           </item>
+           <item row="2" column="1" >
+            <widget class="QLabel" name="label_6" >
+             <property name="text" >
+              <string>Y-Axis:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1" >
+            <widget class="QListWidget" name="db_YCols" />
+           </item>
+           <item row="4" column="1" >
+            <layout class="QHBoxLayout" >
+             <item>
+              <widget class="QCheckBox" name="cb_logy" >
+               <property name="text" >
+                <string>Log Y</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="cb_logx" >
+               <property name="text" >
+                <string>Log X</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item row="3" column="0" >
+            <layout class="QVBoxLayout" >
+             <item>
+              <widget class="QPushButton" name="updatePlotBtn" >
+               <property name="text" >
+                <string>Update Plot</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="clearPlotBtn" >
+               <property name="text" >
+                <string>Clear Plot</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
+        </widget>
+        <widget class="QWidget" name="tab" >
+         <attribute name="title" >
+          <string>SQL Query</string>
+         </attribute>
+         <layout class="QVBoxLayout" >
           <item>
            <layout class="QVBoxLayout" >
             <item>
-             <layout class="QGridLayout" >
-              <item row="0" column="0" >
-               <widget class="QLabel" name="label_4" >
+             <layout class="QHBoxLayout" >
+              <item>
+               <layout class="QVBoxLayout" >
+                <item>
+                 <widget class="QLabel" name="label_2" >
+                  <property name="text" >
+                   <string>Database Tables</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QListWidget" name="listWidget" />
+                </item>
+               </layout>
+              </item>
+              <item>
+               <layout class="QVBoxLayout" >
+                <item>
+                 <widget class="QLabel" name="label_3" >
+                  <property name="text" >
+                   <string>Table Fields</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QListWidget" name="TblQueryTab" />
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QVBoxLayout" >
+              <item>
+               <widget class="QLabel" name="label" >
                 <property name="text" >
-                 <string>Database Tables:</string>
+                 <string>SQLite String:</string>
                 </property>
                </widget>
               </item>
-              <item row="0" column="1" >
-               <widget class="QLabel" name="label_5" >
+              <item>
+               <widget class="QTextEdit" name="sqlQueryString" />
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QVBoxLayout" >
+            <item>
+             <widget class="QPushButton" name="dbExecuteQuery" >
+              <property name="maximumSize" >
+               <size>
+                <width>200</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="text" >
+               <string>Execute Query</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_7" >
+              <property name="text" >
+               <string>Data Base Error Message:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="sqlErrorMessage" />
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QVBoxLayout" >
+            <item>
+             <layout class="QHBoxLayout" >
+              <item>
+               <widget class="QPushButton" name="openDBButton" >
                 <property name="text" >
-                 <string>X-Axis:</string>
+                 <string>Select Database</string>
                 </property>
                </widget>
               </item>
-              <item row="1" column="0" >
-               <widget class="QListWidget" name="db_TableList" />
+              <item>
+               <widget class="QLineEdit" name="curDBpathname" />
               </item>
-              <item row="1" column="1" >
-               <widget class="QListWidget" name="db_XCols" />
-              </item>
-              <item row="2" column="0" >
-               <widget class="QPushButton" name="addPlotButton" >
+              <item>
+               <widget class="QRadioButton" name="dbConnect_RB" >
                 <property name="text" >
-                 <string>Add Plot</string>
+                 <string>DB Connected?</string>
                 </property>
-               </widget>
-              </item>
-              <item row="2" column="1" >
-               <widget class="QLabel" name="label_6" >
-                <property name="text" >
-                 <string>Y-Axis:</string>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="1" >
-               <widget class="QListWidget" name="db_YCols" />
-              </item>
-              <item row="5" column="0" >
-               <widget class="QCheckBox" name="cb_logx" >
-                <property name="text" >
-                 <string>Log X</string>
-                </property>
-               </widget>
-              </item>
-              <item row="5" column="1" >
-               <widget class="QCheckBox" name="cb_logy" >
-                <property name="text" >
-                 <string>Log Y</string>
+                <property name="checkable" >
+                 <bool>true</bool>
                 </property>
                </widget>
               </item>
@@ -114,26 +243,26 @@
               <item>
                <layout class="QHBoxLayout" >
                 <item>
-                 <widget class="QPushButton" name="openDBButton" >
+                 <widget class="QCheckBox" name="autoNameTblCB" >
                   <property name="text" >
-                   <string>Select Database</string>
+                   <string>Auto Name Tables</string>
+                  </property>
+                  <property name="checked" >
+                   <bool>true</bool>
                   </property>
                  </widget>
                 </item>
                 <item>
-                 <widget class="QLineEdit" name="curDBPathName" />
-                </item>
-                <item>
-                 <widget class="QRadioButton" name="dbConnectRB" >
+                 <widget class="QPushButton" name="rstDBButton" >
                   <property name="text" >
-                   <string>DB Connected?</string>
+                   <string>Clear and Reset Database</string>
                   </property>
                  </widget>
                 </item>
                </layout>
               </item>
               <item>
-               <widget class="QCheckBox" name="checkBox" >
+               <widget class="QCheckBox" name="appendNewFilesCB" >
                 <property name="text" >
                  <string>Append New Files to Database?</string>
                 </property>
@@ -197,7 +326,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1085</width>
+     <width>1073</width>
      <height>22</height>
     </rect>
    </property>
