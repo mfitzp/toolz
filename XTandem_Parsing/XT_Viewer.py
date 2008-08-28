@@ -5,6 +5,7 @@ This is the explicit class for viewing Parsed XT Files
 #Importing built-in python modules and functions
 import sys, os
 from os import walk,  path
+
 import base64
 import struct
 import string
@@ -60,9 +61,12 @@ class XTViewer(ui_main.Ui_MainWindow):
     def startup(self):
 
         self.curFile = None
+        self.curTbl = None
         self.curFileName = None
         self.curDB = None
+        self.memDB = True
         
+        self.activeDict = {}
         
         
         self.dbStatus = False
@@ -85,16 +89,26 @@ class XTViewer(ui_main.Ui_MainWindow):
         'Protein e-Value':None
         }
         
+        
+        self.dbConnectedBtn.setEnabled(False)
+        
         self.__setupPlot__()
         self.plotWidget.canvas.mpl_connect('pick_event', self.OnPickPlot)
+    
 
+    
     def loadFileXT(self, filename):
         if filename:
             self.fileType= str(filename).split('.')[-1]
         if self.fileType == 'xml':
-            self.curFile = XT_RESULTS(filename)
-            self.initiatePlot()
-            self.firstLoad = False
+            if self.dbStatus:
+                fnCore = self.getFNCore(str(filename))
+                self.curTbl = fnCore
+                self.activeDict[fnCore] = XT_RESULTS(filename)
+                insertOK = self.curDB.INSERT_XT_VALUES(fnCore, self.activeDict[fnCore])
+                if insertOK:
+                    self.initiatePlot()
+                    self.firstLoad = False
             
         elif self.fileType == 'h5':
             self.curFile = XT_RESULTS(filename,  parseFile = False)
@@ -118,7 +132,30 @@ class XTViewer(ui_main.Ui_MainWindow):
             
         else:
             return QtGui.QMessageBox.information(self.MainWindow,'', "Problem loading data, check file")
-
+    
+    def __loadDataFolder__(self):
+#        if self.dbStatus:
+        directory= QtGui.QFileDialog.getExistingDirectory(self.MainWindow,\
+                                                         "Select X!Tandem XML Data Folder")
+        print directory
+        #from os.path import join, abspath
+        for root, dirs, files in walk(str(directory)):
+            for file in files:
+                if '.xml' in file:
+                    ##full file path name
+                    ffpn=path.abspath(path.join(root, file))
+                    print ffpn
+                    print file.split('.')[0]
+#        if self.filename:
+#            if os.sys.platform == 'win32':
+#                self.path2write = (self.filename.split('\\'))[-1].replace(".xml", "")+'.ms2'
+#            else:
+#                self.path2write = (self.filename.split('//'))[-1].replace(".xml", "")+'.ms2'#assumes linux2 and or OSX (win32 uses the 'bad' kind of slash)
+            
+#        else:
+#            self.retryDBConnection()
+    
+    
     def __readDataFile__(self):
         if self.dbStatus:
             dataFileName = QtGui.QFileDialog.getOpenFileName(self.MainWindow,\
@@ -127,7 +164,15 @@ class XTViewer(ui_main.Ui_MainWindow):
             if dataFileName:
                 self.loadFileXT(dataFileName)
         else:
-            self.retryDBConnection()        
+            if self.memDB:
+                self.setDBConnection()
+                dataFileName = QtGui.QFileDialog.getOpenFileName(self.MainWindow,\
+                                            self.OpenDataText,\
+                                            self.__curDir, 'X!Tandem XML (*.xml);; HDF5 File (*.h5);;SQLite Database (*.db)')
+                if dataFileName:
+                    self.loadFileXT(dataFileName)
+            else:
+                self.retryDBConnection()   
 
     def __saveDataFile__(self):
         saveFileName = QtGui.QFileDialog.getSaveFileName(self.MainWindow,\
@@ -145,20 +190,32 @@ class XTViewer(ui_main.Ui_MainWindow):
                     sqldb.close()
             else:
                 return QtGui.QMessageBox.information(self.MainWindow,'', "A X!Tandem File must be loaded first before saving")
+                
     
+    def getFNCore(self, filename):
+        self.sysType = os.sys.platform
+        if self.sysType == 'win32':
+            fs = filename.split('/')[-1]#fs = file split
+            fileCore = fs.split('.')[0]
+        else:
+            fs = filename.split('/')[-1]#fs = file split
+            fileCore = fs.split('.')[0]
+        return fileCore
+            
     def OnPickPlot(self, event):
         self.pickIndex = event.ind[0]
         try:
             self.textHandle.remove()
         except:
             pass
+        self.curTbl = event.artist.get_label()
         self.handleA.set_data(N.take(self.x, [self.pickIndex]), N.take(self.y, [self.pickIndex]))
         self.handleA.set_visible(True)
-        showText = '%s'%(self.curFile.dataDict.get('pepIDs')[self.pickIndex])
+        showText = '%s'%(self.activeDict[self.curTbl].dataDict.get('pepIDs')[self.pickIndex])
         self.textHandle = self.plotWidget.canvas.ax.text(0.03, 0.95, showText, fontsize=9,\
                                         bbox=dict(facecolor='yellow', alpha=0.1),\
                                         transform=self.plotWidget.canvas.ax.transAxes, va='top')
-        self.updateSelectInfo(self.pickIndex)
+        self.updateSelectInfo(self.pickIndex,  self.curTbl)
         self.plotWidget.canvas.draw()
 
         
@@ -171,20 +228,21 @@ class XTViewer(ui_main.Ui_MainWindow):
     
     def initiatePlot(self):
         
-        self.x = self.curFile.dataDict.get('pep_eValues')
+        activeData = self.activeDict[self.curTbl]
+        self.x = activeData.dataDict.get('pep_eValues')
         #self.x = self.curFile.dataDict.get('hScores')
-        self.y = (self.curFile.dataDict.get('hScores')-self.curFile.dataDict.get('nextScores'))
-        sizeList = self.curFile.dataDict.get('pepLengths')**1.5
+        self.y = (activeData.dataDict.get('hScores')-activeData.dataDict.get('nextScores'))
+        sizeList = activeData.dataDict.get('pepLengths')**1.5
         #self.y = self.y**4
-        self.plotScatter = self.plotWidget.canvas.ax.scatter(self.x, self.y,  s = sizeList,  color = self.getPlotColor(),  alpha = 0.3,  picker = 5)
+        self.plotScatter = self.plotWidget.canvas.ax.scatter(self.x, self.y,  s = sizeList,  color = self.getPlotColor(),  marker = self.getPlotMarker(), alpha = 0.3,  label = self.curTbl,  picker = 5)#add label = ??
         self.plotWidget.canvas.ax.set_xscale('log')
-        xmin = N.min(self.curFile.dataDict.get('pep_eValues'))/10
-        xmax = N.max(self.curFile.dataDict.get('pep_eValues'))*10
+        xmin = N.min(self.x)/10
+        xmax = N.max(self.x)*10
         self.plotWidget.canvas.ax.set_xlim(xmin, xmax)        
         
         self.plotWidget.canvas.xtitle="Peptide e-Value"
         self.plotWidget.canvas.ytitle="Delta Hyperscore"
-        self.plotWidget.canvas.PlotTitle = self.curFile.fileName
+        self.plotWidget.canvas.PlotTitle = self.curTbl
         self.plotWidget.canvas.format_labels()
         self.plotWidget.canvas.draw()
     
@@ -196,19 +254,27 @@ class XTViewer(ui_main.Ui_MainWindow):
             self.plot_num+=1
         return color
     
-    def updateSelectInfo(self,  index):
-
+    def getPlotMarker(self):
+        marker = markers[self.marker_index]
+        if self.marker_index is len(markers)-1:
+            self.marker_index = 0
+        else:
+            self.marker_index+=1
+        return marker
+    
+    def updateSelectInfo(self,  index,  activeKey):
+        activeData = self.activeDict[activeKey]
         self.curSelectInfo['Index'] = str(index)
-        self.curSelectInfo['Peptide'] = self.curFile.dataDict.get('pepIDs')[index]
-        self.curSelectInfo['Peptide e-Value'] = str(self.curFile.dataDict.get('pep_eValues')[index])
-        self.curSelectInfo['Scan'] =str(self.curFile.dataDict.get('scanID')[index])
-        self.curSelectInfo['ppm Error'] =str(self.curFile.dataDict.get('ppm_errors')[index])
-        self.curSelectInfo['Theoretical MZ'] =str(self.curFile.dataDict.get('theoMZs')[index])
-        self.curSelectInfo['Hyperscore'] =str(self.curFile.dataDict.get('hScores')[index])
-        self.curSelectInfo['Next Hyperscore'] =str(self.curFile.dataDict.get('nextScores')[index])
-        self.curSelectInfo['Peptide Length'] =str(self.curFile.dataDict.get('pepLengths')[index])
-        self.curSelectInfo['Protein ID'] =self.curFile.dataDict.get('proIDs')[index]
-        self.curSelectInfo['Protein e-Value'] =str(self.curFile.dataDict.get('pro_eVals')[index])
+        self.curSelectInfo['Peptide'] = activeData.dataDict.get('pepIDs')[index]
+        self.curSelectInfo['Peptide e-Value'] = str(activeData.dataDict.get('pep_eValues')[index])
+        self.curSelectInfo['Scan'] =str(activeData.dataDict.get('scanID')[index])
+        self.curSelectInfo['ppm Error'] =str(activeData.dataDict.get('ppm_errors')[index])
+        self.curSelectInfo['Theoretical MZ'] =str(activeData.dataDict.get('theoMZs')[index])
+        self.curSelectInfo['Hyperscore'] =str(activeData.dataDict.get('hScores')[index])
+        self.curSelectInfo['Next Hyperscore'] =str(activeData.dataDict.get('nextScores')[index])
+        self.curSelectInfo['Peptide Length'] =str(activeData.dataDict.get('pepLengths')[index])
+        self.curSelectInfo['Protein ID'] =activeData.dataDict.get('proIDs')[index]
+        self.curSelectInfo['Protein e-Value'] =str(activeData.dataDict.get('pro_eVals')[index])
         
         n = 0
         for item in self.curSelectInfo.iteritems():
@@ -241,19 +307,19 @@ class XTViewer(ui_main.Ui_MainWindow):
             
     def __initContextMenus__(self):
         #self.mzWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
-        self.mainTabWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.plotWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         #self.chromWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         #self.mzWidget.connect(self.mzWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self.mzWidgetContext)
         #self.chromWidget.connect(self.chromWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self.chromWidgetContext)
-        self.mainTabWidget.connect(self.mainTabWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self.plotTabContext)
+        self.plotWidget.connect(self.plotWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self.plotTabContext)
     
     def plotTabContext(self, point):
         '''Create a menu for mainTabWidget'''
-        plotCT_menu = QtGui.QMenu("Menu", self.mainTabWidget)
+        plotCT_menu = QtGui.QMenu("Menu", self.plotWidget)
         plotCT_menu.addAction(self.hZoom)
         plotCT_menu.addAction(self.actionAutoScale)
         #plotCT_menu.addAction(self.actionToggleDraw)
-        plotCT_menu.exec_(self.mainTabWidget.mapToGlobal(point))
+        plotCT_menu.exec_(self.plotWidget.mapToGlobal(point))
       
     def __setMessages__(self):
         '''This function is obvious'''
@@ -299,37 +365,59 @@ class XTViewer(ui_main.Ui_MainWindow):
         
         '''File menu actions slots'''
         QtCore.QObject.connect(self.action_Open,QtCore.SIGNAL("triggered()"),self.__readDataFile__)
+        QtCore.QObject.connect(self.actionLoad_Folder,QtCore.SIGNAL("triggered()"),self.__loadDataFolder__)
         QtCore.QObject.connect(self.action_Save,QtCore.SIGNAL("triggered()"),self.__saveDataFile__)
         QtCore.QObject.connect(self.actionFileOpen,QtCore.SIGNAL("triggered()"),self.__readDataFile__)
         QtCore.QObject.connect(self.actionAbout,QtCore.SIGNAL("triggered()"),self.__showAbout__)
+        QtCore.QObject.connect(self.actionTools, QtCore.SIGNAL("triggered()"),self.__testFunc__)
         QtCore.QObject.connect(self.actionHints,QtCore.SIGNAL("triggered()"),self.__showHints__)
         QtCore.QObject.connect(self.action_Exit,QtCore.SIGNAL("triggered()"),self.__exitProgram__)
 
         QtCore.QMetaObject.connectSlotsByName(self.MainWindow)
     
-    def setDBConnection(self):    
-        dbName = QtGui.QFileDialog.getSaveFileName(self.MainWindow,\
-                                         'Select Database: ',\
-                                         self.__curDir, 'SQLite Database (*.db)')
-        if not dbName.isEmpty():
+    def __testFunc__(self):
+        print self.curDB.LIST_TABLES()
+        print type(self.curDB.LIST_TABLES()[0])
+    
+    def setDBConnection(self):#would this be better if you added an old db reference in case it fails?
+        if self.memDB == True and self.dbStatus == False:
+            dbName=':memory:'
             self.curDBpathname.setText(dbName)
-            self.curDB = dbIO.XT_DB(str(dbName), 'test',  createNew = False)
+            self.curDB = dbIO.XT_DB(str(dbName),  parent = self)
             self.dbStatus = self.curDB.dbOK
             if self.dbStatus:
-                self.dbConnect_RB.setChecked(True)
-                self.dbConnect_RB.setDown(True)
-                #self.dbConnect_RB.setCheckable(False)
-                
+                self.dbConnectedBtn.setEnabled(True)
             else:
                 reply = QtGui.QMessageBox.warning(self.MainWindow, "Database Connection Error",  self.curDB.errorMsg)
                 if reply == QtGui.QMessageBox.OK:
                     self.retryDBConnection()
         else:
-            self.retryDBConnection()
+                
+            dbName = QtGui.QFileDialog.getSaveFileName(self.MainWindow,\
+                                             'Select Database: ',\
+                                             self.__curDir, 'SQLite Database (*.db)')
+            if not dbName.isEmpty():
+                if self.dbStatus:#(i.e a connection already exists)
+                    self.curDB.close()
+                self.curDBpathname.setText(dbName)
+                self.curDB = dbIO.XT_DB(str(dbName),  parent = self)
+                self.dbStatus = self.curDB.dbOK
+                if self.dbStatus:
+                    self.dbConnectedBtn.setEnabled(True)
+                    self.memDB = False#make it so that no record of memory connection exists
+                
+                else:
+                    reply = QtGui.QMessageBox.warning(self.MainWindow, "Database Connection Error",  self.curDB.errorMsg)
+                    if reply == QtGui.QMessageBox.OK:
+                        self.retryDBConnection()
+            elif self.memDB == False:
+                self.retryDBConnection()
     
+    #def updateDBGUI(self):
+        
     
     def retryDBConnection(self):
-        reply = QtGui.QMessageBox.question(self.MainWindow, "Database Connection Needed", "You Must Select a Valid SQLite DB Before Proceeding.  Retry Connection Now?",
+        reply = QtGui.QMessageBox.question(self.MainWindow, "Database Connection Needed", "You Must Select a Valid SQLite DB Before Proceeding.  Establish Connection Now?",
                                            QtGui.QMessageBox.Yes|QtGui.QMessageBox.No)
         if reply == QtGui.QMessageBox.Yes:
             self.setDBConnection()

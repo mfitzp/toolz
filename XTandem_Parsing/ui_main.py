@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\SVN\toolz\XTandem_Parsing\main.ui'
 #
-# Created: Tue Aug 26 18:01:12 2008
+# Created: Wed Aug 27 17:26:02 2008
 #      by: PyQt4 UI code generator 4.3.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -48,45 +48,45 @@ class Ui_MainWindow(object):
         self.configTab = QtGui.QWidget()
         self.configTab.setObjectName("configTab")
 
-        self.widget = QtGui.QWidget(self.configTab)
-        self.widget.setGeometry(QtCore.QRect(10,10,765,578))
-        self.widget.setObjectName("widget")
+        self.layoutWidget = QtGui.QWidget(self.configTab)
+        self.layoutWidget.setGeometry(QtCore.QRect(10,10,765,578))
+        self.layoutWidget.setObjectName("layoutWidget")
 
-        self.gridlayout = QtGui.QGridLayout(self.widget)
+        self.gridlayout = QtGui.QGridLayout(self.layoutWidget)
         self.gridlayout.setObjectName("gridlayout")
 
-        self.label_4 = QtGui.QLabel(self.widget)
+        self.label_4 = QtGui.QLabel(self.layoutWidget)
         self.label_4.setObjectName("label_4")
         self.gridlayout.addWidget(self.label_4,0,0,1,1)
 
-        self.label_5 = QtGui.QLabel(self.widget)
+        self.label_5 = QtGui.QLabel(self.layoutWidget)
         self.label_5.setObjectName("label_5")
         self.gridlayout.addWidget(self.label_5,0,1,1,1)
 
-        self.db_TableList = QtGui.QListWidget(self.widget)
+        self.db_TableList = QtGui.QListWidget(self.layoutWidget)
         self.db_TableList.setObjectName("db_TableList")
         self.gridlayout.addWidget(self.db_TableList,1,0,1,1)
 
-        self.db_XCols = QtGui.QListWidget(self.widget)
+        self.db_XCols = QtGui.QListWidget(self.layoutWidget)
         self.db_XCols.setObjectName("db_XCols")
         self.gridlayout.addWidget(self.db_XCols,1,1,1,1)
 
-        self.label_6 = QtGui.QLabel(self.widget)
+        self.label_6 = QtGui.QLabel(self.layoutWidget)
         self.label_6.setObjectName("label_6")
         self.gridlayout.addWidget(self.label_6,2,1,1,1)
 
-        self.db_YCols = QtGui.QListWidget(self.widget)
+        self.db_YCols = QtGui.QListWidget(self.layoutWidget)
         self.db_YCols.setObjectName("db_YCols")
         self.gridlayout.addWidget(self.db_YCols,3,1,1,1)
 
         self.hboxlayout3 = QtGui.QHBoxLayout()
         self.hboxlayout3.setObjectName("hboxlayout3")
 
-        self.cb_logy = QtGui.QCheckBox(self.widget)
+        self.cb_logy = QtGui.QCheckBox(self.layoutWidget)
         self.cb_logy.setObjectName("cb_logy")
         self.hboxlayout3.addWidget(self.cb_logy)
 
-        self.cb_logx = QtGui.QCheckBox(self.widget)
+        self.cb_logx = QtGui.QCheckBox(self.layoutWidget)
         self.cb_logx.setObjectName("cb_logx")
         self.hboxlayout3.addWidget(self.cb_logx)
         self.gridlayout.addLayout(self.hboxlayout3,4,1,1,1)
@@ -94,11 +94,11 @@ class Ui_MainWindow(object):
         self.vboxlayout = QtGui.QVBoxLayout()
         self.vboxlayout.setObjectName("vboxlayout")
 
-        self.updatePlotBtn = QtGui.QPushButton(self.widget)
+        self.updatePlotBtn = QtGui.QPushButton(self.layoutWidget)
         self.updatePlotBtn.setObjectName("updatePlotBtn")
         self.vboxlayout.addWidget(self.updatePlotBtn)
 
-        self.clearPlotBtn = QtGui.QPushButton(self.widget)
+        self.clearPlotBtn = QtGui.QPushButton(self.layoutWidget)
         self.clearPlotBtn.setObjectName("clearPlotBtn")
         self.vboxlayout.addWidget(self.clearPlotBtn)
         self.gridlayout.addLayout(self.vboxlayout,3,0,1,1)
@@ -157,10 +157,19 @@ class Ui_MainWindow(object):
         self.vboxlayout6 = QtGui.QVBoxLayout()
         self.vboxlayout6.setObjectName("vboxlayout6")
 
+        self.gridlayout1 = QtGui.QGridLayout()
+        self.gridlayout1.setObjectName("gridlayout1")
+
         self.dbExecuteQuery = QtGui.QPushButton(self.tab)
         self.dbExecuteQuery.setMaximumSize(QtCore.QSize(200,16777215))
         self.dbExecuteQuery.setObjectName("dbExecuteQuery")
-        self.vboxlayout6.addWidget(self.dbExecuteQuery)
+        self.gridlayout1.addWidget(self.dbExecuteQuery,0,0,1,1)
+
+        self.dbCommitQuery = QtGui.QPushButton(self.tab)
+        self.dbCommitQuery.setMaximumSize(QtCore.QSize(200,16777215))
+        self.dbCommitQuery.setObjectName("dbCommitQuery")
+        self.gridlayout1.addWidget(self.dbCommitQuery,0,1,1,1)
+        self.vboxlayout6.addLayout(self.gridlayout1)
 
         self.label_7 = QtGui.QLabel(self.tab)
         self.label_7.setObjectName("label_7")
@@ -185,10 +194,13 @@ class Ui_MainWindow(object):
         self.curDBpathname.setObjectName("curDBpathname")
         self.hboxlayout5.addWidget(self.curDBpathname)
 
-        self.dbConnect_RB = QtGui.QRadioButton(self.tab)
-        self.dbConnect_RB.setCheckable(True)
-        self.dbConnect_RB.setObjectName("dbConnect_RB")
-        self.hboxlayout5.addWidget(self.dbConnect_RB)
+        self.dbConnectedBtn = QtGui.QPushButton(self.tab)
+        self.dbConnectedBtn.setEnabled(True)
+        self.dbConnectedBtn.setAutoFillBackground(False)
+        self.dbConnectedBtn.setIcon(QtGui.QIcon(":/new/prefix1/icons/ok.png"))
+        self.dbConnectedBtn.setIconSize(QtCore.QSize(20,20))
+        self.dbConnectedBtn.setObjectName("dbConnectedBtn")
+        self.hboxlayout5.addWidget(self.dbConnectedBtn)
         self.vboxlayout7.addLayout(self.hboxlayout5)
 
         self.vboxlayout8 = QtGui.QVBoxLayout()
@@ -259,6 +271,7 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
 
         self.toolBar = QtGui.QToolBar(MainWindow)
+        self.toolBar.setEnabled(True)
         self.toolBar.setMinimumSize(QtCore.QSize(12,25))
         self.toolBar.setObjectName("toolBar")
         MainWindow.addToolBar(QtCore.Qt.TopToolBarArea,self.toolBar)
@@ -360,7 +373,11 @@ class Ui_MainWindow(object):
 
         self.actionHints = QtGui.QAction(MainWindow)
         self.actionHints.setObjectName("actionHints")
+
+        self.actionLoad_Folder = QtGui.QAction(MainWindow)
+        self.actionLoad_Folder.setObjectName("actionLoad_Folder")
         self.menuFile.addAction(self.action_Open)
+        self.menuFile.addAction(self.actionLoad_Folder)
         self.menuFile.addAction(self.action_Save)
         self.menuFile.addAction(self.action_Exit)
         self.menu_Edit.addAction(self.action_Cut)
@@ -375,6 +392,7 @@ class Ui_MainWindow(object):
         self.toolBar.addAction(self.actionFileOpen)
         self.toolBar.addAction(self.action_Save)
         self.toolBar.addAction(self.actionRunScript)
+        self.toolBar.addAction(self.actionTools)
 
         self.retranslateUi(MainWindow)
         self.mainTabWidget.setCurrentIndex(0)
@@ -395,9 +413,9 @@ class Ui_MainWindow(object):
         self.label_3.setText(QtGui.QApplication.translate("MainWindow", "Table Fields", None, QtGui.QApplication.UnicodeUTF8))
         self.label.setText(QtGui.QApplication.translate("MainWindow", "SQLite String:", None, QtGui.QApplication.UnicodeUTF8))
         self.dbExecuteQuery.setText(QtGui.QApplication.translate("MainWindow", "Execute Query", None, QtGui.QApplication.UnicodeUTF8))
+        self.dbCommitQuery.setText(QtGui.QApplication.translate("MainWindow", "Commit Query Results", None, QtGui.QApplication.UnicodeUTF8))
         self.label_7.setText(QtGui.QApplication.translate("MainWindow", "Data Base Error Message:", None, QtGui.QApplication.UnicodeUTF8))
         self.openDBButton.setText(QtGui.QApplication.translate("MainWindow", "Select Database", None, QtGui.QApplication.UnicodeUTF8))
-        self.dbConnect_RB.setText(QtGui.QApplication.translate("MainWindow", "DB Connected?", None, QtGui.QApplication.UnicodeUTF8))
         self.autoNameTblCB.setText(QtGui.QApplication.translate("MainWindow", "Auto Name Tables", None, QtGui.QApplication.UnicodeUTF8))
         self.rstDBButton.setText(QtGui.QApplication.translate("MainWindow", "Clear and Reset Database", None, QtGui.QApplication.UnicodeUTF8))
         self.appendNewFilesCB.setText(QtGui.QApplication.translate("MainWindow", "Append New Files to Database?", None, QtGui.QApplication.UnicodeUTF8))
@@ -454,6 +472,7 @@ class Ui_MainWindow(object):
         self.actionPlotItem.setIconText(QtGui.QApplication.translate("MainWindow", "Plot Item", None, QtGui.QApplication.UnicodeUTF8))
         self.actionPlotItem.setToolTip(QtGui.QApplication.translate("MainWindow", "Plot Item", None, QtGui.QApplication.UnicodeUTF8))
         self.actionHints.setText(QtGui.QApplication.translate("MainWindow", "Hints", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionLoad_Folder.setText(QtGui.QApplication.translate("MainWindow", "Load Folder", None, QtGui.QApplication.UnicodeUTF8))
 
 from mpl_custom_widget import MPL_Widget
 import SubPlot_rc
