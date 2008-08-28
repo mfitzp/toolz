@@ -51,7 +51,7 @@
          <attribute name="title" >
           <string>Define Plot</string>
          </attribute>
-         <widget class="QWidget" name="" >
+         <widget class="QWidget" name="layoutWidget" >
           <property name="geometry" >
            <rect>
             <x>10</x>
@@ -188,17 +188,34 @@
           <item>
            <layout class="QVBoxLayout" >
             <item>
-             <widget class="QPushButton" name="dbExecuteQuery" >
-              <property name="maximumSize" >
-               <size>
-                <width>200</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="text" >
-               <string>Execute Query</string>
-              </property>
-             </widget>
+             <layout class="QGridLayout" >
+              <item row="0" column="0" >
+               <widget class="QPushButton" name="dbExecuteQuery" >
+                <property name="maximumSize" >
+                 <size>
+                  <width>200</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="text" >
+                 <string>Execute Query</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1" >
+               <widget class="QPushButton" name="dbCommitQuery" >
+                <property name="maximumSize" >
+                 <size>
+                  <width>200</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="text" >
+                 <string>Commit Query Results</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </item>
             <item>
              <widget class="QLabel" name="label_7" >
@@ -227,12 +244,24 @@
                <widget class="QLineEdit" name="curDBpathname" />
               </item>
               <item>
-               <widget class="QRadioButton" name="dbConnect_RB" >
-                <property name="text" >
-                 <string>DB Connected?</string>
-                </property>
-                <property name="checkable" >
+               <widget class="QPushButton" name="dbConnectedBtn" >
+                <property name="enabled" >
                  <bool>true</bool>
+                </property>
+                <property name="autoFillBackground" >
+                 <bool>false</bool>
+                </property>
+                <property name="text" >
+                 <string/>
+                </property>
+                <property name="icon" >
+                 <iconset resource="SubPlot.qrc" >:/new/prefix1/icons/ok.png</iconset>
+                </property>
+                <property name="iconSize" >
+                 <size>
+                  <width>20</width>
+                  <height>20</height>
+                 </size>
                 </property>
                </widget>
               </item>
@@ -342,6 +371,7 @@
      <string>&amp;File</string>
     </property>
     <addaction name="action_Open" />
+    <addaction name="actionLoad_Folder" />
     <addaction name="action_Save" />
     <addaction name="action_Exit" />
    </widget>
@@ -377,6 +407,9 @@
   </widget>
   <widget class="QStatusBar" name="statusbar" />
   <widget class="QToolBar" name="toolBar" >
+   <property name="enabled" >
+    <bool>true</bool>
+   </property>
    <property name="minimumSize" >
     <size>
      <width>12</width>
@@ -395,6 +428,7 @@
    <addaction name="actionFileOpen" />
    <addaction name="action_Save" />
    <addaction name="actionRunScript" />
+   <addaction name="actionTools" />
   </widget>
   <action name="action_Edit" >
    <property name="text" >
@@ -636,6 +670,11 @@
   <action name="actionHints" >
    <property name="text" >
     <string>Hints</string>
+   </property>
+  </action>
+  <action name="actionLoad_Folder" >
+   <property name="text" >
+    <string>Load Folder</string>
    </property>
   </action>
  </widget>

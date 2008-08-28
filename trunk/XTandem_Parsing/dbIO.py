@@ -17,12 +17,15 @@ import time
 #        
 class XT_DB(object):#X!Tandem Database Class
     '''Represents the interface to SQLite'''    
-    def __init__(self,  db, tableName, createNew=True):#db is the path to the database on disk
+    def __init__(self,  db, createNew=False,  tableName = None, parent = None):#db is the path to the database on disk
+        if parent:
+            self.parent = parent
         self.dbOK = True
+        self.dbName = db
         try:
             self.cnx = sql.connect(db)
             self.cur = self.cnx.cursor()
-            self.curTblName = tableName
+            #self.curTblName = tableName
         except:
             self.errorMsg = "Sorry: %s:%s"%(sys.exc_type, sys.exc_value)
             self.dbOK = False
@@ -39,6 +42,20 @@ class XT_DB(object):#X!Tandem Database Class
     
     def INSERT_XT_VALUES(self, tableName, XT_RESULTS):
         t1 = time.clock()
+        tableExists =self.cnx.execute("select count(*) from sqlite_master where name=?", (tableName,)).fetchone()[0]
+        if tableExists == 0:
+            self.CREATE_RESULTS_TABLE(tableName)
+        else:
+            reply = QtGui.QMessageBox.question(self.parent.MainWindow, "Table Already Exists in Database",  "Overwrite existing Table and Overwite?", QtGui.QMessageBox.Yes,QtGui.QMessageBox.No)
+            if reply:
+                dropOK = self.DROP_TABLE(tableName)
+                if dropOK:
+                    self.CREATE_RESULTS_TABLE(tableName)
+                    pass
+                else:
+                    return False
+            else:
+                return False
         for i in xrange(XT_RESULTS.iterLen):
             self.cur.execute(
                             'INSERT INTO "%s" VALUES (?,?,?,?,?,?,?,?,?,?,?)'%tableName,#again I know %s is not recommended but I don't know how to do this more elegantly.
@@ -58,12 +75,38 @@ class XT_DB(object):#X!Tandem Database Class
         self.cnx.commit()
         t2 = time.clock()
         print "SQLite Commit Time (s): ", (t2-t1)
+        return True
         
     def close(self):
         self.cnx.close()
+    
+    def LIST_TABLES(self):
+        self.tblList = []
+        self.cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name != 'sqlite_sequence' ORDER BY name")
+        for row in self.cur.fetchall():
+            self.tblList.append(str(row[0]))#row[0] by itself produces a unicode object, and row itself is a tuple
         
-    def CREATE_RESULTS_TABLE(self, tableName):
+        return self.tblList
+    
+    def DROP_TABLE(self, tableName):
+        try:
+            self.cur.execute('DROP TABLE %s'%tableName)
+            self.cnx.commit()
+            print tableName,  "Dropped"
+            return True
+        except:
+            self.errorMsg = "Sorry: %s:%s"%(sys.exc_type, sys.exc_value)
+            msg = self.errorMsg + '\nCheck File Name! No Funky Characters'
+            error = QtGui.QMessageBox.warning(self.parent.MainWindow, "Table Drop Error!",  msg)
+            return False
+        
+        
+    def CREATE_RESULTS_TABLE(self, tableName,  overWrite = False):
+        if overWrite:
+            self.DROP_TABLE(tableName)
+            
         self.curTblName = tableName
+    
         self.cur.execute('CREATE TABLE IF NOT EXISTS "%s"(id INTEGER PRIMARY KEY AUTOINCREMENT,\
         pepID TEXT,\
         pep_eVal REAL,\
@@ -120,8 +163,8 @@ class XT_DB(object):#X!Tandem Database Class
         XT_RESULTS.setFN(tableName)    
         self.curTblName=tableName
         
-        t2 = time.clock()
-        print "SQLite Read Time (s): ", (t2-t1)
+        t2 = str(time.clock()-t1)
+        print "SQLite Read Time for %s (s): %s"%(tableName, t2)
         
 #############################################        
 '''Begin HDF5 and PyTables Interface'''

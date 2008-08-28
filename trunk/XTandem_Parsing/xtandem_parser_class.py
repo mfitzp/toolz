@@ -26,14 +26,14 @@ class XT_RESULTS:
         else:
             self.ppm_cutoff = 2  
             
-        self.ppm_errors = None
-        self.theoMZs = None
-        self.scanID = None
-        self.pro_eVals = None
-        self.pep_eValues = None
-        self.pepLengths = None
-        self.hScores = None
-        self.nextScores = None
+#        self.ppm_errors = None
+#        self.theoMZs = None
+#        self.scanID = None
+#        self.pro_eVals = None
+#        self.pep_eValues = None
+#        self.pepLengths = None
+#        self.hScores = None
+#        self.nextScores = None
         
         pepIDs = []
         proIDs = []
@@ -153,27 +153,7 @@ class XT_RESULTS:
     
         
 
-def onpick(event):
-    #print "picked"
-    #if isinstance(event.artist, Line2D):
-    try:
-        #self.fragHandle.remove()
-        textHandle.remove()
-    except:
-        pass
-    ind = event.ind[0]
-    #print ind,  type(event.artist)
-    handleA.set_data(N.take(x, [ind]), N.take(y, [ind]))
-    handleA.set_visible(True)
-    showText = '%s'%(pepseqlist[ind])
-    textHandle = ax.text(0.03, 0.95, showText, fontsize=7,\
-                                        bbox=dict(facecolor='yellow', alpha=0.1),\
-                                        transform=ax.transAxes, va='top')
-    fig.canvas.draw()
-
-
 if __name__ == '__main__':
-    from pylab import *
     import numpy as N
     import time
     t1 = time.clock()    
@@ -181,55 +161,116 @@ if __name__ == '__main__':
     filename = 'VP2P47_C_unf_5xDil_rn1_12Oct07_Raptor_Fst-75-1_FIXED_dta_OUT.xml'
     x = parseXtandemResults(filename)
     t2 = time.clock()
-    print t2-t1, 'sec'
-    ans = x.get('VP2P47_C_unf_5xDil_rn1_12Oct07_Raptor_Fst-75-1_FIXED_dta_OUT.xml')
-#    print len(ans)
-#    print type(ans[0]), len(ans[0])
-#    print type(ans[1]), len(ans[1])
-    n=0
-    pep_eVal = []
-    ppmlist =[]
-    peplenlist=[]
-    deltascore = []
-    pepseqlist = []
-    for item in ans[0]:
-        pep_eVal.append(item.pep_eVal)
-        ppmlist.append(item.ppm)
-        peplenlist.append(len(item.pep_seq)**1.5)
-        pepseqlist.append(item.pep_seq)
-        deltascore.append((item.hscore - item.nextscore))
-    pep_eVal = N.array(pep_eVal)
-    ppmlist = N.array(ppmlist)
-    peplenlist = N.array(peplenlist)
-    deltascore = N.array(deltascore)
-    fig = figure()
-    ax = fig.add_subplot(111)
-    handleA,  = ax.plot([0], [0], 'o',\
-                    ms=8, alpha=.5, color='yellow', visible=True,  label = 'Cursor A')
-    x = pep_eVal
-    y = deltascore
-    ax.scatter(x, y,  s = peplenlist,  alpha = 0.3,  picker = 5)
-    #ax.scatter(ppmlist, deltascore,  s = peplenlist,  alpha = 0.4,  picker = 5)
-    ax.set_xscale('log')
-    xmin = N.min(pep_eVal)/10
-    xmax = N.max(pep_eVal)*10
-    ax.set_xlim(xmin, xmax)
-    fig.canvas.mpl_connect('pick_event', onpick)
-    show()
-    #for item in ans[1].iteritems():
-        #if n < 20:
-            #if len(item[1]) >= 3:
-                #for pep in item[1]:
-                    #print pep.pep_seq,  pep.protID,  pep.scan
-            #n+=1
-        #n+=1
-    
-#    n = 0
-#    for pep in ans:
-#        #print pep.pep_seq
-#        if str(pep.pep_seq) == 'NDEVSSLDAFLDLIR':
-#            print n, pep.pep_seq, pep.ppm, pep.pep_eVal,  pep.scan
-#            n+=1
-        #print pep.pep_seq,  pep.scan
-    
 
+
+#    
+#The shell running Python 2.5.2 (r252:60911, Feb 21 2008, 13:11:45) [MSC v.1310 32 bit (Intel)] on win32.
+#Type "copyright", "credits" or "license" for more information on Python.
+#
+# object? -> Print details about 'object'
+#
+#>>> from xml.etree import cElementTree as ET
+#>>> tree = ET.parse('C:\SVN\toolz\XTandem_Parsing\xmlFiles\BSATest.xml')
+#ValueError: invalid \x escape
+#>>> tree = ET.parse('C:\\SVN\\toolz\\XTandem_Parsing\\xmlFiles\\BSATest.xml')
+#>>> r = tree.getroot()
+#>>> r
+#<Element 'bioml' at 023D7740>
+#>>> r.getchildren()
+#[<Element 'group' at 023D7818>, <Element 'group' at 023D7C68>, <Element 'group' at 027FC080>, <Element 'group' at 027FC488>, <Element 'group' at 027FC908>, <Element 'group' at 027FCD40>, <Element 'group' at 0280B1A0>, <Element 'group' at 0280B5A8>, <Element 'group' at 0280B9E0>, <Element 'group' at 0280BE18>, <Element 'group' at 0281C2A8>, <Element 'group' at 0281C710>, <Element 'group' at 0281CB48>, <Element 'group' at 0281CFB0>, <Element 'group' at 03A8D410>, <Element 'group' at 03A8D908>, <Element 'group' at 03A8DD10>, <Element 'group' at 03A9B140>, <Element 'group' at 03A9B548>, <Element 'group' at 03A9B950>, <Element 'group' at 03A9BDE8>, <Element 'group' at 03AAE2D8>, <Element 'group' at 03AAE740>, <Element 'group' at 03AAEB48>, <Element 'group' at 03AAEF50>, <Element 'group' at 03AC1410>, <Element 'group' at 03AC18A8>, <Element 'group' at 03AC1D10>, <Element 'group' at 03AD2170>, <Element 'group' at 03AD25A8>, <Element 'group' at 03AD29B0>, <Element 'group' at 03AD2DB8>, <Element 'group' at 03AE11E8>, <Element 'group' at 03AE1620>, <Element 'group' at 03AE1A58>, <Element 'group' at 03AE1E90>, <Element 'group' at 03AF12C0>, <Element 'group' at 03AF16C8>, <Element 'group' at 03AF1AD0>, <Element 'group' at 03AF1F50>, <Element 'group' at 03B123F8>, <Element 'group' at 03B12878>, <Element 'group' at 03B12CF8>, <Element 'group' at 03B22188>, <Element 'group' at 03B225C0>, <Element 'group' at 03B22A28>, <Element 'group' at 03B22E90>, <Element 'group' at 03B322F0>, <Element 'group' at 03B32800>, <Element 'group' at 03B32D58>, <Element 'group' at 03B43188>, <Element 'group' at 03B435C0>, <Element 'group' at 03B439C8>, <Element 'group' at 03B43E00>, <Element 'group' at 03B67260>, <Element 'group' at 03B67668>, <Element 'group' at 03B67AA0>, <Element 'group' at 03B67ED8>, <Element 'group' at 03B79308>, <Element 'group' at 03B797A0>, <Element 'group' at 03B79C68>, <Element 'group' at 03B86128>, <Element 'group' at 03B865C0>, <Element 'group' at 03B86950>, <Element 'group' at 03B86CE0>, <Element 'group' at 03B99188>, <Element 'group' at 03B997A0>, <Element 'group' at 03B99BD8>, <Element 'group' at 03B99F80>, <Element 'group' at 03BCB3B0>, <Element 'group' at 03BCB740>, <Element 'group' at 03BCBAD0>, <Element 'group' at 03BDC080>, <Element 'group' at 03BDC2D8>]
+#>>> a = r.getchildren()[0]
+#>>> a
+#<Element 'group' at 023D7818>
+#>>> a.items()
+#[('rt', 'PT1846.46S'), ('mh', '1250.172724'), ('label', 'ENSBTAP00000022763'), ('maxI', '52000'), ('expect', '4.8e-003'), ('sumI', '5.45'), ('fI', '520'), ('z', '2'), ('type', 'model'), ('id', '1164')]
+#>>> a.getchildren()
+#[<Element 'protein' at 023D75A8>, <Element 'protein' at 023D7920>, <Element 'group' at 023D7848>, <Element 'group' at 023D77B8>]
+#>>> a
+#<Element 'group' at 023D7818>
+#>>> a.items()
+#[('rt', 'PT1846.46S'), ('mh', '1250.172724'), ('label', 'ENSBTAP00000022763'), ('maxI', '52000'), ('expect', '4.8e-003'), ('sumI', '5.45'), ('fI', '520'), ('z', '2'), ('type', 'model'), ('id', '1164')]
+#>>> a.keys()
+#['rt', 'mh', 'label', 'maxI', 'expect', 'sumI', 'fI', 'z', 'type', 'id']
+#>>> a1 = a.getchildren()[0]
+#>>> a1
+#<Element 'protein' at 023D75A8>
+#>>> a1.items9)
+#  File "<input>", line 1
+#    a1.items9)
+#             ^
+#SyntaxError: invalid syntax
+#>>> a1.items()
+#[('uid', '19080'), ('label', 'ENSBTAP00000022763'), ('expect', '-368.6'), ('sumI', '8.31'), ('id', '1164.1')]
+#>>> a1.keys()
+#['uid', 'label', 'expect', 'sumI', 'id']
+#>>> a1.note
+#Traceback (most recent call last):
+#  File "<input>", line 1, in <module>
+#AttributeError: note
+#>>> a1.findall('note')
+#[<Element 'note' at 023D7890>]
+#>>> print a1.findall('note')
+#[<Element 'note' at 023D7890>]
+#>>> print a1.findall('note')[0]
+#<Element 'note' at 023D7890>
+#>>> note =  a1.findall('note')[0]
+#>>> note
+#<Element 'note' at 023D7890>
+#>>> note.text
+#'ENSBTAP00000022763'
+#>>> pep = a1.findall('peptide')
+#>>> pep
+#[<Element 'peptide' at 023D78D8>]
+#>>> pep = a1.findall('peptide')[0]
+#>>> pep
+#<Element 'peptide' at 023D78D8>
+#>>> pep.keys()
+#['start', 'end']
+#>>> pep.items()
+#[('start', '1'), ('end', '607')]
+#>>> dom = a1.findall('domain')[0]
+#Traceback (most recent call last):
+#  File "<input>", line 1, in <module>
+#IndexError: list index out of range
+#>>> dom = a1.findall('domain')
+#>>> dom
+#[]
+#>>> a
+#<Element 'group' at 023D7818>
+#>>> a.findall('domain')
+#[]
+#>>> a1.findall('domain')
+#[]
+#>>> a
+#<Element 'group' at 023D7818>
+#>>> a.getchildren()
+#[<Element 'protein' at 023D75A8>, <Element 'protein' at 023D7920>, <Element 'group' at 023D7848>, <Element 'group' at 023D77B8>]
+#>>> for j in a.getchildren()
+#  File "<input>", line 1
+#    for j in a.getchildren()
+#                           
+#^
+#SyntaxError: invalid syntax
+#>>> for j in a.getchildren():
+#... 	print j.items()
+#... 
+#[('uid', '19080'), ('label', 'ENSBTAP00000022763'), ('expect', '-368.6'), ('sumI', '8.31'), ('id', '1164.1')]
+#[('uid', '27695'), ('label', 'sp|ALBU_BOVIN|'), ('expect', '-368.6'), ('sumI', '8.31'), ('id', '1164.2')]
+#[('type', 'support'), ('label', 'supporting data')]
+#[('type', 'support'), ('label', 'fragment ion mass spectrum')]
+#>>> a1.items()
+#[('uid', '19080'), ('label', 'ENSBTAP00000022763'), ('expect', '-368.6'), ('sumI', '8.31'), ('id', '1164.1')]
+#>>> a1.getchildren()
+#[<Element 'note' at 023D7890>, <Element 'file' at 023D7830>, <Element 'peptide' at 023D78D8>]
+#>>> pep
+#<Element 'peptide' at 023D78D8>
+#>>> pep.getchildren()
+#[<Element 'domain' at 023D77A0>]
+#>>> dom = pep.findall('domain')[0]
+#>>> dom
+#<Element 'domain' at 023D77A0>
+#>>> dom.items()
+#[('b_ions', '6'), ('pre', 'IAHR'), ('end', '44'), ('seq', 'FKDLGEEHFK'), ('nextscore', '25.5'), ('mh', '1249.621'), ('y_ions', '8'), ('start', '35'), ('hyperscore', '42.0'), ('b_score', '9.5'), ('expect', '4.8e-003'), ('delta', '0.552'), ('post', 'GLVL'), ('missed_cleavages', '1'), ('id', '1164.1.1'), ('y_score', '11.8')]
+#>>> dom.get('b_ions')
+#'6'
+#>>> 
