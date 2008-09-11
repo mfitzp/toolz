@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\SVN\toolz\XTandem_Parsing\main.ui'
 #
-# Created: Wed Aug 27 17:26:02 2008
+# Created: Thu Aug 28 09:01:56 2008
 #      by: PyQt4 UI code generator 4.3.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -191,6 +191,7 @@ class Ui_MainWindow(object):
         self.hboxlayout5.addWidget(self.openDBButton)
 
         self.curDBpathname = QtGui.QLineEdit(self.tab)
+        self.curDBpathname.setReadOnly(True)
         self.curDBpathname.setObjectName("curDBpathname")
         self.hboxlayout5.addWidget(self.curDBpathname)
 
@@ -202,6 +203,11 @@ class Ui_MainWindow(object):
         self.dbConnectedBtn.setObjectName("dbConnectedBtn")
         self.hboxlayout5.addWidget(self.dbConnectedBtn)
         self.vboxlayout7.addLayout(self.hboxlayout5)
+
+        self.useMemDB_CB = QtGui.QCheckBox(self.tab)
+        self.useMemDB_CB.setChecked(True)
+        self.useMemDB_CB.setObjectName("useMemDB_CB")
+        self.vboxlayout7.addWidget(self.useMemDB_CB)
 
         self.vboxlayout8 = QtGui.QVBoxLayout()
         self.vboxlayout8.setObjectName("vboxlayout8")
@@ -395,7 +401,7 @@ class Ui_MainWindow(object):
         self.toolBar.addAction(self.actionTools)
 
         self.retranslateUi(MainWindow)
-        self.mainTabWidget.setCurrentIndex(0)
+        self.mainTabWidget.setCurrentIndex(2)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -416,6 +422,7 @@ class Ui_MainWindow(object):
         self.dbCommitQuery.setText(QtGui.QApplication.translate("MainWindow", "Commit Query Results", None, QtGui.QApplication.UnicodeUTF8))
         self.label_7.setText(QtGui.QApplication.translate("MainWindow", "Data Base Error Message:", None, QtGui.QApplication.UnicodeUTF8))
         self.openDBButton.setText(QtGui.QApplication.translate("MainWindow", "Select Database", None, QtGui.QApplication.UnicodeUTF8))
+        self.useMemDB_CB.setText(QtGui.QApplication.translate("MainWindow", "Use In-Memory Database?", None, QtGui.QApplication.UnicodeUTF8))
         self.autoNameTblCB.setText(QtGui.QApplication.translate("MainWindow", "Auto Name Tables", None, QtGui.QApplication.UnicodeUTF8))
         self.rstDBButton.setText(QtGui.QApplication.translate("MainWindow", "Clear and Reset Database", None, QtGui.QApplication.UnicodeUTF8))
         self.appendNewFilesCB.setText(QtGui.QApplication.translate("MainWindow", "Append New Files to Database?", None, QtGui.QApplication.UnicodeUTF8))

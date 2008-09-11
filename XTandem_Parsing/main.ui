@@ -35,7 +35,7 @@
       <item>
        <widget class="QTabWidget" name="mainTabWidget" >
         <property name="currentIndex" >
-         <number>0</number>
+         <number>2</number>
         </property>
         <widget class="QWidget" name="plotTab" >
          <attribute name="title" >
@@ -241,7 +241,11 @@
                </widget>
               </item>
               <item>
-               <widget class="QLineEdit" name="curDBpathname" />
+               <widget class="QLineEdit" name="curDBpathname" >
+                <property name="readOnly" >
+                 <bool>true</bool>
+                </property>
+               </widget>
               </item>
               <item>
                <widget class="QPushButton" name="dbConnectedBtn" >
@@ -266,6 +270,16 @@
                </widget>
               </item>
              </layout>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="useMemDB_CB" >
+              <property name="text" >
+               <string>Use In-Memory Database?</string>
+              </property>
+              <property name="checked" >
+               <bool>true</bool>
+              </property>
+             </widget>
             </item>
             <item>
              <layout class="QVBoxLayout" >
