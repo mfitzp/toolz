@@ -79,6 +79,7 @@ class XT_DB(object):#X!Tandem Database Class
         
     def close(self):
         self.cnx.close()
+        self.dbOK = False
     
     def LIST_TABLES(self):
         self.tblList = []

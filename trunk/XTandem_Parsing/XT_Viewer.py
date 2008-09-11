@@ -64,12 +64,12 @@ class XTViewer(ui_main.Ui_MainWindow):
         self.curTbl = None
         self.curFileName = None
         self.curDB = None
-        self.memDB = True
         
         self.activeDict = {}
         
-        
+        self.dbConnectedBtn.setEnabled(False)
         self.dbStatus = False
+        self.setDBConnection()
         
         self.plot_num = 0
         self.marker_index = 0
@@ -90,13 +90,102 @@ class XTViewer(ui_main.Ui_MainWindow):
         }
         
         
-        self.dbConnectedBtn.setEnabled(False)
+        
         
         self.__setupPlot__()
         self.plotWidget.canvas.mpl_connect('pick_event', self.OnPickPlot)
     
-
+    def __testFunc__(self):
+        print self.curDB.LIST_TABLES()
+        print type(self.curDB.LIST_TABLES()[0])
+        
     
+    def setDBConnection(self):#would this be better if you added an old db reference in case it fails?
+        if self.useMemDB_CB.isChecked() == True and self.dbStatus == False:
+            self.setMemDB(2)
+        else:
+            dbName = QtGui.QFileDialog.getSaveFileName(self.MainWindow,\
+                                             'Select Database: ',\
+                                             self.__curDir, 'SQLite Database (*.db)', "", QtGui.QFileDialog.DontConfirmOverwrite)
+            if not dbName.isEmpty():
+                if self.dbStatus:#(i.e a connection already exists)
+                    reply = QtGui.QMessageBox.question(self.MainWindow, "Database Conneciton Exists", "A Database Connection already exists.  Do you want to close the current connection and establish the one just selected?",
+                                                   QtGui.QMessageBox.Yes|QtGui.QMessageBox.No)
+                    if reply == QtGui.QMessageBox.Yes:
+                        self.curDB.close()
+                        self.dbStatus == False
+                        if self.useMemDB_CB.isChecked():
+                            self.useMemDB_CB.setChecked(False)
+                        self.curDBpathname.setText(dbName)
+                        self.curDB = dbIO.XT_DB(str(dbName),  parent = self)
+                        self.dbStatus = self.curDB.dbOK
+                        if self.dbStatus:
+                            self.dbConnectedBtn.setEnabled(True)
+                        else:
+                            self.setDBError()
+                else:
+                    return False
+            elif self.useMemDB_CB.isChecked() == False:
+                self.retryDBConnection()
+    
+    def retryDBConnection(self):
+        reply = QtGui.QMessageBox.question(self.MainWindow, "Database Connection Needed", "You Must Select a Valid SQLite DB Before Proceeding.  Establish Connection Now?",
+                                           QtGui.QMessageBox.Yes|QtGui.QMessageBox.No)
+        if reply == QtGui.QMessageBox.Yes:
+            self.setDBConnection()
+        else:
+            self.dbStatus = False
+    
+    def updateDBGUI(self):
+        if self.useMemDB_CB.isChecked():
+            self.memDB = True
+        else:
+            self.memDB = False
+    
+    def setDBError(self):
+        try:
+            errorMsg = self.curDB.errorMsg
+        except:
+            errorMsg = "No database establed. Try again?"
+        reply = QtGui.QMessageBox.warning(self.MainWindow, "Database Connection Error",  errorMsg)
+        if reply == QtGui.QMessageBox.OK:
+            self.retryDBConnection()
+    
+    def setMemDB(self, state):
+        #state == 2 if checked
+        if state == 0:
+            return False
+        if self.useMemDB_CB.isChecked() and self.dbStatus == False:
+            dbName=':memory:'
+            self.curDBpathname.setText(dbName)
+            self.curDB = dbIO.XT_DB(str(dbName),  parent = self)
+            self.dbStatus = self.curDB.dbOK
+            if self.dbStatus:
+                self.dbConnectedBtn.setEnabled(True)
+            else:
+                self.setDBError()
+                    
+        elif self.useMemDB_CB.isChecked() and self.dbStatus == True:
+            reply = QtGui.QMessageBox.question(self.MainWindow, "Database Conneciton Exists", "A Database Connection already exists.  Do you want to close the current connection and establish an in-memory database?",
+                                           QtGui.QMessageBox.Yes|QtGui.QMessageBox.No)
+            if reply == QtGui.QMessageBox.Yes:
+                self.curDB.close()
+                self.dbStatus == False
+                dbName=':memory:'
+                self.curDBpathname.setText(dbName)
+                self.curDB = dbIO.XT_DB(str(dbName),  parent = self)
+                self.dbStatus = self.curDB.dbOK
+                if self.dbStatus:
+                    self.dbConnectedBtn.setEnabled(True)
+                else:
+                    self.setDBError()
+            elif reply == QtGui.QMessageBox.No:
+                self.useMemDB_CB.setChecked(False)
+                
+        else:
+            self.dbStatus = False
+            self.setDBError()
+            
     def loadFileXT(self, filename):
         if filename:
             self.fileType= str(filename).split('.')[-1]
@@ -104,6 +193,7 @@ class XTViewer(ui_main.Ui_MainWindow):
             if self.dbStatus:
                 fnCore = self.getFNCore(str(filename))
                 self.curTbl = fnCore
+                ##Need to add boolean for an empy dataDict
                 self.activeDict[fnCore] = XT_RESULTS(filename)
                 insertOK = self.curDB.INSERT_XT_VALUES(fnCore, self.activeDict[fnCore])
                 if insertOK:
@@ -287,7 +377,6 @@ class XTViewer(ui_main.Ui_MainWindow):
         
         self.SelectInfoWidget.resizeColumnsToContents()
 
-    
     def ZoomToggle(self):
         self.plotWidget.toolbar.zoom()
     
@@ -361,6 +450,7 @@ class XTViewer(ui_main.Ui_MainWindow):
         
         '''Database Connection slots'''
         QtCore.QObject.connect(self.openDBButton, QtCore.SIGNAL("clicked()"), self.setDBConnection)
+        QtCore.QObject.connect(self.useMemDB_CB, QtCore.SIGNAL("stateChanged (int)"), self.setMemDB)
         
         
         '''File menu actions slots'''
@@ -375,54 +465,6 @@ class XTViewer(ui_main.Ui_MainWindow):
 
         QtCore.QMetaObject.connectSlotsByName(self.MainWindow)
     
-    def __testFunc__(self):
-        print self.curDB.LIST_TABLES()
-        print type(self.curDB.LIST_TABLES()[0])
-    
-    def setDBConnection(self):#would this be better if you added an old db reference in case it fails?
-        if self.memDB == True and self.dbStatus == False:
-            dbName=':memory:'
-            self.curDBpathname.setText(dbName)
-            self.curDB = dbIO.XT_DB(str(dbName),  parent = self)
-            self.dbStatus = self.curDB.dbOK
-            if self.dbStatus:
-                self.dbConnectedBtn.setEnabled(True)
-            else:
-                reply = QtGui.QMessageBox.warning(self.MainWindow, "Database Connection Error",  self.curDB.errorMsg)
-                if reply == QtGui.QMessageBox.OK:
-                    self.retryDBConnection()
-        else:
-                
-            dbName = QtGui.QFileDialog.getSaveFileName(self.MainWindow,\
-                                             'Select Database: ',\
-                                             self.__curDir, 'SQLite Database (*.db)')
-            if not dbName.isEmpty():
-                if self.dbStatus:#(i.e a connection already exists)
-                    self.curDB.close()
-                self.curDBpathname.setText(dbName)
-                self.curDB = dbIO.XT_DB(str(dbName),  parent = self)
-                self.dbStatus = self.curDB.dbOK
-                if self.dbStatus:
-                    self.dbConnectedBtn.setEnabled(True)
-                    self.memDB = False#make it so that no record of memory connection exists
-                
-                else:
-                    reply = QtGui.QMessageBox.warning(self.MainWindow, "Database Connection Error",  self.curDB.errorMsg)
-                    if reply == QtGui.QMessageBox.OK:
-                        self.retryDBConnection()
-            elif self.memDB == False:
-                self.retryDBConnection()
-    
-    #def updateDBGUI(self):
-        
-    
-    def retryDBConnection(self):
-        reply = QtGui.QMessageBox.question(self.MainWindow, "Database Connection Needed", "You Must Select a Valid SQLite DB Before Proceeding.  Establish Connection Now?",
-                                           QtGui.QMessageBox.Yes|QtGui.QMessageBox.No)
-        if reply == QtGui.QMessageBox.Yes:
-            self.setDBConnection()
-        else:
-            self.dbStatus = False
 ###########################################################    \
     def resetData(self):
         self.plotWidget.canvas.ax.cla()
@@ -438,12 +480,12 @@ class XTViewer(ui_main.Ui_MainWindow):
         if reply == QtGui.QMessageBox.Yes:
             if self.dbStatus:
                 self.curDB.cnx.commit()
-                self.curDB.cnx.close()
+                self.curDB.close()
             return True
             
         elif reply == QtGui.QMessageBox.Discard:
             if self.dbStatus:
-                self.curDB.cnx.close()
+                self.curDB.close()
             return True
             
         elif reply == QtGui.QMessageBox.Cancel:
