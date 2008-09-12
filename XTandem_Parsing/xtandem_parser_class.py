@@ -24,7 +24,7 @@ class XT_RESULTS:
         if ppm_cutoff:
             self.ppm_cutoff = ppm_cutoff
         else:
-            self.ppm_cutoff = .10000  
+            self.ppm_cutoff = 10000  
             
 #        self.ppm_errors = None
 #        self.theoMZs = None
