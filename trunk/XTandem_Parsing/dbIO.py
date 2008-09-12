@@ -89,6 +89,13 @@ class XT_DB(object):#X!Tandem Database Class
         
         return self.tblList
     
+    def LIST_COLUMNS(self,  tableName):
+        self.colList = []
+        self.cur.execute('PRAGMA table_info(%s)'%tableName)
+        for row in self.cur.fetchall():
+            self.colList.append(str(row[1]))#row[1] by itself produces a unicode object, and row itself is a tuple, row[1] is the column name
+        return self.colList
+    
     def DROP_TABLE(self, tableName):
         try:
             self.cur.execute('DROP TABLE %s'%tableName)

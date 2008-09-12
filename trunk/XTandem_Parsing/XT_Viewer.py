@@ -64,6 +64,7 @@ class XTViewer(ui_main.Ui_MainWindow):
         self.curTbl = None
         self.curFileName = None
         self.curDB = None
+        self.loadOK = False
         
         self.activeDict = {}
         
@@ -96,9 +97,14 @@ class XTViewer(ui_main.Ui_MainWindow):
         self.plotWidget.canvas.mpl_connect('pick_event', self.OnPickPlot)
     
     def __testFunc__(self):
-        print self.curDB.LIST_TABLES()
-        print type(self.curDB.LIST_TABLES()[0])
-        
+        if self.loadOK:
+            print self.curDB.LIST_TABLES()
+            print self.curDB.LIST_COLUMNS(self.curDB.LIST_TABLES()[0])
+            print type(self.curDB.LIST_TABLES()[0])
+            
+            activeData = self.activeDict[self.curTbl]
+            print activeData.dataDict.keys()
+           
     
     def setDBConnection(self):#would this be better if you added an old db reference in case it fails?
         if self.useMemDB_CB.isChecked() == True and self.dbStatus == False:
@@ -152,12 +158,13 @@ class XTViewer(ui_main.Ui_MainWindow):
             self.retryDBConnection()
     
     def setMemDB(self, state):
+        '''This function initializes a memory data base for sqlite if the GUI checkbox is marked'''
         #state == 2 if checked
         if state == 0:
             return False
         if self.useMemDB_CB.isChecked() and self.dbStatus == False:
             dbName=':memory:'
-            self.curDBpathname.setText(dbName)
+            self.curDBpathname.setText(dbName)#updates the DB GUI
             self.curDB = dbIO.XT_DB(str(dbName),  parent = self)
             self.dbStatus = self.curDB.dbOK
             if self.dbStatus:
@@ -193,36 +200,54 @@ class XTViewer(ui_main.Ui_MainWindow):
             if self.dbStatus:
                 fnCore = self.getFNCore(str(filename))
                 self.curTbl = fnCore
-                ##Need to add boolean for an empy dataDict
-                self.activeDict[fnCore] = XT_RESULTS(filename)
-                insertOK = self.curDB.INSERT_XT_VALUES(fnCore, self.activeDict[fnCore])
-                if insertOK:
-                    self.initiatePlot()
-                    self.firstLoad = False
-            
+                try:
+                    results = XT_RESULTS(filename)
+                    if results.dataDict == False:
+                        return QtGui.QMessageBox.information(self.MainWindow,'', self.EmptyArrayText)
+                    else:
+                        self.activeDict[fnCore] = results
+                        insertOK = self.curDB.INSERT_XT_VALUES(fnCore, self.activeDict[fnCore])
+                        self.loadOK = True
+                        if insertOK:
+                            self.initiatePlot()
+                            self.firstLoad = False
+                except:
+                    return QtGui.QMessageBox.information(self.MainWindow,'', "Error reading xml File.  Are you sure it is an X!Tandem output file?")
+        
         elif self.fileType == 'h5':
-            self.curFile = XT_RESULTS(filename,  parseFile = False)
-            dbIO.load_XT_HDF5(str(filename), self.curFile)
-            self.initiatePlot()
-            self.firstLoad = False
+            try:
+                self.curFile = XT_RESULTS(filename,  parseFile = False)
+                dbIO.load_XT_HDF5(str(filename), self.curFile)
+                self.initiatePlot()
+                self.firstLoad = False
+                self.loadOK = True
+            except:
+                self.loadOK = False
+                return QtGui.QMessageBox.information(self.MainWindow,'', "Error reading hfdf5 File.  Are you sure it was created by this program?")
             
         elif self.fileType == 'db':
-            if not self.firstLoad:
-                if self.__askConfirm__("Data Reset",self.ResetAllDataText):
-                    self.resetData()
-                    #self.resetDB()#Need to implement
-                    self.startup()
-            
-            self.curFile = XT_RESULTS(filename,  parseFile = False)      
-            sqldb = dbIO.XT_DB(str(filename), "testTables", createNew = False)#NEED TO FIX THE NAME
-            sqldb.READ_XT_VALUES(sqldb.curTblName, self.curFile)
-            sqldb.close()  
-            self.initiatePlot()
-            self.firstLoad = False
+            try:
+                if not self.firstLoad:
+                    if self.__askConfirm__("Data Reset",self.ResetAllDataText):
+                        self.resetData()
+                        #self.resetDB()#Need to implement
+                        self.startup()
+                
+                self.curFile = XT_RESULTS(filename,  parseFile = False)      
+                sqldb = dbIO.XT_DB(str(filename), "testTables", createNew = False)#NEED TO FIX THE NAME
+                sqldb.READ_XT_VALUES(sqldb.curTblName, self.curFile)
+                sqldb.close()
+                self.loadOK = True
+                self.initiatePlot()
+                self.firstLoad = False
+            except:
+                self.loadOK = False
+                return QtGui.QMessageBox.information(self.MainWindow,'', "Error reading db File.  Are you sure it was created by this program?")
             
         else:
             return QtGui.QMessageBox.information(self.MainWindow,'', "Problem loading data, check file")
-    
+
+        
     def __loadDataFolder__(self):
 #        if self.dbStatus:
         directory= QtGui.QFileDialog.getExistingDirectory(self.MainWindow,\
@@ -420,6 +445,7 @@ class XTViewer(ui_main.Ui_MainWindow):
         self.ScratchSavePrompt = "Choose file name to save the scratch pad:"
         self.OpenDataText = "Choose a data file to open:"
         self.ResetAllDataText = "This operation will reset all your data.\nWould you like to continue?"
+        self.EmptyArrayText = "There is not data in the array selected.  Perhaps the search criteria are too stringent.  Check ppm and e-Value cutoff values"
 
     def __additionalVariables__(self):
         '''Extra variables that are utilized by other functions'''
