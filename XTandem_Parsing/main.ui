@@ -35,7 +35,7 @@
       <item>
        <widget class="QTabWidget" name="mainTabWidget" >
         <property name="currentIndex" >
-         <number>2</number>
+         <number>0</number>
         </property>
         <widget class="QWidget" name="plotTab" >
          <attribute name="title" >
@@ -51,84 +51,120 @@
          <attribute name="title" >
           <string>Define Plot</string>
          </attribute>
-         <widget class="QWidget" name="layoutWidget" >
-          <property name="geometry" >
-           <rect>
-            <x>10</x>
-            <y>10</y>
-            <width>765</width>
-            <height>578</height>
-           </rect>
-          </property>
-          <layout class="QGridLayout" >
-           <item row="0" column="0" >
-            <widget class="QLabel" name="label_4" >
-             <property name="text" >
-              <string>Database Tables:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1" >
-            <widget class="QLabel" name="label_5" >
-             <property name="text" >
-              <string>X-Axis:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0" >
-            <widget class="QListWidget" name="db_TableList" />
-           </item>
-           <item row="1" column="1" >
-            <widget class="QListWidget" name="db_XCols" />
-           </item>
-           <item row="2" column="1" >
-            <widget class="QLabel" name="label_6" >
-             <property name="text" >
-              <string>Y-Axis:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="1" >
-            <widget class="QListWidget" name="db_YCols" />
-           </item>
-           <item row="4" column="1" >
-            <layout class="QHBoxLayout" >
-             <item>
-              <widget class="QCheckBox" name="cb_logy" >
-               <property name="text" >
-                <string>Log Y</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QCheckBox" name="cb_logx" >
-               <property name="text" >
-                <string>Log X</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item row="3" column="0" >
-            <layout class="QVBoxLayout" >
-             <item>
-              <widget class="QPushButton" name="updatePlotBtn" >
-               <property name="text" >
-                <string>Update Plot</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="clearPlotBtn" >
-               <property name="text" >
-                <string>Clear Plot</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-          </layout>
-         </widget>
+         <layout class="QGridLayout" >
+          <item row="0" column="0" >
+           <widget class="QLabel" name="label_4" >
+            <property name="text" >
+             <string>Database Tables:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1" >
+           <widget class="QLabel" name="label_5" >
+            <property name="text" >
+             <string>X-Axis:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" >
+           <widget class="QListWidget" name="db_TableList" />
+          </item>
+          <item row="1" column="1" >
+           <widget class="QListWidget" name="db_XCols" />
+          </item>
+          <item row="2" column="1" >
+           <widget class="QLabel" name="label_6" >
+            <property name="text" >
+             <string>Y-Axis:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0" >
+           <layout class="QGridLayout" >
+            <item row="0" column="1" >
+             <widget class="QDoubleSpinBox" name="sizeModSpinBox" >
+              <property name="minimum" >
+               <double>0.000000000000000</double>
+              </property>
+              <property name="singleStep" >
+               <double>0.500000000000000</double>
+              </property>
+              <property name="value" >
+               <double>1.500000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1" >
+             <widget class="QComboBox" name="sizeArrayComboB" />
+            </item>
+            <item row="2" column="1" >
+             <widget class="QPushButton" name="updatePlotBtn" >
+              <property name="text" >
+               <string>Update Plot</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="1" >
+             <widget class="QPushButton" name="clearPlotBtn" >
+              <property name="text" >
+               <string>Clear Plot</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0" >
+             <widget class="QLabel" name="label_8" >
+              <property name="text" >
+               <string>Size Modifier:</string>
+              </property>
+              <property name="alignment" >
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0" >
+             <widget class="QLabel" name="label_9" >
+              <property name="text" >
+               <string>Size Array:</string>
+              </property>
+              <property name="alignment" >
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="1" >
+             <widget class="QCheckBox" name="clearPlotCB" >
+              <property name="text" >
+               <string>Clear on Update?</string>
+              </property>
+              <property name="checked" >
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="3" column="1" >
+           <widget class="QListWidget" name="db_YCols" />
+          </item>
+          <item row="4" column="1" >
+           <layout class="QHBoxLayout" >
+            <item>
+             <widget class="QCheckBox" name="cb_logx" >
+              <property name="text" >
+               <string>Log X</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="cb_logy" >
+              <property name="text" >
+               <string>Log Y</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
         </widget>
         <widget class="QWidget" name="tab" >
          <attribute name="title" >

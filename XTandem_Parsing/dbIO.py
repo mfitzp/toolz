@@ -129,6 +129,7 @@ class XT_DB(object):#X!Tandem Database Class
             %tableName)
             
     def READ_XT_VALUES(self, tableName, XT_RESULTS):
+        '''The XT_RESULTS in this case is empty instance that will be filled, however, it could be one that needs to be updated too.'''
         t1 = time.clock()
         
         pepIDs = []

@@ -17,7 +17,7 @@ class MyMplCanvas(FigureCanvas):
 		self.fig.subplots_adjust(left=0.1, bottom=0.1, right=0.9, top=0.9)
 		self.xtitle="x-Axis"
 		self.ytitle="y-Axis"
-		self.PlotTitle = "Subplot"
+		self.PlotTitle = "Plot"
 		self.grid_status = True
 		self.xaxis_style = 'linear'
 		self.yaxis_style = 'linear'
