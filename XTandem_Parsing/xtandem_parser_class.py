@@ -46,6 +46,7 @@ class XT_RESULTS:
         hScores = []
         nextScores = []
         pepLengths = []
+        deltaHs = []
         
         self.prot_dict = None
         
@@ -70,6 +71,7 @@ class XT_RESULTS:
                                 eValue = float(domain.attrib['expect'])
                                 hscore = float(domain.attrib['hyperscore'])
                                 nextscore = float(domain.attrib['nextscore'])
+                                deltaH = hscore - nextscore
                                 mzTheor = float(domain.get('mh'))
                                 ppm = 1e6*(float(domain.get('delta')))/mzTheor
                                 if eValue < self.evalue_cutoff and abs(ppm) < self.ppm_cutoff:
@@ -83,6 +85,7 @@ class XT_RESULTS:
                                     pepLengths.append(len(pepSeq))
                                     hScores.append(hscore)
                                     nextScores.append(nextscore)
+                                    deltaHs.append(deltaH)
             
             t2 = time.clock()
             print "Initial Read Time (s): ",(t2-t1) 
@@ -98,7 +101,8 @@ class XT_RESULTS:
                     'nextScores':N.array(nextScores),
                     'pepLengths':N.array(pepLengths), 
                     'proIDs':proIDs, 
-                    'pro_eVals':N.array(pro_eVals)
+                    'pro_eVals':N.array(pro_eVals), 
+                    'deltaHs':N.array(deltaHs)
                     }
             else:
                 self.dataDict = False
