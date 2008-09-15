@@ -38,12 +38,12 @@ import dbIO
 #except:
 #    print "Pysco not installed, try easy_install psyco at your command prompt"
 
-plot_colors = ['#297AA3','#A3293D','#3B9DCE','#293DA3','#5229A3','#8F29A3','#A3297A','#A35229',
+plot_colors = ['#297AA3','#A3293D','#3B9DCE','#293DA3','#5229A3','#8F29A3','#A3297A',
 '#7AA329','#3DA329','#29A352','#29A38F','#A38F29','#3B9DCE','#6CB6DA','#CE6C3B','#DA916C',
-'#0080FF','#0000FF','#8000FF','#FF0080','#FF0000','#FF8000','#FFFF00','#80FF00',
-'#00FF00','#00FF80','#00FFFF','#3D9EFF','#7ABDFF','#FF9E3D','#FFBD7A']
+'#0080FF','#0000FF','#7ABDFF','#8000FF','#FF0080','#FF0000','#FF8000','#FFFF00','#A35229','#80FF00',
+'#00FF00','#00FF80','#00FFFF','#3D9EFF','#FF9E3D','#FFBD7A']
 
-markers = ['o', 'd', 's', '^', '>', 'v', '<', 'd', 'p', 'h']
+markers = ['o', 'd','>', 's', '^',  'p', '<', 'h', 'v']
 
 #class XTViewer(ui_main.Ui_MainWindow):
 #    def __init__(self, MainWindow):
@@ -116,6 +116,7 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         
         self.db_XCols.clear()
         self.db_YCols.clear()
+        self.sizeArrayComboB.clear()
         
         activeData = self.activeDict[str(widgetItem.text())]
         colList = activeData.dataDict.keys()
@@ -150,12 +151,12 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         if self.useMemDB_CB.isChecked() == True and self.dbStatus == False:
             self.setMemDB(2)
         else:
-            dbName = QtGui.QFileDialog.getSaveFileName(self.MainWindow,\
+            dbName = QtGui.QFileDialog.getSaveFileName(self,\
                                              'Select Database: ',\
                                              self.__curDir, 'SQLite Database (*.db)', "", QtGui.QFileDialog.DontConfirmOverwrite)
             if not dbName.isEmpty():
                 if self.dbStatus:#(i.e a connection already exists)
-                    reply = QtGui.QMessageBox.question(self.MainWindow, "Database Conneciton Exists", "A Database Connection already exists.  Do you want to close the current connection and establish the one just selected?",
+                    reply = QtGui.QMessageBox.question(self, "Database Conneciton Exists", "A Database Connection already exists.  Do you want to close the current connection and establish the one just selected?",
                                                    QtGui.QMessageBox.Yes|QtGui.QMessageBox.No)
                     if reply == QtGui.QMessageBox.Yes:
                         self.curDB.close()
@@ -175,7 +176,7 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                 self.retryDBConnection()
     
     def retryDBConnection(self):
-        reply = QtGui.QMessageBox.question(self.MainWindow, "Database Connection Needed", "You Must Select a Valid SQLite DB Before Proceeding.  Establish Connection Now?",
+        reply = QtGui.QMessageBox.question(self, "Database Connection Needed", "You Must Select a Valid SQLite DB Before Proceeding.  Establish Connection Now?",
                                            QtGui.QMessageBox.Yes|QtGui.QMessageBox.No)
         if reply == QtGui.QMessageBox.Yes:
             self.setDBConnection()
@@ -193,7 +194,7 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             errorMsg = self.curDB.errorMsg
         except:
             errorMsg = "No database establed. Try again?"
-        reply = QtGui.QMessageBox.warning(self.MainWindow, "Database Connection Error",  errorMsg)
+        reply = QtGui.QMessageBox.warning(self, "Database Connection Error",  errorMsg)
         if reply == QtGui.QMessageBox.OK:
             self.retryDBConnection()
     
@@ -213,7 +214,7 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                 self.setDBError()
                     
         elif self.useMemDB_CB.isChecked() and self.dbStatus == True:
-            reply = QtGui.QMessageBox.question(self.MainWindow, "Database Conneciton Exists", "A Database Connection already exists.  Do you want to close the current connection and establish an in-memory database?",
+            reply = QtGui.QMessageBox.question(self, "Database Conneciton Exists", "A Database Connection already exists.  Do you want to close the current connection and establish an in-memory database?",
                                            QtGui.QMessageBox.Yes|QtGui.QMessageBox.No)
             if reply == QtGui.QMessageBox.Yes:
                 self.curDB.close()
@@ -267,7 +268,7 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                 self.loadOK = True
             except:
                 self.loadOK = False
-                return QtGui.QMessageBox.information(self.MainWindow,'', "Error reading hfdf5 File.  Are you sure it was created by this program?")
+                return QtGui.QMessageBox.information(self,'', "Error reading hfdf5 File.  Are you sure it was created by this program?")
             
         elif self.fileType == 'db':
             try:
@@ -286,15 +287,15 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                 self.firstLoad = False
             except:
                 self.loadOK = False
-                return QtGui.QMessageBox.information(self.MainWindow,'', "Error reading db File.  Are you sure it was created by this program?")
+                return QtGui.QMessageBox.information(self,'', "Error reading db File.  Are you sure it was created by this program?")
             
         else:
-            return QtGui.QMessageBox.information(self.MainWindow,'', "Problem loading data, check file")
+            return QtGui.QMessageBox.information(self,'', "Problem loading data, check file")
 
         
     def __loadDataFolder__(self):
 #        if self.dbStatus:
-        directory= QtGui.QFileDialog.getExistingDirectory(self.MainWindow,\
+        directory= QtGui.QFileDialog.getExistingDirectory(self,\
                                                          "Select X!Tandem XML Data Folder")
         print directory
         #from os.path import join, abspath
@@ -325,7 +326,7 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         else:
             if self.memDB:
                 self.setDBConnection()
-                dataFileName = QtGui.QFileDialog.getOpenFileName(self.MainWindow,\
+                dataFileName = QtGui.QFileDialog.getOpenFileName(self,\
                                             self.OpenDataText,\
                                             self.__curDir, 'X!Tandem XML (*.xml);; HDF5 File (*.h5);;SQLite Database (*.db)')
                 if dataFileName:
@@ -334,7 +335,7 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                 self.retryDBConnection()   
 
     def __saveDataFile__(self):
-        saveFileName = QtGui.QFileDialog.getSaveFileName(self.MainWindow,\
+        saveFileName = QtGui.QFileDialog.getSaveFileName(self,\
                                                              self.SaveDataText,\
                                                              self.__curDir, 'HDF5 File (*.h5);;SQLite Database (*.db)')
         if saveFileName:
@@ -348,7 +349,7 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                     sqldb.INSERT_XT_VALUES(sqldb.curTblName, self.curFile)
                     sqldb.close()
             else:
-                return QtGui.QMessageBox.information(self.MainWindow,'', "A X!Tandem File must be loaded first before saving")
+                return QtGui.QMessageBox.information(self,'', "A X!Tandem File must be loaded first before saving")
                 
     
     def getFNCore(self, filename):
@@ -432,7 +433,7 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         except:
             errorMsg = "Sorry: %s\n\n:%s\n"%(sys.exc_type, sys.exc_value)
             errorMsg+='\n Perhaps a "log" axis is checked or a large number is being used for the size modifier?'
-            QtGui.QMessageBox.warning(self.MainWindow, "Plot Update",  errorMsg)
+            QtGui.QMessageBox.warning(self, "Plot Update",  errorMsg)
             
     def initiatePlot(self):
         self.plotWidget.canvas.ax.cla()
@@ -440,7 +441,7 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         activeData = self.activeDict[self.curTbl]
         self.x = activeData.dataDict.get('pep_eValues')
         #self.x = self.curFile.dataDict.get('hScores')
-        self.y = (activeData.dataDict.get('hScores')-activeData.dataDict.get('nextScores'))
+        self.y = activeData.dataDict.get('deltaHs')#(activeData.dataDict.get('hScores')-activeData.dataDict.get('nextScores'))
         sizeList = activeData.dataDict.get('pepLengths')**1.5
         self.plotScatter = self.plotWidget.canvas.ax.scatter(self.x, self.y,  s = sizeList,  color = self.getPlotColor(),  marker = self.getPlotMarker(), alpha = 0.3,  label = self.curTbl,  picker = 5)#add label = ??
         self.plotWidget.canvas.ax.set_xscale('log')
@@ -551,7 +552,7 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.firstLoad = True
 
     def __additionalConnections__(self):
-        self.hZoom = QtGui.QAction("Zoom",  self)#self.MainWindow)
+        self.hZoom = QtGui.QAction("Zoom",  self)#self)
         self.hZoom.setShortcut("Ctrl+Z")
         self.mainTabWidget.addAction(self.hZoom)
         QtCore.QObject.connect(self.hZoom,QtCore.SIGNAL("triggered()"), self.ZoomToggle)
@@ -621,14 +622,14 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             return False
     
     def __askConfirm__(self,title,message):
-        clickedButton = QtGui.QMessageBox.question(self.MainWindow,\
+        clickedButton = QtGui.QMessageBox.question(self,\
                                                    title,message,\
                                                    QtGui.QMessageBox.Yes,QtGui.QMessageBox.Cancel)
         if clickedButton == QtGui.QMessageBox.Yes: return True
         return False
     
     def __showHints__(self):
-        return QtGui.QMessageBox.information(self.MainWindow, 
+        return QtGui.QMessageBox.information(self, 
                                              ("Hints and known Issues"), 
                                              ("<p> 1.	For files that contain spectra with a high degree of detail (i.e. not stick mass spectra) use the profile mode for drawing (Ctrl+D).  Otherwise, the plotting will be slow.</p>"
                                              "<p> 2. I haven't incorporated MS^n (where n >= 3) spectrum views at this point--I didn't have an example file to test.</p>"
@@ -636,7 +637,7 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                                              "<p>4.  I have not incorporated a reader for mzData files as this format does not explictly store base peak and TIC values for chromatogram generation.  In order to do this each scan must be read simply to construct the TIC/BPC.  This is very slow.  The new mzML format will be supported in the very near future.</p>"))
   
     def __showAbout__(self):
-        return QtGui.QMessageBox.information(self.MainWindow,
+        return QtGui.QMessageBox.information(self,
                                             ("X!Tandem Viewer V.0.1, August, 2008"),
                                             ("<p><b>X!Tandem Viewer</b> was written in Python by Brian H. Clowers (bhclowers@gmail.com).</p>"
         "<p>Please keep in mind that the entire effort is very much a"

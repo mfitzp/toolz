@@ -46,7 +46,7 @@ class XT_DB(object):#X!Tandem Database Class
         if tableExists == 0:
             self.CREATE_RESULTS_TABLE(tableName)
         else:
-            reply = QtGui.QMessageBox.question(self.parent.MainWindow, "Table Already Exists in Database",  "Overwrite existing Table and Overwite?", QtGui.QMessageBox.Yes,QtGui.QMessageBox.No)
+            reply = QtGui.QMessageBox.question(self.parent, "Table Already Exists in Database",  "Overwrite existing Table and Overwite?", QtGui.QMessageBox.Yes,QtGui.QMessageBox.No)
             if reply:
                 dropOK = self.DROP_TABLE(tableName)
                 if dropOK:
@@ -58,7 +58,7 @@ class XT_DB(object):#X!Tandem Database Class
                 return False
         for i in xrange(XT_RESULTS.iterLen):
             self.cur.execute(
-                            'INSERT INTO "%s" VALUES (?,?,?,?,?,?,?,?,?,?,?)'%tableName,#again I know %s is not recommended but I don't know how to do this more elegantly.
+                            'INSERT INTO "%s" VALUES (?,?,?,?,?,?,?,?,?,?,?,?)'%tableName,#again I know %s is not recommended but I don't know how to do this more elegantly.
                             (
                             i, 
                             XT_RESULTS.dataDict.get('pepIDs')[i], 
@@ -70,7 +70,8 @@ class XT_DB(object):#X!Tandem Database Class
                             XT_RESULTS.dataDict.get('nextScores')[i], 
                             XT_RESULTS.dataDict.get('pepLengths')[i], 
                             XT_RESULTS.dataDict.get('proIDs')[i], 
-                            XT_RESULTS.dataDict.get('pro_eVals')[i] 
+                            XT_RESULTS.dataDict.get('pro_eVals')[i], 
+                            XT_RESULTS.dataDict.get('deltaHs')[i] 
                             ))
         self.cnx.commit()
         t2 = time.clock()
@@ -89,6 +90,24 @@ class XT_DB(object):#X!Tandem Database Class
         
         return self.tblList
     
+#    def COPY_DB(self, ):
+#        def dump_to_disk(con, filename):
+#    """
+#    Dumps the tables of an in-memory database into a file-based SQLite database.
+#
+#    @param con:         Connection to in-memory database.
+#    @param filename:    Name of the file to write to.
+#    """
+#    cur = con.cursor()
+#    cur.execute("attach '%s' as __extdb" % filename)
+#    cur.execute("select name from sqlite_master where type='table'")
+#    table_names = cur.fetchall()
+#    for table_name, in table_names:
+#        cur.execute("create table __extdb.%s as select * from %s" %
+#(table_name, table_name))
+#    cur.execute("detach __extdb")
+
+    
     def LIST_COLUMNS(self,  tableName):
         self.colList = []
         self.cur.execute('PRAGMA table_info(%s)'%tableName)
@@ -105,7 +124,7 @@ class XT_DB(object):#X!Tandem Database Class
         except:
             self.errorMsg = "Sorry: %s:%s"%(sys.exc_type, sys.exc_value)
             msg = self.errorMsg + '\nCheck File Name! No Funky Characters'
-            error = QtGui.QMessageBox.warning(self.parent.MainWindow, "Table Drop Error!",  msg)
+            error = QtGui.QMessageBox.warning(self.parent, "Table Drop Error!",  msg)
             return False
         
         
@@ -123,6 +142,7 @@ class XT_DB(object):#X!Tandem Database Class
         theoMZ REAL,\
         hScore REAL,\
         nextScore REAL,\
+        deltaH REAL,\
         pepLen INTEGER,\
         proID TEXT,\
         pro_eVal REAL)'
@@ -142,6 +162,7 @@ class XT_DB(object):#X!Tandem Database Class
         pepLengths= []
         proIDs = []
         pro_eVals = []
+        deltaHs = []
         
         self.cur.execute('SELECT * FROM "%s"'%tableName)
         for row in self.cur.fetchall():
@@ -152,9 +173,10 @@ class XT_DB(object):#X!Tandem Database Class
             theoMZs.append(row[5])
             hScores.append(row[6])
             nextScores.append(row[7])
-            pepLengths.append(row[8])
-            proIDs.append(row[9])
-            pro_eVals.append(row[10])
+            deltaHs.append(row[8])
+            pepLengths.append(row[9])
+            proIDs.append(row[10])
+            pro_eVals.append(row[11])
             
         arrayDict = {
                 'pepIDs': pepIDs, 
@@ -166,7 +188,8 @@ class XT_DB(object):#X!Tandem Database Class
                 'nextScores':N.array(nextScores),
                 'pepLengths':N.array(pepLengths), 
                 'proIDs':proIDs, 
-                'pro_eVals':N.array(pro_eVals)
+                'pro_eVals':N.array(pro_eVals), 
+                'deltaHs':N.array(deltaHs)
                 }
         XT_RESULTS.setArrays(arrayDict)
         XT_RESULTS.setFN(tableName)    
@@ -188,6 +211,7 @@ class XTResultsTable(IsDescription):
     theoMZ = Float64Col()
     hScore = Float64Col()
     nextScore = Float64Col()
+    deltaH = Float64Col()
     pepLen = Int32Col()
     proID = StringCol(64)
     pro_eVal = Float64Col()
@@ -217,6 +241,7 @@ def save_XT_HDF5(filename, xtXML):
             peptide['pepLen'] = xtXML.dataDict.get('pepLengths')[i]
             peptide['proID'] = xtXML.dataDict.get('proIDs')[i]
             peptide['pro_eVal'] = xtXML.dataDict.get('pro_eVals')[i]
+            peptide['deltaH'] = xtXML.dataDict.get('deltaHs')[i]
 
             peptide.append()
 
@@ -238,6 +263,7 @@ def load_XT_HDF5(filename,  xtXML):
         pepLengths= []
         proIDs = []
         pro_eVals = []
+        deltaHs = []
         
         origFileName = None
         
@@ -258,6 +284,7 @@ def load_XT_HDF5(filename,  xtXML):
                         pepLengths.append(row['pepLen'])
                         proIDs.append(row['proID'])
                         pro_eVals.append(row['pro_eVal'])
+                        deltaHs.append(row['deltaH'])
                 
         
         hdf.close()
@@ -271,7 +298,8 @@ def load_XT_HDF5(filename,  xtXML):
                         'nextScores':N.array(nextScores),
                         'pepLengths':N.array(pepLengths), 
                         'proIDs':proIDs, 
-                        'pro_eVals':N.array(pro_eVals)
+                        'pro_eVals':N.array(pro_eVals), 
+                        'deltaHs':N.array(deltaHs)
                         }
         xtXML.setArrays(arrayDict)
         xtXML.setFN(origFileName)
