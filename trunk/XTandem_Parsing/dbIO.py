@@ -67,11 +67,11 @@ class XT_DB(object):#X!Tandem Database Class
                             XT_RESULTS.dataDict.get('ppm_errors')[i], 
                             XT_RESULTS.dataDict.get('theoMZs')[i], 
                             XT_RESULTS.dataDict.get('hScores')[i], 
-                            XT_RESULTS.dataDict.get('nextScores')[i], 
+                            XT_RESULTS.dataDict.get('nextScores')[i],
+                           XT_RESULTS.dataDict.get('deltaHs')[i],  
                             XT_RESULTS.dataDict.get('pepLengths')[i], 
                             XT_RESULTS.dataDict.get('proIDs')[i], 
-                            XT_RESULTS.dataDict.get('pro_eVals')[i], 
-                            XT_RESULTS.dataDict.get('deltaHs')[i] 
+                            XT_RESULTS.dataDict.get('pro_eVals')[i] 
                             ))
         self.cnx.commit()
         t2 = time.clock()
@@ -147,7 +147,23 @@ class XT_DB(object):#X!Tandem Database Class
         proID TEXT,\
         pro_eVal REAL)'
             %tableName)
-            
+    
+    def GET_VALUE_BY_TYPE(self, tableName, fieldType,  fieldValue):
+        self.cur.execute("SELECT * FROM %s WHERE %s LIKE '%s'"%(tableName, fieldType, fieldValue))
+        print "SELECT * FROM %s WHERE %s LIKE '%s'"%(tableName, fieldType, fieldValue)
+        #print 'OK'
+        result = []
+        #self.cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name != 'sqlite_sequence' ORDER BY name")                    
+        for row in self.cur.fetchall():
+            rowList = []
+            for item in row:
+                rowList.append(str(item))
+            result.append(rowList)#row[0] by itself produces a unicode object, and row itself is a tuple
+            #print row
+            #self.tblList.append(str(row[0]))#row[0] by itself produces a unicode object, and row itself is a tuple
+        #print curVal
+        return result
+    
     def READ_XT_VALUES(self, tableName, XT_RESULTS):
         '''The XT_RESULTS in this case is empty instance that will be filled, however, it could be one that needs to be updated too.'''
         t1 = time.clock()

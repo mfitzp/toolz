@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\SVN\toolz\XTandem_Parsing\main.ui'
 #
-# Created: Fri Sep 12 16:44:37 2008
+# Created: Tue Sep 16 11:39:42 2008
 #      by: PyQt4 UI code generator 4.3.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -126,10 +126,10 @@ class Ui_MainWindow(object):
         self.gridlayout.addLayout(self.hboxlayout3,4,1,1,1)
         self.mainTabWidget.addTab(self.configTab,"")
 
-        self.tab = QtGui.QWidget()
-        self.tab.setObjectName("tab")
+        self.sqlTab = QtGui.QWidget()
+        self.sqlTab.setObjectName("sqlTab")
 
-        self.vboxlayout = QtGui.QVBoxLayout(self.tab)
+        self.vboxlayout = QtGui.QVBoxLayout(self.sqlTab)
         self.vboxlayout.setObjectName("vboxlayout")
 
         self.vboxlayout1 = QtGui.QVBoxLayout()
@@ -141,39 +141,47 @@ class Ui_MainWindow(object):
         self.vboxlayout2 = QtGui.QVBoxLayout()
         self.vboxlayout2.setObjectName("vboxlayout2")
 
-        self.label_2 = QtGui.QLabel(self.tab)
+        self.label_2 = QtGui.QLabel(self.sqlTab)
         self.label_2.setObjectName("label_2")
         self.vboxlayout2.addWidget(self.label_2)
 
-        self.listWidget = QtGui.QListWidget(self.tab)
-        self.listWidget.setObjectName("listWidget")
-        self.vboxlayout2.addWidget(self.listWidget)
+        self.queryTblList = QtGui.QListWidget(self.sqlTab)
+        self.queryTblList.setObjectName("queryTblList")
+        self.vboxlayout2.addWidget(self.queryTblList)
         self.hboxlayout4.addLayout(self.vboxlayout2)
 
         self.vboxlayout3 = QtGui.QVBoxLayout()
         self.vboxlayout3.setObjectName("vboxlayout3")
 
-        self.label_3 = QtGui.QLabel(self.tab)
+        self.label_3 = QtGui.QLabel(self.sqlTab)
         self.label_3.setObjectName("label_3")
         self.vboxlayout3.addWidget(self.label_3)
 
-        self.TblQueryTab = QtGui.QListWidget(self.tab)
-        self.TblQueryTab.setObjectName("TblQueryTab")
-        self.vboxlayout3.addWidget(self.TblQueryTab)
+        self.queryFieldList = QtGui.QListWidget(self.sqlTab)
+        self.queryFieldList.setObjectName("queryFieldList")
+        self.vboxlayout3.addWidget(self.queryFieldList)
         self.hboxlayout4.addLayout(self.vboxlayout3)
         self.vboxlayout1.addLayout(self.hboxlayout4)
 
         self.vboxlayout4 = QtGui.QVBoxLayout()
         self.vboxlayout4.setObjectName("vboxlayout4")
 
-        self.label = QtGui.QLabel(self.tab)
+        self.label = QtGui.QLabel(self.sqlTab)
         self.label.setObjectName("label")
         self.vboxlayout4.addWidget(self.label)
 
-        self.sqlQueryString = QtGui.QTextEdit(self.tab)
+        self.sqlQueryString = QtGui.QTextEdit(self.sqlTab)
         self.sqlQueryString.setObjectName("sqlQueryString")
         self.vboxlayout4.addWidget(self.sqlQueryString)
         self.vboxlayout1.addLayout(self.vboxlayout4)
+
+        self.label_10 = QtGui.QLabel(self.sqlTab)
+        self.label_10.setObjectName("label_10")
+        self.vboxlayout1.addWidget(self.label_10)
+
+        self.outputTE = QtGui.QTextEdit(self.sqlTab)
+        self.outputTE.setObjectName("outputTE")
+        self.vboxlayout1.addWidget(self.outputTE)
         self.vboxlayout.addLayout(self.vboxlayout1)
 
         self.vboxlayout5 = QtGui.QVBoxLayout()
@@ -182,81 +190,86 @@ class Ui_MainWindow(object):
         self.gridlayout2 = QtGui.QGridLayout()
         self.gridlayout2.setObjectName("gridlayout2")
 
-        self.dbExecuteQuery = QtGui.QPushButton(self.tab)
+        self.dbExecuteQuery = QtGui.QPushButton(self.sqlTab)
         self.dbExecuteQuery.setMaximumSize(QtCore.QSize(200,16777215))
         self.dbExecuteQuery.setObjectName("dbExecuteQuery")
         self.gridlayout2.addWidget(self.dbExecuteQuery,0,0,1,1)
 
-        self.dbCommitQuery = QtGui.QPushButton(self.tab)
+        self.dbCommitQuery = QtGui.QPushButton(self.sqlTab)
         self.dbCommitQuery.setMaximumSize(QtCore.QSize(200,16777215))
         self.dbCommitQuery.setObjectName("dbCommitQuery")
         self.gridlayout2.addWidget(self.dbCommitQuery,0,1,1,1)
         self.vboxlayout5.addLayout(self.gridlayout2)
 
-        self.label_7 = QtGui.QLabel(self.tab)
+        self.label_7 = QtGui.QLabel(self.sqlTab)
         self.label_7.setObjectName("label_7")
         self.vboxlayout5.addWidget(self.label_7)
 
-        self.sqlErrorMessage = QtGui.QLineEdit(self.tab)
+        self.sqlErrorMessage = QtGui.QLineEdit(self.sqlTab)
         self.sqlErrorMessage.setObjectName("sqlErrorMessage")
         self.vboxlayout5.addWidget(self.sqlErrorMessage)
         self.vboxlayout.addLayout(self.vboxlayout5)
 
-        self.vboxlayout6 = QtGui.QVBoxLayout()
-        self.vboxlayout6.setObjectName("vboxlayout6")
-
         self.hboxlayout5 = QtGui.QHBoxLayout()
         self.hboxlayout5.setObjectName("hboxlayout5")
 
-        self.openDBButton = QtGui.QPushButton(self.tab)
+        self.openDBButton = QtGui.QPushButton(self.sqlTab)
         self.openDBButton.setObjectName("openDBButton")
         self.hboxlayout5.addWidget(self.openDBButton)
 
-        self.curDBpathname = QtGui.QLineEdit(self.tab)
+        self.curDBpathname = QtGui.QLineEdit(self.sqlTab)
         self.curDBpathname.setReadOnly(True)
         self.curDBpathname.setObjectName("curDBpathname")
         self.hboxlayout5.addWidget(self.curDBpathname)
 
-        self.dbConnectedBtn = QtGui.QPushButton(self.tab)
+        self.dbConnectedBtn = QtGui.QPushButton(self.sqlTab)
         self.dbConnectedBtn.setEnabled(True)
         self.dbConnectedBtn.setAutoFillBackground(False)
         self.dbConnectedBtn.setIcon(QtGui.QIcon(":/new/prefix1/icons/ok.png"))
         self.dbConnectedBtn.setIconSize(QtCore.QSize(20,20))
         self.dbConnectedBtn.setObjectName("dbConnectedBtn")
         self.hboxlayout5.addWidget(self.dbConnectedBtn)
-        self.vboxlayout6.addLayout(self.hboxlayout5)
-
-        self.useMemDB_CB = QtGui.QCheckBox(self.tab)
-        self.useMemDB_CB.setChecked(True)
-        self.useMemDB_CB.setObjectName("useMemDB_CB")
-        self.vboxlayout6.addWidget(self.useMemDB_CB)
-
-        self.vboxlayout7 = QtGui.QVBoxLayout()
-        self.vboxlayout7.setObjectName("vboxlayout7")
+        self.vboxlayout.addLayout(self.hboxlayout5)
 
         self.hboxlayout6 = QtGui.QHBoxLayout()
         self.hboxlayout6.setObjectName("hboxlayout6")
 
-        self.autoNameTblCB = QtGui.QCheckBox(self.tab)
+        self.useMemDB_CB = QtGui.QCheckBox(self.sqlTab)
+        self.useMemDB_CB.setChecked(True)
+        self.useMemDB_CB.setObjectName("useMemDB_CB")
+        self.hboxlayout6.addWidget(self.useMemDB_CB)
+
+        self.dumpDBBtn = QtGui.QPushButton(self.sqlTab)
+        self.dumpDBBtn.setObjectName("dumpDBBtn")
+        self.hboxlayout6.addWidget(self.dumpDBBtn)
+        self.vboxlayout.addLayout(self.hboxlayout6)
+
+        self.vboxlayout6 = QtGui.QVBoxLayout()
+        self.vboxlayout6.setObjectName("vboxlayout6")
+
+        self.hboxlayout7 = QtGui.QHBoxLayout()
+        self.hboxlayout7.setObjectName("hboxlayout7")
+
+        self.autoNameTblCB = QtGui.QCheckBox(self.sqlTab)
         self.autoNameTblCB.setChecked(True)
         self.autoNameTblCB.setObjectName("autoNameTblCB")
-        self.hboxlayout6.addWidget(self.autoNameTblCB)
+        self.hboxlayout7.addWidget(self.autoNameTblCB)
 
-        self.rstDBButton = QtGui.QPushButton(self.tab)
+        self.rstDBButton = QtGui.QPushButton(self.sqlTab)
         self.rstDBButton.setObjectName("rstDBButton")
-        self.hboxlayout6.addWidget(self.rstDBButton)
-        self.vboxlayout7.addLayout(self.hboxlayout6)
+        self.hboxlayout7.addWidget(self.rstDBButton)
+        self.vboxlayout6.addLayout(self.hboxlayout7)
 
-        self.appendNewFilesCB = QtGui.QCheckBox(self.tab)
+        self.appendNewFilesCB = QtGui.QCheckBox(self.sqlTab)
         self.appendNewFilesCB.setChecked(True)
         self.appendNewFilesCB.setObjectName("appendNewFilesCB")
-        self.vboxlayout7.addWidget(self.appendNewFilesCB)
-        self.vboxlayout6.addLayout(self.vboxlayout7)
+        self.vboxlayout6.addWidget(self.appendNewFilesCB)
         self.vboxlayout.addLayout(self.vboxlayout6)
-        self.mainTabWidget.addTab(self.tab,"")
+        self.mainTabWidget.addTab(self.sqlTab,"")
         self.hboxlayout1.addWidget(self.mainTabWidget)
 
         self.SelectInfoWidget = QtGui.QTableWidget(self.centralwidget)
+        self.SelectInfoWidget.setEnabled(True)
 
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
@@ -443,15 +456,17 @@ class Ui_MainWindow(object):
         self.label_2.setText(QtGui.QApplication.translate("MainWindow", "Database Tables", None, QtGui.QApplication.UnicodeUTF8))
         self.label_3.setText(QtGui.QApplication.translate("MainWindow", "Table Fields", None, QtGui.QApplication.UnicodeUTF8))
         self.label.setText(QtGui.QApplication.translate("MainWindow", "SQLite String:", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_10.setText(QtGui.QApplication.translate("MainWindow", "Output Subset:", None, QtGui.QApplication.UnicodeUTF8))
         self.dbExecuteQuery.setText(QtGui.QApplication.translate("MainWindow", "Execute Query", None, QtGui.QApplication.UnicodeUTF8))
         self.dbCommitQuery.setText(QtGui.QApplication.translate("MainWindow", "Commit Query Results", None, QtGui.QApplication.UnicodeUTF8))
         self.label_7.setText(QtGui.QApplication.translate("MainWindow", "Data Base Error Message:", None, QtGui.QApplication.UnicodeUTF8))
         self.openDBButton.setText(QtGui.QApplication.translate("MainWindow", "Select Database", None, QtGui.QApplication.UnicodeUTF8))
         self.useMemDB_CB.setText(QtGui.QApplication.translate("MainWindow", "Use In-Memory Database?", None, QtGui.QApplication.UnicodeUTF8))
+        self.dumpDBBtn.setText(QtGui.QApplication.translate("MainWindow", "Dump Database as a Text File To Disk", None, QtGui.QApplication.UnicodeUTF8))
         self.autoNameTblCB.setText(QtGui.QApplication.translate("MainWindow", "Auto Name Tables", None, QtGui.QApplication.UnicodeUTF8))
         self.rstDBButton.setText(QtGui.QApplication.translate("MainWindow", "Clear and Reset Database", None, QtGui.QApplication.UnicodeUTF8))
         self.appendNewFilesCB.setText(QtGui.QApplication.translate("MainWindow", "Append New Files to Database?", None, QtGui.QApplication.UnicodeUTF8))
-        self.mainTabWidget.setTabText(self.mainTabWidget.indexOf(self.tab), QtGui.QApplication.translate("MainWindow", "SQL Query", None, QtGui.QApplication.UnicodeUTF8))
+        self.mainTabWidget.setTabText(self.mainTabWidget.indexOf(self.sqlTab), QtGui.QApplication.translate("MainWindow", "SQL Query", None, QtGui.QApplication.UnicodeUTF8))
         self.SelectInfoWidget.setRowCount(20)
         self.SelectInfoWidget.setColumnCount(2)
         self.SelectInfoWidget.clear()
