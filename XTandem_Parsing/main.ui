@@ -166,7 +166,7 @@
           </item>
          </layout>
         </widget>
-        <widget class="QWidget" name="tab" >
+        <widget class="QWidget" name="sqlTab" >
          <attribute name="title" >
           <string>SQL Query</string>
          </attribute>
@@ -185,7 +185,7 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QListWidget" name="listWidget" />
+                 <widget class="QListWidget" name="queryTblList" />
                 </item>
                </layout>
               </item>
@@ -199,7 +199,7 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QListWidget" name="TblQueryTab" />
+                 <widget class="QListWidget" name="queryFieldList" />
                 </item>
                </layout>
               </item>
@@ -218,6 +218,16 @@
                <widget class="QTextEdit" name="sqlQueryString" />
               </item>
              </layout>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_10" >
+              <property name="text" >
+               <string>Output Subset:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QTextEdit" name="outputTE" />
             </item>
            </layout>
           </item>
@@ -266,47 +276,47 @@
            </layout>
           </item>
           <item>
-           <layout class="QVBoxLayout" >
+           <layout class="QHBoxLayout" >
             <item>
-             <layout class="QHBoxLayout" >
-              <item>
-               <widget class="QPushButton" name="openDBButton" >
-                <property name="text" >
-                 <string>Select Database</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLineEdit" name="curDBpathname" >
-                <property name="readOnly" >
-                 <bool>true</bool>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="dbConnectedBtn" >
-                <property name="enabled" >
-                 <bool>true</bool>
-                </property>
-                <property name="autoFillBackground" >
-                 <bool>false</bool>
-                </property>
-                <property name="text" >
-                 <string/>
-                </property>
-                <property name="icon" >
-                 <iconset resource="SubPlot.qrc" >:/new/prefix1/icons/ok.png</iconset>
-                </property>
-                <property name="iconSize" >
-                 <size>
-                  <width>20</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </widget>
-              </item>
-             </layout>
+             <widget class="QPushButton" name="openDBButton" >
+              <property name="text" >
+               <string>Select Database</string>
+              </property>
+             </widget>
             </item>
+            <item>
+             <widget class="QLineEdit" name="curDBpathname" >
+              <property name="readOnly" >
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="dbConnectedBtn" >
+              <property name="enabled" >
+               <bool>true</bool>
+              </property>
+              <property name="autoFillBackground" >
+               <bool>false</bool>
+              </property>
+              <property name="text" >
+               <string/>
+              </property>
+              <property name="icon" >
+               <iconset resource="SubPlot.qrc" >:/new/prefix1/icons/ok.png</iconset>
+              </property>
+              <property name="iconSize" >
+               <size>
+                <width>20</width>
+                <height>20</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" >
             <item>
              <widget class="QCheckBox" name="useMemDB_CB" >
               <property name="text" >
@@ -318,39 +328,46 @@
              </widget>
             </item>
             <item>
-             <layout class="QVBoxLayout" >
+             <widget class="QPushButton" name="dumpDBBtn" >
+              <property name="text" >
+               <string>Dump Database as a Text File To Disk</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QVBoxLayout" >
+            <item>
+             <layout class="QHBoxLayout" >
               <item>
-               <layout class="QHBoxLayout" >
-                <item>
-                 <widget class="QCheckBox" name="autoNameTblCB" >
-                  <property name="text" >
-                   <string>Auto Name Tables</string>
-                  </property>
-                  <property name="checked" >
-                   <bool>true</bool>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QPushButton" name="rstDBButton" >
-                  <property name="text" >
-                   <string>Clear and Reset Database</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <widget class="QCheckBox" name="appendNewFilesCB" >
+               <widget class="QCheckBox" name="autoNameTblCB" >
                 <property name="text" >
-                 <string>Append New Files to Database?</string>
+                 <string>Auto Name Tables</string>
                 </property>
                 <property name="checked" >
                  <bool>true</bool>
                 </property>
                </widget>
               </item>
+              <item>
+               <widget class="QPushButton" name="rstDBButton" >
+                <property name="text" >
+                 <string>Clear and Reset Database</string>
+                </property>
+               </widget>
+              </item>
              </layout>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="appendNewFilesCB" >
+              <property name="text" >
+               <string>Append New Files to Database?</string>
+              </property>
+              <property name="checked" >
+               <bool>true</bool>
+              </property>
+             </widget>
             </item>
            </layout>
           </item>
@@ -360,6 +377,9 @@
       </item>
       <item>
        <widget class="QTableWidget" name="SelectInfoWidget" >
+        <property name="enabled" >
+         <bool>true</bool>
+        </property>
         <property name="sizePolicy" >
          <sizepolicy vsizetype="Expanding" hsizetype="Minimum" >
           <horstretch>0</horstretch>

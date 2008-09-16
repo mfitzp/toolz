@@ -18,20 +18,22 @@ use('Qt4Agg')
 
 import numpy as N
 
-#import matplotlib as mymat
 from matplotlib.backends import backend_qt4, backend_qt4agg
 backend_qt4.qApp = QtGui.qApp
-#backend_qt4agg.matplotlib = mymat
 
     
 #from io import hdfIO
 from matplotlib.lines import Line2D
 from matplotlib.widgets import SpanSelector
+
 #import GUI scripts
 import ui_main
 from mpl_custom_widget import MPL_Widget
 from xtandem_parser_class import XT_RESULTS
 import dbIO
+from customTable import DBTable
+
+
 #try:
 #    import psyco
 #    psyco.full()
@@ -98,6 +100,20 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         'Protein e-Value':None
         }
         
+        self.infoMap = {}
+        self.infoMap['Index'] = 'id'
+        self.infoMap['Peptide'] = 'pepID'
+        self.infoMap['Peptide e-Value'] = 'pep_eValue'
+        self.infoMap['Scan'] ='scanID'
+        self.infoMap['ppm Error'] ='ppm_error'
+        self.infoMap['Theoretical MZ'] ='theoMZ'
+        self.infoMap['Hyperscore'] ='hScore'
+        self.infoMap['Next Hyperscore'] = 'nextScore'
+        self.infoMap['Delta Hyperscore'] = 'deltaH'
+        self.infoMap['Peptide Length'] = 'pepLen'
+        self.infoMap['Protein ID'] ='proID'
+        self.infoMap['Protein e-Value'] = 'pro_eVal'
+        
         
         self.__setupPlot__()
         
@@ -112,8 +128,8 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             print activeData.dataDict.keys()
            
     
+    
     def setColLists(self,  widgetItem):
-        
         self.db_XCols.clear()
         self.db_YCols.clear()
         self.sizeArrayComboB.clear()
@@ -133,7 +149,35 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             self.db_YCols.addItems(colNumList)
             
             self.sizeArrayComboB.addItems(colNumList)
-        
+
+    def executeSQLQuery(self):
+        if self.dbStatus:
+            queryStr = str(self.sqlQueryString.toPlainText())
+            if queryStr != None:
+                try:
+                    self.curDB.cnx.execute(queryStr)
+                except:
+                    errorMsg = "Error: %s\n\n%s\n"%(sys.exc_type, sys.exc_value)
+                    errorMsg+='\n There was an error executing the SQL Query.'
+                    return QtGui.QMessageBox.information(self,'SQL Execute Error', errorMsg)
+
+
+    def setQueryLists(self,  widgetItem):
+        self.queryFieldList.clear()
+        activeData = self.activeDict[str(widgetItem.text())]
+        colList = activeData.dataDict.keys()
+        if len(colList) == 0:
+            return QtGui.QMessageBox.warning(self, "Database Table Error",  "No data exist in the selected table!")
+        else:
+            self.queryFieldList.addItems(colList)
+    
+    def updateQueryGUI(self):
+        self.queryTblList.clear()
+        self.queryFieldList.clear()
+        activeTbls = self.activeDict.keys()
+        self.queryTblList.addItems(activeTbls)
+        self.queryTblList.setCurrentRow(0)
+        self.setQueryLists(self.queryTblList.currentItem())
     
     def updatePlotOptionsGUI(self):
         self.db_TableList.clear()
@@ -142,9 +186,6 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.db_TableList.addItems(activeTbls)
         self.db_TableList.setCurrentRow(0)
         self.setColLists(self.db_TableList.currentItem())
-#        
-#        db_XCols
-#        db_YCols
         
     
     def setDBConnection(self):#would this be better if you added an old db reference in case it fails?
@@ -253,6 +294,7 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                         if insertOK:
                             self.initiatePlot()
                             self.updatePlotOptionsGUI()
+                            self.updateQueryGUI()
                             self.firstLoad = False
                 except:
                     errorMsg = "Error: %s\n\n%s\n"%(sys.exc_type, sys.exc_value)
@@ -481,6 +523,7 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.curSelectInfo['Theoretical MZ'] =str(activeData.dataDict.get('theoMZs')[index])
         self.curSelectInfo['Hyperscore'] =str(activeData.dataDict.get('hScores')[index])
         self.curSelectInfo['Next Hyperscore'] =str(activeData.dataDict.get('nextScores')[index])
+        self.curSelectInfo['Delta Hyperscore'] =str(activeData.dataDict.get('deltaHs')[index])
         self.curSelectInfo['Peptide Length'] =str(activeData.dataDict.get('pepLengths')[index])
         self.curSelectInfo['Protein ID'] =activeData.dataDict.get('proIDs')[index]
         self.curSelectInfo['Protein e-Value'] =str(activeData.dataDict.get('pro_eVals')[index])
@@ -501,8 +544,6 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         
         self.SelectInfoWidget.resizeColumnsToContents()
 
-    def ZoomToggle(self):
-        self.plotWidget.toolbar.zoom()
     
     def onselect(self, xmin, xmax):
             #print xmin,  xmax
@@ -510,27 +551,58 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                 self.plotWidget.canvas.ax.set_xlim(xmin,  xmax)
                 self.plotWidget.canvas.draw()
                 
-    def autoscale_plot(self):
-        self.plotWidget.toolbar.home()
-        #self.rescale_plot()
-        #self.plotWidget.canvas.ax.autoscale_view(tight = False, scalex=True, scaley=True)
-        #self.mzWidget.canvas.ax.set_ylim(self.mzYScale[0], self.mzYScale[1])
-        #self.plotWidget.canvas.draw()
     
             
     def __initContextMenus__(self):
         #self.mzWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.plotWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.SelectInfoWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         #self.chromWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         #self.mzWidget.connect(self.mzWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self.mzWidgetContext)
         #self.chromWidget.connect(self.chromWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self.chromWidgetContext)
         self.plotWidget.connect(self.plotWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self.plotTabContext)
+        self.SelectInfoWidget.connect(self.SelectInfoWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self.SelectInfoTabContext)
+    
+    
+    def selectDBField(self):
+        curCol = self.SelectInfoWidget.currentColumn()
+        if self.SelectInfoWidget.currentItem() == None:
+            return False
+            #print "Current index: ",  self.SelectInfoWidget.currentRow(), curCol
+        else:
+            try:
+                    
+                curItem = self.SelectInfoWidget.item(self.SelectInfoWidget.currentRow(), 0)
+                curType = self.infoMap[str(curItem.text())]
+                curVal = self.curSelectInfo[str(curItem.text())]
+                curTbl = self.curTbl
+                result = self.curDB.GET_VALUE_BY_TYPE(curTbl, curType, curVal)
+#                if len(result == 0):
+#                    result = ['Not data was found...', ]
+                colHeaders = self.curDB.LIST_COLUMNS(curTbl)
+                self.curDBTable = DBTable(result,  colHeaders)
+            except:
+                errorMsg = "Sorry: %s\n\n:%s\n"%(sys.exc_type, sys.exc_value)
+                errorMsg+='\n GET_VALUE_BY_TYPE Failed!\nThere was a problem retrieving the information from the database.'
+                QtGui.QMessageBox.warning(self, "Select Database Field Error",  errorMsg)
+                
+        
+
+
+         
+    
+    def SelectInfoTabContext(self,  point):
+        '''Create a context menu for the SelectInfoWidget which is a QTableWidget'''
+        infoCT_menu = QtGui.QMenu("Menu",  self.SelectInfoWidget)
+        infoCT_menu.addAction(self.selectDBFieldAction)
+        infoCT_menu.exec_(self.SelectInfoWidget.mapToGlobal(point))
+        
     
     def plotTabContext(self, point):
         '''Create a menu for mainTabWidget'''
         plotCT_menu = QtGui.QMenu("Menu", self.plotWidget)
-        plotCT_menu.addAction(self.hZoom)
-        plotCT_menu.addAction(self.actionAutoScale)
+        plotCT_menu.addAction(self.plotWidget.hZoom)
+        plotCT_menu.addAction(self.plotWidget.actionAutoScale)
         #plotCT_menu.addAction(self.actionToggleDraw)
         plotCT_menu.exec_(self.plotWidget.mapToGlobal(point))
       
@@ -552,20 +624,18 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.firstLoad = True
 
     def __additionalConnections__(self):
-        self.hZoom = QtGui.QAction("Zoom",  self)#self)
-        self.hZoom.setShortcut("Ctrl+Z")
-        self.mainTabWidget.addAction(self.hZoom)
-        QtCore.QObject.connect(self.hZoom,QtCore.SIGNAL("triggered()"), self.ZoomToggle)
-        
-        self.actionAutoScale = QtGui.QAction("AutoScale",  self)#self.MainWindow)
-        self.actionAutoScale.setShortcut("Ctrl+A")
-        self.mainTabWidget.addAction(self.actionAutoScale)
-        QtCore.QObject.connect(self.actionAutoScale,QtCore.SIGNAL("triggered()"), self.autoscale_plot)
+        '''SelectInfoWidget context menu actions'''
+        self.selectDBFieldAction = QtGui.QAction("Select Database Field",  self)#self)
+        self.SelectInfoWidget.addAction(self.selectDBFieldAction)
+        QtCore.QObject.connect(self.selectDBFieldAction,QtCore.SIGNAL("triggered()"), self.selectDBField)
         
         '''Plot GUI Interaction slots'''
         QtCore.QObject.connect(self.db_TableList, QtCore.SIGNAL("itemPressed (QListWidgetItem *)"), self.setColLists)
         QtCore.QObject.connect(self.updatePlotBtn, QtCore.SIGNAL("clicked()"), self.updatePlot)
         
+        '''Query GUI slots'''
+        QtCore.QObject.connect(self.queryTblList, QtCore.SIGNAL("itemPressed (QListWidgetItem *)"), self.setQueryLists)
+        QtCore.QObject.connect(self.dbExecuteQuery,QtCore.SIGNAL("clicked()"),self.executeSQLQuery)        
         
         '''Database Connection slots'''
         QtCore.QObject.connect(self.openDBButton, QtCore.SIGNAL("clicked()"), self.setDBConnection)
@@ -658,7 +728,13 @@ def run_main():
     #ui = XTViewer(MainWindow)
     #MainWindow.show()
     sys.exit(app.exec_())
-    
+
+
+'''CREATE TABLE test AS SELECT * FROM Vlad_Test WHERE theoMZ > 700 --Creates a new table from the selection criteria
+SELECT DISTINCT proID FROM Vlad_Test
+CREATE TABLE dualTest AS SELECT DISTINCT proID, pepID FROM Vlad_Test;
+'''
+
 
 if __name__ == "__main__":
     run_main()

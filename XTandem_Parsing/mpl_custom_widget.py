@@ -91,4 +91,19 @@ class MPL_Widget(QWidget):
         #self.hbox.addWidget(self.toolbar)
         self.hbox.addWidget(self.canvas)
         self.setLayout(self.hbox)
+        ##########################
+        self.hZoom = QAction("Zoom",  self)#self)
+        self.hZoom.setShortcut("Ctrl+Z")
+        self.addAction(self.hZoom)
+        QObject.connect(self.hZoom,SIGNAL("triggered()"), self.ZoomToggle)
+        
+        self.actionAutoScale = QAction("AutoScale",  self)#self.MainWindow)
+        self.actionAutoScale.setShortcut("Ctrl+A")
+        self.addAction(self.actionAutoScale)
+        QObject.connect(self.actionAutoScale,SIGNAL("triggered()"), self.autoscale_plot)
 
+    def ZoomToggle(self):
+        self.toolbar.zoom()
+        
+    def autoscale_plot(self):
+        self.toolbar.home()
