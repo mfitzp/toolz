@@ -148,6 +148,28 @@ class XT_DB(object):#X!Tandem Database Class
         pro_eVal REAL)'
             %tableName)
     
+    def GET_CURRENT_QUERY(self,  truncate = False):
+        result = []
+        if truncate:
+            lim = 25
+            i = 0
+            for row in self.cur.fetchall():
+                rowList = []
+                for item in row:
+                    rowList.append(str(item))
+                result.append(rowList)#row[0] by itself produces a unicode object, and row itself is a tuple
+                i+=1
+                if i == lim:#if true then the loop terminates
+                    return result
+            return result
+        else:
+            for row in self.cur.fetchall():
+                rowList = []
+                for item in row:
+                    rowList.append(str(item))
+                result.append(rowList)
+            return result
+    
     def GET_VALUE_BY_TYPE(self, tableName, fieldType,  fieldValue,  savePrompt = False):
         if savePrompt:
             '''Saves query to the database--only if the user commits to the database upon close of the application'''
@@ -167,12 +189,7 @@ class XT_DB(object):#X!Tandem Database Class
                 self.cur.execute("CREATE TABLE %s AS SELECT * FROM %s WHERE %s LIKE '%s'"%(newTableName, tableName, fieldType, fieldValue))
                 self.cur.execute("SELECT * FROM %s"%(newTableName))
                 #print "CREATE TABLE %s AS SELECT * FROM %s WHERE %s LIKE '%s'"%(newTableName, tableName, fieldType, fieldValue)
-                result = []
-                for row in self.cur.fetchall():
-                    rowList = []
-                    for item in row:
-                        rowList.append(str(item))
-                    result.append(rowList)#row[0] by itself produces a unicode object, and row itself is a tuple
+                result = self.GET_CURRENT_QUERY()
                 print 'The table named: "%s" created in current database.'%newTableName
                 return result
             else:#this is the case if the user cancels the input of the new table
@@ -182,12 +199,7 @@ class XT_DB(object):#X!Tandem Database Class
             '''Simply returns the selected query but does not save it to the database'''
             self.cur.execute("SELECT * FROM %s WHERE %s LIKE '%s'"%(tableName, fieldType, fieldValue))
             print "SELECT * FROM %s WHERE %s LIKE '%s'"%(tableName, fieldType, fieldValue)
-            result = []
-            for row in self.cur.fetchall():
-                rowList = []
-                for item in row:
-                    rowList.append(str(item))
-                result.append(rowList)#row[0] by itself produces a unicode object, and row itself is a tuple
+            result = self.GET_CURRENT_QUERY()
             return result
     
     def READ_XT_VALUES(self, tableName, XT_RESULTS):
