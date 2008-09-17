@@ -42,7 +42,7 @@ class XT_DB(object):#X!Tandem Database Class
     
     def INSERT_XT_VALUES(self, tableName, XT_RESULTS):
         t1 = time.clock()
-        tableExists =self.cnx.execute("select count(*) from sqlite_master where name=?", (tableName,)).fetchone()[0]
+        tableExists =self.cnx.execute("SELECT COUNT(*) FROM sqlite_master WHERE name=?", (tableName,)).fetchone()[0]
         if tableExists == 0:
             self.CREATE_RESULTS_TABLE(tableName)
         else:
@@ -148,21 +148,47 @@ class XT_DB(object):#X!Tandem Database Class
         pro_eVal REAL)'
             %tableName)
     
-    def GET_VALUE_BY_TYPE(self, tableName, fieldType,  fieldValue):
-        self.cur.execute("SELECT * FROM %s WHERE %s LIKE '%s'"%(tableName, fieldType, fieldValue))
-        print "SELECT * FROM %s WHERE %s LIKE '%s'"%(tableName, fieldType, fieldValue)
-        #print 'OK'
-        result = []
-        #self.cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name != 'sqlite_sequence' ORDER BY name")                    
-        for row in self.cur.fetchall():
-            rowList = []
-            for item in row:
-                rowList.append(str(item))
-            result.append(rowList)#row[0] by itself produces a unicode object, and row itself is a tuple
-            #print row
-            #self.tblList.append(str(row[0]))#row[0] by itself produces a unicode object, and row itself is a tuple
-        #print curVal
-        return result
+    def GET_VALUE_BY_TYPE(self, tableName, fieldType,  fieldValue,  savePrompt = False):
+        if savePrompt:
+            '''Saves query to the database--only if the user commits to the database upon close of the application'''
+            newTableName , ok = QtGui.QInputDialog.getText(self.parent, 'Create New Database Table',\
+                                            'Enter New Table Name: ', QtGui.QLineEdit.Normal, 'newTable')
+            if ok:
+                newTableName = str(newTableName)
+                self.LIST_TABLES()#updates self.tblList
+                if newTableName in self.tblList:
+                    reply = QtGui.QMessageBox.question(self.parent, "Table Creation Conflict", "A table by that name already exists. Do you want to overwrite that table?", QtGui.QMessageBox.Yes|QtGui.QMessageBox.No)
+                    if reply == QtGui.QMessageBox.Yes:
+                        self.DROP_TABLE(newTableName)
+                    else:
+                        return False#this will be captured by the len condition on the receiving end...
+                        
+                        
+                self.cur.execute("CREATE TABLE %s AS SELECT * FROM %s WHERE %s LIKE '%s'"%(newTableName, tableName, fieldType, fieldValue))
+                self.cur.execute("SELECT * FROM %s"%(newTableName))
+                #print "CREATE TABLE %s AS SELECT * FROM %s WHERE %s LIKE '%s'"%(newTableName, tableName, fieldType, fieldValue)
+                result = []
+                for row in self.cur.fetchall():
+                    rowList = []
+                    for item in row:
+                        rowList.append(str(item))
+                    result.append(rowList)#row[0] by itself produces a unicode object, and row itself is a tuple
+                print 'The table named: "%s" created in current database.'%newTableName
+                return result
+            else:#this is the case if the user cancels the input of the new table
+                return False
+                
+        else:
+            '''Simply returns the selected query but does not save it to the database'''
+            self.cur.execute("SELECT * FROM %s WHERE %s LIKE '%s'"%(tableName, fieldType, fieldValue))
+            print "SELECT * FROM %s WHERE %s LIKE '%s'"%(tableName, fieldType, fieldValue)
+            result = []
+            for row in self.cur.fetchall():
+                rowList = []
+                for item in row:
+                    rowList.append(str(item))
+                result.append(rowList)#row[0] by itself produces a unicode object, and row itself is a tuple
+            return result
     
     def READ_XT_VALUES(self, tableName, XT_RESULTS):
         '''The XT_RESULTS in this case is empty instance that will be filled, however, it could be one that needs to be updated too.'''
