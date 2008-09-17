@@ -578,14 +578,26 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
     
             
     def __initContextMenus__(self):
-        #self.mzWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.plotWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.SelectInfoWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
-        #self.chromWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
-        #self.mzWidget.connect(self.mzWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self.mzWidgetContext)
-        #self.chromWidget.connect(self.chromWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self.chromWidgetContext)
         self.plotWidget.connect(self.plotWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self.plotTabContext)
         self.SelectInfoWidget.connect(self.SelectInfoWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self.SelectInfoTabContext)
+    
+    
+    def dumpCurDB(self):
+        if self.dbStatus:
+            saveFileName = QtGui.QFileDialog.getSaveFileName(self,\
+                                                     self.SaveDataText,\
+                                                     self.__curDir, 'SQLite Text Database (*.sql)')
+            if saveFileName:
+                print "This feature will be enabled with the release of Python 2.6"
+#                con = self.curDB.cnx
+#                full_dump = os.linesep.join([line for line in con.iterdump()])
+#                f = open(str(saveFileName), 'w')
+#                f.writelines(full_dump)
+#                f.close()
+
+            
     
     
     def selectDBField(self,  saveTable = None):
@@ -675,6 +687,7 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         QtCore.QObject.connect(self.queryTblList, QtCore.SIGNAL("itemPressed (QListWidgetItem *)"), self.setQueryLists)
         QtCore.QObject.connect(self.dbExecuteQuery,QtCore.SIGNAL("clicked()"),self.executeSQLQuery)        
         QtCore.QObject.connect(self.viewQueryBtn,QtCore.SIGNAL("clicked()"),self.viewQueryResults)
+        QtCore.QObject.connect(self.dumpDBBtn,QtCore.SIGNAL("clicked()"),self.dumpCurDB)
         
         '''Database Connection slots'''
         QtCore.QObject.connect(self.openDBButton, QtCore.SIGNAL("clicked()"), self.setDBConnection)
