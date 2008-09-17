@@ -98,12 +98,12 @@ class CustomTable(QTableWidget):
 
     def __initActions__(self):
         self.pasteAction = QAction("Paste",  self)
-        #self.pasteAction.setShortcut("Ctrl+V")
+        self.pasteAction.setShortcut("Ctrl+V")
         self.addAction(self.pasteAction)
         self.connect(self.pasteAction, SIGNAL("triggered()"), self.pasteClip)
         
         self.copyAction = QAction("Copy",  self)
-        #self.copyAction.setShortcut("Ctrl+C")
+        self.copyAction.setShortcut("Ctrl+C")
         self.addAction(self.copyAction)
         self.connect(self.copyAction, SIGNAL("triggered()"), self.copyCells)
         

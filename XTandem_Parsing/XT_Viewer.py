@@ -564,7 +564,7 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.SelectInfoWidget.connect(self.SelectInfoWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self.SelectInfoTabContext)
     
     
-    def selectDBField(self):
+    def selectDBField(self,  saveTable = None):
         curCol = self.SelectInfoWidget.currentColumn()
         if self.SelectInfoWidget.currentItem() == None:
             return False
@@ -576,25 +576,34 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                 curType = self.infoMap[str(curItem.text())]
                 curVal = self.curSelectInfo[str(curItem.text())]
                 curTbl = self.curTbl
-                result = self.curDB.GET_VALUE_BY_TYPE(curTbl, curType, curVal)
-#                if len(result == 0):
-#                    result = ['Not data was found...', ]
-                colHeaders = self.curDB.LIST_COLUMNS(curTbl)
-                self.curDBTable = DBTable(result,  colHeaders)
+                if saveTable:
+                    result = self.curDB.GET_VALUE_BY_TYPE(curTbl, curType, curVal,  savePrompt = True)
+                else:
+                    result = self.curDB.GET_VALUE_BY_TYPE(curTbl, curType, curVal)
+                if result == False:
+                    print "User aborted query"
+                else:
+                    if len(result) == 0:
+                        result = ['No data was found...', ]
+                    #print result
+                    #else:
+                    colHeaders = self.curDB.LIST_COLUMNS(curTbl)
+                    self.curDBTable = DBTable(result,  colHeaders)
+                
             except:
                 errorMsg = "Sorry: %s\n\n:%s\n"%(sys.exc_type, sys.exc_value)
                 errorMsg+='\n GET_VALUE_BY_TYPE Failed!\nThere was a problem retrieving the information from the database.'
                 QtGui.QMessageBox.warning(self, "Select Database Field Error",  errorMsg)
                 
         
-
-
-         
+    def saveQueryTable(self):
+        self.selectDBField(saveTable = True)         
     
     def SelectInfoTabContext(self,  point):
         '''Create a context menu for the SelectInfoWidget which is a QTableWidget'''
         infoCT_menu = QtGui.QMenu("Menu",  self.SelectInfoWidget)
         infoCT_menu.addAction(self.selectDBFieldAction)
+        infoCT_menu.addAction(self.saveDBFieldAction)
         infoCT_menu.exec_(self.SelectInfoWidget.mapToGlobal(point))
         
     
@@ -623,11 +632,17 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.__curDir = os.getcwd()
         self.firstLoad = True
 
+
+        
     def __additionalConnections__(self):
         '''SelectInfoWidget context menu actions'''
-        self.selectDBFieldAction = QtGui.QAction("Select Database Field",  self)#self)
+        self.selectDBFieldAction = QtGui.QAction("Select Table By Field",  self)#self)
         self.SelectInfoWidget.addAction(self.selectDBFieldAction)
         QtCore.QObject.connect(self.selectDBFieldAction,QtCore.SIGNAL("triggered()"), self.selectDBField)
+        
+        self.saveDBFieldAction = QtGui.QAction("Save New Table By Field",  self)#self)
+        self.SelectInfoWidget.addAction(self.saveDBFieldAction)
+        QtCore.QObject.connect(self.saveDBFieldAction,QtCore.SIGNAL("triggered()"), self.saveQueryTable)
         
         '''Plot GUI Interaction slots'''
         QtCore.QObject.connect(self.db_TableList, QtCore.SIGNAL("itemPressed (QListWidgetItem *)"), self.setColLists)
@@ -640,7 +655,6 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         '''Database Connection slots'''
         QtCore.QObject.connect(self.openDBButton, QtCore.SIGNAL("clicked()"), self.setDBConnection)
         QtCore.QObject.connect(self.useMemDB_CB, QtCore.SIGNAL("stateChanged (int)"), self.setMemDB)
-        
         
         '''File menu actions slots'''
         QtCore.QObject.connect(self.action_Open,QtCore.SIGNAL("triggered()"),self.__readDataFile__)
