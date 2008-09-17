@@ -155,13 +155,37 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             queryStr = str(self.sqlQueryString.toPlainText())
             if queryStr != None:
                 try:
-                    self.curDB.cnx.execute(queryStr)
+                    self.curDB.cur.execute(queryStr)
+                    self.sqlErrorMessage.setText('No Error')
+                    result = self.curDB.GET_CURRENT_QUERY(truncate = True)
+                    if len(result) != 0:
+                        self.outTableWidget.addData(result)        
+                        self.outTableWidget.resizeColumnsToContents()
                 except:
-                    errorMsg = "Error: %s\n\n%s\n"%(sys.exc_type, sys.exc_value)
-                    errorMsg+='\n There was an error executing the SQL Query.'
-                    return QtGui.QMessageBox.information(self,'SQL Execute Error', errorMsg)
+                    self.sqlErrorMessage.setText(str(sys.exc_value))
+#                    errorMsg = "Error: %s\n\n%s\n"%(sys.exc_type, sys.exc_value)
+#                    errorMsg+='\n There was an error executing the SQL Query.'
+#                    return QtGui.QMessageBox.information(self,'SQL Execute Error', errorMsg)
 
-
+    def viewQueryResults(self):
+        if self.dbStatus:
+            queryStr = str(self.sqlQueryString.toPlainText())
+            if queryStr != None:
+                try:
+                    self.curDB.cur.execute(queryStr)
+                    self.sqlErrorMessage.setText('No Error')
+                    result = self.curDB.GET_CURRENT_QUERY(truncate = True)
+                    if len(result) != 0:
+                        self.curDBTable = DBTable(result)
+                        #self.outTableWidget.addData(result)        
+                        #self.outTableWidget.resizeColumnsToContents()
+                except:
+                    self.sqlErrorMessage.setText(str(sys.exc_value))
+#                    errorMsg = "Error: %s\n\n%s\n"%(sys.exc_type, sys.exc_value)
+#                    errorMsg+='\n There was an error executing the SQL Query.'
+#                    return QtGui.QMessageBox.information(self,'SQL Execute Error', errorMsg)
+        
+    
     def setQueryLists(self,  widgetItem):
         self.queryFieldList.clear()
         activeData = self.activeDict[str(widgetItem.text())]
@@ -605,7 +629,6 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         infoCT_menu.addAction(self.selectDBFieldAction)
         infoCT_menu.addAction(self.saveDBFieldAction)
         infoCT_menu.exec_(self.SelectInfoWidget.mapToGlobal(point))
-        
     
     def plotTabContext(self, point):
         '''Create a menu for mainTabWidget'''
@@ -651,6 +674,7 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         '''Query GUI slots'''
         QtCore.QObject.connect(self.queryTblList, QtCore.SIGNAL("itemPressed (QListWidgetItem *)"), self.setQueryLists)
         QtCore.QObject.connect(self.dbExecuteQuery,QtCore.SIGNAL("clicked()"),self.executeSQLQuery)        
+        QtCore.QObject.connect(self.viewQueryBtn,QtCore.SIGNAL("clicked()"),self.viewQueryResults)
         
         '''Database Connection slots'''
         QtCore.QObject.connect(self.openDBButton, QtCore.SIGNAL("clicked()"), self.setDBConnection)
@@ -670,7 +694,7 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
         QtCore.QMetaObject.connectSlotsByName(self)#MainWindow)
     
-###########################################################    \
+###########################################################
 
     def closeEvent(self,  event = None):
         if self.okToExit():

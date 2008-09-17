@@ -35,7 +35,7 @@
       <item>
        <widget class="QTabWidget" name="mainTabWidget" >
         <property name="currentIndex" >
-         <number>0</number>
+         <number>2</number>
         </property>
         <widget class="QWidget" name="plotTab" >
          <attribute name="title" >
@@ -227,53 +227,89 @@
              </widget>
             </item>
             <item>
-             <widget class="QTextEdit" name="outputTE" />
+             <widget class="CustomTable" name="outTableWidget" >
+              <property name="rowCount" >
+               <number>10</number>
+              </property>
+              <property name="columnCount" >
+               <number>10</number>
+              </property>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <column/>
+              <column/>
+              <column/>
+              <column/>
+              <column/>
+              <column/>
+              <column/>
+              <column/>
+              <column/>
+              <column/>
+             </widget>
             </item>
            </layout>
           </item>
           <item>
-           <layout class="QVBoxLayout" >
+           <layout class="QHBoxLayout" >
             <item>
-             <layout class="QGridLayout" >
-              <item row="0" column="0" >
-               <widget class="QPushButton" name="dbExecuteQuery" >
-                <property name="maximumSize" >
-                 <size>
-                  <width>200</width>
-                  <height>16777215</height>
-                 </size>
-                </property>
-                <property name="text" >
-                 <string>Execute Query</string>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="1" >
-               <widget class="QPushButton" name="dbCommitQuery" >
-                <property name="maximumSize" >
-                 <size>
-                  <width>200</width>
-                  <height>16777215</height>
-                 </size>
-                </property>
-                <property name="text" >
-                 <string>Commit Query Results</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <widget class="QLabel" name="label_7" >
+             <widget class="QPushButton" name="dbExecuteQuery" >
+              <property name="maximumSize" >
+               <size>
+                <width>200</width>
+                <height>16777215</height>
+               </size>
+              </property>
               <property name="text" >
-               <string>Data Base Error Message:</string>
+               <string>Execute Query</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QLineEdit" name="sqlErrorMessage" />
+             <widget class="QPushButton" name="viewQueryBtn" >
+              <property name="maximumSize" >
+               <size>
+                <width>200</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="text" >
+               <string>View Query Results</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="dbCommitQuery" >
+              <property name="maximumSize" >
+               <size>
+                <width>200</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="text" >
+               <string>Commit Query Results</string>
+              </property>
+             </widget>
             </item>
            </layout>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_7" >
+            <property name="text" >
+             <string>Data Base Error Message:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="sqlErrorMessage" />
           </item>
           <item>
            <layout class="QHBoxLayout" >
@@ -754,6 +790,11 @@
    <extends>QWidget</extends>
    <header>mpl_custom_widget</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>CustomTable</class>
+   <extends>QTableWidget</extends>
+   <header>customTable</header>
   </customwidget>
  </customwidgets>
  <resources>
