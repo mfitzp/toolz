@@ -47,12 +47,6 @@ plot_colors = ['#297AA3','#A3293D','#3B9DCE','#293DA3','#5229A3','#8F29A3','#A32
 
 markers = ['o', 'd','>', 's', '^',  'p', '<', 'h', 'v']
 
-#class XTViewer(ui_main.Ui_MainWindow):
-#    def __init__(self, MainWindow):
-#        self.MainWindow = MainWindow
-#        ui_main.Ui_MainWindow.setupUi(self, self.MainWindow)
-
-
 class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
     def __init__(self, parent = None):
         super(XTViewer,  self).__init__(parent)

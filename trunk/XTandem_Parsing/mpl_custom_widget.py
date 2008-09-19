@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from PyQt4 import QtCore,  QtGui
+#from PyQt4.QtGui import *
 
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt4 import NavigationToolbar2QT as NavigationToolbar
@@ -26,8 +26,8 @@ class MyMplCanvas(FigureCanvas):
 		FigureCanvas.__init__(self, self.fig)
 		#self.fc = FigureCanvas(self.fig)
 		FigureCanvas.setSizePolicy(self,
-			QSizePolicy.Expanding,
-			QSizePolicy.Expanding)
+			QtGui.QSizePolicy.Expanding,
+			QtGui.QSizePolicy.Expanding)
 		FigureCanvas.updateGeometry(self)
 
 	def format_labels(self):
@@ -46,17 +46,17 @@ class MyMplCanvas(FigureCanvas):
 
 	def sizeHint(self):
 		w, h = self.get_width_height()
-		return QSize(w, h)
+		return QtCore.QSize(w, h)
 
 	def minimumSizeHint(self):
-		return QSize(10, 10)
+		return QtCore.QSize(10, 10)
 
 	def sizeHint(self):
 		w, h = self.get_width_height()
-		return QSize(w, h)
+		return QtCore.QSize(w, h)
 
 	def minimumSizeHint(self):
-		return QSize(10, 10)
+		return QtCore.QSize(10, 10)
 
 
 class MyNavigationToolbar(NavigationToolbar) :
@@ -80,30 +80,41 @@ class MyNavigationToolbar(NavigationToolbar) :
 		pass
 
 
-class MPL_Widget(QWidget):
+class MPL_Widget(QtGui.QWidget):
     def __init__(self, parent = None):
-        QWidget.__init__(self, parent)
+        QtGui.QWidget.__init__(self, parent)
         self.canvas = MyMplCanvas()
         #self.toolbar = MyNavigationToolbar(self.canvas, self.canvas, direction = 'v')
         self.toolbar = NavigationToolbar(self.canvas, self.canvas)
         self.toolbar.hide()
-        self.hbox = QHBoxLayout()
+        self.hbox = QtGui.QHBoxLayout()
         #self.hbox.addWidget(self.toolbar)
         self.hbox.addWidget(self.canvas)
         self.setLayout(self.hbox)
         ##########################
-        self.hZoom = QAction("Zoom",  self)#self)
+        self.hZoom = QtGui.QAction("Zoom",  self)
         self.hZoom.setShortcut("Ctrl+Z")
         self.addAction(self.hZoom)
-        QObject.connect(self.hZoom,SIGNAL("triggered()"), self.ZoomToggle)
+        QtCore.QObject.connect(self.hZoom,QtCore.SIGNAL("triggered()"), self.ZoomToggle)
         
-        self.actionAutoScale = QAction("AutoScale",  self)#self.MainWindow)
+        self.actionAutoScale = QtGui.QAction("AutoScale",  self)#self.MainWindow)
         self.actionAutoScale.setShortcut("Ctrl+A")
         self.addAction(self.actionAutoScale)
-        QObject.connect(self.actionAutoScale,SIGNAL("triggered()"), self.autoscale_plot)
+        QtCore.QObject.connect(self.actionAutoScale,QtCore.SIGNAL("triggered()"), self.autoscale_plot)
 
     def ZoomToggle(self):
         self.toolbar.zoom()
         
     def autoscale_plot(self):
         self.toolbar.home()
+        
+
+def main():
+    import sys
+    app = QtGui.QApplication(sys.argv)
+    w = MPL_Widget()
+    w.show()
+    sys.exit(app.exec_())
+    
+if __name__ == "__main__":
+    main()
