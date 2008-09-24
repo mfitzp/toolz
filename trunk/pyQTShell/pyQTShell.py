@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import sys
 from os.path import isfile
+import os
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
@@ -47,7 +48,7 @@ class pyQTShell(QWidget):
             parent.topPlot = self.ui
             #print parent.localVars.getPubDict().keys()
         #self.windowTitle = "Plot%d" % pyQTShell.NextId
-        #self.setWindowTitle(self.windowTitle)
+        self.setWindowTitle("Python Shell")
         pyQTShell.NextId +=1
           
         
@@ -55,8 +56,22 @@ class pyQTShell(QWidget):
         
         self.__initLocalVars__()
         self.__addWidgets__()
+        self.__initConnections__()
+        self.__initContextMenus__()
     
- 
+
+    def __initContextMenus__(self):
+        self.SP_Edit.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.SP_Edit.connect(self.SP_Edit, SIGNAL("customContextMenuRequested(QPoint)"), self.scratchPadContext)
+        
+        #self.tableWidgetContext()
+
+    def scratchPadContext(self, point):
+        '''Create a menu for the scratch pad and associated actions'''
+        sp_menu = QMenu("Menu", self.SP_Edit)
+        sp_menu.addAction(self.actionTransfer)
+        sp_menu.exec_(self.SP_Edit.mapToGlobal(point))
+
     def __addWidgets__(self):
         '''adds all of the custom widgets not specified in the .ui file'''
         #interpreter = Interpreter(self.localVars.__dict__)#original
@@ -67,18 +82,110 @@ class pyQTShell(QWidget):
         self.shell = shellClass(interpreter,parent=self.ui.pyDockWidget)
         self.shell.setObjectName("shell")
         self.ui.pyDockWidget.setWidget(self.shell)
+        ############################################
+        #print type(self.sp_widget)
+        self.SP_Edit = TextEdit(self.ui.sp_widget)
+        self.highlighter = PythonHighlighter(self.SP_Edit.document())
+        
+        self.SP_Edit.setObjectName("SP_Edit")
+        self.ui.vboxlayout.addWidget(self.SP_Edit)
+        
+        self.ui.script_name_cb.addItem(QString('New Script Name'))
+        
+    def __initConnections__(self):
+        self.actionTransfer = QAction("Run Scratch Pad Script",  self)#self)
+        self.ui.sp_widget.addAction(self.actionTransfer)
+        QObject.connect(self.actionTransfer,SIGNAL("triggered()"),self.__runScratchScript__)
+        
+        QObject.connect(self.ui.btn_saveScript, SIGNAL("clicked()"), self.__saveSP2Disk__)
+        QObject.connect(self.ui.btn_scratch2Mem, SIGNAL("clicked()"), self.__saveSP2Mem__)
+        QObject.connect(self.ui.script_name_cb, SIGNAL("currentIndexChanged(QString)"), self.__scratchComboAction__)        
+        
+        
+        QMetaObject.connectSlotsByName(self)
+ 
+    def __scratchComboAction__(self, entry):
+        #print "Combo Index"
+        if entry and self.userScratchDict.has_key(entry):# is not self.script_name_cb.currentText():            
+            self.SP_Edit.setPlainText(self.userScratchDict.get(entry))#self.script_name_cb.currentText()))
+
+    def __updateScratchScripts__(self):
+        self.ui.script_name_cb.clear()
+        self.ui.script_name_cb.addItems(self.userScratchDict.keys())
+
+    def __saveSP2Mem__(self):
+        if self.ui.script_name_cb.currentText():
+            print '\nScratch Pad saved as %s'%(self.ui.script_name_cb.currentText())
+
+            self.userScratchDict[self.ui.script_name_cb.currentText()] = self.SP_Edit.document().toPlainText()
+            self.__updateScratchScripts__()
+
+            
+        else:
+            return QtGui.QMessageBox.warning(self.MainWindow,\
+                                                 "That action is Verbotten",\
+                                                 "You need to enter a script name first!",\
+                                                 QtGui.QMessageBox.Ok)
+        
+    def __saveSP2Disk__(self):
+        if self.ui.script_name_cb.currentText():
+            
+            spFilePath = '/'.join([os.getcwd(),  str(self.ui.script_name_cb.currentText())])
+        else:
+            spFilePath = '/'.join([os.getcwd(),''])
+        
+        dataFileName = QtGui.QFileDialog.getSaveFileName(self,\
+                                                 self.ScratchSavePrompt,\
+                                                 spFilePath,'Python File (*.py)')
+        if dataFileName:
+            scratch_text = self.SP_Edit.document().toPlainText()
+            #lines = unicode((script_text.toPlainText()).splitlines(True))
+            try:
+                if os.path.isfile(dataFileName):
+                    fout = open(dataFileName, 'a')
+                    fout.write(scratch_text)
+                    fout.close()
+                    print "Scratch Pad appended to: %s"%(dataFileName)
+                else:
+                    fout = open(dataFileName, 'w')
+                    fout.write(scratch_text)
+                    fout.close()
+                    print "Scratch Pad written to: %s"%(dataFileName)
+            except:
+                print "Error writing scratch pad to file."
+            
+            finally:
+                    self.userScratchDict[self.script_name_cb.currentText()]=scratch_text
+                    
+
+    def __runScratchScript__(self):
+        '''script_text is of type QDocument which must be changed to
+        unicode before the splitlines operation may be used.  The TRUE
+        at the end of this command keeps the end of line character intact
+        so the fakeUser command can add the text to the shell properly'''
+        script_text = self.SP_Edit.document()
+        lines = unicode(script_text.toPlainText()).splitlines(True)
+        self.shell.setFocus()
+        self.ui.tabWidget.setCurrentIndex(0)
+        #print type(lines)
+        #print lines
+        return self.shell.fakeUser(lines)
+
     
     def __initLocalVars__(self):
         '''Initialization of variables
         All of those variables specified below will be avialable to the user
         '''
+        self.ScratchSavePrompt = "Choose file name to save the scratch pad:"
         #self.localVars.setPubTypes(self.localVarTypes)
+        self.userScratchDict = {}
         self.varDict['__ghost__'] = []
         #self.localVars['P'] = P
         self.varDict['N'] = N
         self.varDict['S'] = S
-        
-        
+
+
+            
     @staticmethod
     def updateInstances(qobj):
         pyQTShell.Instances = set([window for window \

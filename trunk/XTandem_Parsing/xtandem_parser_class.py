@@ -31,22 +31,22 @@ class XT_RESULTS:
 #        self.scanID = None
 #        self.pro_eVals = None
 #        self.pep_eValues = None
-#        self.pepLengths = None
+#        self.pepLens = None
 #        self.hScores = None
 #        self.nextScores = None
         
-        pepIDs = []
-        proIDs = []
+        pepID = []
+        proID = []
         
-        ppm_errors = []
-        theoMZs = []
+        ppm_error = []
+        theoMZ = []
         scanID = []
-        pro_eVals=[]
-        pep_eValues=[]
-        hScores = []
-        nextScores = []
-        pepLengths = []
-        deltaHs = []
+        pro_eVal=[]
+        pep_eValue=[]
+        hScore = []
+        nextScore = []
+        pepLen = []
+        deltaH = []
         
         self.prot_dict = None
         
@@ -61,48 +61,48 @@ class XT_RESULTS:
             for group in groups:
                 if group.get('type') != 'no model obtained':       
                     for protein in group.findall('protein'):
-                        scan  = protein.get('id')
-                        protID = protein.attrib['label']
-                        pro_eVal = float(protein.attrib['expect'])
+                        cur_scan  = protein.get('id')
+                        cur_protID = protein.attrib['label']
+                        cur_pro_eVal = float(protein.attrib['expect'])
                         #prot_result = XT_protein(protID,  pro_eVal)
                         for peptide in protein.findall('peptide'):
                             for domain in peptide.findall('domain'):
-                                pepSeq = domain.attrib['seq']
-                                eValue = float(domain.attrib['expect'])
-                                hscore = float(domain.attrib['hyperscore'])
-                                nextscore = float(domain.attrib['nextscore'])
-                                deltaH = hscore - nextscore
-                                mzTheor = float(domain.get('mh'))
-                                ppm = 1e6*(float(domain.get('delta')))/mzTheor
-                                if eValue < self.evalue_cutoff and abs(ppm) < self.ppm_cutoff:
-                                    ppm_errors.append(float(ppm))
-                                    theoMZs.append(mzTheor)
-                                    scanID.append(int(scan.split('.')[0]))
-                                    pro_eVals.append(pro_eVal)
-                                    proIDs.append(protID)
-                                    pep_eValues.append(eValue)
-                                    pepIDs.append(pepSeq)
-                                    pepLengths.append(len(pepSeq))
-                                    hScores.append(hscore)
-                                    nextScores.append(nextscore)
-                                    deltaHs.append(deltaH)
+                                cur_pepSeq = domain.attrib['seq']
+                                cur_eValue = float(domain.attrib['expect'])
+                                cur_hscore = float(domain.attrib['hyperscore'])
+                                cur_nextscore = float(domain.attrib['nextscore'])
+                                cur_deltaH = cur_hscore - cur_nextscore
+                                cur_mzTheor = float(domain.get('mh'))
+                                cur_ppm = 1e6*(float(domain.get('delta')))/cur_mzTheor
+                                if cur_eValue < self.evalue_cutoff and abs(cur_ppm) < self.ppm_cutoff:
+                                    ppm_error.append(float(cur_ppm))
+                                    theoMZ.append(cur_mzTheor)
+                                    scanID.append(int(cur_scan.split('.')[0]))
+                                    pro_eVal.append(cur_pro_eVal)
+                                    proID.append(cur_protID)
+                                    pep_eValue.append(cur_eValue)
+                                    pepID.append(cur_pepSeq)
+                                    pepLen.append(len(cur_pepSeq))
+                                    hScore.append(cur_hscore)
+                                    nextScore.append(cur_nextscore)
+                                    deltaH.append(cur_deltaH)
             
             t2 = time.clock()
             print "Initial Read Time (s): ",(t2-t1) 
             self.iterLen = len(scanID)
-            if len(pepIDs) != 0:
+            if len(pepID) != 0:
                 self.dataDict = {
-                    'pepIDs': pepIDs, 
-                    'pep_eValues' : N.array(pep_eValues), 
+                    'pepID': pepID, 
+                    'pep_eValue' : N.array(pep_eValue), 
                     'scanID' : N.array(scanID), 
-                    'ppm_errors':N.array(ppm_errors),
-                    'theoMZs':N.array(theoMZs), 
-                    'hScores':N.array(hScores),
-                    'nextScores':N.array(nextScores),
-                    'pepLengths':N.array(pepLengths), 
-                    'proIDs':proIDs, 
-                    'pro_eVals':N.array(pro_eVals), 
-                    'deltaHs':N.array(deltaHs)
+                    'ppm_error':N.array(ppm_error),
+                    'theoMZ':N.array(theoMZ), 
+                    'hScore':N.array(hScore),
+                    'nextScore':N.array(nextScore),
+                    'pepLen':N.array(pepLen), 
+                    'proID':proID, 
+                    'pro_eVal':N.array(pro_eVal), 
+                    'deltaH':N.array(deltaH)
                     }
             else:
                 self.dataDict = False
@@ -111,16 +111,16 @@ class XT_RESULTS:
     def setArrays(self, arrayDict):
         '''Need to be in the following order:
         [
-        pepIDs = []
-        pep_eValues= []
+        pepID = []
+        pep_eValue= []
         scanID = []
-        ppm_errors = []
-        theoMZs = []
-        hScores = []
-        nextScores = []
-        pepLengths= []
-        proIDs = []
-        pro_eVals
+        ppm_error = []
+        theoMZ = []
+        hScore = []
+        nextScore = []
+        pepLen= []
+        proID = []
+        pro_eVal
         ]
         '''
         if arrayDict:
@@ -132,7 +132,7 @@ class XT_RESULTS:
 #            self.theoMZs = arrayDict.get('theoMZs')
 #            self.hScores = arrayDict.get('hScores')
 #            self.nextScores = arrayDict.get('nextScores')
-#            self.pepLengths= arrayDict.get('pepLengths')
+#            self.pepLens= arrayDict.get('pepLens')
 #            self.proIDs = arrayDict.get('proIDs')
 #            self.pro_eVals = arrayDict.get('pro_eVals')
     

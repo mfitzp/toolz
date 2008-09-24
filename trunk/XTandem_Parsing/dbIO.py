@@ -61,17 +61,17 @@ class XT_DB(object):#X!Tandem Database Class
                             'INSERT INTO "%s" VALUES (?,?,?,?,?,?,?,?,?,?,?,?)'%tableName,#again I know %s is not recommended but I don't know how to do this more elegantly.
                             (
                             i, 
-                            XT_RESULTS.dataDict.get('pepIDs')[i], 
-                            XT_RESULTS.dataDict.get('pep_eValues')[i], 
+                            XT_RESULTS.dataDict.get('pepID')[i], 
+                            XT_RESULTS.dataDict.get('pep_eValue')[i], 
                             XT_RESULTS.dataDict.get('scanID')[i], 
-                            XT_RESULTS.dataDict.get('ppm_errors')[i], 
-                            XT_RESULTS.dataDict.get('theoMZs')[i], 
-                            XT_RESULTS.dataDict.get('hScores')[i], 
-                            XT_RESULTS.dataDict.get('nextScores')[i],
-                           XT_RESULTS.dataDict.get('deltaHs')[i],  
-                            XT_RESULTS.dataDict.get('pepLengths')[i], 
-                            XT_RESULTS.dataDict.get('proIDs')[i], 
-                            XT_RESULTS.dataDict.get('pro_eVals')[i] 
+                            XT_RESULTS.dataDict.get('ppm_error')[i], 
+                            XT_RESULTS.dataDict.get('theoMZ')[i], 
+                            XT_RESULTS.dataDict.get('hScore')[i], 
+                            XT_RESULTS.dataDict.get('nextScore')[i],
+                           XT_RESULTS.dataDict.get('deltaH')[i],  
+                            XT_RESULTS.dataDict.get('pepLen')[i], 
+                            XT_RESULTS.dataDict.get('proID')[i], 
+                            XT_RESULTS.dataDict.get('pro_eVal')[i] 
                             ))
         self.cnx.commit()
         t2 = time.clock()
@@ -206,44 +206,44 @@ class XT_DB(object):#X!Tandem Database Class
         '''The XT_RESULTS in this case is empty instance that will be filled, however, it could be one that needs to be updated too.'''
         t1 = time.clock()
         
-        pepIDs = []
-        pep_eValues= []
+        pepID = []
+        pep_eValue= []
         scanID = []
-        ppm_errors = []
-        theoMZs = []
+        ppm_error = []
+        theoMZ = []
         hScores = []
-        nextScores = []
-        pepLengths= []
-        proIDs = []
-        pro_eVals = []
-        deltaHs = []
+        nextScore = []
+        pepLen= []
+        proID = []
+        pro_eVal = []
+        deltaH = []
         
         self.cur.execute('SELECT * FROM "%s"'%tableName)
         for row in self.cur.fetchall():
-            pepIDs.append(row[1])
-            pep_eValues.append(row[2])
+            pepID.append(row[1])
+            pep_eValue.append(row[2])
             scanID.append(row[3])
-            ppm_errors.append(row[4])
-            theoMZs.append(row[5])
-            hScores.append(row[6])
-            nextScores.append(row[7])
-            deltaHs.append(row[8])
-            pepLengths.append(row[9])
-            proIDs.append(row[10])
-            pro_eVals.append(row[11])
+            ppm_error.append(row[4])
+            theoMZ.append(row[5])
+            hScore.append(row[6])
+            nextScore.append(row[7])
+            deltaH.append(row[8])
+            pepLen.append(row[9])
+            proID.append(row[10])
+            pro_eVal.append(row[11])
             
         arrayDict = {
-                'pepIDs': pepIDs, 
-                'pep_eValues' : N.array(pep_eValues), 
+                'pepID': pepID, 
+                'pep_eValue' : N.array(pep_eValue), 
                 'scanID' : N.array(scanID), 
-                'ppm_errors':N.array(ppm_errors),
-                'theoMZs':N.array(theoMZs), 
-                'hScores':N.array(hScores),
-                'nextScores':N.array(nextScores),
-                'pepLengths':N.array(pepLengths), 
-                'proIDs':proIDs, 
-                'pro_eVals':N.array(pro_eVals), 
-                'deltaHs':N.array(deltaHs)
+                'ppm_error':N.array(ppm_error),
+                'theoMZ':N.array(theoMZ), 
+                'hScore':N.array(hScore),
+                'nextScore':N.array(nextScore),
+                'pepLen':N.array(pepLen), 
+                'proID':proID, 
+                'pro_eVal':N.array(pro_eVal), 
+                'deltaH':N.array(deltaH)
                 }
         XT_RESULTS.setArrays(arrayDict)
         XT_RESULTS.setFN(tableName)    
@@ -285,17 +285,17 @@ def save_XT_HDF5(filename, xtXML):
         peptide = pepTbl.row
         for i in xrange(len(xtXML.dataDict.get('scanID'))):
             peptide['idnum'] = i
-            peptide['pepID'] = xtXML.dataDict.get('pepIDs')[i]
-            peptide['pep_eVal'] = xtXML.dataDict.get('pep_eValues')[i]
+            peptide['pepID'] = xtXML.dataDict.get('pepID')[i]
+            peptide['pep_eVal'] = xtXML.dataDict.get('pep_eValue')[i]
             peptide['scanID'] = xtXML.dataDict.get('scanID')[i]
-            peptide['ppm_error'] = xtXML.dataDict.get('ppm_errors')[i]
-            peptide['theoMZ'] = xtXML.dataDict.get('theoMZs')[i]
-            peptide['hScore'] = xtXML.dataDict.get('hScores')[i]
-            peptide['nextScore'] = xtXML.dataDict.get('nextScores')[i]
-            peptide['pepLen'] = xtXML.dataDict.get('pepLengths')[i]
-            peptide['proID'] = xtXML.dataDict.get('proIDs')[i]
-            peptide['pro_eVal'] = xtXML.dataDict.get('pro_eVals')[i]
-            peptide['deltaH'] = xtXML.dataDict.get('deltaHs')[i]
+            peptide['ppm_error'] = xtXML.dataDict.get('ppm_error')[i]
+            peptide['theoMZ'] = xtXML.dataDict.get('theoMZ')[i]
+            peptide['hScore'] = xtXML.dataDict.get('hScore')[i]
+            peptide['nextScore'] = xtXML.dataDict.get('nextScore')[i]
+            peptide['pepLen'] = xtXML.dataDict.get('pepLen')[i]
+            peptide['proID'] = xtXML.dataDict.get('proID')[i]
+            peptide['pro_eVal'] = xtXML.dataDict.get('pro_eVal')[i]
+            peptide['deltaH'] = xtXML.dataDict.get('deltaH')[i]
 
             peptide.append()
 
@@ -307,17 +307,17 @@ def save_XT_HDF5(filename, xtXML):
 def load_XT_HDF5(filename,  xtXML):
     if os.path.isfile(filename):
         
-        pepIDs = []
-        pep_eValues= []
+        pepID = []
+        pep_eValue= []
         scanID = []
-        ppm_errors = []
-        theoMZs = []
-        hScores = []
-        nextScores = []
-        pepLengths= []
-        proIDs = []
-        pro_eVals = []
-        deltaHs = []
+        ppm_error = []
+        theoMZ = []
+        hScore = []
+        nextScore = []
+        pepLen= []
+        proID = []
+        pro_eVal = []
+        deltaH = []
         
         origFileName = None
         
@@ -328,32 +328,32 @@ def load_XT_HDF5(filename,  xtXML):
                 if node._c_classId is 'TABLE':
                     origFileName = node.attrs.origFileName
                     for row in node.iterrows():
-                        pepIDs.append(row['pepID'])
-                        pep_eValues.append(row['pep_eVal'])
+                        pepID.append(row['pepID'])
+                        pep_eValue.append(row['pep_eVal'])
                         scanID.append(row['scanID'])
-                        ppm_errors.append(row['ppm_error'])
-                        theoMZs.append(row['theoMZ'])
-                        hScores.append(row['hScore'])
-                        nextScores.append(row['nextScore'])
-                        pepLengths.append(row['pepLen'])
-                        proIDs.append(row['proID'])
-                        pro_eVals.append(row['pro_eVal'])
-                        deltaHs.append(row['deltaH'])
+                        ppm_error.append(row['ppm_error'])
+                        theoMZ.append(row['theoMZ'])
+                        hScore.append(row['hScore'])
+                        nextScore.append(row['nextScore'])
+                        pepLen.append(row['pepLen'])
+                        proID.append(row['proID'])
+                        pro_eVal.append(row['pro_eVal'])
+                        deltaH.append(row['deltaH'])
                 
         
         hdf.close()
         arrayDict = {
-                        'pepIDs': pepIDs, 
-                        'pep_eValues' : N.array(pep_eValues), 
+                        'pepID': pepID, 
+                        'pep_eValue' : N.array(pep_eValue), 
                         'scanID' : N.array(scanID), 
-                        'ppm_errors':N.array(ppm_errors),
-                        'theoMZs':N.array(theoMZs), 
-                        'hScores':N.array(hScores),
-                        'nextScores':N.array(nextScores),
-                        'pepLengths':N.array(pepLengths), 
-                        'proIDs':proIDs, 
-                        'pro_eVals':N.array(pro_eVals), 
-                        'deltaHs':N.array(deltaHs)
+                        'ppm_error':N.array(ppm_error),
+                        'theoMZ':N.array(theoMZ), 
+                        'hScore':N.array(hScore),
+                        'nextScore':N.array(nextScore),
+                        'pepLen':N.array(pepLen), 
+                        'proID':proID, 
+                        'pro_eVal':N.array(pro_eVal), 
+                        'deltaH':N.array(deltaH)
                         }
         xtXML.setArrays(arrayDict)
         xtXML.setFN(origFileName)

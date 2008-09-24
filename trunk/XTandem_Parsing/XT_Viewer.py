@@ -300,25 +300,25 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             if self.dbStatus:
                 fnCore = self.getFNCore(str(filename))
                 self.curTbl = fnCore
-                try:
-                    results = XT_RESULTS(filename)
-                    if results.dataDict == False:
-                        raise Exception,  self.EmptyArrayText
-                        
-                    else:
-                        self.activeDict[fnCore] = results
-                        insertOK = self.curDB.INSERT_XT_VALUES(fnCore, self.activeDict[fnCore])
-                        self.loadOK = True
-                        if insertOK:
-                            self.initiatePlot()
-                            self.updatePlotOptionsGUI()
-                            self.updateQueryGUI()
-                            self.firstLoad = False
-                except:
-                    errorMsg = "Error: %s\n\n%s\n"%(sys.exc_type, sys.exc_value)
-                    errorMsg+='\n There was an error reading the xml file.  Are you sure it is an X!Tandem output file?'
-                    return QtGui.QMessageBox.information(self,'Error Reading File', errorMsg)
-        
+#                try:
+                results = XT_RESULTS(filename)
+                if results.dataDict == False:
+                    raise Exception,  self.EmptyArrayText
+                    
+                else:
+                    self.activeDict[fnCore] = results
+                    insertOK = self.curDB.INSERT_XT_VALUES(fnCore, self.activeDict[fnCore])
+                    self.loadOK = True
+                    if insertOK:
+                        self.initiatePlot()
+                        self.updatePlotOptionsGUI()
+                        self.updateQueryGUI()
+                        self.firstLoad = False
+#                except:
+#                    errorMsg = "Error: %s\n\n%s\n"%(sys.exc_type, sys.exc_value)
+#                    errorMsg+='\n There was an error reading the xml file.  Are you sure it is an X!Tandem output file?'
+#                    return QtGui.QMessageBox.information(self,'Error Reading File', errorMsg)
+#        
         elif self.fileType == 'h5':
             try:
                 self.curFile = XT_RESULTS(filename,  parseFile = False)
@@ -437,7 +437,7 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             self.handleA.set_data([event.mouseevent.xdata], [event.mouseevent.ydata])
 
         self.handleA.set_visible(True)
-        showText = '%s'%(self.activeDict[self.curTbl].dataDict.get('pepIDs')[self.pickIndex])
+        showText = '%s'%(self.activeDict[self.curTbl].dataDict.get('pepID')[self.pickIndex])
         self.textHandle = self.plotWidget.canvas.ax.text(0.03, 0.95, showText, fontsize=9,\
                                         bbox=dict(facecolor='yellow', alpha=0.1),\
                                         transform=self.plotWidget.canvas.ax.transAxes, va='top')
@@ -499,10 +499,10 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.plotWidget.canvas.ax.cla()
         self.__setupPlot__()
         activeData = self.activeDict[self.curTbl]
-        self.x = activeData.dataDict.get('pep_eValues')
+        self.x = activeData.dataDict.get('pep_eValue')
         #self.x = self.curFile.dataDict.get('hScores')
-        self.y = activeData.dataDict.get('deltaHs')#(activeData.dataDict.get('hScores')-activeData.dataDict.get('nextScores'))
-        sizeList = activeData.dataDict.get('pepLengths')**1.5
+        self.y = activeData.dataDict.get('deltaH')#(activeData.dataDict.get('hScores')-activeData.dataDict.get('nextScores'))
+        sizeList = activeData.dataDict.get('pepLen')**1.5
         self.plotScatter = self.plotWidget.canvas.ax.scatter(self.x, self.y,  s = sizeList,  color = self.getPlotColor(),  marker = self.getPlotMarker(), alpha = 0.3,  label = self.curTbl,  picker = 5)#add label = ??
         self.plotWidget.canvas.ax.set_xscale('log')
         xmin = N.min(self.x)/10
@@ -534,17 +534,17 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
     def updateSelectInfo(self,  index,  activeKey):
         activeData = self.activeDict[activeKey]
         self.curSelectInfo['Index'] = str(index)
-        self.curSelectInfo['Peptide'] = activeData.dataDict.get('pepIDs')[index]
-        self.curSelectInfo['Peptide e-Value'] = str(activeData.dataDict.get('pep_eValues')[index])
+        self.curSelectInfo['Peptide'] = activeData.dataDict.get('pepID')[index]
+        self.curSelectInfo['Peptide e-Value'] = str(activeData.dataDict.get('pep_eValue')[index])
         self.curSelectInfo['Scan'] =str(activeData.dataDict.get('scanID')[index])
-        self.curSelectInfo['ppm Error'] =str(activeData.dataDict.get('ppm_errors')[index])
-        self.curSelectInfo['Theoretical MZ'] =str(activeData.dataDict.get('theoMZs')[index])
-        self.curSelectInfo['Hyperscore'] =str(activeData.dataDict.get('hScores')[index])
-        self.curSelectInfo['Next Hyperscore'] =str(activeData.dataDict.get('nextScores')[index])
-        self.curSelectInfo['Delta Hyperscore'] =str(activeData.dataDict.get('deltaHs')[index])
-        self.curSelectInfo['Peptide Length'] =str(activeData.dataDict.get('pepLengths')[index])
-        self.curSelectInfo['Protein ID'] =activeData.dataDict.get('proIDs')[index]
-        self.curSelectInfo['Protein e-Value'] =str(activeData.dataDict.get('pro_eVals')[index])
+        self.curSelectInfo['ppm Error'] =str(activeData.dataDict.get('ppm_error')[index])
+        self.curSelectInfo['Theoretical MZ'] =str(activeData.dataDict.get('theoMZ')[index])
+        self.curSelectInfo['Hyperscore'] =str(activeData.dataDict.get('hScore')[index])
+        self.curSelectInfo['Next Hyperscore'] =str(activeData.dataDict.get('nextScore')[index])
+        self.curSelectInfo['Delta Hyperscore'] =str(activeData.dataDict.get('deltaH')[index])
+        self.curSelectInfo['Peptide Length'] =str(activeData.dataDict.get('pepLen')[index])
+        self.curSelectInfo['Protein ID'] =activeData.dataDict.get('proID')[index]
+        self.curSelectInfo['Protein e-Value'] =str(activeData.dataDict.get('pro_eVal')[index])
         
         newitem = QtGui.QTableWidgetItem('Table')
         self.SelectInfoWidget.setItem(0, 0, newitem)
@@ -574,9 +574,10 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
     def __initContextMenus__(self):
         self.plotWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.SelectInfoWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.queryFieldList.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.plotWidget.connect(self.plotWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self.plotTabContext)
         self.SelectInfoWidget.connect(self.SelectInfoWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self.SelectInfoTabContext)
-    
+        self.queryFieldList.connect(self.queryFieldList, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self.queryFieldContext)
     
     def dumpCurDB(self):
         if self.dbStatus:
@@ -584,7 +585,10 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                                                      self.SaveDataText,\
                                                      self.__curDir, 'SQLite Text Database (*.sql)')
             if saveFileName:
-                print "This feature will be enabled with the release of Python 2.6"
+                warnMsg = "This feature will be enabled with the release of Python 2.6"
+                print warnMsg
+                return QtGui.QMessageBox.warning(self, "Database Dump Error",  warnMsg)
+                
 #                con = self.curDB.cnx
 #                full_dump = os.linesep.join([line for line in con.iterdump()])
 #                f = open(str(saveFileName), 'w')
@@ -628,6 +632,29 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         
     def saveQueryTable(self):
         self.selectDBField(saveTable = True)         
+    
+    def queryByType(self):
+        curField = str(self.queryFieldList.currentItem().text())
+        curTbl = str(self.queryTblList.currentItem().text())
+        if curField != None and curTbl != None:
+            queryValue , ok = QtGui.QInputDialog.getText(self, 'Enter Query Value',\
+                                'Enter %s to Query From %s: '%(curField, curTbl), QtGui.QLineEdit.Normal, '')
+            if ok:
+                queryValue = str(queryValue)
+                if len(queryValue) != 0:#make sure the user didn't leave the prompt blank
+                    result = self.curDB.GET_VALUE_BY_TYPE(curTbl,  curField,  queryValue)
+                    if len(result) == 0:
+                        result = ['No data was found...', ]
+                    colHeaders = self.curDB.LIST_COLUMNS(curTbl)
+                    self.curDBTable = DBTable(result,  colHeaders)
+                    
+            #print curField,  curTbl
+   
+    def queryFieldContext(self, point):
+        queryCT_menu = QtGui.QMenu("Menu",  self.queryFieldList)
+        queryCT_menu.addAction(self.queryByTypeAction)
+        queryCT_menu.exec_(self.queryFieldList.mapToGlobal(point))
+        #queryCT_menu
     
     def SelectInfoTabContext(self,  point):
         '''Create a context menu for the SelectInfoWidget which is a QTableWidget'''
@@ -682,6 +709,11 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         QtCore.QObject.connect(self.dbExecuteQuery,QtCore.SIGNAL("clicked()"),self.executeSQLQuery)        
         QtCore.QObject.connect(self.viewQueryBtn,QtCore.SIGNAL("clicked()"),self.viewQueryResults)
         QtCore.QObject.connect(self.dumpDBBtn,QtCore.SIGNAL("clicked()"),self.dumpCurDB)
+        
+        self.queryByTypeAction=QtGui.QAction("Query By Type Value",  self)
+        self.queryFieldList.addAction(self.queryByTypeAction)
+        QtCore.QObject.connect(self.queryByTypeAction,QtCore.SIGNAL("triggered()"), self.queryByType)
+        
         
         '''Database Connection slots'''
         QtCore.QObject.connect(self.openDBButton, QtCore.SIGNAL("clicked()"), self.setDBConnection)
