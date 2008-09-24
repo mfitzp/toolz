@@ -22,7 +22,7 @@ class DBTable(QWidget):
         QWidget.__init__(self)
         self.setAttribute(Qt.WA_DeleteOnClose)
         self.setWindowTitle('Database Result')
-        self.resize(800, 400)
+        self.resize(900, 400)
         self.tableWidget = CustomTable(self)
         self.numRows = 5
         self.numCols = 5

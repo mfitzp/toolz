@@ -164,6 +164,101 @@ class TextEdit(QTextEdit):
 
     def __init__(self, parent=None):
         super(TextEdit, self).__init__(parent)
+        self.wordList = ['alpha', 'alpaca', 'omega', 'omicron',  'zeta',  'zetta', 'my', 'mom',  'told',  'you'] 
+        self.completer = QCompleter(self.wordList,  self)
+        self.completer.setWrapAround(False)
+        self.setCompleter(self.completer)
+        
+    
+    def setCompleter(self,  completer):
+#        if self.completer:
+#            #self.completer.disconnect(SIGNAL("activated(QString)"))
+#            QObject.disconnect(self.completer)#,  self.insertCompletion)
+        
+        self.completer = completer
+        self.completer.setWidget(self)
+        self.completer.setCompletionMode(QCompleter.PopupCompletion)
+        self.completer.setCaseSensitivity(Qt.CaseInsensitive)
+        QObject.connect(self.completer,  SIGNAL("activated(QString)"), self.insertCompletion)
+            
+    
+    def insertCompletion(self,  completion):
+        tc = self.textCursor()
+        extra = completion.length() - self.completer.completionPrefix().length()
+        tc.movePosition(QTextCursor.Left)
+        tc.movePosition(QTextCursor.EndOfWord)
+        tc.insertText(completion.right(extra))
+        self.setTextCursor(tc)
+    
+    def textUnderCursor(self):
+        tc = self.textCursor()
+        tc.select(QTextCursor.WordUnderCursor)
+        return tc.selectedText()
+        
+    def focusInEvent(self,  event):
+        if self.completer:
+            self.completer.setWidget(self)
+        return QTextEdit.focusInEvent(self, event)
+        
+    
+    def keyPressEvent(self, event):
+        if self.completer:
+            
+            completionPrefix = self.textUnderCursor()
+            
+            if self.completer.popup().isVisible():
+                key = event.key()
+                #print key
+                if key == Qt.Key_Space:
+                    self.completer.popup().hide()
+                elif key == Qt.Key_Enter:
+                    print "Enter"
+                    self.insertCompletion(self.completer.currentCompletion())
+                    #event.ignore()
+                elif key == Qt.Key_Return:
+                    event.ignore()
+                elif key == Qt.Key_Escape:
+                    event.ignore()
+                elif key == Qt.Key_Tab:
+                    event.ignore()
+                elif key == Qt.Key_Backtab:
+                    event.ignore()
+                else:
+                    return QTextEdit.keyPressEvent(self, event)#return 0
+                #return 0
+            
+#            print event.modifiers()
+#            print type(event.modifiers())
+            if event.modifiers() is Qt.ControlModifier:
+                print "CTRL"
+            #isShortcut = ((event.modifiers()  and event.key() == Qt.Key_E))
+            
+            
+            
+            eow = QString("~!@#$%^&*()_+{}|:\"<>?,./;'[]\\-=")
+            if event.text().isEmpty() or completionPrefix.length()<3 or eow.contains(event.text().right(1)):
+                if self.completer.popup().isVisible():
+                    self.completer.popup().hide()
+                return QTextEdit.keyPressEvent(self, event)
+                #return 0
+            
+
+            
+            if completionPrefix != self.completer.completionPrefix() and completionPrefix.length()>3:
+                if self.completer.popup().isVisible():
+                    print "hide"
+                    self.completer.popup().hide()
+                return QTextEdit.keyPressEvent(self, event)
+            
+            
+            if completionPrefix != self.completer.completionPrefix():
+                self.completer.setCompletionPrefix(completionPrefix)
+            
+            cr = self.cursorRect()
+            cr.setWidth(self.completer.popup().sizeHintForColumn(0) + self.completer.popup().verticalScrollBar().sizeHint().width())
+            self.completer.complete(cr)
+            return QTextEdit.keyPressEvent(self, event)
+            
 
 
     def event(self, event):
@@ -172,6 +267,10 @@ class TextEdit(QTextEdit):
             cursor = self.textCursor()
             cursor.insertText("    ")
             return True
+#        elif event.type() == QEvent.KeyPress and \
+#           event.key() == Qt.Key_Period:
+#            cursor = self.textCursor()
+#            cursor.insertText("period")
         return QTextEdit.event(self, event)
     
 ##        self.editor = TextEdit()
