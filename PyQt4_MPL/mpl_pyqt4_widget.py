@@ -1,9 +1,10 @@
 #!/usr/bin/env python
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from PyQt4 import QtCore,  QtGui
+#from PyQt4.QtGui import *
 
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt4 import NavigationToolbar2QT as NavigationToolbar
+from matplotlib.backend_bases import NavigationToolbar2
 
 from matplotlib.figure import Figure
 
@@ -16,7 +17,7 @@ class MyMplCanvas(FigureCanvas):
 		self.fig.subplots_adjust(left=0.1, bottom=0.1, right=0.9, top=0.9)
 		self.xtitle="x-Axis"
 		self.ytitle="y-Axis"
-		self.PlotTitle = "Some Plot"
+		self.PlotTitle = "Plot"
 		self.grid_status = True
 		self.xaxis_style = 'linear'
 		self.yaxis_style = 'linear'
@@ -25,8 +26,8 @@ class MyMplCanvas(FigureCanvas):
 		FigureCanvas.__init__(self, self.fig)
 		#self.fc = FigureCanvas(self.fig)
 		FigureCanvas.setSizePolicy(self,
-			QSizePolicy.Expanding,
-			QSizePolicy.Expanding)
+			QtGui.QSizePolicy.Expanding,
+			QtGui.QSizePolicy.Expanding)
 		FigureCanvas.updateGeometry(self)
 
 	def format_labels(self):
@@ -45,26 +46,74 @@ class MyMplCanvas(FigureCanvas):
 
 	def sizeHint(self):
 		w, h = self.get_width_height()
-		return QSize(w, h)
+		return QtCore.QSize(w, h)
 
 	def minimumSizeHint(self):
-		return QSize(10, 10)
+		return QtCore.QSize(10, 10)
 
 	def sizeHint(self):
 		w, h = self.get_width_height()
-		return QSize(w, h)
+		return QtCore.QSize(w, h)
 
 	def minimumSizeHint(self):
-		return QSize(10, 10)
+		return QtCore.QSize(10, 10)
 
 
-class MPL_Widget(QWidget):
+class MyNavigationToolbar(NavigationToolbar) :
+	def __init__(self , parent , canvas , direction = 'h' ) :
+		#NavigationToolbar.__init__(self,parent,canevas)
+		#self.layout = QVBoxLayout( self )
+
+		self.canvas = canvas
+		QWidget.__init__( self, parent )
+
+		if direction=='h' :
+			self.layout = QHBoxLayout( self )
+		else :
+			self.layout = QVBoxLayout( self )
+
+		self.layout.setMargin( 2 )
+		self.layout.setSpacing( 0 )
+
+		NavigationToolbar2.__init__( self, canvas )
+	def set_message( self, s ):
+		pass
+
+
+class MPL_Widget(QtGui.QWidget):
     def __init__(self, parent = None):
-        QWidget.__init__(self, parent)
+        QtGui.QWidget.__init__(self, parent)
         self.canvas = MyMplCanvas()
         self.toolbar = NavigationToolbar(self.canvas, self.canvas)
-        self.vbox = QVBoxLayout()
-        self.vbox.addWidget(self.canvas)
+        #self.toolbar.hide()
+        self.vbox = QtGui.QVBoxLayout()
+	self.vbox.addWidget(self.canvas)
         self.vbox.addWidget(self.toolbar)
         self.setLayout(self.vbox)
+        ##########################
+        self.hZoom = QtGui.QAction("Zoom",  self)
+        self.hZoom.setShortcut("Ctrl+Z")
+        self.addAction(self.hZoom)
+        QtCore.QObject.connect(self.hZoom,QtCore.SIGNAL("triggered()"), self.ZoomToggle)
+        
+        self.actionAutoScale = QtGui.QAction("AutoScale",  self)#self.MainWindow)
+        self.actionAutoScale.setShortcut("Ctrl+A")
+        self.addAction(self.actionAutoScale)
+        QtCore.QObject.connect(self.actionAutoScale,QtCore.SIGNAL("triggered()"), self.autoscale_plot)
 
+    def ZoomToggle(self):
+        self.toolbar.zoom()
+        
+    def autoscale_plot(self):
+        self.toolbar.home()
+        
+
+def main():
+    import sys
+    app = QtGui.QApplication(sys.argv)
+    w = MPL_Widget()
+    w.show()
+    sys.exit(app.exec_())
+    
+if __name__ == "__main__":
+    main()
