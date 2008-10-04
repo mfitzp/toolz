@@ -1,0 +1,107 @@
+<ui version="4.0" >
+ <class>Form</class>
+ <widget class="QWidget" name="Form" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>600</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Spectrum Viewer</string>
+  </property>
+  <layout class="QVBoxLayout" >
+   <item>
+    <layout class="QVBoxLayout" >
+     <item>
+      <layout class="QHBoxLayout" >
+       <item>
+        <widget class="QLabel" name="label" >
+         <property name="text" >
+          <string>Spectrum Index:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QSlider" name="indexHSlider" >
+         <property name="orientation" >
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QSpinBox" name="indexSpinBox" />
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" >
+       <item>
+        <widget class="QLabel" name="label_2" >
+         <property name="text" >
+          <string>Spectrum Location:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="specNameEdit" >
+         <property name="readOnly" >
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="MPL_Widget" native="1" name="plotWidget" />
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>MPL_Widget</class>
+   <extends>QWidget</extends>
+   <header>mpl_pyqt4_widget</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>indexHSlider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>indexSpinBox</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>461</x>
+     <y>23</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>544</x>
+     <y>11</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>indexSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>indexHSlider</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>548</x>
+     <y>24</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>499</x>
+     <y>29</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>
