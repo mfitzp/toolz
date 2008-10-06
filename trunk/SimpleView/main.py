@@ -11,11 +11,37 @@ import scipy as S
 from FolderParse import __loadDataFolder__ as LF
 from flexReader import brukerFlexDoc as FR
 
-
-
 from ui_main import Ui_Form
 
+class LoadThread(QtCore.QThread):
+        def __init__(self, parent = None):    
+            QtCore.QThread.__init__(self, parent)
+            
+            self.finished = False
+            self.ready = False
+         
+        def updateThread(self, loadList):
+            self.loadList = loadList
+            self.numItems = len(loadList)
+            self.ready = True
+            return True
+        
+        def run(self):
+            if self.ready:
+                while not self.finished and self.numItems > 0:
+                    for item in self.loadList:
+                        tempFlex = FR(item)
+                        tempSpec = tempFlex.data['spectrum']
+                        data2plot = DataPlot(tempSpec[:, 0],  tempSpec[:, 1])
+                        #this following line is key to pass python object via the SIGNAL/SLOT mechanism of PyQt
+                        self.emit(QtCore.SIGNAL("itemLoaded(PyQt_PyObject)"),data2plot)#note PyQt_PyObject
+                        self.numItems -=1
+                
+        def __del__(self):    
+            self.exiting = True
+            self.wait()
 
+            
 class DataPlot(object):
     def __init__(self, xdata,  ydata = None,  name = None):
         self.x = xdata
@@ -57,60 +83,83 @@ class Plot_Widget(QtGui.QWidget,  Ui_Form):
         self.setupUi(self)
         
         self.setupVars()
+        self.readThread = LoadThread()
         if self.initDataList():
             self.loadOk = True
-            self.setupWidgets()
+            self.setupGUI()
         else:
             self.loadOk = False
 
-        #QtCore.QObject.connect(self.indexSpinBox, QtCore.SIGNAL("valueChanged (int)"),self.plotByIndex)
-        QtCore.QObject.connect(self.indexHSlider,  QtCore.SIGNAL("sliderReleased()"),self.updatePlotIndex)
-        #sliderReleased()
+        QtCore.QObject.connect(self.indexSpinBox, QtCore.SIGNAL("valueChanged (int)"), self.updatePlot)
+        QtCore.QObject.connect(self.readThread, QtCore.SIGNAL("itemLoaded(PyQt_PyObject)"), self.updateGUI)
+        QtCore.QObject.connect(self.readThread, QtCore.SIGNAL("terminated()"), self.updateGUI)
+        QtCore.QObject.connect(self.readThread, QtCore.SIGNAL("finished()"), self.updateGUI)
+        
     
     def updatePlotIndex(self):
         self.indexSpinBox.setValue(self.indexHSlider.value())
         self.plotByIndex(self.indexSpinBox.value())
     
-    def plotByIndex(self, plotIndex):
-        #Could QTimer be used?
-#        time.sleep(0.5)
-#        if plotIndex == self.indexSpinBox.value():#this is just to see if the user is still sliding things around
-        if self.loadOk:
-            curAx = self.plotWidget.canvas.ax
-            curAx.cla()
-            curData = self.dataList[plotIndex]
-            curData.plot(curAx)
-            self.plotWidget.canvas.format_labels()
-            self.plotWidget.canvas.draw()
-            self.plotWidget.setFocus()#this is needed so that you can use CTRL+Z to zoom
-            self.specNameEdit.setText(self.dirList[plotIndex])
+    def updatePlot(self, index):
+        self.initIndex = index
+        QtCore.QTimer.singleShot(500,  self.plotByIndex)
+    
+    def plotByIndex(self, plotIndex=None):
+        if plotIndex == None:
+            plotIndex = self.initIndex
+        if plotIndex == self.indexSpinBox.value():#this is just to see if the user is still sliding things around before updating plot
+            if self.loadOk:
+                curAx = self.plotWidget.canvas.ax
+                curAx.cla()
+                curData = self.dataList[plotIndex]
+                curData.plot(curAx)
+                self.plotWidget.canvas.format_labels()
+                self.plotWidget.canvas.draw()
+                self.plotWidget.setFocus()#this is needed so that you can use CTRL+Z to zoom
+                self.specNameEdit.setText(self.dirList[plotIndex])
     
     def setupVars(self):
         self.dirList = []
         self.curDir = os.getcwd()
         self.dataList = []
-        
-    def setupWidgets(self):
-        self.indexHSlider.setMaximum(self.numSpec-1)
-        self.indexSpinBox.setMaximum(self.numSpec-1)
+    
+    def setupGUI(self):
         self.specNameEdit.clear()
-        self.plotByIndex(0)
-
+        self.indexHSlider.setMaximum(0)
+        self.indexSpinBox.setMaximum(0)
+        
+    def updateGUI(self,  loadedItem=None):
+        if loadedItem != None:
+            self.dataList.append(loadedItem)
+        
+        self.numSpec = len(self.dataList)
+        if self.numSpec == 1:
+            self.plotByIndex(0)
+            self.indexHSlider.setMaximum(self.numSpec)
+            self.indexSpinBox.setMaximum(self.numSpec)
+        else:
+            self.indexHSlider.setMaximum(self.numSpec-1)
+            self.indexSpinBox.setMaximum(self.numSpec-1)
+        #print self.numSpec
+        
+        #self.plotByIndex(0)
+    
+    def readData(self, dir):#dir is directory or data to load
+    #add try/except for this....?
+        tempFlex = FR(dir)
+        tempSpec = tempFlex.data['spectrum']
+        data2plot = DataPlot(tempSpec[:, 0],  tempSpec[:, 1])
+        self.dataList.append(data2plot)
+        return True
+    
     def initDataList(self):
         dirList = LF()
         if len(dirList) !=0:
-            self.numSpec = len(dirList)
             self.dirList = dirList
-            
-            #This is where the threading needs to start....
-            for dir in self.dirList:
-                tempFlex = FR(dir)
-                tempSpec = tempFlex.data['spectrum']
-                data2plot = DataPlot(tempSpec[:, 0],  tempSpec[:, 1])
-                self.dataList.append(data2plot)
-            
-            return True
-#            for i in range(self.numSpec):
+            if self.readThread.updateThread(dirList):
+                self.readThread.start()
+                return True
+#              for i in range(self.numSpec):
 #                specName = 'test %d'%i
 #                x, y = S.rand(2, 25)
 #                data2plot = DataPlot(x, y,  name = specName)
@@ -122,6 +171,6 @@ class Plot_Widget(QtGui.QWidget,  Ui_Form):
 if __name__ == "__main__":
     import sys    
     app = QtGui.QApplication(sys.argv)
-    plot = Plot_Widget()#data2plot,  varDict = totaldict)
+    plot = Plot_Widget()
     plot.show()
     sys.exit(app.exec_())     

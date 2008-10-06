@@ -60,8 +60,8 @@ def __loadDataFolder__(debug = False):
                             print t2-t1,  " sec Total"
                             return dirList
     
-        for item in dirList:
-            print item
-        
-        print len(dirList)
+#        for item in dirList:
+#            print item
+#        
+#        print len(dirList)
         return dirList
