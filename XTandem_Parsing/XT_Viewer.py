@@ -799,7 +799,7 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 def run_main():
     import sys
     app = QtGui.QApplication(sys.argv)
-    MainWindow = QtGui.QMainWindow()
+    #MainWindow = QtGui.QMainWindow()
     ui = XTViewer()
     ui.show()
     #ui = XTViewer(MainWindow)
