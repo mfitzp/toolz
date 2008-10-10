@@ -1,65 +1,116 @@
 <ui version="4.0" >
- <class>Form</class>
- <widget class="QWidget" name="Form" >
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow" >
   <property name="geometry" >
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>600</width>
+    <width>830</width>
     <height>600</height>
    </rect>
   </property>
   <property name="windowTitle" >
-   <string>Spectrum Viewer</string>
+   <string>SpectrumViewer</string>
   </property>
-  <layout class="QVBoxLayout" >
-   <item>
-    <layout class="QVBoxLayout" >
-     <item>
-      <layout class="QHBoxLayout" >
-       <item>
-        <widget class="QLabel" name="label" >
-         <property name="text" >
-          <string>Spectrum Index:</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QSlider" name="indexHSlider" >
-         <property name="orientation" >
-          <enum>Qt::Horizontal</enum>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QSpinBox" name="indexSpinBox" />
-       </item>
-      </layout>
-     </item>
-     <item>
-      <layout class="QHBoxLayout" >
-       <item>
-        <widget class="QLabel" name="label_2" >
-         <property name="text" >
-          <string>Spectrum Location:</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLineEdit" name="specNameEdit" >
-         <property name="readOnly" >
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-    </layout>
-   </item>
-   <item>
-    <widget class="MPL_Widget" native="1" name="plotWidget" />
-   </item>
-  </layout>
+  <widget class="QWidget" name="centralwidget" >
+   <layout class="QHBoxLayout" >
+    <item>
+     <layout class="QVBoxLayout" >
+      <item>
+       <layout class="QHBoxLayout" >
+        <item>
+         <widget class="QLabel" name="label" >
+          <property name="text" >
+           <string>Spectrum Index:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSlider" name="indexHSlider" >
+          <property name="orientation" >
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="indexSpinBox" />
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" >
+        <item>
+         <widget class="QCheckBox" name="loadmzXMLCB" >
+          <property name="text" >
+           <string>Load mzXML?</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="plotPkListCB" >
+          <property name="text" >
+           <string>Plot Peak List?</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="loadDirBtn" >
+          <property name="text" >
+           <string>Load Directory</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" >
+        <item>
+         <widget class="QLabel" name="label_2" >
+          <property name="text" >
+           <string>Spectrum Location:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="specNameEdit" >
+          <property name="readOnly" >
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="MPL_Widget" native="1" name="plotWidget" />
+      </item>
+     </layout>
+    </item>
+    <item>
+     <widget class="QListWidget" name="specListWidget" >
+      <property name="maximumSize" >
+       <size>
+        <width>250</width>
+        <height>16777215</height>
+       </size>
+      </property>
+      <property name="selectionMode" >
+       <enum>QAbstractItemView::ExtendedSelection</enum>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar" >
+   <property name="geometry" >
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>830</width>
+     <height>21</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QStatusBar" name="statusbar" />
  </widget>
  <customwidgets>
   <customwidget>
@@ -78,12 +129,12 @@
    <slot>setValue(int)</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>461</x>
-     <y>23</y>
+     <x>728</x>
+     <y>34</y>
     </hint>
     <hint type="destinationlabel" >
-     <x>544</x>
-     <y>11</y>
+     <x>756</x>
+     <y>32</y>
     </hint>
    </hints>
   </connection>
@@ -94,12 +145,12 @@
    <slot>setValue(int)</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>548</x>
-     <y>24</y>
+     <x>762</x>
+     <y>47</y>
     </hint>
     <hint type="destinationlabel" >
-     <x>499</x>
-     <y>29</y>
+     <x>734</x>
+     <y>47</y>
     </hint>
    </hints>
   </connection>
