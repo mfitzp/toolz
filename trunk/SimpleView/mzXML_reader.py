@@ -21,7 +21,9 @@
 ########################
 '''Modified in July 2008 by Brian Clowers to include the cElement Tree
 for a faster parsing of the XML file.  Additional functions were added
-to allow the primary program to access fragment ion spectra'''
+to allow the primary program to access fragment ion spectra
+
+THIS VERSION ONLY GETS THE FIRST SPECTRUM IN A FILE!!!!!!!!!!!!!!!!'''
 
 
 ########################
@@ -229,8 +231,7 @@ class mzXMLDoc:
         self.handleSpectrum(spectra[0])
 
         # get spectrum from list
-        #else:
-        self.getChrom(spectra)
+        #self.getChrom(spectra)
         return True
     # ----
 
