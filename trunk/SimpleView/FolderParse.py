@@ -16,11 +16,10 @@ import time
 #except:
 #    print "Pysco not installed, try easy_install psyco at your command prompt"
 
-def __loadDataFolder__(debug = False):
+def Load_FID_Folder(debug = False):
 #        if self.dbStatus:
     directory= str(QFileDialog.getExistingDirectory())
     #print directory
-
     if directory:
         numFiles = 0
         for root, dirs, files in walk(directory):
@@ -41,15 +40,9 @@ def __loadDataFolder__(debug = False):
                     dir1 = dir
                     file1 = "fid"
                     datadir = path.abspath(path.join(root1,  dir1,  file1))
-                    #dirList.append(datadir)
                     if 'LIFT' not in datadir:
                         dirList.append(datadir)
 
-#                    
-#                    tempFlex = FR.brukerFlexDoc(datadir)
-#                    tempFlex.encodeSpec()
-#                    temptime2 = time.clock()
-#                    print temptime2-temptime
                     if debug:
                         i+=1
                         if i == 30:
@@ -59,9 +52,58 @@ def __loadDataFolder__(debug = False):
                                 print ''
                             print t2-t1,  " sec Total"
                             return dirList
-    
+        
+        return dirList
+    else:
+        dirList=[]
+        return dirList
+        
+
+def Load_mzXML_Folder(debug = False):
+#        if self.dbStatus:
+    directory= str(QFileDialog.getExistingDirectory())
+    #print directory
+
+    if directory:
+ 
+        t1 = time.clock()
+        dirList = []
+        i=0
+        for root, dirs, files in walk(directory):
+            #for dir in dirs:
+            for file in files:
+                if 'mzXML' in file:
+                    temptime = time.clock()
+                    datadir = path.abspath(path.join(root, file))
+                    dirList.append(datadir)
+
+                    if debug:
+                        i+=1
+                        if i == 30:
+                            t2 = time.clock()
+                            for item in dirList:
+                                print item
+                                print ''
+                            print t2-t1,  " sec Total"
+                            return dirList
+        
 #        for item in dirList:
 #            print item
-#        
-#        print len(dirList)
         return dirList
+    else:
+        dirList=[]
+        return dirList
+
+def run_main():
+    app = QApplication(sys.argv)
+    try:
+        Load_mzXML_Folder()
+        sys.exit(app.exec_())
+    except:
+        raise
+        sys.exit(app.exec_())
+    
+    
+
+if __name__ == "__main__":
+    run_main()
