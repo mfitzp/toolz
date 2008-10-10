@@ -1,0 +1,173 @@
+<ui version="4.0" >
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>500</width>
+    <height>446</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Bruker2mzXML</string>
+  </property>
+  <property name="windowIcon" >
+   <iconset resource="icons.qrc" >:/new/prefix1/Clone_32.png</iconset>
+  </property>
+  <widget class="QWidget" name="centralwidget" >
+   <layout class="QVBoxLayout" >
+    <item>
+     <layout class="QHBoxLayout" >
+      <item>
+       <widget class="QPushButton" name="selBrukerDataBtn" >
+        <property name="text" >
+         <string>&amp;Bruker Data:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="brukerFolderLE" />
+      </item>
+     </layout>
+    </item>
+    <item>
+     <widget class="QCheckBox" name="singleFileCB" >
+      <property name="text" >
+       <string>Single File Conversion?</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" >
+      <item>
+       <widget class="QPushButton" name="autoXFileBtn" >
+        <property name="enabled" >
+         <bool>false</bool>
+        </property>
+        <property name="text" >
+         <string>&amp;AutoExecute File:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="autoExecuteLE" >
+        <property name="enabled" >
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QVBoxLayout" >
+      <item>
+       <widget class="Line" name="line" >
+        <property name="orientation" >
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" >
+        <item>
+         <widget class="QPushButton" name="outputBtn" >
+          <property name="text" >
+           <string>&amp;Output File:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="outputFileLE" />
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="Line" name="line_2" >
+        <property name="orientation" >
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QVBoxLayout" >
+      <item>
+       <widget class="QLabel" name="label_3" >
+        <property name="text" >
+         <string>Output Message:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QTextEdit" name="outputTE" />
+      </item>
+     </layout>
+    </item>
+    <item>
+     <widget class="QPushButton" name="cnvrtBrukerBtn" >
+      <property name="text" >
+       <string>&amp;Convert to mzXML</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar" >
+   <property name="geometry" >
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>500</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile" >
+    <property name="title" >
+     <string>&amp;File</string>
+    </property>
+    <addaction name="actionClose" />
+   </widget>
+   <widget class="QMenu" name="menuTools" >
+    <property name="title" >
+     <string>&amp;Tools</string>
+    </property>
+    <addaction name="actionConvert2XML" />
+    <addaction name="action_About" />
+   </widget>
+   <addaction name="menuFile" />
+   <addaction name="menuTools" />
+  </widget>
+  <widget class="QStatusBar" name="statusbar" />
+  <action name="actionClose" >
+   <property name="text" >
+    <string>&amp;Close</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+X</string>
+   </property>
+  </action>
+  <action name="actionConvert2XML" >
+   <property name="text" >
+    <string>&amp;Convert2XML</string>
+   </property>
+  </action>
+  <action name="action_About" >
+   <property name="text" >
+    <string>&amp;About</string>
+   </property>
+  </action>
+ </widget>
+ <tabstops>
+  <tabstop>brukerFolderLE</tabstop>
+  <tabstop>autoExecuteLE</tabstop>
+  <tabstop>outputFileLE</tabstop>
+  <tabstop>cnvrtBrukerBtn</tabstop>
+  <tabstop>outputTE</tabstop>
+ </tabstops>
+ <resources>
+  <include location="icons.qrc" />
+ </resources>
+ <connections/>
+</ui>
