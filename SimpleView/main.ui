@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>830</width>
-    <height>600</height>
+    <width>831</width>
+    <height>731</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -15,87 +15,503 @@
   <widget class="QWidget" name="centralwidget" >
    <layout class="QHBoxLayout" >
     <item>
-     <layout class="QVBoxLayout" >
-      <item>
-       <layout class="QHBoxLayout" >
+     <widget class="QTabWidget" name="tabWidget" >
+      <property name="currentIndex" >
+       <number>0</number>
+      </property>
+      <widget class="QWidget" name="plotTab" >
+       <attribute name="title" >
+        <string>Plot</string>
+       </attribute>
+       <layout class="QVBoxLayout" >
         <item>
-         <widget class="QLabel" name="label" >
-          <property name="text" >
-           <string>Spectrum Index:</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QSlider" name="indexHSlider" >
+         <widget class="QSplitter" name="splitter" >
           <property name="orientation" >
            <enum>Qt::Horizontal</enum>
           </property>
+          <widget class="QWidget" name="" >
+           <layout class="QVBoxLayout" >
+            <item>
+             <layout class="QHBoxLayout" >
+              <item>
+               <widget class="QLabel" name="label" >
+                <property name="text" >
+                 <string>Spectrum Index:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QSlider" name="indexHSlider" >
+                <property name="orientation" >
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QSpinBox" name="indexSpinBox" />
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" >
+              <item>
+               <widget class="QLabel" name="label_2" >
+                <property name="text" >
+                 <string>Spectrum Location:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="specNameEdit" >
+                <property name="readOnly" >
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="MPL_Widget" native="1" name="plotWidget" />
+            </item>
+           </layout>
+          </widget>
+          <widget class="QListWidget" name="specListWidget" >
+           <property name="maximumSize" >
+            <size>
+             <width>200</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="selectionMode" >
+            <enum>QAbstractItemView::ExtendedSelection</enum>
+           </property>
+          </widget>
          </widget>
         </item>
         <item>
-         <widget class="QSpinBox" name="indexSpinBox" />
+         <layout class="QGridLayout" >
+          <property name="horizontalSpacing" >
+           <number>3</number>
+          </property>
+          <property name="verticalSpacing" >
+           <number>2</number>
+          </property>
+          <item row="0" column="2" >
+           <widget class="QLineEdit" name="cALabelLE" >
+            <property name="maximumSize" >
+             <size>
+              <width>16777215</width>
+              <height>17</height>
+             </size>
+            </property>
+            <property name="font" >
+             <font>
+              <pointsize>7</pointsize>
+             </font>
+            </property>
+            <property name="readOnly" >
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="4" >
+           <widget class="QLineEdit" name="cAIndexLE" >
+            <property name="maximumSize" >
+             <size>
+              <width>16777215</width>
+              <height>17</height>
+             </size>
+            </property>
+            <property name="font" >
+             <font>
+              <pointsize>7</pointsize>
+             </font>
+            </property>
+            <property name="text" >
+             <string/>
+            </property>
+            <property name="readOnly" >
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="6" >
+           <widget class="QLineEdit" name="cA_XLE" >
+            <property name="maximumSize" >
+             <size>
+              <width>16777215</width>
+              <height>17</height>
+             </size>
+            </property>
+            <property name="font" >
+             <font>
+              <pointsize>7</pointsize>
+             </font>
+            </property>
+            <property name="readOnly" >
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="8" >
+           <widget class="QLineEdit" name="cA_YLE" >
+            <property name="maximumSize" >
+             <size>
+              <width>16777215</width>
+              <height>17</height>
+             </size>
+            </property>
+            <property name="font" >
+             <font>
+              <pointsize>7</pointsize>
+             </font>
+            </property>
+            <property name="readOnly" >
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2" >
+           <widget class="QLineEdit" name="cBLabelLE" >
+            <property name="maximumSize" >
+             <size>
+              <width>16777215</width>
+              <height>17</height>
+             </size>
+            </property>
+            <property name="font" >
+             <font>
+              <pointsize>7</pointsize>
+             </font>
+            </property>
+            <property name="readOnly" >
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="4" >
+           <widget class="QLineEdit" name="cBIndexLE" >
+            <property name="maximumSize" >
+             <size>
+              <width>16777215</width>
+              <height>17</height>
+             </size>
+            </property>
+            <property name="font" >
+             <font>
+              <pointsize>7</pointsize>
+             </font>
+            </property>
+            <property name="readOnly" >
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="6" >
+           <widget class="QLineEdit" name="cB_XLE" >
+            <property name="maximumSize" >
+             <size>
+              <width>16777215</width>
+              <height>17</height>
+             </size>
+            </property>
+            <property name="font" >
+             <font>
+              <pointsize>7</pointsize>
+             </font>
+            </property>
+            <property name="readOnly" >
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="8" >
+           <widget class="QLineEdit" name="cB_YLE" >
+            <property name="maximumSize" >
+             <size>
+              <width>16777215</width>
+              <height>17</height>
+             </size>
+            </property>
+            <property name="font" >
+             <font>
+              <pointsize>7</pointsize>
+             </font>
+            </property>
+            <property name="readOnly" >
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1" >
+           <widget class="QLabel" name="label_3" >
+            <property name="font" >
+             <font>
+              <pointsize>8</pointsize>
+             </font>
+            </property>
+            <property name="text" >
+             <string>Label:</string>
+            </property>
+            <property name="alignment" >
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1" >
+           <widget class="QLabel" name="label_4" >
+            <property name="font" >
+             <font>
+              <pointsize>8</pointsize>
+             </font>
+            </property>
+            <property name="text" >
+             <string>Label:</string>
+            </property>
+            <property name="alignment" >
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="3" >
+           <widget class="QLabel" name="label_5" >
+            <property name="font" >
+             <font>
+              <pointsize>8</pointsize>
+             </font>
+            </property>
+            <property name="text" >
+             <string>Index:</string>
+            </property>
+            <property name="alignment" >
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="5" >
+           <widget class="QLabel" name="label_6" >
+            <property name="font" >
+             <font>
+              <pointsize>8</pointsize>
+             </font>
+            </property>
+            <property name="text" >
+             <string>X:</string>
+            </property>
+            <property name="alignment" >
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="7" >
+           <widget class="QLabel" name="label_7" >
+            <property name="font" >
+             <font>
+              <pointsize>8</pointsize>
+             </font>
+            </property>
+            <property name="text" >
+             <string>Y:</string>
+            </property>
+            <property name="alignment" >
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="3" >
+           <widget class="QLabel" name="label_8" >
+            <property name="font" >
+             <font>
+              <pointsize>8</pointsize>
+             </font>
+            </property>
+            <property name="text" >
+             <string>Index:</string>
+            </property>
+            <property name="alignment" >
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="5" >
+           <widget class="QLabel" name="label_9" >
+            <property name="font" >
+             <font>
+              <pointsize>8</pointsize>
+             </font>
+            </property>
+            <property name="text" >
+             <string>X:</string>
+            </property>
+            <property name="alignment" >
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="7" >
+           <widget class="QLabel" name="label_10" >
+            <property name="font" >
+             <font>
+              <pointsize>8</pointsize>
+             </font>
+            </property>
+            <property name="text" >
+             <string>Y:</string>
+            </property>
+            <property name="alignment" >
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="9" >
+           <widget class="QLabel" name="label_11" >
+            <property name="font" >
+             <font>
+              <pointsize>8</pointsize>
+             </font>
+            </property>
+            <property name="text" >
+             <string>dx:</string>
+            </property>
+            <property name="alignment" >
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="9" >
+           <widget class="QLabel" name="label_12" >
+            <property name="font" >
+             <font>
+              <pointsize>8</pointsize>
+             </font>
+            </property>
+            <property name="text" >
+             <string>dy:</string>
+            </property>
+            <property name="alignment" >
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="10" >
+           <widget class="QLineEdit" name="dxLE" >
+            <property name="maximumSize" >
+             <size>
+              <width>16777215</width>
+              <height>17</height>
+             </size>
+            </property>
+            <property name="font" >
+             <font>
+              <pointsize>7</pointsize>
+             </font>
+            </property>
+            <property name="readOnly" >
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="10" >
+           <widget class="QLineEdit" name="dyLE" >
+            <property name="maximumSize" >
+             <size>
+              <width>16777215</width>
+              <height>17</height>
+             </size>
+            </property>
+            <property name="font" >
+             <font>
+              <pointsize>7</pointsize>
+             </font>
+            </property>
+            <property name="readOnly" >
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0" >
+           <widget class="QLabel" name="label_13" >
+            <property name="font" >
+             <font>
+              <weight>75</weight>
+              <italic>true</italic>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text" >
+             <string>Cursor A  </string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" >
+           <widget class="QLabel" name="label_14" >
+            <property name="font" >
+             <font>
+              <weight>75</weight>
+              <italic>true</italic>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text" >
+             <string>Cursor B  </string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
        </layout>
-      </item>
-      <item>
-       <layout class="QHBoxLayout" >
-        <item>
-         <widget class="QCheckBox" name="loadmzXMLCB" >
-          <property name="text" >
-           <string>Load mzXML?</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QCheckBox" name="plotPkListCB" >
-          <property name="text" >
-           <string>Plot Peak List?</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="loadDirBtn" >
-          <property name="text" >
-           <string>Load Directory</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item>
-       <layout class="QHBoxLayout" >
-        <item>
-         <widget class="QLabel" name="label_2" >
-          <property name="text" >
-           <string>Spectrum Location:</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="specNameEdit" >
-          <property name="readOnly" >
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item>
-       <widget class="MPL_Widget" native="1" name="plotWidget" />
-      </item>
-     </layout>
-    </item>
-    <item>
-     <widget class="QListWidget" name="specListWidget" >
-      <property name="maximumSize" >
-       <size>
-        <width>250</width>
-        <height>16777215</height>
-       </size>
-      </property>
-      <property name="selectionMode" >
-       <enum>QAbstractItemView::ExtendedSelection</enum>
-      </property>
+      </widget>
+      <widget class="QWidget" name="optionsTab" >
+       <attribute name="title" >
+        <string>Options</string>
+       </attribute>
+       <widget class="QWidget" name="" >
+        <property name="geometry" >
+         <rect>
+          <x>11</x>
+          <y>13</y>
+          <width>261</width>
+          <height>141</height>
+         </rect>
+        </property>
+        <layout class="QGridLayout" >
+         <item row="0" column="0" >
+          <widget class="QCheckBox" name="loadmzXMLCB" >
+           <property name="text" >
+            <string>Load mzXML</string>
+           </property>
+           <property name="checked" >
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1" >
+          <widget class="QCheckBox" name="plotPkListCB" >
+           <property name="text" >
+            <string>Plot Peak List</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0" >
+          <widget class="QCheckBox" name="plotLegendCB" >
+           <property name="text" >
+            <string>Plot Legend</string>
+           </property>
+           <property name="checked" >
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1" >
+          <widget class="QPushButton" name="loadDirBtn" >
+           <property name="text" >
+            <string>Load Directory</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </widget>
      </widget>
     </item>
    </layout>
@@ -105,12 +521,27 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>830</width>
+     <width>831</width>
      <height>21</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menu_File" >
+    <property name="title" >
+     <string>&amp;File</string>
+    </property>
+    <addaction name="action_Open" />
+   </widget>
+   <addaction name="menu_File" />
   </widget>
   <widget class="QStatusBar" name="statusbar" />
+  <action name="action_Open" >
+   <property name="text" >
+    <string>&amp;Open</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+O</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
