@@ -307,7 +307,7 @@ class Ui_MainWindow(object):
         self.gridlayout1.setObjectName("gridlayout1")
 
         self.loadmzXMLCB = QtGui.QCheckBox(self.widget1)
-        self.loadmzXMLCB.setChecked(True)
+        self.loadmzXMLCB.setChecked(False)
         self.loadmzXMLCB.setObjectName("loadmzXMLCB")
         self.gridlayout1.addWidget(self.loadmzXMLCB,0,0,1,1)
 
