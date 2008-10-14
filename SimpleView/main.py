@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 
-import os
+import os, sys
 import time
 
 from PyQt4 import QtCore,  QtGui
 
 import numpy as N
 import scipy as S
+from matplotlib.lines import Line2D
 
 from FolderParse import Load_FID_Folder as LFid
 from FolderParse import Load_mzXML_Folder as LmzXML
@@ -22,10 +23,24 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         super(Plot_Widget,  self).__init__(parent)
         self.ui = self.setupUi(self)
         
+        self.handleActionA = QtGui.QAction("Cursor A", self)
+        self.plotWidget.addAction(self.handleActionA)
+        
+        self.handleActionB = QtGui.QAction("Cursor B", self)
+        self.plotWidget.addAction(self.handleActionB)
+        
+        self.cursorClearAction = QtGui.QAction("Clear Cursors",  self)
+        self.plotWidget.addAction(self.cursorClearAction)
+
+        QtCore.QObject.connect(self.handleActionA, QtCore.SIGNAL("triggered()"),self.SelectPointsA)
+        QtCore.QObject.connect(self.handleActionB, QtCore.SIGNAL("triggered()"),self.SelectPointsB)
+        QtCore.QObject.connect(self.cursorClearAction, QtCore.SIGNAL("triggered()"),self.cursorClear)
+
         self.setupVars()
         self.setupGUI()
+        self.setupPlot()
         self.readThread = LoadThread()
-
+        
         QtCore.QObject.connect(self.indexSpinBox, QtCore.SIGNAL("valueChanged (int)"), self.updatePlot)
         QtCore.QObject.connect(self.readThread, QtCore.SIGNAL("itemLoaded(PyQt_PyObject)"), self.updateGUI)
         QtCore.QObject.connect(self.readThread, QtCore.SIGNAL("terminated()"), self.updateGUI)
@@ -33,7 +48,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         QtCore.QObject.connect(self.loadDirBtn, QtCore.SIGNAL("clicked()"), self.initDataList)
         QtCore.QObject.connect(self.action_Open,QtCore.SIGNAL("triggered()"),self.initDataList)
         QtCore.QObject.connect(self.specListWidget, QtCore.SIGNAL("itemClicked (QListWidgetItem *)"), self.specListSelect)
-        
     
     def specListSelect(self, widgetItem):
         selectItems = self.specListWidget.selectedItems()
@@ -44,7 +58,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
             self.plotByIndex(multiPlot = True)
             
-        
     
     def updatePlotIndex(self):
         self.indexSpinBox.setValue(self.indexHSlider.value())
@@ -83,9 +96,17 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                     self.ignoreSignal = False
             if self.plotLegendCB.isChecked():
                 curAx.legend(axespad = 0.03, pad=0.25)
+            try:
+                minX = curAx.get_lines()[0].get_xdata()[0]
+                self.addPickers(minX)
+            except:
+                errorMsg = "Sorry: %s\n\n:%s\n"%(sys.exc_type, sys.exc_value)
+                print errorMsg
+                self.addPickers()
             self.plotWidget.canvas.format_labels()
             self.plotWidget.canvas.draw()
             self.plotWidget.setFocus()#this is needed so that you can use CTRL+Z to zoom
+    
     
     def setupVars(self):
         self.dirList = []
@@ -99,6 +120,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.specNameEdit.clear()
         self.indexHSlider.setMaximum(0)
         self.indexSpinBox.setMaximum(0)
+        self.initContextMenus()
         
     def updateGUI(self,  loadedItem=None):
         if loadedItem != None:
@@ -140,8 +162,8 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                     self.readThread.start()
                     
         #########  Index Picker  ###############################
-        
-'''
+
+    def setupPlot(self):        
         self.cAPicker = None
         self.cBPicker = None
         
@@ -152,157 +174,162 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.cursorBInfo=[0, 0, 0, 0]
         
         self.indexA = 0
-        self.indexA = 0
+        self.indexB = 0
         
         self.dx = 0
         self.dy = 0
-
-        self.selectHandleA,  = self.plotWidget.canvas.ax.plot([0], [0], 'o',\
-                                        ms=8, alpha=.4, color='yellow', visible=False,  label = 'Cursor A')
-        self.selectHandleB,  = self.plotWidget.canvas.ax.plot([0], [0], 's',\
-                                        ms=8, alpha=.4, color='green', visible=False,  label = 'Cursor B')
-
-        self.handleActionA = QtGui.QAction("Cursor A", self)
-        self.plotWidget.addAction(self.handleActionA)
         
-        self.handleActionB = QtGui.QAction("Cursor B", self)
-        self.plotWidget.addAction(self.handleActionB)
+        self.addPickers()
+
+    def addPickers(self, minX = 0):
+        #minX is provided so that the plot will scale correctly when a data trace is initiated
+        self.selectHandleA,  = self.plotWidget.canvas.ax.plot([minX], [0], 'o',\
+                                        ms=8, alpha=.4, color='yellow', visible=False,  label = '_nolegend_')
+        self.selectHandleB,  = self.plotWidget.canvas.ax.plot([minX], [0], 's',\
+                                        ms=8, alpha=.4, color='green', visible=False,  label = '_nolegend_')
+                                        
+    def initContextMenus(self):
+        self.plotWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.plotWidget.connect(self.plotWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self.__mplContext__)
         
-        self.cursorClear = QtGui.QAction("Clear Cursors",  self)
-        self.plotWidget.addAction(self.cursorClear)
+    def __mplContext__(self, point):
+        '''Create a menu for the mpl widget'''
+        ct_menu = QtGui.QMenu("Plot Menu", self.plotWidget)
+#        ct_menu.addAction(self.ui.actionZoom)
+#        ct_menu.addAction(self.ui.actionAutoScale)
+#        ct_menu.addSeparator()
+#        ct_menu.addAction(self.ui.actionPlotOptions)
+#        ct_menu.addSeparator()
+#        ct_menu.addAction(self.ui.actionClear)
+#        ct_menu.addSeparator()
+        ct_menu.addAction(self.handleActionA)
+        ct_menu.addAction(self.handleActionB)
+        ct_menu.addAction(self.cursorClearAction)
+#        ct_menu.addSeparator()
+        ct_menu.exec_(self.plotWidget.mapToGlobal(point))
 
-        self.connect(self.handleActionA,QtCore.SIGNAL("triggered()"),
-                     self.SelectPointsA)
-        self.connect(self.handleActionB,QtCore.SIGNAL("triggered()"),
-                     self.SelectPointsB)
-        self.connect(self.cursorClear,QtCore.SIGNAL("triggered()"),
-                     self.cursorClear)
-
-   def cursorClear(self):
-        if self.cAOn and self.cAPicker:
+    def cursorClear(self):
+        if self.cAOn:# and self.cAPicker:
             self.selectHandleA.set_visible(False)
             self.plotWidget.canvas.mpl_disconnect(self.cAPicker)
             self.cAOn = False
             self.cAPicker = None
-            #self.mplPickPointsA = False
-#            self.lineEdit_R.setText('')
-#        
-        if self.cBOn and self.cBPicker:
+            self.cALabelLE.setText('')
+            self.cAIndexLE.setText('')
+            self.cA_XLE.setText('')
+            self.cA_YLE.setText('')
+        
+        if self.cBOn:# and self.cBPicker:
             self.selectHandleB.set_visible(False)
             self.plotWidget.canvas.mpl_disconnect(self.cBPicker)
             self.cBOn = False
             self.cBPicker = None
-            self.mplPickPointsB = False
-#            self.ui.lineEdit_L.setText('')
-#        
-#        #print "cidA ", self.cAOn
-#        #print "cidB ", self.cBOn
-#        self.plotWidget.canvas.draw()
-#        
-    def updateCursorGUI(self, cAInfo = None, cBInfo = None):
-        if cAInfo != None and cBInfo != None:
-            asdf
-        if cBInfo != None
+            self.cBLabelLE.setText('')
+            self.cBIndexLE.setText('')
+            self.cB_XLE.setText('')
+            self.cB_YLE.setText('')
+        
+        self.dxLE.setText('')
+        self.dyLE.setText('')
+        
+        self.plotWidget.canvas.draw()
+        
         
     def cursorStats(self):
+      
+        if self.cAOn:
+            self.cALabelLE.setText(self.cursorAInfo[3])
+            self.cAIndexLE.setText(str(self.cursorAInfo[0]))
+            self.cA_XLE.setText('%.4f'%self.cursorAInfo[1])
+            self.cA_YLE.setText('%.4f'%self.cursorAInfo[2])
+        
+        if self.cBOn:
+            self.cBLabelLE.setText(self.cursorBInfo[3])
+            self.cBIndexLE.setText(str(self.cursorBInfo[0]))
+            self.cB_XLE.setText('%.4f'%self.cursorBInfo[1])
+            self.cB_YLE.setText('%.4f'%self.cursorBInfo[2])
+        
         if self.cAOn and self.cBOn:
             self.dx = self.cursorAInfo[1]-self.cursorBInfo[1]
             self.dy = self.cursorAInfo[2]-self.cursorBInfo[2]
-#            cursorAText = 'point: %i\tx: %f\ty: %f\tdx: %f\t%s' % (self.cursorAInfo[0], self.cursorAInfo[1], self.cursorAInfo[2], self.dx, self.cursorAInfo[3])
-#            cursorBText = 'point: %i\tx: %f\ty: %f\tdy: %f\t%s' % (self.cursorBInfo[0], self.cursorBInfo[1], self.cursorBInfo[2],  self.dy,  self.cursorBInfo[3])
-#            self.ui.lineEdit_R.setText(cursorAText)
-#            self.ui.lineEdit_L.setText(cursorBText)
-#            return True
-#        if self.cAOn:
-#            cursorAText = 'point: %i\tx: %f\ty: %f\t%s' % (self.cursorAInfo[0], self.cursorAInfo[1], self.cursorAInfo[2], self.cursorAInfo[3])
-#            self.ui.lineEdit_R.setText(cursorAText)
-#        if self.cBOn:
-#            cursorBText = 'point: %i\tx: %f\ty: %f\t%s' % (self.cursorBInfo[0], self.cursorBInfo[1], self.cursorBInfo[2],  self.cursorBInfo[3])
-#            self.ui.lineEdit_L.setText(cursorBText)
-#            
+            self.dxLE.setText('%.4f'%self.dx)
+            self.dyLE.setText('%.4f'%self.dy)
+            #return True
+            
     def SelectPointsA(self):
         """
         This method will be called from the plot context menu for 
         selecting points
         """
-        if self.cBPicker != None:
-            self.plotWidget.canvas.mpl_disconnect(self.cBPicker)
-            self.cBOn = False         
-        if not self.cAOn:
+        self.plotWidget.canvas.mpl_disconnect(self.cBPicker)
+        self.cBPicker = None
+        if self.cAPicker ==None:                
             self.cAPicker = self.plotWidget.canvas.mpl_connect('pick_event', self.OnPickA)
-        else:
-            self.plotWidget.canvas.draw()
-#        
-#
+            self.cAOn = True     
+        
+        
     def SelectPointsB(self):
-        if self.cAPicker != None:
-            self.plotWidget.canvas.mpl_disconnect(self.cAPicker)
-            self.cAOn = False
-        if not self.cBOn:
+        
+        self.plotWidget.canvas.mpl_disconnect(self.cAPicker)
+        self.cAPicker = None
+        if self.cBPicker == None:                
             self.cBPicker = self.plotWidget.canvas.mpl_connect('pick_event', self.OnPickB)
-        else:
-            self.plotWidget.canvas.draw()
-#        
-#    def OnPickA(self, event):
-#        """
-#        This is the pick_event handler for matplotlib
-#        This is the pick_event handler for matplotlib
-#        This method will get the coordinates of the mouse pointer and
-#        finds the closest point and retrieves the corresponding peptide sequence.
-#        Also draws a yellow circle around the point.--from Ashoka 5/29/08
-#        """
-#        if not isinstance(event.artist, Line2D): 
-#            return True
-#         
-#        line = event.artist
-#        xc = event.mouseevent.xdata
-#        yc = event.mouseevent.ydata
-#        xdata = line.get_xdata()
-#        ydata = line.get_ydata()
-#        maxd = 0.05
-#        if xc and yc:
-#            distances = N.hypot(xdata-xc, ydata-yc)
-#        else:
-#            distances = N.hypot(xdata, ydata)
-#        
-#        self.indexA = distances.argmin()
-#        self.selectHandleA.set_visible(True)
-#        self.selectHandleA.set_data([xdata[self.indexA]], [ydata[self.indexA]])
-#        self.cursorAInfo[0]=self.indexA
-#        self.cursorAInfo[1]=xdata[self.indexA]
-#        self.cursorAInfo[2]=ydata[self.indexA]
-#        self.cursorAInfo[3]=line.get_label()
-#        self.cursorStats()
-#        
-#        self.plotWidget.canvas.draw()
-#        print "Pick A"
-#
-#    def OnPickB(self, event):
-#            if not isinstance(event.artist, Line2D): 
-#                return True
-#             
-#            line = event.artist
-#            xc = event.mouseevent.xdata
-#            yc = event.mouseevent.ydata
-#            xdata = line.get_xdata()
-#            ydata = line.get_ydata()
-#            maxd = 0.05
-#            if xc and yc:
-#                distances = N.hypot(xdata-xc, ydata-yc)
-#            else:
-#                distances = N.hypot(xdata, ydata)#event.mouseevent.xdata, ydata-event.mouseevent.ydata)
-#        
-#            self.indexB = distances.argmin()
-#            self.selectHandleB.set_visible(True)
-#            self.selectHandleB.set_data([xdata[self.indexB]], [ydata[self.indexB]])
-#            self.cursorBInfo[0]=self.indexB
-#            self.cursorBInfo[1]=xdata[self.indexB]
-#            self.cursorBInfo[2]=ydata[self.indexB]
-#            self.cursorBInfo[3]=line.get_label()
-#            self.cursorStats()
-#        
-#            self.plotWidget.canvas.draw()
-'''
+            self.cBOn = True        
+        
+    def OnPickA(self, event):
+        """
+        This is the pick_event handler for matplotlib
+        This is the pick_event handler for matplotlib
+        This method will get the coordinates of the mouse pointer and
+        finds the closest point and retrieves the corresponding peptide sequence.
+        Also draws a yellow circle around the point.--from Ashoka 5/29/08
+        """
+        
+        #print "Pick A"
+        if not isinstance(event.artist, Line2D): 
+            return True
+         
+        line = event.artist
+        self.indexA = event.ind[0]
+        xdata = line.get_xdata()
+        ydata = line.get_ydata()
+
+        self.selectHandleA.set_data([xdata[self.indexA]], [ydata[self.indexA]])
+        self.selectHandleA.set_visible(True)
+        
+        self.cursorAInfo[0]=self.indexA
+        self.cursorAInfo[1]=xdata[self.indexA]
+        self.cursorAInfo[2]=ydata[self.indexA]
+        self.cursorAInfo[3]=line.get_label()
+        self.cursorStats()
+        
+        self.plotWidget.canvas.draw()
+        
+        #print self.cursorAInfo
+
+    def OnPickB(self, event):
+        #print "Pick B"
+        if not isinstance(event.artist, Line2D): 
+            return True
+         
+        line = event.artist
+        self.indexB = event.ind[0]
+        xdata = line.get_xdata()
+        ydata = line.get_ydata()
+
+        self.selectHandleB.set_data([xdata[self.indexB]], [ydata[self.indexB]])
+        self.selectHandleB.set_visible(True)
+        
+        self.cursorBInfo[0]=self.indexB
+        self.cursorBInfo[1]=xdata[self.indexB]
+        self.cursorBInfo[2]=ydata[self.indexB]
+        self.cursorBInfo[3]=line.get_label()
+        self.cursorStats()
+        
+        self.plotWidget.canvas.draw()
+        
+        #print self.cursorAInfo
+
         ###############################
 
 
@@ -340,7 +367,7 @@ class LoadThread(QtCore.QThread):
                         for item in self.loadList:
                             tempFlex = FR(item)
                             tempSpec = tempFlex.data['spectrum']
-                            data2plot = DataPlot(tempSpec[:, 0],  tempSpec[:, 1])
+                            data2plot = DataPlot(tempSpec[:, 0],  tempSpec[:, 1], name = item.split(os.path.sep)[-4])#the -4 index is to handle the Bruker File Structure
                             data2plot.setPeakList(tempFlex.data['peaklist'])
                             #this following line is key to pass python object via the SIGNAL/SLOT mechanism of PyQt
                             self.emit(QtCore.SIGNAL("itemLoaded(PyQt_PyObject)"),data2plot)#note PyQt_PyObject
@@ -387,9 +414,10 @@ class DataPlot(object):
             if scatter:
                 self.mplAx.scatter(self.x,  self.y,  label = self.name)
             else:
-                self.mplAx.plot(self.x,  self.y,  label = self.name)#,  color = 'b')
+                self.mplAx.plot(self.x,  self.y,  label = self.name,  picker = 5)#,  color = 'b')
                 if self.pkListOk:
-                    self.mplAx.vlines(self.peakList[:, 0], 0, self.peakList[:, 1],  color = 'r')
+                    #pkListName = self.name+'_pks'
+                    self.mplAx.vlines(self.peakList[:, 0], 0, self.peakList[:, 1],  color = 'r',  label = '_nolegend_')
         else:
             self.mplAx.plot(self.x,  label = self.name)
 #    else:
