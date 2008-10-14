@@ -38,7 +38,7 @@ class brukerPeakList:
     def saveCSV(self,  path):
         spectrum = self.data.get('peaklist')
         if spectrum != None:
-            path+='.csv'
+            path+='_pks.csv'
             #t1 = T.clock()
             N.savetxt(path, spectrum, delimiter = ',', fmt='%.4f')
             #t2 = T.clock()

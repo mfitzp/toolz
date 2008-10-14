@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\SVN\Bruker2mzXML\main.ui'
 #
-# Created: Thu Oct 09 12:18:10 2008
+# Created: Mon Oct 13 16:30:22 2008
 #      by: PyQt4 UI code generator 4.3.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -33,23 +33,31 @@ class Ui_MainWindow(object):
         self.hboxlayout.addWidget(self.brukerFolderLE)
         self.vboxlayout.addLayout(self.hboxlayout)
 
-        self.singleFileCB = QtGui.QCheckBox(self.centralwidget)
-        self.singleFileCB.setObjectName("singleFileCB")
-        self.vboxlayout.addWidget(self.singleFileCB)
-
         self.hboxlayout1 = QtGui.QHBoxLayout()
         self.hboxlayout1.setObjectName("hboxlayout1")
+
+        self.singleFileCB = QtGui.QCheckBox(self.centralwidget)
+        self.singleFileCB.setObjectName("singleFileCB")
+        self.hboxlayout1.addWidget(self.singleFileCB)
+
+        self.toCSVCB = QtGui.QCheckBox(self.centralwidget)
+        self.toCSVCB.setObjectName("toCSVCB")
+        self.hboxlayout1.addWidget(self.toCSVCB)
+        self.vboxlayout.addLayout(self.hboxlayout1)
+
+        self.hboxlayout2 = QtGui.QHBoxLayout()
+        self.hboxlayout2.setObjectName("hboxlayout2")
 
         self.autoXFileBtn = QtGui.QPushButton(self.centralwidget)
         self.autoXFileBtn.setEnabled(False)
         self.autoXFileBtn.setObjectName("autoXFileBtn")
-        self.hboxlayout1.addWidget(self.autoXFileBtn)
+        self.hboxlayout2.addWidget(self.autoXFileBtn)
 
         self.autoExecuteLE = QtGui.QLineEdit(self.centralwidget)
         self.autoExecuteLE.setEnabled(False)
         self.autoExecuteLE.setObjectName("autoExecuteLE")
-        self.hboxlayout1.addWidget(self.autoExecuteLE)
-        self.vboxlayout.addLayout(self.hboxlayout1)
+        self.hboxlayout2.addWidget(self.autoExecuteLE)
+        self.vboxlayout.addLayout(self.hboxlayout2)
 
         self.vboxlayout1 = QtGui.QVBoxLayout()
         self.vboxlayout1.setObjectName("vboxlayout1")
@@ -60,17 +68,17 @@ class Ui_MainWindow(object):
         self.line.setObjectName("line")
         self.vboxlayout1.addWidget(self.line)
 
-        self.hboxlayout2 = QtGui.QHBoxLayout()
-        self.hboxlayout2.setObjectName("hboxlayout2")
+        self.hboxlayout3 = QtGui.QHBoxLayout()
+        self.hboxlayout3.setObjectName("hboxlayout3")
 
         self.outputBtn = QtGui.QPushButton(self.centralwidget)
         self.outputBtn.setObjectName("outputBtn")
-        self.hboxlayout2.addWidget(self.outputBtn)
+        self.hboxlayout3.addWidget(self.outputBtn)
 
         self.outputFileLE = QtGui.QLineEdit(self.centralwidget)
         self.outputFileLE.setObjectName("outputFileLE")
-        self.hboxlayout2.addWidget(self.outputFileLE)
-        self.vboxlayout1.addLayout(self.hboxlayout2)
+        self.hboxlayout3.addWidget(self.outputFileLE)
+        self.vboxlayout1.addLayout(self.hboxlayout3)
 
         self.line_2 = QtGui.QFrame(self.centralwidget)
         self.line_2.setFrameShape(QtGui.QFrame.HLine)
@@ -136,6 +144,7 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Bruker2mzXML", None, QtGui.QApplication.UnicodeUTF8))
         self.selBrukerDataBtn.setText(QtGui.QApplication.translate("MainWindow", "&Bruker Data:", None, QtGui.QApplication.UnicodeUTF8))
         self.singleFileCB.setText(QtGui.QApplication.translate("MainWindow", "Single File Conversion?", None, QtGui.QApplication.UnicodeUTF8))
+        self.toCSVCB.setText(QtGui.QApplication.translate("MainWindow", "Convert mzXML to CSV?", None, QtGui.QApplication.UnicodeUTF8))
         self.autoXFileBtn.setText(QtGui.QApplication.translate("MainWindow", "&AutoExecute File:", None, QtGui.QApplication.UnicodeUTF8))
         self.outputBtn.setText(QtGui.QApplication.translate("MainWindow", "&Output File:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_3.setText(QtGui.QApplication.translate("MainWindow", "Output Message:", None, QtGui.QApplication.UnicodeUTF8))

@@ -4,10 +4,14 @@ import sys
 from string import join
 import subprocess as sub
 
+import time
+
 import ui_main
 
 from BrukerFolderParse import getBrukerFiles
 from PeakExtract import brukerPeakList
+from mzXML_reader import mzXMLDoc as MzR
+
 
 
 class BrukerConvert(ui_main.Ui_MainWindow):
@@ -38,6 +42,7 @@ class BrukerConvert(ui_main.Ui_MainWindow):
         self.outMsg = None
         
         self.useSingleFile = False
+        self.writeCSV = False
         
         self.loadThread = LoadThread(self)
         
@@ -66,6 +71,7 @@ class BrukerConvert(ui_main.Ui_MainWindow):
         QtCore.QObject.connect(self.cnvrtBrukerBtn,QtCore.SIGNAL("clicked()"),self.__convertBruker__)
         QtCore.QObject.connect(self.actionConvert2XML,QtCore.SIGNAL("triggered()"),self.__convertBruker__)
         QtCore.QObject.connect(self.singleFileCB, QtCore.SIGNAL("stateChanged (int)"),self.__changeInputFile__)
+        QtCore.QObject.connect(self.toCSVCB, QtCore.SIGNAL("stateChanged (int)"),self.__write2csv__)
         QtCore.QObject.connect(self.brukerFolderLE, QtCore.SIGNAL("editingFinished()"),self.__brukerLEChanged__)
         QtCore.QObject.connect(self.autoExecuteLE, QtCore.SIGNAL("editingFinished()"),self.__autoXLEChanged__)
         QtCore.QObject.connect(self.outputFileLE, QtCore.SIGNAL("editingFinished()"),self.__outputLEChanged__)
@@ -93,6 +99,12 @@ class BrukerConvert(ui_main.Ui_MainWindow):
         self.outputFileOk = False
         self.brukerFolderLE.clear()
         self.brukerDataOk = False
+    
+    def __write2csv__(self, state):
+        if state == 2:
+            self.writeCSV = True
+        else:
+            self.writeCSV = False
     
     def updateOutputMsg(self, outputStr):
         self.iterScroll+=1
@@ -173,7 +185,7 @@ class BrukerConvert(ui_main.Ui_MainWindow):
             subHandle.stdout.close()
             subHandle.stdin.close()
             self.retCode = subHandle.wait()
-    
+
             if self.retCode != 0:
                 self.outputTE.insertPlainText(QtCore.QString(cmdStr))
                 msg = self.outMsg+'\n'+self.errMsg
@@ -209,7 +221,7 @@ class BrukerConvert(ui_main.Ui_MainWindow):
         if self.useSingleFile:
             data = QtGui.QFileDialog.getOpenFileName(self.MainWindow,\
                                 'Select Bruker Data File',\
-                                self.dir, 'fid File (fid);;baf File (*.baf);;AutoXecute File (*.xml);; yep File (*.yep);; All Files (*.*)')
+                                self.dir, 'fid File (fid);; All Files (*.*)')
         else:
             data= QtGui.QFileDialog.getExistingDirectory(self.MainWindow,\
                                                              "Select Bruker Data Folder")
@@ -295,6 +307,9 @@ class LoadThread(QtCore.QThread):
             QtCore.QThread.__init__(self, None)#parent)
             
             self.P = parent
+            self.outputFile = None
+            self.brukerData = None
+            self.writeCSV = None
             self.finished = False
             self.ready = False
          
@@ -302,6 +317,9 @@ class LoadThread(QtCore.QThread):
             self.loadList = loadList
             self.numItems = len(loadList)
             self.totalFiles = len(loadList)
+            self.outputFile = self.P.outputFile
+            self.brukerData = self.P.brukerData
+            self.writeCSV = self.P.writeCSV
             self.ready = True
             return True
         
@@ -311,6 +329,7 @@ class LoadThread(QtCore.QThread):
                     self.curFileNum = 0
                     for item in self.loadList:
                         self.msg = self.exeCompassXport(item[0],  item[1])
+                        #print item[0],  item[1]
                         #this following line is key to pass python object via the SIGNAL/SLOT mechanism of PyQt
                         self.emit(QtCore.SIGNAL("itemLoaded(PyQt_PyObject)"),self.msg)#note PyQt_PyObject
                         self.numItems -=1
@@ -323,9 +342,10 @@ class LoadThread(QtCore.QThread):
             self.wait()
 
         def exeCompassXport(self, file2Convert,  newFileName = None):
+            t1 = time.clock()
             self.cmdOut = ['CompassXport']
             
-            filetype = str(self.P.outputFile).split('.')[-1]
+            filetype = str(self.outputFile).split('.')[-1]
             
             if filetype == 'mzXML':
                 self.cmdOut.append(' -mode 0 ')
@@ -340,22 +360,25 @@ class LoadThread(QtCore.QThread):
             if newFileName != None:
                 if filetype == 'None':
                     newFileName+='.mzXML'
-                    newPath = os.path.join(str(self.P.brukerData), newFileName)
+                    newPath = os.path.join(str(self.brukerData), newFileName)
                     
                 elif filetype != 'None' and self.useSingleFile == False:
                     newFileName += '.mzXML'
-                    newPath = os.path.join(str(self.P.outputFile), newFileName)
+                    newPath = os.path.join(str(self.outputFile), newFileName)
                 else:
-                    newPath=str(self.P.outputFile)
+                    newPath=str(self.outputFile)
             else:
                 newFileName='analysis.mzXML'
-                self.dir = os.path.dirname(str(self.P.brukerData))
+                self.dir = os.path.dirname(str(self.brukerData))
                 newPath = os.path.join(self.dir, newFileName)
     
             #this small code block writes a peak list to a csv file
-            peakList = brukerPeakList(file2Convert)#used for csv
-            peakList.saveCSV(os.path.splitext(newPath)[0])#used for csv
-    
+            try:
+                peakList = brukerPeakList(file2Convert)#used for csv
+                peakList.saveCSV(os.path.splitext(newPath)[0])#used for csv
+            except:
+                print "Error converting Bruker peaklist for %s"%file2Convert
+            
             outFile = ' -o '+newPath
             self.cmdOut.append(outFile)
         
@@ -364,7 +387,7 @@ class LoadThread(QtCore.QThread):
                 cmdStr += item
             cmdStr +='\n'
             try:
-                
+
                 subHandle = sub.Popen(cmdStr, bufsize = 0, shell = True,  stdout=sub.PIPE, stderr=sub.PIPE,  stdin = sub.PIPE)
                 
                 self.outMsg = subHandle.stdout.read()
@@ -373,16 +396,25 @@ class LoadThread(QtCore.QThread):
                 subHandle.stdout.close()
                 subHandle.stdin.close()
                 self.retCode = subHandle.wait()
-        
+
+            ########BEGIN CONVERT TO CSV
+                if self.writeCSV:
+                    mzr = MzR(newPath)
+                    mzr.saveCSV(os.path.splitext(newPath)[0])            
+            ###############################
+                t2 = time.clock()
+                runTime= '%s sec\n\n'%(t2-t1)
                 if self.retCode != 0:
                     msg = self.outMsg+'\n'+self.errMsg
-                    fileupdate = '%d of %d Finished+\n'%(self.curFileNum+1, self.totalFiles)
+                    fileupdate = '%d of %d Finished\n'%(self.curFileNum+1, self.totalFiles)
                     msg +=fileupdate
+                    msg += runTime
                     return msg
                 else:
                     msg = self.outMsg+'\n'+self.errMsg
                     fileupdate = '%d of %d Finished\n'%(self.curFileNum+1, self.totalFiles)
                     msg +=fileupdate
+                    msg += runTime
                     return msg
             except:
                 print cmdStr
