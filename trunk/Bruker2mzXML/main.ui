@@ -32,11 +32,22 @@
      </layout>
     </item>
     <item>
-     <widget class="QCheckBox" name="singleFileCB" >
-      <property name="text" >
-       <string>Single File Conversion?</string>
-      </property>
-     </widget>
+     <layout class="QHBoxLayout" >
+      <item>
+       <widget class="QCheckBox" name="singleFileCB" >
+        <property name="text" >
+         <string>Single File Conversion?</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="toCSVCB" >
+        <property name="text" >
+         <string>Convert mzXML to CSV?</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </item>
     <item>
      <layout class="QHBoxLayout" >
