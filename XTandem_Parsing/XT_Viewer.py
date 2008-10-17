@@ -6,9 +6,9 @@ This is the explicit class for viewing Parsed XT Files
 import sys, os
 from os import walk,  path
 
-import base64
-import struct
+#import base64
 import string
+import time
 
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtGui import QFileDialog,  QApplication
@@ -424,6 +424,7 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         return fileCore
             
     def OnPickPlot(self, event):
+        t1 = time.clock()
         self.pickIndex = event.ind[0]
         try:
             self.textHandle.remove()
@@ -442,6 +443,8 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                                         bbox=dict(facecolor='yellow', alpha=0.1),\
                                         transform=self.plotWidget.canvas.ax.transAxes, va='top')
         self.updateSelectInfo(self.pickIndex,  self.curTbl)
+        t2 = time.clock()
+        print t2-t1
         self.plotWidget.canvas.draw()
 
         
@@ -470,7 +473,8 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             sizeArray = activeData.dataDict[str(self.sizeArrayComboB.currentText())]#this is used to adjust the size of the marker
             sizeList = sizeArray**sizeModifier
             
-            self.plotScatter = self.plotWidget.canvas.ax.scatter(self.x, self.y,  s = sizeList,  color = self.getPlotColor(),  marker = self.getPlotMarker(), alpha = 0.3,  label = self.curTbl,  picker = 5)
+            self.plotScatter = self.plotWidget.canvas.ax.scatter(self.x, self.y,  color = self.getPlotColor(),  marker = self.getPlotMarker(), alpha = 0.3,  label = self.curTbl,  picker = 5,  s = sizeList)
+            #self.plotScatter = self.plotWidget.canvas.ax.plot(self.x, self.y,  color = self.getPlotColor(),  marker = self.getPlotMarker(), alpha = 0.3,  label = self.curTbl,  picker = 5)
             if self.cb_logx.isChecked():
                 self.plotWidget.canvas.ax.set_xscale('log')
                 xmin = N.min(self.x)/10
@@ -504,6 +508,7 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.y = activeData.dataDict.get('deltaH')#(activeData.dataDict.get('hScores')-activeData.dataDict.get('nextScores'))
         sizeList = activeData.dataDict.get('pepLen')**1.5
         self.plotScatter = self.plotWidget.canvas.ax.scatter(self.x, self.y,  s = sizeList,  color = self.getPlotColor(),  marker = self.getPlotMarker(), alpha = 0.3,  label = self.curTbl,  picker = 5)#add label = ??
+        #self.plotScatter = self.plotWidget.canvas.ax.plot(self.x, self.y,  color = self.getPlotColor(),  marker = self.getPlotMarker(), alpha = 0.3,  label = self.curTbl,  picker = 5)#add label = ??
         self.plotWidget.canvas.ax.set_xscale('log')
         xmin = N.min(self.x)/10
         xmax = N.max(self.x)*10

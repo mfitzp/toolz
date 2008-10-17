@@ -12,6 +12,9 @@
   <property name="windowTitle" >
    <string>SpectrumViewer</string>
   </property>
+  <property name="windowIcon" >
+   <iconset resource="icons.qrc" >:/new/prefix1/Retro Mario World_32.png</iconset>
+  </property>
   <widget class="QWidget" name="centralwidget" >
    <layout class="QHBoxLayout" >
     <item>
@@ -29,7 +32,7 @@
           <property name="orientation" >
            <enum>Qt::Horizontal</enum>
           </property>
-          <widget class="QWidget" name="" >
+          <widget class="QWidget" name="layoutWidget" >
            <layout class="QVBoxLayout" >
             <item>
              <layout class="QHBoxLayout" >
@@ -465,7 +468,7 @@
        <attribute name="title" >
         <string>Options</string>
        </attribute>
-       <widget class="QWidget" name="" >
+       <widget class="QWidget" name="layoutWidget" >
         <property name="geometry" >
          <rect>
           <x>11</x>
@@ -551,7 +554,9 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="icons.qrc" />
+ </resources>
  <connections>
   <connection>
    <sender>indexHSlider</sender>
