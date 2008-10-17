@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\SVN\toolz\SimpleView\main.ui'
 #
-# Created: Fri Oct 10 16:41:03 2008
+# Created: Tue Oct 14 13:30:34 2008
 #      by: PyQt4 UI code generator 4.3.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -13,6 +13,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(QtCore.QSize(QtCore.QRect(0,0,831,731).size()).expandedTo(MainWindow.minimumSizeHint()))
+        MainWindow.setWindowIcon(QtGui.QIcon(":/new/prefix1/Retro Mario World_32.png"))
 
         self.centralwidget = QtGui.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
@@ -33,25 +34,25 @@ class Ui_MainWindow(object):
         self.splitter.setOrientation(QtCore.Qt.Horizontal)
         self.splitter.setObjectName("splitter")
 
-        self.widget = QtGui.QWidget(self.splitter)
-        self.widget.setObjectName("widget")
+        self.layoutWidget = QtGui.QWidget(self.splitter)
+        self.layoutWidget.setObjectName("layoutWidget")
 
-        self.vboxlayout1 = QtGui.QVBoxLayout(self.widget)
+        self.vboxlayout1 = QtGui.QVBoxLayout(self.layoutWidget)
         self.vboxlayout1.setObjectName("vboxlayout1")
 
         self.hboxlayout1 = QtGui.QHBoxLayout()
         self.hboxlayout1.setObjectName("hboxlayout1")
 
-        self.label = QtGui.QLabel(self.widget)
+        self.label = QtGui.QLabel(self.layoutWidget)
         self.label.setObjectName("label")
         self.hboxlayout1.addWidget(self.label)
 
-        self.indexHSlider = QtGui.QSlider(self.widget)
+        self.indexHSlider = QtGui.QSlider(self.layoutWidget)
         self.indexHSlider.setOrientation(QtCore.Qt.Horizontal)
         self.indexHSlider.setObjectName("indexHSlider")
         self.hboxlayout1.addWidget(self.indexHSlider)
 
-        self.indexSpinBox = QtGui.QSpinBox(self.widget)
+        self.indexSpinBox = QtGui.QSpinBox(self.layoutWidget)
         self.indexSpinBox.setObjectName("indexSpinBox")
         self.hboxlayout1.addWidget(self.indexSpinBox)
         self.vboxlayout1.addLayout(self.hboxlayout1)
@@ -59,17 +60,17 @@ class Ui_MainWindow(object):
         self.hboxlayout2 = QtGui.QHBoxLayout()
         self.hboxlayout2.setObjectName("hboxlayout2")
 
-        self.label_2 = QtGui.QLabel(self.widget)
+        self.label_2 = QtGui.QLabel(self.layoutWidget)
         self.label_2.setObjectName("label_2")
         self.hboxlayout2.addWidget(self.label_2)
 
-        self.specNameEdit = QtGui.QLineEdit(self.widget)
+        self.specNameEdit = QtGui.QLineEdit(self.layoutWidget)
         self.specNameEdit.setReadOnly(True)
         self.specNameEdit.setObjectName("specNameEdit")
         self.hboxlayout2.addWidget(self.specNameEdit)
         self.vboxlayout1.addLayout(self.hboxlayout2)
 
-        self.plotWidget = MPL_Widget(self.widget)
+        self.plotWidget = MPL_Widget(self.layoutWidget)
         self.plotWidget.setObjectName("plotWidget")
         self.vboxlayout1.addWidget(self.plotWidget)
 
@@ -299,28 +300,28 @@ class Ui_MainWindow(object):
         self.optionsTab = QtGui.QWidget()
         self.optionsTab.setObjectName("optionsTab")
 
-        self.widget1 = QtGui.QWidget(self.optionsTab)
-        self.widget1.setGeometry(QtCore.QRect(11,13,261,141))
-        self.widget1.setObjectName("widget1")
+        self.layoutWidget1 = QtGui.QWidget(self.optionsTab)
+        self.layoutWidget1.setGeometry(QtCore.QRect(11,13,261,141))
+        self.layoutWidget1.setObjectName("layoutWidget1")
 
-        self.gridlayout1 = QtGui.QGridLayout(self.widget1)
+        self.gridlayout1 = QtGui.QGridLayout(self.layoutWidget1)
         self.gridlayout1.setObjectName("gridlayout1")
 
-        self.loadmzXMLCB = QtGui.QCheckBox(self.widget1)
-        self.loadmzXMLCB.setChecked(False)
+        self.loadmzXMLCB = QtGui.QCheckBox(self.layoutWidget1)
+        self.loadmzXMLCB.setChecked(True)
         self.loadmzXMLCB.setObjectName("loadmzXMLCB")
         self.gridlayout1.addWidget(self.loadmzXMLCB,0,0,1,1)
 
-        self.plotPkListCB = QtGui.QCheckBox(self.widget1)
+        self.plotPkListCB = QtGui.QCheckBox(self.layoutWidget1)
         self.plotPkListCB.setObjectName("plotPkListCB")
         self.gridlayout1.addWidget(self.plotPkListCB,0,1,1,1)
 
-        self.plotLegendCB = QtGui.QCheckBox(self.widget1)
+        self.plotLegendCB = QtGui.QCheckBox(self.layoutWidget1)
         self.plotLegendCB.setChecked(True)
         self.plotLegendCB.setObjectName("plotLegendCB")
         self.gridlayout1.addWidget(self.plotLegendCB,1,0,1,1)
 
-        self.loadDirBtn = QtGui.QPushButton(self.widget1)
+        self.loadDirBtn = QtGui.QPushButton(self.layoutWidget1)
         self.loadDirBtn.setObjectName("loadDirBtn")
         self.gridlayout1.addWidget(self.loadDirBtn,1,1,1,1)
         self.tabWidget.addTab(self.optionsTab,"")
@@ -377,3 +378,4 @@ class Ui_MainWindow(object):
         self.action_Open.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+O", None, QtGui.QApplication.UnicodeUTF8))
 
 from mpl_pyqt4_widget import MPL_Widget
+import qrc_icons
