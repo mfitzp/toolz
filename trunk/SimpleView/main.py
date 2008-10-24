@@ -1,5 +1,17 @@
 #!/usr/bin/env python
+###################################
+'''To Do:
 
+Add update function for file path display--how to keep old dirList after second load?
+Print Screen?
+
+Add progress bar to status bar...look at Ashoka's Code
+
+
+
+
+'''
+###################################
 import os, sys
 import time
 
@@ -14,7 +26,6 @@ from FolderParse import Load_mzXML_Folder as LmzXML
 from flexReader import brukerFlexDoc as FR
 from mzXML_reader import mzXMLDoc as mzXMLR
 
-#from ui_main import Ui_Form
 import ui_main
 
 
@@ -51,6 +62,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
     
     def specListSelect(self, widgetItem):
         selectItems = self.specListWidget.selectedItems()
+        #curRow
         if len(selectItems) > 0:
             self.multiPlotIndex = []#reset indexes to plot
             for item in selectItems:
@@ -76,8 +88,8 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             curAx.cla()
             if multiPlot:
                 for i in self.multiPlotIndex:
-                    curData = self.dataList[i]
-                    curData.plot(curAx)
+                    curDataName = self.dataList[i]
+                    self.dataDict[curDataName].plot(curAx)
                 #the following makes it so the change is ignored and the plot does not update
                 self.ignoreSignal = True
                 self.indexHSlider.setValue(i)
@@ -87,9 +99,9 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                 if plotIndex == None:
                     plotIndex = self.initIndex
                 if plotIndex == self.indexSpinBox.value():#this is just to see if the user is still sliding things around before updating plot
-                    curData = self.dataList[plotIndex]
-                    curData.plot(curAx)
-                    self.specNameEdit.setText(self.dirList[plotIndex])
+                    curDataName = self.dataList[plotIndex]
+                    self.dataDict[curDataName].plot(curAx)
+                    self.specNameEdit.setText(self.dirList[plotIndex])#use dataList to ge the name?
                     #the following makes it so the change is ignored and the plot does not update
                     self.ignoreSignal = True
                     self.specListWidget.setCurrentRow(plotIndex)
@@ -112,9 +124,11 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.dirList = []
         self.curDir = os.getcwd()
         self.dataList = []
+        self.dataDict = {}
         self.loadOk = False
         self.multiPlotIndex = []
         self.ignoreSignal = False
+        self.firstLoad = True
     
     def setupGUI(self):
         self.specNameEdit.clear()
@@ -124,10 +138,14 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         
     def updateGUI(self,  loadedItem=None):
         if loadedItem != None:
-            self.dataList.append(loadedItem)
-            self.specListWidget.addItem(loadedItem.name)
+            if self.dataDict.has_key(loadedItem.name):
+                pass
+            else:
+                self.dataList.append(loadedItem.name)
+                self.specListWidget.addItem(loadedItem.name)
+            self.dataDict[loadedItem.name] = loadedItem
         
-        self.numSpec = len(self.dataList)
+        self.numSpec = len(self.dataDict)
         if self.numSpec == 1:
             self.plotByIndex(0)
             self.indexHSlider.setMaximum(self.numSpec)
@@ -145,11 +163,16 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         return True
     
     def initDataList(self):
+        if not self.firstLoad:
+            #reinitialize GUI and spectrumList
+            self.setupGUI()
         if self.loadmzXMLCB.isChecked():
-            dirList = LmzXML()
+            loadLIFT = self.excludeLIFTCB.isChecked()
+            dirList = LmzXML(excludeLIFT = loadLIFT)
             if len(dirList) !=0:
                 self.dirList = dirList
                 self.loadOk = True
+                self.firstLoad = False
                 if self.readThread.updateThread(dirList,  loadmzXML = True):
                     self.readThread.start()
                     
@@ -158,6 +181,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             if len(dirList) !=0:
                 self.dirList = dirList
                 self.loadOk = True
+                self.firstLoad = False
                 if self.readThread.updateThread(dirList):
                     self.readThread.start()
                     
@@ -232,11 +256,16 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.dxLE.setText('')
         self.dyLE.setText('')
         
+        try:#this is so that the cursor label gets removed
+            self.cursAText.remove()
+            self.cursBText.remove()
+        except:
+            pass
+        
         self.plotWidget.canvas.draw()
         
         
     def cursorStats(self):
-      
         if self.cAOn:
             self.cALabelLE.setText(self.cursorAInfo[3])
             self.cAIndexLE.setText(str(self.cursorAInfo[0]))
@@ -288,7 +317,12 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         #print "Pick A"
         if not isinstance(event.artist, Line2D): 
             return True
-         
+            
+        try:#this is so that the cursor label gets removed
+            self.cursAText.remove()
+        except:
+            pass
+        
         line = event.artist
         self.indexA = event.ind[0]
         xdata = line.get_xdata()
@@ -296,6 +330,8 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
         self.selectHandleA.set_data([xdata[self.indexA]], [ydata[self.indexA]])
         self.selectHandleA.set_visible(True)
+        
+        self.cursAText = self.plotWidget.canvas.ax.text(xdata[self.indexA], ydata[self.indexA], '%.4f'%xdata[self.indexA],  fontsize=9, rotation = 45)
         
         self.cursorAInfo[0]=self.indexA
         self.cursorAInfo[1]=xdata[self.indexA]
@@ -312,6 +348,11 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         if not isinstance(event.artist, Line2D): 
             return True
          
+        try:#this is so that the cursor label gets removed
+            self.cursBText.remove()
+        except:
+            pass
+            
         line = event.artist
         self.indexB = event.ind[0]
         xdata = line.get_xdata()
@@ -319,6 +360,8 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
         self.selectHandleB.set_data([xdata[self.indexB]], [ydata[self.indexB]])
         self.selectHandleB.set_visible(True)
+        
+        self.cursAText = self.plotWidget.canvas.ax.text(xdata[self.indexB], ydata[self.indexB], '%.4f'%xdata[self.indexB],  fontsize=9, rotation = 45)
         
         self.cursorBInfo[0]=self.indexB
         self.cursorBInfo[1]=xdata[self.indexB]
