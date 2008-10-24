@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\SVN\toolz\SimpleView\main.ui'
 #
-# Created: Tue Oct 14 13:30:34 2008
+# Created: Thu Oct 23 14:47:27 2008
 #      by: PyQt4 UI code generator 4.3.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -324,6 +324,10 @@ class Ui_MainWindow(object):
         self.loadDirBtn = QtGui.QPushButton(self.layoutWidget1)
         self.loadDirBtn.setObjectName("loadDirBtn")
         self.gridlayout1.addWidget(self.loadDirBtn,1,1,1,1)
+
+        self.excludeLIFTCB = QtGui.QCheckBox(self.layoutWidget1)
+        self.excludeLIFTCB.setObjectName("excludeLIFTCB")
+        self.gridlayout1.addWidget(self.excludeLIFTCB,2,0,1,1)
         self.tabWidget.addTab(self.optionsTab,"")
         self.hboxlayout.addWidget(self.tabWidget)
         MainWindow.setCentralWidget(self.centralwidget)
@@ -372,6 +376,7 @@ class Ui_MainWindow(object):
         self.plotPkListCB.setText(QtGui.QApplication.translate("MainWindow", "Plot Peak List", None, QtGui.QApplication.UnicodeUTF8))
         self.plotLegendCB.setText(QtGui.QApplication.translate("MainWindow", "Plot Legend", None, QtGui.QApplication.UnicodeUTF8))
         self.loadDirBtn.setText(QtGui.QApplication.translate("MainWindow", "Load Directory", None, QtGui.QApplication.UnicodeUTF8))
+        self.excludeLIFTCB.setText(QtGui.QApplication.translate("MainWindow", "Exclude LIFT MS/MS Files", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.optionsTab), QtGui.QApplication.translate("MainWindow", "Options", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_File.setTitle(QtGui.QApplication.translate("MainWindow", "&File", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Open.setText(QtGui.QApplication.translate("MainWindow", "&Open", None, QtGui.QApplication.UnicodeUTF8))

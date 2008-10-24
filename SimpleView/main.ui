@@ -512,6 +512,13 @@
            </property>
           </widget>
          </item>
+         <item row="2" column="0" >
+          <widget class="QCheckBox" name="excludeLIFTCB" >
+           <property name="text" >
+            <string>Exclude LIFT MS/MS Files</string>
+           </property>
+          </widget>
+         </item>
         </layout>
        </widget>
       </widget>
