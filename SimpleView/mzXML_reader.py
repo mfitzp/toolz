@@ -30,8 +30,10 @@ THIS VERSION ONLY GETS THE FIRST SPECTRUM IN A FILE!!!!!!!!!!!!!!!!'''
 
 from PyQt4.QtGui import QFileDialog,  QApplication
 import numpy as N
+from pylab import load as pload
 
 import os.path
+import sys
 #import xml.dom.minidom
 import xml.etree.ElementTree
 import xml.etree.cElementTree as ET
@@ -66,9 +68,9 @@ class mzXMLDoc:
                     'notes':'',
                     'peaklist':[],
                     'spectrum':[],
-                    'totalScans':'', 
-                    'expTime':[], 
-                    'BPC':[], 
+                    'totalScans':'',
+                    'expTime':[],
+                    'BPC':[],
                     'TIC':[]
                     }
         self.filename = path
@@ -76,10 +78,25 @@ class mzXMLDoc:
         self.elmName = None
         self.scanList = None
         self.getDocument(self.filename)
+        self.getPeakList(self.filename)
     # ----
 
 
     # ----
+    def getPeakList(self, filePath):
+        peakListFN = filePath.replace('.mzXML', '_pks.csv')#os.path.join(filePath.split('.')[:-1],suffix)
+        if os.path.isfile(peakListFN):
+            try:
+                peakList = pload(peakListFN,  delimiter = ',')
+#                print peakList
+                if len(peakList)>=1:
+                    self.data['peaklist'] = peakList
+
+            except:
+                errorMsg = "Sorry: %s\n\n:%s\n"%(sys.exc_type, sys.exc_value)
+                print errorMsg
+                self.data['peaklist'] = []
+
     def getDocument(self, path):
         """ Read and parse all data from document. """
 
@@ -97,7 +114,7 @@ class mzXMLDoc:
 
         # get spectrum
         element = document.find(self.ns+'msRun')
-        
+
         self.data['totalScans'] = int(element.get('scanCount'))
         #print self.data['totalScans']
         if element:
@@ -245,14 +262,14 @@ class mzXMLDoc:
                 xTime.append(scan.get('num'))
                 BPC.append(float(scan.get('basePeakIntensity')))
                 TIC.append(float(scan.get('totIonCurrent')))
-        
+
     # ----
     def handleSpectrum(self, spectrum):
         """ Get spectrum data from <spectrum> element. """
 
         # get data element
         peaks = spectrum.find(self.ns+'peaks')
-        
+
         if peaks == None:
             return False
 
@@ -349,7 +366,7 @@ class mzXMLDoc:
             scans[x][5] = scanInfo['mz']
             scans[x][6] = scanInfo['charge']
             scans[x][7] = scanInfo['type']
-            
+
 
         return scans
     # ----
@@ -358,7 +375,7 @@ class mzXMLDoc:
     # ----
     def getScanInfo(self, scan):
         """ Get basic info about selected scan. """
-        
+
         scanInfo = {}
         scanInfo['type'] = '---'
         scanInfo['level'] = '---'
@@ -369,10 +386,10 @@ class mzXMLDoc:
         scanInfo['mz'] = '---'
         scanInfo['charge'] = '---'
         scanInfo['method'] = '---'
-        
+
         # get ID
         scanInfo['id'] = scan.get('num')
-        
+
         # get msLevel
         scanInfo['level'] = scan.get('msLevel')
 
@@ -388,8 +405,8 @@ class mzXMLDoc:
         # get range
         lowMz = scan.get('lowMz')
         highMz = scan.get('highMz')
-        
-        
+
+
         try:
             scanInfo['range'] = '%d - %d' % (float(lowMz), float(highMz))
         except:
@@ -413,7 +430,7 @@ class mzXMLDoc:
 
         # get data element
         peaks = spectrum.find(self.ns+'peaks')
-        
+
         if peaks == None:
             return False
 
@@ -468,7 +485,7 @@ class mzXMLDoc:
             self.data['notes'] += '\nPrecursor Mass: %s' % (scanInfo['mz'])
             self.data['notes'] += '\nPrecursor Charge: %s' % (scanInfo['charge'])
             self.data['notes'] += '\nPrecursor Polarity: %s' % (scanInfo['polarity'])
-            
+
         return formatedData,  scanInfo
 
 
@@ -510,9 +527,9 @@ def encodeData(numpyArray):
         print "Points Count Encode:",  pointsCount
         print "Length of encodeData",  len(data)
         print "Type of encodeData",  type(data)
-        
-        data = struct.pack(endian+'f'*pointsCount, *data)#data[start:end])        
-        #data = struct.pack('f', data[start:end])      
+
+        data = struct.pack(endian+'f'*pointsCount, *data)#data[start:end])
+        #data = struct.pack('f', data[start:end])
     except:
         raise
         return False
@@ -523,7 +540,7 @@ def encodeData(numpyArray):
     except:
         raise
         return False
-    
+
     return data
 
 
@@ -551,11 +568,11 @@ def decodeData(data):
     mzData = data[::2]
     #print type(mzData)
     intData = data[1::2]
-    
+
     return [mzData, intData]
 
 if __name__ == "__main__":
-    
+
     import sys
     #import numpy as N
     from base64 import b64encode
@@ -563,29 +580,29 @@ if __name__ == "__main__":
     from matplotlib.lines import Line2D
     app = QApplication(sys.argv)
     fn = open_file()
-    #fn = 'C:/MS_Cluster_Test/Data/0_A10.mzXML'    
-    
+    #fn = 'C:/MS_Cluster_Test/Data/0_A10.mzXML'
+
     def OnPick(event):
-        if not isinstance(event.artist, Line2D): 
+        if not isinstance(event.artist, Line2D):
             return True
-         
+
         line = event.artist
-        indexA = event.ind[0]        
+        indexA = event.ind[0]
         xdata = line.get_xdata()
         ydata = line.get_ydata()
         print indexA,  xdata[indexA]
         selectHandleA.set_visible(True)
-        selectHandleA.set_data([xdata[indexA]], [ydata[indexA]])        
+        selectHandleA.set_data([xdata[indexA]], [ydata[indexA]])
         fig.canvas.draw()
 
     if fn:
-        
+
         mzx = mzXMLDoc(fn)
         #mzx.getDocument(fn)
         spectrum = mzx.data.get('spectrum')
 #        BPC = mzx.data.get('BPC')
 #        xvalues = mzx.data.get('expTime')
-        
+
         fig = P.figure(figsize=(8,6))
         ax = fig.add_subplot(111, axisbg='#FFFFCC')
 #        selectHandleA,  = ax.plot([0], [0], 'o',\
@@ -599,7 +616,7 @@ if __name__ == "__main__":
         #ax.set_ylim(-2,2)
         #ax.set_title('Press left mouse button and drag to test')
 
-        
+
 #        subspec = N.column_stack(spectrum)
 #        subspec = subspec.flatten()
 #        if sys.byteorder != 'big':
@@ -627,5 +644,5 @@ if __name__ == "__main__":
         P.plot(spectrum[0], spectrum[1])
         P.show()
     #print mzx.data
-    sys.exit(app.exec_()) 
+    sys.exit(app.exec_())
 

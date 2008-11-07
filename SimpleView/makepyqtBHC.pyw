@@ -190,7 +190,7 @@ class Form(QMainWindow):
     def about(self):
         QMessageBox.about(self, "About Make PyQt",
                 """<b>Make PyQt</b> v %s
-                <p>Copyright &copy; 2007 Qtrac Ltd. 
+                <p>Copyright &copy; 2007 Qtrac Ltd.
                 All rights reserved.
                 <p>This application can be used to build PyQt
                 applications.
@@ -274,8 +274,7 @@ class Form(QMainWindow):
                                     "ui_" + name.replace(".ui", ".py"))
                 command = pyuic4
             elif source.endswith(".qrc"):
-                target = os.path.join(path,
-                                    "qrc_" + name.replace(".qrc", ".py"))
+                target = os.path.join(path,name.replace(".qrc", "_rc.py"))#Added BHC #"qrc_" + name.replace(".qrc", ".py"))
                 command = pyrcc4
             if target is not None:
                 if not os.access(target, os.F_OK) or (
