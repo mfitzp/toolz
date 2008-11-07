@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Documents and Settings\d3p483\workspace\GCAlign\LECO2HDF5\main.ui'
 #
-# Created: Wed Nov 05 10:55:37 2008
+# Created: Thu Nov 06 13:04:44 2008
 #      by: PyQt4 UI code generator 4.3.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -35,6 +35,17 @@ class Ui_MainWindow(object):
 
         self.hboxlayout1 = QtGui.QHBoxLayout()
         self.hboxlayout1.setObjectName("hboxlayout1")
+
+        self.label = QtGui.QLabel(self.centralwidget)
+        self.label.setObjectName("label")
+        self.hboxlayout1.addWidget(self.label)
+
+        self.GC2TimeSB = QtGui.QDoubleSpinBox(self.centralwidget)
+        self.GC2TimeSB.setMaximum(1000.0)
+        self.GC2TimeSB.setSingleStep(0.5)
+        self.GC2TimeSB.setProperty("value",QtCore.QVariant(5.0))
+        self.GC2TimeSB.setObjectName("GC2TimeSB")
+        self.hboxlayout1.addWidget(self.GC2TimeSB)
 
         self.singleFileCB = QtGui.QCheckBox(self.centralwidget)
         self.singleFileCB.setChecked(True)
@@ -124,7 +135,8 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow", "LECO2HDF5", None, QtGui.QApplication.UnicodeUTF8))
-        self.selLECODataBtn.setText(QtGui.QApplication.translate("MainWindow", "LECO netCDF File:", None, QtGui.QApplication.UnicodeUTF8))
+        self.selLECODataBtn.setText(QtGui.QApplication.translate("MainWindow", "LECO netCDF Data:", None, QtGui.QApplication.UnicodeUTF8))
+        self.label.setText(QtGui.QApplication.translate("MainWindow", "2nd Dimension GC Length (s):", None, QtGui.QApplication.UnicodeUTF8))
         self.singleFileCB.setText(QtGui.QApplication.translate("MainWindow", "Single File Conversion?", None, QtGui.QApplication.UnicodeUTF8))
         self.outputBtn.setText(QtGui.QApplication.translate("MainWindow", "&Output File:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_3.setText(QtGui.QApplication.translate("MainWindow", "Output Message:", None, QtGui.QApplication.UnicodeUTF8))

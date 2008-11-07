@@ -30,7 +30,7 @@ def open_file():
         return filename
 
 class ChromaTOF_Reader:
-    def __init__(self,  path,  fileType = None, colPoints = None):
+    def __init__(self,  path,  fileType = None, GC2Time = None):
 
         self.fileType = fileType
         if self.fileType != 'NetCDF' and self.fileType != 'HDF5':
@@ -47,8 +47,8 @@ class ChromaTOF_Reader:
         self.sicOK = False
         #this is stored in the file, it is known based upon the experiment setup
         #blame LECO not me. 500 points == 5 seconds
-        if colPoints != None:
-            self.colPoints = colPoints
+        if GC2Time != None:
+            self.colPoints = int(GC2Time)
         else:
             self.colPoints = 500#default of 5 seconds
         self.rowPoints = None
@@ -94,7 +94,7 @@ class ChromaTOF_Reader:
                 self.TIC = N.array(self.vars['total_intensity'].data)
                 self.rowPoints = len(self.scanIndex)/self.colPoints
                 self.loadOK = True
-                print self.fileName, ' NetCDF Loaded'
+                #print self.fileName, ' NetCDF Loaded'
             elif self.fileType == 'HDF5':
                 self.scanIndex = self.vars['scan_index'].read()
                 self.pntCount = self.vars['point_count'].read()
