@@ -22,7 +22,7 @@
       <item>
        <widget class="QPushButton" name="selLECODataBtn" >
         <property name="text" >
-         <string>LECO netCDF File:</string>
+         <string>LECO netCDF Data:</string>
         </property>
        </widget>
       </item>
@@ -33,6 +33,26 @@
     </item>
     <item>
      <layout class="QHBoxLayout" >
+      <item>
+       <widget class="QLabel" name="label" >
+        <property name="text" >
+         <string>2nd Dimension GC Length (s):</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QDoubleSpinBox" name="GC2TimeSB" >
+        <property name="maximum" >
+         <double>1000.000000000000000</double>
+        </property>
+        <property name="singleStep" >
+         <double>0.500000000000000</double>
+        </property>
+        <property name="value" >
+         <double>5.000000000000000</double>
+        </property>
+       </widget>
+      </item>
       <item>
        <widget class="QCheckBox" name="singleFileCB" >
         <property name="text" >

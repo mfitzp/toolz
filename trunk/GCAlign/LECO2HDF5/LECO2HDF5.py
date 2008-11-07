@@ -9,9 +9,10 @@ import time
 import ui_main
 
 from LECO_IO import ChromaTOF_Reader as CR
-from hdfIO import saveChromaTOF
+#from hdfIO import saveChromaTOF
 
 import tables as T
+import numpy as N
 
 
 class LECOConvert(ui_main.Ui_MainWindow):
@@ -43,6 +44,8 @@ class LECOConvert(ui_main.Ui_MainWindow):
         self.saveThread = saveThread(self)
 
         self.iterScroll = 0
+        self.GCTime = None
+        self.__updateGCTime__(5)
         #self.filePathError()
 
     def __updateGUI__(self):
@@ -59,12 +62,21 @@ class LECOConvert(ui_main.Ui_MainWindow):
         QtCore.QObject.connect(self.selLECODataBtn,QtCore.SIGNAL("clicked()"),self.__getLECOData__)
         QtCore.QObject.connect(self.outputBtn,QtCore.SIGNAL("clicked()"),self.__setOutputFile__)
         QtCore.QObject.connect(self.cnvrtLECOBtn,QtCore.SIGNAL("clicked()"),self.__convertLECO__)
+        QtCore.QObject.connect(self.GC2TimeSB,QtCore.SIGNAL("valueChanged(double)"),self.__updateGCTime__)
         QtCore.QObject.connect(self.actionConvert2HDF5,QtCore.SIGNAL("triggered()"),self.__convertLECO__)
         QtCore.QObject.connect(self.singleFileCB, QtCore.SIGNAL("stateChanged (int)"),self.__changeInputFile__)
         QtCore.QObject.connect(self.LECOFolderLE, QtCore.SIGNAL("editingFinished()"),self.__LECOLEChanged__)
         QtCore.QObject.connect(self.outputFileLE, QtCore.SIGNAL("editingFinished()"),self.__outputLEChanged__)
         QtCore.QObject.connect(self.action_About,QtCore.SIGNAL("triggered()"),self.__showAbout__)
         QtCore.QObject.connect(self.saveThread, QtCore.SIGNAL("itemLoaded(PyQt_PyObject)"), self.updateOutputMsg)
+
+    def __updateGCTime__(self, secs):
+        '''
+        This assumes a 10kHz sampling rate
+        #NEED TO UPDATE GUI TO INCLUDE SAMPLING RATE
+        '''
+        self.GC2Time = secs*100
+
 
     def __LECOLEChanged__(self):
         self.LECODataOk = True
@@ -84,7 +96,6 @@ class LECOConvert(ui_main.Ui_MainWindow):
         self.LECOFolderLE.clear()
         self.LECODataOk = False
 
-
     def updateOutputMsg(self, outputStr):
         self.iterScroll+=1
         self.outputTE.insertPlainText(QtCore.QString(outputStr))
@@ -103,7 +114,12 @@ class LECOConvert(ui_main.Ui_MainWindow):
                 newFile = None
                 if self.outputFileOk:
                     newFile =str(self.outputFile)
-                self.updateOutputMsg(self.saveThread.saveChroma2H5(str(self.LECOData), newFile))
+
+                fileList = [[str(self.LECOData), newFile]]
+                if self.saveThread.updateThread(fileList):
+                    self.saveThread.start()
+                #self.msg = self.saveChroma2H5(item[0],  item[1])
+                #self.updateOutputMsg(self.saveThread.saveChroma2H5(str(self.LECOData), newFile))
         else:
             reply = QtGui.QMessageBox.warning(self.MainWindow, "No Input File Set",  "An input file must be selected before continuing.")
             self.__getLECOData__()
@@ -196,84 +212,165 @@ class LECOConvert(ui_main.Ui_MainWindow):
 
 
 class saveThread(QtCore.QThread):
-        def __init__(self, parent):
-            QtCore.QThread.__init__(self, None)#parent)
 
-            self.P = parent
-            self.outputFile = None
-            self.LECOData = None
-            self.finished = False
-            self.ready = False
-            self.outFileType = None
-            self.inFileType = None
-            self.curFileNum = 0
-            self.totalFiles = 1
+    def __init__(self, parent):
+        QtCore.QThread.__init__(self, None)#parent)
 
-        def updateThread(self, loadList):
-            self.loadList = loadList
-            self.numItems = len(loadList)
-            self.totalFiles = len(loadList)
-            self.outputFile = self.P.outputFile
-            self.LECOData = self.P.LECOData
-            self.ready = True
-            return True
+        self.P = parent
+        self.outputFile = None
+        self.LECOData = None
+        self.finished = False
+        self.ready = False
+        self.outFileType = None
+        self.inFileType = None
+        self.GCTime = None
+        self.curFileNum = 0
+        self.totalFiles = 1
 
-        def run(self):
-            if self.ready:
-                while not self.finished and self.numItems > 0:
-                    self.curFileNum = 0
-                    for item in self.loadList:
-                        self.msg = self.saveChroma2H5(item[0],  item[1])
-                        #print item[0],  item[1]
-                        #this following line is key to pass python object via the SIGNAL/SLOT mechanism of PyQt
-                        self.emit(QtCore.SIGNAL("itemLoaded(PyQt_PyObject)"),self.msg)#note PyQt_PyObject
-                        self.numItems -=1
+    def updateThread(self, loadList):
+        self.loadList = loadList
+        self.numItems = len(loadList)
+        self.totalFiles = len(loadList)
+        self.outputFile = self.P.outputFile
+        self.LECOData = self.P.LECOData
+        self.GCTime = self.P.GCTime
+        self.ready = True
+        return True
 
-                        self.curFileNum+=1
+    def run(self):
+        if self.ready:
+            while not self.finished and self.numItems > 0:
+                self.curFileNum = 0
+                for item in self.loadList:
+                    self.msg = self.saveChroma2H5(item[0],  item[1])
+                    #print item[0],  item[1]
+                    #this following line is key to pass python object via the SIGNAL/SLOT mechanism of PyQt
+                    self.emit(QtCore.SIGNAL("itemLoaded(PyQt_PyObject)"),self.msg)#note PyQt_PyObject
+                    self.numItems -=1
+
+                    self.curFileNum+=1
 
 
-        def __del__(self):
-            self.exiting = True
-            self.wait()
+    def __del__(self):
+        self.exiting = True
+        self.wait()
 
-        def saveChroma2H5(self, file2Convert,  newFileName = None):
-            t1 = time.clock()
+    def saveChroma2H5(self, file2Convert,  newFileName = None):
+        t1 = time.clock()
 
-            self.LECOData = file2Convert
-            self.outFileType = os.path.basename(str(self.LECOData)).split('.')[-1]
-            self.dir = os.path.dirname(str(self.LECOData))
-            if newFileName == None:
-                newFileName = os.path.basename(str(self.LECOData)).split('.')[0]
-            newFileName+='.h5'
-            newPath = os.path.join(self.dir, newFileName)
-            newPath = os.path.abspath(newPath)
+        msg = 'Processing: %s\n'%str(file2Convert)
+        self.emit(QtCore.SIGNAL("itemLoaded(PyQt_PyObject)"),msg)
+
+        self.LECOData = file2Convert
+        self.outFileType = os.path.basename(str(self.LECOData)).split('.')[-1]
+        self.dir = os.path.dirname(str(self.LECOData))
+        if newFileName == None:
+            newFileName = os.path.basename(str(self.LECOData)).split('.')[0]
+        newFileName+='.h5'
+        newPath = os.path.join(self.dir, newFileName)
+        newPath = os.path.abspath(newPath)
 #            print self.outFileType
-            if self.outFileType == 'cdf':
-                try:
-                    cdf = CR(self.LECOData,  fileType = 'NetCDF')
-                    saveChromaTOF(newPath, cdf, dataType = 'NetCDF' )
+        if self.outFileType == 'cdf':
+            try:
+                cdf = CR(self.LECOData,  fileType = 'NetCDF', GC2Time = self.GCTime)
+                self.saveChromaTOF(newPath, cdf, dataType = 'NetCDF' )
 
-                    t2 = time.clock()
-                    msg = '%s written\n'%newPath
-                    runTime= '%s sec\n\n'%(t2-t1)
+                t2 = time.clock()
+                msg = '%s written\n'%newPath
+                runTime= '%s sec\n\n'%(t2-t1)
 
-                    fileupdate = '%d of %d Finished\n'%(self.curFileNum+1, self.totalFiles)
-                    msg +=fileupdate
-                    msg += runTime
-                    return msg
+                fileupdate = '%d of %d Finished\n'%(self.curFileNum+1, self.totalFiles)
+                msg +=fileupdate
+                msg += runTime
+                return msg
 
-                except:
-                    errorMsg = "Error: %s\n\n%s\n"%(sys.exc_type, sys.exc_value)
-                    return errorMsg
-
-
+            except:
+                errorMsg = "Error: %s\n\n%s\n"%(sys.exc_type, sys.exc_value)
+                return errorMsg
 
 
+        return "%s,%s"%(newPath, newFileName)
 
 
+    def saveChromaTOF(self, fileName,  cdf, numCols=None,  numRows = None, dataType = 'NetCDF'):
+        t1 = time.clock()
 
-            return "%s,%s"%(newPath, newFileName)
+        mzMax = 401 #rows
+        colCount = len(cdf.scanIndex)
+        hdf = T.openFile(fileName, mode = "w", title = 'Data_Array')
+        filters = T.Filters(complevel=5, complib='zlib')
+        atom = T.Int32Atom()
+        chunkS = (400, 5)
+        #chunkMZ = (20, 401)
+        dataCube = hdf.createEArray(hdf.root, 'dataCube', atom, (0,mzMax), filters = filters,  expectedrows = colCount)#,  chunkshape = chunkMZ)
+        dataCube.attrs.rowPoints = cdf.rowPoints
+        dataCube.attrs.colPoints = cdf.colPoints
 
+        data = cdf.TIC
+        shape = data.shape
+        ca = hdf.createCArray(hdf.root, 'TIC', atom, shape,  filters = filters)
+        ca[0:shape[0]] = data
+        ca.flush()
+        print "TIC OK"
+
+
+        #sicCube = hdf.createEArray(hdf.root, 'sicCube', atom, (mzMax,0), filters = filters,  expectedrows = mzMax)#,  chunkshape = chunkS)
+        #print "Sic Chunk", sicCube.chunkshape
+        print "MZ Chunk",  dataCube.chunkshape
+
+        try:
+            if dataType == 'NetCDF':
+                m=0
+                for i in cdf.scanIndex:
+
+                    localMaxIndex = i+cdf.pntCount[m]
+                    mz2Write = N.zeros(mzMax)#ADDING 1 so that indicies work out!!!!!!!!!!!!!!!DOUBLE CHECK THIS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                    mzLocal = N.array(cdf.vars['mass_values'].data[i:localMaxIndex])
+                    mzLocal +=1 #!!!!!!!!!!!!!!DOUBLE CHECK THIS
+                    intLocal = cdf.vars['intensity_values'].data[i:localMaxIndex]
+                    N.put(mz2Write,  mzLocal, intLocal)
+                    dataCube.append(mz2Write[N.newaxis,:])
+                    dataCube.flush()
+
+                    if m%10000 == 0:
+                        msg = "%s mass spectra\n"%m
+                        self.emit(QtCore.SIGNAL("itemLoaded(PyQt_PyObject)"),msg)
+                        #print m
+                    m+=1
+
+#                    if m == 10000:
+#                        print time.clock()-t1, 'seconds'
+#                        hdf.close()
+#                        return
+                print time.clock()-t1, 'seconds'
+                hdf.close()
+
+            if dataType == 'HDF5':
+                m=0
+                for i in cdf.scanIndex:
+
+                    localMaxIndex = i+cdf.pntCount[m]
+                    mz2Write = N.zeros(mzMax)#ADDING 1 so that indicies work out!!!!!!!!!!!!!!!DOUBLE CHECK THIS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                    mzLocal = N.array(cdf.vars['mass_values'][i:localMaxIndex])
+                    mzLocal +=1 #!!!!!!!!!!!!!!DOUBLE CHECK THIS
+                    intLocal = cdf.vars['intensity_values'][i:localMaxIndex]
+                    N.put(mz2Write,  mzLocal, intLocal)
+                    dataCube.append(mz2Write[N.newaxis,:])
+                    dataCube.flush()
+
+                    if m%10000 == 0:
+                        msg = "%s mass spectra\n"%m
+                        self.emit(QtCore.SIGNAL("itemLoaded(PyQt_PyObject)"),msg)
+                        #print m
+                    m+=1
+                print time.clock()-t1, 'seconds'
+                hdf.close()
+
+
+        except:
+            errorMsg = "Error: %s\n\n%s\n"%(sys.exc_type, sys.exc_value)
+            print errorMsg
+            hdf.close()
 
 #            try:
 #

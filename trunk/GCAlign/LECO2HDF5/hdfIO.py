@@ -53,7 +53,7 @@ def saveChromaTOF(fileName,  cdf, numCols=None,  numRows = None, dataType = 'Net
 
     #sicCube = hdf.createEArray(hdf.root, 'sicCube', atom, (mzMax,0), filters = filters,  expectedrows = mzMax)#,  chunkshape = chunkS)
     #print "Sic Chunk", sicCube.chunkshape
-    print "MZ Chunk",  dataCube.chunkshape
+    #print "MZ Chunk",  dataCube.chunkshape
 
     try:
         if dataType == 'NetCDF':
