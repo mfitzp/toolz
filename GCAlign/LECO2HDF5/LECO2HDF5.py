@@ -9,7 +9,7 @@ import time
 import ui_main
 
 from LECO_IO import ChromaTOF_Reader as CR
-#from hdfIO import saveChromaTOF
+from LECOFolderParse import getLECOFiles
 
 import tables as T
 import numpy as N
@@ -311,12 +311,12 @@ class saveThread(QtCore.QThread):
         ca = hdf.createCArray(hdf.root, 'TIC', atom, shape,  filters = filters)
         ca[0:shape[0]] = data
         ca.flush()
-        print "TIC OK"
+        #print "TIC OK"
 
 
         #sicCube = hdf.createEArray(hdf.root, 'sicCube', atom, (mzMax,0), filters = filters,  expectedrows = mzMax)#,  chunkshape = chunkS)
         #print "Sic Chunk", sicCube.chunkshape
-        print "MZ Chunk",  dataCube.chunkshape
+        #print "MZ Chunk",  dataCube.chunkshape
 
         try:
             if dataType == 'NetCDF':
@@ -412,13 +412,13 @@ class ProgressBar(QtGui.QWidget):
 def run_main():
     app = QtGui.QApplication(sys.argv)
     MainWindow = QtGui.QMainWindow()
-#    try:
-    ui = LECOConvert(MainWindow)
-    MainWindow.show()
-#    except:
-#        errorMsg = "Sorry: %s\n\n:%s\n"%(sys.exc_type, sys.exc_value)
-#        errorMsg+='\n Contact Clowers and try to remember what you did to make it crash!'
-#        QtGui.QMessageBox.warning(MainWindow, "Fatal Error",  errorMsg)
+    try:
+        ui = LECOConvert(MainWindow)
+        MainWindow.show()
+    except:
+        errorMsg = "Sorry: %s\n\n:%s\n"%(sys.exc_type, sys.exc_value)
+        errorMsg+='\n Contact Clowers and try to remember what you did to make it crash!'
+        QtGui.QMessageBox.warning(MainWindow, "Fatal Error",  errorMsg)
 
     sys.exit(app.exec_())
 
