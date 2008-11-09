@@ -8,6 +8,10 @@ Print Screen?
 Add progress bar to status bar...look at Ashoka's Code
 
 
+Need to add exception for when there is no data in the file (i.e. a blank spectrum)
+
+Incorporate folder parser into
+
 
 
 '''
@@ -44,9 +48,13 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.cursorClearAction = QtGui.QAction("Clear Cursors",  self)
         self.plotWidget.addAction(self.cursorClearAction)
 
+        self.labelAction = QtGui.QAction("Label Peak",  self)
+        self.plotWidget.addAction(self.labelAction)
+
         QtCore.QObject.connect(self.handleActionA, QtCore.SIGNAL("triggered()"),self.SelectPointsA)
         QtCore.QObject.connect(self.handleActionB, QtCore.SIGNAL("triggered()"),self.SelectPointsB)
         QtCore.QObject.connect(self.cursorClearAction, QtCore.SIGNAL("triggered()"),self.cursorClear)
+        QtCore.QObject.connect(self.labelAction, QtCore.SIGNAL("triggered()"),self.labelPeak)
 
         self.setupVars()
         self.setupGUI()
@@ -87,11 +95,13 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         if self.loadOk:
             curAx = self.plotWidget.canvas.ax
             curAx.cla()
+            self.labelPks = self.plotPkListCB.isChecked()
             if multiPlot:
                 for i in self.multiPlotIndex:
                     curDataName = self.dataList[i]
                     self.dataDict[curDataName].plot(curAx)
                 #the following makes it so the change is ignored and the plot does not update
+                self.specNameEdit.setText(self.dataDict[curDataName].path)#use dataList to ge the name?
                 self.ignoreSignal = True
                 self.indexHSlider.setValue(i)
                 self.indexSpinBox.setValue(i)
@@ -101,8 +111,8 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                     plotIndex = self.initIndex
                 if plotIndex == self.indexSpinBox.value():#this is just to see if the user is still sliding things around before updating plot
                     curDataName = self.dataList[plotIndex]
-                    self.dataDict[curDataName].plot(curAx)
-                    self.specNameEdit.setText(self.dirList[plotIndex])#use dataList to ge the name?
+                    self.dataDict[curDataName].plot(curAx)#, labelPks = False)
+                    self.specNameEdit.setText(self.dataDict[curDataName].path)#use dataList to ge the name?
                     #the following makes it so the change is ignored and the plot does not update
                     self.ignoreSignal = True
                     self.specListWidget.setCurrentRow(plotIndex)
@@ -130,6 +140,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.multiPlotIndex = []
         self.ignoreSignal = False
         self.firstLoad = True
+        self.labelPks = False
 
     def setupGUI(self):
         self.specNameEdit.clear()
@@ -139,9 +150,11 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
     def updateGUI(self,  loadedItem=None):
         if loadedItem != None:
+            #So that duplicate files are not loaded into the dataDict
             if self.dataDict.has_key(loadedItem.name):
                 pass
             else:
+#                print loadedItem.name
                 self.dataList.append(loadedItem.name)
                 self.specListWidget.addItem(loadedItem.name)
             self.dataDict[loadedItem.name] = loadedItem
@@ -154,6 +167,15 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         else:
             self.indexHSlider.setMaximum(self.numSpec-1)
             self.indexSpinBox.setMaximum(self.numSpec-1)
+
+    def _getDir_(self):
+        directory = QtGui.QFileDialog.getExistingDirectory(self, '', self.curDir)
+        directory = str(directory)
+        if directory != None:
+            self.curDir = directory
+        else:
+            self.curDir = os.getcwd()
+        #return directory
 
     def readData(self, dir):#dir is directory or data to load
     #add try/except for this....?
@@ -169,7 +191,8 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             self.setupGUI()
         if self.loadmzXMLCB.isChecked():
             loadLIFT = self.excludeLIFTCB.isChecked()
-            dirList = LmzXML(excludeLIFT = loadLIFT)
+            self._getDir_()
+            dirList = LmzXML(self.curDir, excludeLIFT = loadLIFT)
             if len(dirList) !=0:
                 self.dirList = dirList
                 self.loadOk = True
@@ -178,13 +201,28 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                     self.readThread.start()
 
         else:
-            dirList = LFid()
+            self._getDir_()
+            dirList = LFid(self.curDir)
             if len(dirList) !=0:
                 self.dirList = dirList
                 self.loadOk = True
                 self.firstLoad = False
                 if self.readThread.updateThread(dirList):
                     self.readThread.start()
+        ####Peak Label#########################
+    def labelPeak(self):
+        mplAx = self.plotWidget.canvas.ax
+        if self.cAOn:
+            x = self.cursorAInfo[1]
+            y = self.cursorAInfo[2]
+            mplAx.text(x, y*1.05, '%.4f'%x,  fontsize=8, rotation = 45)
+
+#        if self.cBOn:
+#            x = self.cursorBInfo[1]
+#            y = self.cursorBInfo[2]
+#            mplAx.text(x, y*1.05, '%.4f'%x,  fontsize=8, rotation = 45)
+
+
 
         #########  Index Picker  ###############################
 
@@ -230,7 +268,8 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         ct_menu.addAction(self.handleActionA)
         ct_menu.addAction(self.handleActionB)
         ct_menu.addAction(self.cursorClearAction)
-#        ct_menu.addSeparator()
+        ct_menu.addSeparator()
+        ct_menu.addAction(self.labelAction)
         ct_menu.exec_(self.plotWidget.mapToGlobal(point))
 
     def cursorClear(self):
@@ -362,7 +401,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.selectHandleB.set_data([xdata[self.indexB]], [ydata[self.indexB]])
         self.selectHandleB.set_visible(True)
 
-        self.cursAText = self.plotWidget.canvas.ax.text(xdata[self.indexB], ydata[self.indexB], '%.4f'%xdata[self.indexB],  fontsize=9, rotation = 45)
+        self.cursBText = self.plotWidget.canvas.ax.text(xdata[self.indexB], ydata[self.indexB], '%.4f'%xdata[self.indexB],  fontsize=9, rotation = 45)
 
         self.cursorBInfo[0]=self.indexB
         self.cursorBInfo[1]=xdata[self.indexB]
@@ -397,14 +436,18 @@ class LoadThread(QtCore.QThread):
                 if self.loadmzXML:
                     while not self.finished and self.numItems > 0:
                         for item in self.loadList:
+#                            print os.path.basename(item)
                             tempmzXML =  mzXMLR(item)
                             tempSpec = tempmzXML.data['spectrum']
                             if len(tempSpec)>0:
-                                data2plot = DataPlot(tempSpec[0],  tempSpec[1],  name = os.path.basename(item))
+#                                print 'Spec OK', os.path.basename(item)
+                                data2plot = DataPlot(tempSpec[0],  tempSpec[1],  name = os.path.basename(item), path = item)
                                 data2plot.setPeakList(tempmzXML.data['peaklist'])
                                 #this following line is key to pass python object via the SIGNAL/SLOT mechanism of PyQt
                                 #note PyQt_PyObject
                                 self.emit(QtCore.SIGNAL("itemLoaded(PyQt_PyObject)"),data2plot)
+                            else:
+                                print 'Empty spectrum: ', item
 
                             self.numItems -=1
                 else:
@@ -412,7 +455,7 @@ class LoadThread(QtCore.QThread):
                         for item in self.loadList:
                             tempFlex = FR(item)
                             tempSpec = tempFlex.data['spectrum']
-                            data2plot = DataPlot(tempSpec[:, 0],  tempSpec[:, 1], name = item.split(os.path.sep)[-4])#the -4 index is to handle the Bruker File Structure
+                            data2plot = DataPlot(tempSpec[:, 0],  tempSpec[:, 1], name = item.split(os.path.sep)[-4], path = item)#the -4 index is to handle the Bruker File Structure
                             data2plot.setPeakList(tempFlex.data['peaklist'])
                             #this following line is key to pass python object via the SIGNAL/SLOT mechanism of PyQt
                             self.emit(QtCore.SIGNAL("itemLoaded(PyQt_PyObject)"),data2plot)#note PyQt_PyObject
@@ -424,7 +467,7 @@ class LoadThread(QtCore.QThread):
 
 
 class DataPlot(object):
-    def __init__(self, xdata,  ydata = None,  name = None):
+    def __init__(self, xdata,  ydata = None,  name = None, path = None):
         self.x = xdata
         if ydata != None:
             self.y = ydata
@@ -436,8 +479,14 @@ class DataPlot(object):
         else:
             self.name = 'None'
 
+        if path:
+            self.path = path
+        else:
+            self.path = 'None'
+
         self.axSet = False
         self.pkListOk = False
+        self.labelPks = False
         self.peakList = None
         self.mplAx = None
 
@@ -452,8 +501,9 @@ class DataPlot(object):
                 self.peakList = peaklist
 
 
-    def plot(self,  mplAxInstance, scatter = False):
+    def plot(self,  mplAxInstance, scatter = False, labelPks = False):
         #if self.axSet:
+        self.labelPks = labelPks
         self.mplAx = mplAxInstance
         if self.y != None:
             if scatter:
@@ -464,9 +514,15 @@ class DataPlot(object):
                     try:
                         if type(self.peakList[0]) == N.ndarray:
                             self.mplAx.vlines(self.peakList[:, 0], 0, self.peakList[:, 1]*1.1,  color = 'r',  label = '_nolegend_')
+                            if self.labelPks:
+                                for peak in self.peakList:
+                                    self.mplAx.text(peak[0], peak[1]*1.1, '%.4f'%peak[0],  fontsize=8, rotation = 45)
                         elif type(self.peakList[0]) == N.float64:
                             #this is the case where there is only one value in the peaklist
-                            self.mplAx.vlines(self.peakList[[0]], 0, self.peakList[[1]]*1.2,  color = 'r',  label = '_nolegend_')
+                            self.mplAx.vlines(self.peakList[[0]], 0, self.peakList[[1]]*1.1,  color = 'r',  label = '_nolegend_')
+                            if self.labelPks:
+                                self.mplAx.text(self.peakList[0], self.peakList[1]*1.1, '%.4f'%self.peakList[0],  fontsize=8, rotation = 45)
+
                         else:
                             print 'Type of First peakList element', type(self.peakList[0])
                             print "Error plotting peak list"
