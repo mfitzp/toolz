@@ -16,18 +16,19 @@ import time
 #except:
 #    print "Pysco not installed, try easy_install psyco at your command prompt"
 
-def Load_FID_Folder(debug = False):
+def Load_FID_Folder(startDir, debug = False):
 #        if self.dbStatus:
-    directory= str(QFileDialog.getExistingDirectory())
+#    directory = str(QFileDialog.getExistingDirectory())
     #print directory
-    if directory:
+    if startDir:
+        directory = startDir
         numFiles = 0
         for root, dirs, files in walk(directory):
             for dir in dirs:
                 if '1SRef' in dir:
                     numFiles+=1
         print numFiles
-        
+
         t1 = time.clock()
         dirList = []
         i=0
@@ -52,20 +53,21 @@ def Load_FID_Folder(debug = False):
                                 print ''
                             print t2-t1,  " sec Total"
                             return dirList
-        
+
         return dirList
     else:
         dirList=[]
         return dirList
-        
 
-def Load_mzXML_Folder(excludeLIFT = False,  debug = False):
+
+def Load_mzXML_Folder(startDir, excludeLIFT = False,  debug = False):
 #        if self.dbStatus:
-    directory= str(QFileDialog.getExistingDirectory())
+#    directory= str(QFileDialog.getExistingDirectory())
     #print directory
 
-    if directory:
- 
+    if startDir:
+        directory = startDir
+
         t1 = time.clock()
         dirList = []
         i=0
@@ -78,7 +80,7 @@ def Load_mzXML_Folder(excludeLIFT = False,  debug = False):
                         if 'LIFT' not in file:
                             datadir = path.abspath(path.join(root, file))
                             dirList.append(datadir)
-    
+
                             if debug:
                                 i+=1
                                 if i == 30:
@@ -88,13 +90,13 @@ def Load_mzXML_Folder(excludeLIFT = False,  debug = False):
                                         print ''
                                     print t2-t1,  " sec Total"
                                     return dirList
-            
+
     #        for item in dirList:
     #            print item
             return dirList
-            
+
         else:
-            
+
             for root, dirs, files in walk(directory):
                 #for dir in dirs:
                 for file in files:
@@ -102,7 +104,7 @@ def Load_mzXML_Folder(excludeLIFT = False,  debug = False):
                         #temptime = time.clock()
                         datadir = path.abspath(path.join(root, file))
                         dirList.append(datadir)
-    
+
                         if debug:
                             i+=1
                             if i == 30:
@@ -112,7 +114,7 @@ def Load_mzXML_Folder(excludeLIFT = False,  debug = False):
                                     print ''
                                 print t2-t1,  " sec Total"
                                 return dirList
-            
+
     #        for item in dirList:
     #            print item
             return dirList
@@ -128,8 +130,8 @@ def run_main():
     except:
         raise
         sys.exit(app.exec_())
-    
-    
+
+
 
 if __name__ == "__main__":
     run_main()

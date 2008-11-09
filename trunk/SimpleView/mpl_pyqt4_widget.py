@@ -25,15 +25,15 @@ class MyMplCanvas(FigureCanvas):
         self.yaxis_style = 'linear'
         self.format_labels()
         self.ax.hold(True)
-        
-        
+
+
         FigureCanvas.__init__(self, self.fig)
         #self.fc = FigureCanvas(self.fig)
         FigureCanvas.setSizePolicy(self,
             QtGui.QSizePolicy.Expanding,
             QtGui.QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(self)
-        
+
     def format_labels(self):
         #self.ax.set_title(self.PlotTitle)
         self.ax.title.set_fontsize(10)
@@ -41,7 +41,7 @@ class MyMplCanvas(FigureCanvas):
         self.ax.set_ylabel(self.ytitle, fontsize = 9)
         labels_x = self.ax.get_xticklabels()
         labels_y = self.ax.get_yticklabels()
-        
+
         for xlabel in labels_x:
             xlabel.set_fontsize(8)
         for ylabel in labels_y:
@@ -51,18 +51,18 @@ class MyMplCanvas(FigureCanvas):
             texts = self.ax.get_legend().get_texts()
             for text in texts:
                 text.set_fontsize(8)
-        
+
     def sizeHint(self):
         w, h = self.get_width_height()
         return QtCore.QSize(w, h)
-    
+
     def minimumSizeHint(self):
         return QtCore.QSize(10, 10)
-    
+
     def sizeHint(self):
         w, h = self.get_width_height()
         return QtCore.QSize(w, h)
-    
+
     def minimumSizeHint(self):
         return QtCore.QSize(10, 10)
 
@@ -71,21 +71,21 @@ class MyNavigationToolbar(NavigationToolbar) :
     def __init__(self , parent , canvas , direction = 'h' ) :
         #NavigationToolbar.__init__(self,parent,canvas)
         #self.layout = QVBoxLayout( self )
-    
+
         self.canvas = canvas
         QWidget.__init__( self, parent )
-    
+
         if direction=='h' :
             self.layout = QHBoxLayout( self )
         else :
             self.layout = QVBoxLayout( self )
-    
+
         self.layout.setMargin( 2 )
         self.layout.setSpacing( 0 )
-    
+
         NavigationToolbar2.__init__( self, canvas )
-        
-        
+
+
     def set_message( self, s ):
         pass
 
@@ -101,28 +101,28 @@ class MPL_Widget(QtGui.QWidget):
         self.vbox.addWidget(self.toolbar)
         self.setLayout(self.vbox)
         ############### Add Actions ################
-                
+
         self.Zoom = QtGui.QAction("Zoom",  self)
         self.Zoom.setShortcut("Ctrl+Z")
         self.addAction(self.Zoom)
         QtCore.QObject.connect(self.Zoom,QtCore.SIGNAL("triggered()"), self.ZoomToggle)
-        
+
         self.actionAutoScale = QtGui.QAction("AutoScale",  self)#self.MainWindow)
         self.actionAutoScale.setShortcut("Ctrl+A")
         self.addAction(self.actionAutoScale)
         QtCore.QObject.connect(self.actionAutoScale,QtCore.SIGNAL("triggered()"), self.autoscale_plot)
         ##############################################
-        
-        self.span = SpanSelector(self.canvas.ax, self.onselect, 'horizontal', minspan =0.01, 
+
+        self.span = SpanSelector(self.canvas.ax, self.onselect, 'horizontal', minspan =0.01,
                                  useblit=True, rectprops=dict(alpha=0.5, facecolor='#C6DEFF') )
-        self.hZoom = False           
+        self.hZoom = False
         self.span.visible = False
-        
+
         self.localYMax = 0
         self.canvas.mpl_connect('button_press_event', self.onclick)
 
-        ########### Misc Code #########################        
-                
+        ########### Misc Code #########################
+
 
     def ZoomToggle(self):
         #self.toolbar.zoom() #this implements the classic zoom
@@ -132,23 +132,24 @@ class MPL_Widget(QtGui.QWidget):
         else:
             self.hZoom = True
             self.span.visible = True
-        
+
     def autoscale_plot(self):
         #self.toolbar.home() #implements the classic return to home
         self.canvas.ax.autoscale_view(tight = False, scalex=True, scaley=True)
         self.canvas.draw()
-        
+
     def onclick(self, event):
-        #sets up the maximum Y level to be displayed after the zoom.  
+        #sets up the maximum Y level to be displayed after the zoom.
         #if not set then it maxes to the largest point in the data
         #not necessarily the local max
-        self.localYMax = int(event.ydata)
-    
+        if event.ydata != None:
+            self.localYMax = int(event.ydata)
+
     def onselect(self, xmin, xmax):
         #print xmin,  xmax
         if self.hZoom:
             self.canvas.ax.set_ylim(ymax = self.localYMax)
-            self.canvas.ax.set_xlim(xmin,  xmax)    
+            self.canvas.ax.set_xlim(xmin,  xmax)
 
 def main():
     import sys
@@ -159,6 +160,6 @@ def main():
     w.canvas.ax.plot(x, y)
     w.show()
     sys.exit(app.exec_())
-    
+
 if __name__ == "__main__":
     main()
