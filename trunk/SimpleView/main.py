@@ -2,15 +2,14 @@
 ###################################
 '''To Do:
 
-Add update function for file path display--how to keep old dirList after second load?
-Print Screen?
-
 Add progress bar to status bar...look at Ashoka's Code
-
 
 Need to add exception for when there is no data in the file (i.e. a blank spectrum)
 
-Incorporate folder parser into
+How to delete a spectrum/file in memory
+
+Load a single file?
+
 
 
 
@@ -33,12 +32,25 @@ from mzXML_reader import mzXMLDoc as mzXMLR
 
 import ui_main
 
+COLORS = ['#297AA3','#A3293D','#3B9DCE','#293DA3','#5229A3','#8F29A3','#A3297A',
+'#7AA329','#3DA329','#29A352','#29A38F','#A38F29','#3B9DCE','#6CB6DA','#CE6C3B','#DA916C',
+'#0080FF','#0000FF','#7ABDFF','#8000FF','#FF0080','#FF0000','#FF8000','#FFFF00','#A35229','#80FF00',
+'#00FF00','#00FF80','#00FFFF','#3D9EFF','#FF9E3D','#FFBD7A']
+
 
 class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
     def __init__(self, parent = None):
         super(Plot_Widget,  self).__init__(parent)
         self.ui = self.setupUi(self)
 
+        self.setupVars()
+        self.readThread = LoadThread()
+        self.initConnections()
+        self.setupGUI()
+        self.setupPlot()
+
+
+    def initConnections(self):
         self.handleActionA = QtGui.QAction("Cursor A", self)
         self.plotWidget.addAction(self.handleActionA)
 
@@ -55,11 +67,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         QtCore.QObject.connect(self.handleActionB, QtCore.SIGNAL("triggered()"),self.SelectPointsB)
         QtCore.QObject.connect(self.cursorClearAction, QtCore.SIGNAL("triggered()"),self.cursorClear)
         QtCore.QObject.connect(self.labelAction, QtCore.SIGNAL("triggered()"),self.labelPeak)
-
-        self.setupVars()
-        self.setupGUI()
-        self.setupPlot()
-        self.readThread = LoadThread()
+        #QtCore.QObject.connect(self.mpl2ClipAction, QtCore.SIGNAL("triggered()"),self.mpl2Clip)
 
         QtCore.QObject.connect(self.indexSpinBox, QtCore.SIGNAL("valueChanged (int)"), self.updatePlot)
         QtCore.QObject.connect(self.readThread, QtCore.SIGNAL("itemLoaded(PyQt_PyObject)"), self.updateGUI)
@@ -68,6 +76,15 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         QtCore.QObject.connect(self.loadDirBtn, QtCore.SIGNAL("clicked()"), self.initDataList)
         QtCore.QObject.connect(self.action_Open,QtCore.SIGNAL("triggered()"),self.initDataList)
         QtCore.QObject.connect(self.specListWidget, QtCore.SIGNAL("itemClicked (QListWidgetItem *)"), self.specListSelect)
+
+        #UI Action Slots
+        QtCore.QObject.connect(self.actionLabel_Peak,QtCore.SIGNAL("triggered()"),self.labelPeak)
+        QtCore.QObject.connect(self.actionCopy_to_Clipboard,QtCore.SIGNAL("triggered()"),self.mpl2Clip)
+        QtCore.QObject.connect(self.actionCursor_A,QtCore.SIGNAL("triggered()"),self.SelectPointsA)
+        QtCore.QObject.connect(self.actionCursor_B,QtCore.SIGNAL("triggered()"),self.SelectPointsB)
+        QtCore.QObject.connect(self.actionClear_Cursors,QtCore.SIGNAL("triggered()"),self.cursorClear)
+
+
 
     def specListSelect(self, widgetItem):
         selectItems = self.specListWidget.selectedItems()
@@ -96,22 +113,35 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             curAx = self.plotWidget.canvas.ax
             curAx.cla()
             self.labelPks = self.plotPkListCB.isChecked()
+
+            self.plotColorIndex = 0
             if multiPlot:
-                for i in self.multiPlotIndex:
-                    curDataName = self.dataList[i]
-                    self.dataDict[curDataName].plot(curAx)
-                #the following makes it so the change is ignored and the plot does not update
-                self.specNameEdit.setText(self.dataDict[curDataName].path)#use dataList to ge the name?
-                self.ignoreSignal = True
-                self.indexHSlider.setValue(i)
-                self.indexSpinBox.setValue(i)
-                self.ignoreSignal = False
+
+                if self.invertCompCB.isChecked() and len(self.multiPlotIndex) == 2:
+                    self._updatePlotColor_()
+                    curDataName = self.dataList[self.multiPlotIndex[0]]
+                    self.dataDict[curDataName].plot(curAx, pColor = self.plotColor)
+                    self._updatePlotColor_()
+                    curDataName = self.dataList[self.multiPlotIndex[1]]
+                    self.dataDict[curDataName].plot(curAx, pColor = self.plotColor, invert = True)
+                else:
+                    for i in self.multiPlotIndex:
+                        self._updatePlotColor_()
+                        curDataName = self.dataList[i]
+                        self.dataDict[curDataName].plot(curAx, pColor = self.plotColor)
+                    #the following makes it so the change is ignored and the plot does not update
+                    self.specNameEdit.setText(self.dataDict[curDataName].path)#use dataList to get the name?
+                    self.ignoreSignal = True
+                    self.indexHSlider.setValue(i)
+                    self.indexSpinBox.setValue(i)
+                    self.ignoreSignal = False
             else:
                 if plotIndex == None:
                     plotIndex = self.initIndex
                 if plotIndex == self.indexSpinBox.value():#this is just to see if the user is still sliding things around before updating plot
+                    self._updatePlotColor_()
                     curDataName = self.dataList[plotIndex]
-                    self.dataDict[curDataName].plot(curAx)#, labelPks = False)
+                    self.dataDict[curDataName].plot(curAx, pColor = self.plotColor)#, labelPks = False)
                     self.specNameEdit.setText(self.dataDict[curDataName].path)#use dataList to ge the name?
                     #the following makes it so the change is ignored and the plot does not update
                     self.ignoreSignal = True
@@ -141,6 +171,10 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.ignoreSignal = False
         self.firstLoad = True
         self.labelPks = False
+        self.txtColor = None
+        self.colorIndex = 0
+        self.plotColor = None
+        self.plotColorIndex = 0
 
     def setupGUI(self):
         self.specNameEdit.clear()
@@ -151,13 +185,21 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
     def updateGUI(self,  loadedItem=None):
         if loadedItem != None:
             #So that duplicate files are not loaded into the dataDict
-            if self.dataDict.has_key(loadedItem.name):
+            #if self.dataDict.has_key(loadedItem.name):
+            if self.dataDict.has_key(loadedItem.path):
                 pass
             else:
-#                print loadedItem.name
-                self.dataList.append(loadedItem.name)
-                self.specListWidget.addItem(loadedItem.name)
-            self.dataDict[loadedItem.name] = loadedItem
+                #self.dataList.append(loadedItem.name)
+                self.dataList.append(loadedItem.path)
+                #color handler
+                tempItem = QtGui.QListWidgetItem(loadedItem.name)
+                tempColor = QtGui.QColor(self.txtColor)
+                tempItem.setTextColor(tempColor)
+                tempItem.setToolTip(loadedItem.path)
+                #self.specListWidget.addItem(loadedItem.name)
+                self.specListWidget.addItem(tempItem)
+            #self.dataDict[loadedItem.name] = loadedItem
+            self.dataDict[loadedItem.path] = loadedItem
 
         self.numSpec = len(self.dataDict)
         if self.numSpec == 1:
@@ -177,13 +219,15 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             self.curDir = os.getcwd()
         #return directory
 
-    def readData(self, dir):#dir is directory or data to load
-    #add try/except for this....?
-        tempFlex = FR(dir)
-        tempSpec = tempFlex.data['spectrum']
-        data2plot = DataPlot(tempSpec[:, 0],  tempSpec[:, 1])
-        self.dataList.append(data2plot)
-        return True
+    def _updatePlotColor_(self):
+        if self.plotColorIndex%len(COLORS) == 0:
+            self.plotColorIndex = 0
+            self.plotColor = COLORS[self.plotColorIndex]
+            self.plotColorIndex +=1
+        else:
+            self.plotColor = COLORS[self.plotColorIndex]
+            self.plotColorIndex +=1
+
 
     def initDataList(self):
         if not self.firstLoad:
@@ -209,7 +253,17 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                 self.firstLoad = False
                 if self.readThread.updateThread(dirList):
                     self.readThread.start()
-        ####Peak Label#########################
+        #####Text Color Handler
+        if self.colorIndex%len(COLORS) == 0:
+            self.colorIndex = 0
+            self.txtColor = COLORS[self.colorIndex]
+            self.colorIndex +=1
+        else:
+            self.txtColor = COLORS[self.colorIndex]
+            self.colorIndex +=1
+
+
+    ###########Peak Label#########################
     def labelPeak(self):
         mplAx = self.plotWidget.canvas.ax
         if self.cAOn:
@@ -222,7 +276,9 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 #            y = self.cursorBInfo[2]
 #            mplAx.text(x, y*1.05, '%.4f'%x,  fontsize=8, rotation = 45)
 
-
+    ##########Saving canvas to Clipboard
+    def mpl2Clip(self):
+        print "GO Clipboard"
 
         #########  Index Picker  ###############################
 
@@ -268,8 +324,10 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         ct_menu.addAction(self.handleActionA)
         ct_menu.addAction(self.handleActionB)
         ct_menu.addAction(self.cursorClearAction)
-        ct_menu.addSeparator()
+#        ct_menu.addSeparator()
         ct_menu.addAction(self.labelAction)
+#        ct_menu.addSeparator()
+        ct_menu.addAction(self.plotWidget.mpl2ClipAction)
         ct_menu.exec_(self.plotWidget.mapToGlobal(point))
 
     def cursorClear(self):
@@ -489,6 +547,7 @@ class DataPlot(object):
         self.labelPks = False
         self.peakList = None
         self.mplAx = None
+        self.plotModVal = 1
 
     def setAxis(self,  mplAxInstance):
         self.axSet = True
@@ -501,27 +560,32 @@ class DataPlot(object):
                 self.peakList = peaklist
 
 
-    def plot(self,  mplAxInstance, scatter = False, labelPks = False):
+    def plot(self,  mplAxInstance, pColor = 'r', scatter = False, labelPks = False, invert = False):
         #if self.axSet:
         self.labelPks = labelPks
         self.mplAx = mplAxInstance
         if self.y != None:
+            if invert:
+                self.plotModVal = -1
+            else:
+                self.plotModVal = 1
+
             if scatter:
                 self.mplAx.scatter(self.x,  self.y,  label = self.name)
             else:
-                self.mplAx.plot(self.x,  self.y,  label = self.name,  picker = 5)#,  color = 'b')
+                self.mplAx.plot(self.x,  self.y*self.plotModVal,  label = self.name,  picker = 5,  color = pColor)
                 if self.pkListOk:
                     try:
                         if type(self.peakList[0]) == N.ndarray:
-                            self.mplAx.vlines(self.peakList[:, 0], 0, self.peakList[:, 1]*1.1,  color = 'r',  label = '_nolegend_')
+                            self.mplAx.vlines(self.peakList[:, 0], 0, self.peakList[:, 1]*1.1*self.plotModVal,  color = 'r',  label = '_nolegend_')
                             if self.labelPks:
                                 for peak in self.peakList:
-                                    self.mplAx.text(peak[0], peak[1]*1.1, '%.4f'%peak[0],  fontsize=8, rotation = 45)
+                                    self.mplAx.text(peak[0], peak[1]*1.1*self.plotModVal, '%.4f'%peak[0],  fontsize=8, rotation = 45)
                         elif type(self.peakList[0]) == N.float64:
                             #this is the case where there is only one value in the peaklist
-                            self.mplAx.vlines(self.peakList[[0]], 0, self.peakList[[1]]*1.1,  color = 'r',  label = '_nolegend_')
+                            self.mplAx.vlines(self.peakList[[0]], 0, self.peakList[[1]]*1.1*self.plotModVal,  color = 'r',  label = '_nolegend_')
                             if self.labelPks:
-                                self.mplAx.text(self.peakList[0], self.peakList[1]*1.1, '%.4f'%self.peakList[0],  fontsize=8, rotation = 45)
+                                self.mplAx.text(self.peakList[0], self.peakList[1]*1.1*self.plotModVal, '%.4f'%self.peakList[0],  fontsize=8, rotation = 45)
 
                         else:
                             print 'Type of First peakList element', type(self.peakList[0])

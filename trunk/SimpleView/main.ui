@@ -99,7 +99,7 @@
           <property name="verticalSpacing" >
            <number>2</number>
           </property>
-          <item row="0" column="2" >
+          <item row="0" column="3" >
            <widget class="QLineEdit" name="cALabelLE" >
             <property name="maximumSize" >
              <size>
@@ -117,7 +117,7 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="4" >
+          <item row="0" column="5" >
            <widget class="QLineEdit" name="cAIndexLE" >
             <property name="maximumSize" >
              <size>
@@ -138,7 +138,7 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="6" >
+          <item row="0" column="7" >
            <widget class="QLineEdit" name="cA_XLE" >
             <property name="maximumSize" >
              <size>
@@ -156,7 +156,7 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="8" >
+          <item row="0" column="9" >
            <widget class="QLineEdit" name="cA_YLE" >
             <property name="maximumSize" >
              <size>
@@ -174,7 +174,7 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="2" >
+          <item row="1" column="3" >
            <widget class="QLineEdit" name="cBLabelLE" >
             <property name="maximumSize" >
              <size>
@@ -192,7 +192,7 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="4" >
+          <item row="1" column="5" >
            <widget class="QLineEdit" name="cBIndexLE" >
             <property name="maximumSize" >
              <size>
@@ -210,7 +210,7 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="6" >
+          <item row="1" column="7" >
            <widget class="QLineEdit" name="cB_XLE" >
             <property name="maximumSize" >
              <size>
@@ -228,7 +228,7 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="8" >
+          <item row="1" column="9" >
            <widget class="QLineEdit" name="cB_YLE" >
             <property name="maximumSize" >
              <size>
@@ -246,7 +246,7 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="1" >
+          <item row="0" column="2" >
            <widget class="QLabel" name="label_3" >
             <property name="font" >
              <font>
@@ -261,7 +261,7 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="1" >
+          <item row="1" column="2" >
            <widget class="QLabel" name="label_4" >
             <property name="font" >
              <font>
@@ -276,7 +276,7 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="3" >
+          <item row="0" column="4" >
            <widget class="QLabel" name="label_5" >
             <property name="font" >
              <font>
@@ -291,7 +291,7 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="5" >
+          <item row="0" column="6" >
            <widget class="QLabel" name="label_6" >
             <property name="font" >
              <font>
@@ -306,7 +306,7 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="7" >
+          <item row="0" column="8" >
            <widget class="QLabel" name="label_7" >
             <property name="font" >
              <font>
@@ -321,7 +321,7 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="3" >
+          <item row="1" column="4" >
            <widget class="QLabel" name="label_8" >
             <property name="font" >
              <font>
@@ -336,7 +336,7 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="5" >
+          <item row="1" column="6" >
            <widget class="QLabel" name="label_9" >
             <property name="font" >
              <font>
@@ -351,7 +351,7 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="7" >
+          <item row="1" column="8" >
            <widget class="QLabel" name="label_10" >
             <property name="font" >
              <font>
@@ -366,7 +366,7 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="9" >
+          <item row="0" column="10" >
            <widget class="QLabel" name="label_11" >
             <property name="font" >
              <font>
@@ -381,7 +381,7 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="9" >
+          <item row="1" column="10" >
            <widget class="QLabel" name="label_12" >
             <property name="font" >
              <font>
@@ -396,7 +396,7 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="10" >
+          <item row="0" column="11" >
            <widget class="QLineEdit" name="dxLE" >
             <property name="maximumSize" >
              <size>
@@ -414,7 +414,7 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="10" >
+          <item row="1" column="11" >
            <widget class="QLineEdit" name="dyLE" >
             <property name="maximumSize" >
              <size>
@@ -433,30 +433,40 @@
            </widget>
           </item>
           <item row="0" column="0" >
-           <widget class="QLabel" name="label_13" >
+           <widget class="QCheckBox" name="cursACB" >
             <property name="font" >
              <font>
+              <family>Arial</family>
+              <pointsize>9</pointsize>
               <weight>75</weight>
               <italic>true</italic>
               <bold>true</bold>
              </font>
             </property>
+            <property name="layoutDirection" >
+             <enum>Qt::RightToLeft</enum>
+            </property>
             <property name="text" >
-             <string>Cursor A  </string>
+             <string>Cursor A</string>
             </property>
            </widget>
           </item>
           <item row="1" column="0" >
-           <widget class="QLabel" name="label_14" >
+           <widget class="QCheckBox" name="cursBCB" >
             <property name="font" >
              <font>
+              <family>Arial</family>
+              <pointsize>9</pointsize>
               <weight>75</weight>
               <italic>true</italic>
               <bold>true</bold>
              </font>
             </property>
+            <property name="layoutDirection" >
+             <enum>Qt::RightToLeft</enum>
+            </property>
             <property name="text" >
-             <string>Cursor B  </string>
+             <string>Cursor B</string>
             </property>
            </widget>
           </item>
@@ -471,9 +481,9 @@
        <widget class="QWidget" name="layoutWidget" >
         <property name="geometry" >
          <rect>
-          <x>11</x>
-          <y>13</y>
-          <width>261</width>
+          <x>40</x>
+          <y>30</y>
+          <width>351</width>
           <height>141</height>
          </rect>
         </property>
@@ -505,6 +515,13 @@
            </property>
           </widget>
          </item>
+         <item row="2" column="0" >
+          <widget class="QCheckBox" name="excludeLIFTCB" >
+           <property name="text" >
+            <string>Exclude LIFT MS/MS Files</string>
+           </property>
+          </widget>
+         </item>
          <item row="1" column="1" >
           <widget class="QPushButton" name="loadDirBtn" >
            <property name="text" >
@@ -512,10 +529,10 @@
            </property>
           </widget>
          </item>
-         <item row="2" column="0" >
-          <widget class="QCheckBox" name="excludeLIFTCB" >
+         <item row="2" column="1" >
+          <widget class="QCheckBox" name="invertCompCB" >
            <property name="text" >
-            <string>Exclude LIFT MS/MS Files</string>
+            <string>Invert Single Comparison</string>
            </property>
           </widget>
          </item>
@@ -541,7 +558,20 @@
     </property>
     <addaction name="action_Open" />
    </widget>
+   <widget class="QMenu" name="menuTools" >
+    <property name="title" >
+     <string>Tools</string>
+    </property>
+    <addaction name="actionCursor_A" />
+    <addaction name="actionCursor_B" />
+    <addaction name="actionClear_Cursors" />
+    <addaction name="separator" />
+    <addaction name="actionLabel_Peak" />
+    <addaction name="separator" />
+    <addaction name="actionCopy_to_Clipboard" />
+   </widget>
    <addaction name="menu_File" />
+   <addaction name="menuTools" />
   </widget>
   <widget class="QStatusBar" name="statusbar" />
   <action name="action_Open" >
@@ -550,6 +580,37 @@
    </property>
    <property name="shortcut" >
     <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="actionCursor_A" >
+   <property name="text" >
+    <string>Cursor A</string>
+   </property>
+  </action>
+  <action name="actionCursor_B" >
+   <property name="text" >
+    <string>Cursor B</string>
+   </property>
+  </action>
+  <action name="actionLabel_Peak" >
+   <property name="text" >
+    <string>Label Peak</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+D</string>
+   </property>
+  </action>
+  <action name="actionCopy_to_Clipboard" >
+   <property name="text" >
+    <string>Copy to Clipboard</string>
+   </property>
+  </action>
+  <action name="actionClear_Cursors" >
+   <property name="text" >
+    <string>Clear Cursors</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+Alt+C</string>
    </property>
   </action>
  </widget>
