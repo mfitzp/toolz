@@ -1,13 +1,18 @@
 #!/usr/bin/env python
+
+import os
+import sys
+
 from PyQt4 import QtCore,  QtGui
-#from PyQt4.QtGui import *
 
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt4 import NavigationToolbar2QT as NavigationToolbar
 #from matplotlib.backend_bases import NavigationToolbar2
 
 from matplotlib.figure import Figure
+
 from matplotlib.widgets import SpanSelector
+#from matplotlib.pyplot import savefig
 
 import numpy as N
 
@@ -100,7 +105,8 @@ class MPL_Widget(QtGui.QWidget):
         self.vbox.addWidget(self.canvas)
         self.vbox.addWidget(self.toolbar)
         self.setLayout(self.vbox)
-        ############### Add Actions ################
+
+        ###############ZOOM CONTROLS ################
 
         self.Zoom = QtGui.QAction("Zoom",  self)
         self.Zoom.setShortcut("Ctrl+Z")
@@ -111,7 +117,6 @@ class MPL_Widget(QtGui.QWidget):
         self.actionAutoScale.setShortcut("Ctrl+A")
         self.addAction(self.actionAutoScale)
         QtCore.QObject.connect(self.actionAutoScale,QtCore.SIGNAL("triggered()"), self.autoscale_plot)
-        ##############################################
 
         self.span = SpanSelector(self.canvas.ax, self.onselect, 'horizontal', minspan =0.01,
                                  useblit=True, rectprops=dict(alpha=0.5, facecolor='#C6DEFF') )
@@ -121,7 +126,32 @@ class MPL_Widget(QtGui.QWidget):
         self.localYMax = 0
         self.canvas.mpl_connect('button_press_event', self.onclick)
 
-        ########### Misc Code #########################
+        ###########SAVING FIGURE TO CLIPBOARD##########
+        self.cb = None #will be used for the clipboard
+        self.tempPath = getHomeDir()
+        self.tempPath = os.path.join(self.tempPath,'tempMPL.png')
+
+        self.mpl2ClipAction = QtGui.QAction("Save to Clipboard",  self)
+        self.mpl2ClipAction.setShortcut("Ctrl+C")
+        self.addAction(self.mpl2ClipAction)
+        QtCore.QObject.connect(self.mpl2ClipAction,QtCore.SIGNAL("triggered()"), self.mpl2Clip)
+
+        ########### HELPER FUNCTIONS #########################
+
+    def mpl2Clip(self):
+        try:
+            self.canvas.fig.savefig(self.tempPath)
+            tempImg = QtGui.QImage(self.tempPath)
+            self.cb = QtGui.QApplication.clipboard()
+            self.cb.setImage(tempImg)
+        except:
+            print 'Error copying figure to clipboard'
+            errorMsg = "Sorry: %s\n\n:%s\n"%(sys.exc_type, sys.exc_value)
+            print errorMsg
+#        savefig(fname, dpi=None, facecolor='w', edgecolor='w',
+#        orientation='portrait', papertype=None, format=None,
+#        transparent=False):
+
 
 
     def ZoomToggle(self):
@@ -150,6 +180,41 @@ class MPL_Widget(QtGui.QWidget):
         if self.hZoom:
             self.canvas.ax.set_ylim(ymax = self.localYMax)
             self.canvas.ax.set_xlim(xmin,  xmax)
+
+
+####USED TO GET THE USERS HOME DIRECTORY FOR USE OF A TEMP FILE
+
+def valid(path):
+    if path and os.path.isdir(path):
+        return True
+    return False
+
+def env(name):
+    return os.environ.get( name, '' )
+
+def getHomeDir():
+    if sys.platform != 'win32':
+        return os.path.expanduser( '~' )
+
+    homeDir = env( 'USERPROFILE' )
+    if not valid(homeDir):
+        homeDir = env( 'HOME' )
+        if not valid(homeDir) :
+            homeDir = '%s%s' % (env('HOMEDRIVE'),env('HOMEPATH'))
+            if not valid(homeDir) :
+                homeDir = env( 'SYSTEMDRIVE' )
+                if homeDir and (not homeDir.endswith('\\')) :
+                    homeDir += '\\'
+                if not valid(homeDir) :
+                    homeDir = 'C:\\'
+    return homeDir
+
+
+
+
+
+
+
 
 def main():
     import sys
