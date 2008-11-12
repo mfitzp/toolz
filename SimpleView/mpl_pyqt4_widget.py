@@ -136,23 +136,14 @@ class MPL_Widget(QtGui.QWidget):
         self.addAction(self.mpl2ClipAction)
         QtCore.QObject.connect(self.mpl2ClipAction,QtCore.SIGNAL("triggered()"), self.mpl2Clip)
 
+
+        #######SAVING FIGURE DATA############################
+#        self.saveCSVAction = QtGui.QAction("Save to CSV",  self)
+#        self.saveCSVAction.setShortcut("Ctrl+Alt+S")
+#        self.addAction(self.saveCSVAction)
+#        QtCore.QObject.connect(self.saveCSVAction,QtCore.SIGNAL("triggered()"), self.save2CSV)
+
         ########### HELPER FUNCTIONS #########################
-
-    def mpl2Clip(self):
-        try:
-            self.canvas.fig.savefig(self.tempPath)
-            tempImg = QtGui.QImage(self.tempPath)
-            self.cb = QtGui.QApplication.clipboard()
-            self.cb.setImage(tempImg)
-        except:
-            print 'Error copying figure to clipboard'
-            errorMsg = "Sorry: %s\n\n:%s\n"%(sys.exc_type, sys.exc_value)
-            print errorMsg
-#        savefig(fname, dpi=None, facecolor='w', edgecolor='w',
-#        orientation='portrait', papertype=None, format=None,
-#        transparent=False):
-
-
 
     def ZoomToggle(self):
         #self.toolbar.zoom() #this implements the classic zoom
@@ -181,6 +172,55 @@ class MPL_Widget(QtGui.QWidget):
             self.canvas.ax.set_ylim(ymax = self.localYMax)
             self.canvas.ax.set_xlim(xmin,  xmax)
 
+
+    def save2CSV(self):
+        path = self.OFDialog()
+        if path != None:
+            try:
+                lines = self.canvas.ax.get_lines()
+                data2write = []
+                for line in lines:
+                    data2write.append(line.get_data()[0])
+                    data2write.append(line.get_data()[1])
+                print data2write
+                data2write = N.array(data2write)
+                data2write.dtype = N.float32
+                N.savetxt(str(path), N.transpose(data2write), delimiter = ',', fmt='%.4f')
+            except:
+                try:
+                    #this is for the case where the data may not be in float format?
+                    N.savetxt(str(path), N.transpose(data2write), delimiter = ',')
+                except:
+                    print 'Error saving figure data'
+                    errorMsg = "Sorry: %s\n\n:%s\n"%(sys.exc_type, sys.exc_value)
+                    print errorMsg
+
+
+    def OFDialog(self):
+        fileName = QtGui.QFileDialog.getSaveFileName(self,
+                                         "Select File to Save",
+                                         "",
+                                         "csv Files (*.csv)")
+        if not fileName.isEmpty():
+            print fileName
+            return fileName
+        else:
+            return None
+
+
+    def mpl2Clip(self):
+        try:
+            self.canvas.fig.savefig(self.tempPath)
+            tempImg = QtGui.QImage(self.tempPath)
+            self.cb = QtGui.QApplication.clipboard()
+            self.cb.setImage(tempImg)
+        except:
+            print 'Error copying figure to clipboard'
+            errorMsg = "Sorry: %s\n\n:%s\n"%(sys.exc_type, sys.exc_value)
+            print errorMsg
+#        savefig(fname, dpi=None, facecolor='w', edgecolor='w',
+#        orientation='portrait', papertype=None, format=None,
+#        transparent=False):
 
 ####USED TO GET THE USERS HOME DIRECTORY FOR USE OF A TEMP FILE
 
@@ -222,7 +262,9 @@ def main():
     w = MPL_Widget()
     x = N.arange(0, 20)
     y = N.sin(x)
+    y2 = N.cos(x)
     w.canvas.ax.plot(x, y)
+    w.canvas.ax.plot(x, y2)
     w.show()
     sys.exit(app.exec_())
 

@@ -6,8 +6,6 @@ Add progress bar to status bar...look at Ashoka's Code
 
 Need to add exception for when there is no data in the file (i.e. a blank spectrum)
 
-How to delete a spectrum/file in memory
-
 Load a single file?
 
 
@@ -29,6 +27,8 @@ from FolderParse import Load_FID_Folder as LFid
 from FolderParse import Load_mzXML_Folder as LmzXML
 from flexReader import brukerFlexDoc as FR
 from mzXML_reader import mzXMLDoc as mzXMLR
+
+import supportFunc as SF
 
 import ui_main
 
@@ -63,6 +63,16 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.labelAction = QtGui.QAction("Label Peak",  self)
         self.plotWidget.addAction(self.labelAction)
 
+
+        self.removeAction = QtGui.QAction("Remove File(s)",  self)
+        self.specListWidget.addAction(self.removeAction)
+
+        self.topHatAction = QtGui.QAction("Apply TopHat",  self)
+        self.specListWidget.addAction(self.topHatAction)
+
+        QtCore.QObject.connect(self.removeAction, QtCore.SIGNAL("triggered()"),self.removeFile)
+        QtCore.QObject.connect(self.topHatAction, QtCore.SIGNAL("triggered()"), self.filterSpec)
+
         QtCore.QObject.connect(self.handleActionA, QtCore.SIGNAL("triggered()"),self.SelectPointsA)
         QtCore.QObject.connect(self.handleActionB, QtCore.SIGNAL("triggered()"),self.SelectPointsB)
         QtCore.QObject.connect(self.cursorClearAction, QtCore.SIGNAL("triggered()"),self.cursorClear)
@@ -77,16 +87,56 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         QtCore.QObject.connect(self.action_Open,QtCore.SIGNAL("triggered()"),self.initDataList)
         QtCore.QObject.connect(self.specListWidget, QtCore.SIGNAL("itemClicked (QListWidgetItem *)"), self.specListSelect)
 
+
         #UI Action Slots
         QtCore.QObject.connect(self.actionLabel_Peak,QtCore.SIGNAL("triggered()"),self.labelPeak)
         QtCore.QObject.connect(self.actionCopy_to_Clipboard,QtCore.SIGNAL("triggered()"),self.mpl2Clip)
         QtCore.QObject.connect(self.actionCursor_A,QtCore.SIGNAL("triggered()"),self.SelectPointsA)
         QtCore.QObject.connect(self.actionCursor_B,QtCore.SIGNAL("triggered()"),self.SelectPointsB)
         QtCore.QObject.connect(self.actionClear_Cursors,QtCore.SIGNAL("triggered()"),self.cursorClear)
+        QtCore.QObject.connect(self.cursACB,QtCore.SIGNAL("stateChanged (int)"),self.toggleCA)
+        QtCore.QObject.connect(self.cursBCB,QtCore.SIGNAL("stateChanged (int)"),self.toggleCB)
 
 
+    def toggleCA(self, stateInt):
+        if stateInt == 2:
+            self.SelectPointsA()
+        else:
+            self.cursAClear()
 
-    def specListSelect(self, widgetItem):
+    def toggleCB(self, stateInt):
+        if stateInt == 2:
+            self.SelectPointsB()
+        else:
+            self.cursBClear()
+
+    def filterSpec(self):
+        selectItems = self.specListWidget.selectedItems()
+        #curRow
+        if len(selectItems) > 0:
+            for item in selectItems:
+                dataName = str(item.toolTip())
+                self.dataDict[dataName].applyTopHat()
+                #delRow = self.specListWidget.indexFromItem(item).row()
+            self.specListSelect()
+
+    def removeFile(self):
+        selectItems = self.specListWidget.selectedItems()
+        #curRow
+        if len(selectItems) > 0:
+            for item in selectItems:
+
+                delRow = self.specListWidget.indexFromItem(item).row()
+                delName = str(item.toolTip())#used because the toolTip is set to the full path which is stored in the dataDict
+#                print delRow, delName
+                self.specListWidget.takeItem(delRow)
+                self.dataList.pop(delRow)
+                self.dataDict.pop(delName)
+#
+#                print item.text()
+            self.updateGUI()
+
+    def specListSelect(self, widgetItem=None):
         selectItems = self.specListWidget.selectedItems()
         #curRow
         if len(selectItems) > 0:
@@ -230,29 +280,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
 
     def initDataList(self):
-        if not self.firstLoad:
-            #reinitialize GUI and spectrumList
-            self.setupGUI()
-        if self.loadmzXMLCB.isChecked():
-            loadLIFT = self.excludeLIFTCB.isChecked()
-            self._getDir_()
-            dirList = LmzXML(self.curDir, excludeLIFT = loadLIFT)
-            if len(dirList) !=0:
-                self.dirList = dirList
-                self.loadOk = True
-                self.firstLoad = False
-                if self.readThread.updateThread(dirList,  loadmzXML = True):
-                    self.readThread.start()
-
-        else:
-            self._getDir_()
-            dirList = LFid(self.curDir)
-            if len(dirList) !=0:
-                self.dirList = dirList
-                self.loadOk = True
-                self.firstLoad = False
-                if self.readThread.updateThread(dirList):
-                    self.readThread.start()
         #####Text Color Handler
         if self.colorIndex%len(COLORS) == 0:
             self.colorIndex = 0
@@ -261,6 +288,35 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         else:
             self.txtColor = COLORS[self.colorIndex]
             self.colorIndex +=1
+
+        if not self.firstLoad:
+            #reinitialize GUI and spectrumList
+            self.setupGUI()
+        if self.loadmzXMLCB.isChecked():
+            loadLIFT = self.excludeLIFTCB.isChecked()
+            self._getDir_()
+            dirList, startDir = LmzXML(self.curDir, excludeLIFT = loadLIFT)
+            if len(dirList) !=0:
+                self.dirList = dirList
+                self.loadOk = True
+                self.firstLoad = False
+                if self.readThread.updateThread(dirList,  loadmzXML = True):
+                    self.readThread.start()
+            elif startDir != None:
+                return QtGui.QMessageBox.warning(self, "No Data Found",  "Check selected folder, does it have any data?")
+
+        else:
+            self._getDir_()
+            dirList, startDir = LFid(self.curDir)
+            if len(dirList) !=0:
+                self.dirList = dirList
+                self.loadOk = True
+                self.firstLoad = False
+                if self.readThread.updateThread(dirList):
+                    self.readThread.start()
+            elif startDir != None:
+                return QtGui.QMessageBox.warning(self, "No Data Found",  "Check selected folder, does it have any data?")
+
 
 
     ###########Peak Label#########################
@@ -310,6 +366,15 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
     def initContextMenus(self):
         self.plotWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.plotWidget.connect(self.plotWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self.__mplContext__)
+        self.specListWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.specListWidget.connect(self.specListWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self.__listContext__)
+
+    def __listContext__(self, point):
+        '''Create a menu for the file list widget'''
+        ct_menu = QtGui.QMenu("List Menu", self.specListWidget)
+        ct_menu.addAction(self.removeAction)
+        ct_menu.addAction(self.topHatAction)
+        ct_menu.exec_(self.specListWidget.mapToGlobal(point))
 
     def __mplContext__(self, point):
         '''Create a menu for the mpl widget'''
@@ -330,7 +395,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         ct_menu.addAction(self.plotWidget.mpl2ClipAction)
         ct_menu.exec_(self.plotWidget.mapToGlobal(point))
 
-    def cursorClear(self):
+    def cursAClear(self):
         if self.cAOn:# and self.cAPicker:
             self.selectHandleA.set_visible(False)
             self.plotWidget.canvas.mpl_disconnect(self.cAPicker)
@@ -341,6 +406,19 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             self.cA_XLE.setText('')
             self.cA_YLE.setText('')
 
+            self.dxLE.setText('')
+            self.dyLE.setText('')
+
+            try:#this is so that the cursor label gets removed
+                self.cursAText.remove()
+            except:
+                pass
+
+            self.plotWidget.canvas.draw()
+
+
+
+    def cursBClear(self):
         if self.cBOn:# and self.cBPicker:
             self.selectHandleB.set_visible(False)
             self.plotWidget.canvas.mpl_disconnect(self.cBPicker)
@@ -351,17 +429,22 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             self.cB_XLE.setText('')
             self.cB_YLE.setText('')
 
-        self.dxLE.setText('')
-        self.dyLE.setText('')
+            self.dxLE.setText('')
+            self.dyLE.setText('')
 
-        try:#this is so that the cursor label gets removed
-            self.cursAText.remove()
-            self.cursBText.remove()
-        except:
-            pass
+            try:#this is so that the cursor label gets removed
+                self.cursBText.remove()
+            except:
+                pass
 
-        self.plotWidget.canvas.draw()
+            self.plotWidget.canvas.draw()
 
+
+    def cursorClear(self):
+        self.cursACB.nextCheckState()
+        self.cursBCB.nextCheckState()#setCheckState(0)
+        self.cursAClear()
+        self.cursBClear()
 
     def cursorStats(self):
         if self.cAOn:
@@ -559,6 +642,8 @@ class DataPlot(object):
                 self.pkListOk = True
                 self.peakList = peaklist
 
+    def applyTopHat(self):
+        self.y = SF.topHat(self.y, 0.01)
 
     def plot(self,  mplAxInstance, pColor = 'r', scatter = False, labelPks = False, invert = False):
         #if self.axSet:

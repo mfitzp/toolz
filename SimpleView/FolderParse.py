@@ -54,10 +54,10 @@ def Load_FID_Folder(startDir, debug = False):
                             print t2-t1,  " sec Total"
                             return dirList
 
-        return dirList
+        return dirList, startDir
     else:
         dirList=[]
-        return dirList
+        return dirList, None
 
 
 def Load_mzXML_Folder(startDir, excludeLIFT = False,  debug = False):
@@ -93,7 +93,7 @@ def Load_mzXML_Folder(startDir, excludeLIFT = False,  debug = False):
 
     #        for item in dirList:
     #            print item
-            return dirList
+            return dirList, startDir
 
         else:
 
@@ -117,10 +117,10 @@ def Load_mzXML_Folder(startDir, excludeLIFT = False,  debug = False):
 
     #        for item in dirList:
     #            print item
-            return dirList
+            return dirList, startDir
     else:
         dirList=[]
-        return dirList
+        return dirList, None
 
 def run_main():
     app = QApplication(sys.argv)
