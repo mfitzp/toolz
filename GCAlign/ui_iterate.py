@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Documents and Settings\d3p483\workspace\GCAlign\iterate.ui'
 #
-# Created: Tue Nov 04 13:58:34 2008
+# Created: Mon Nov 10 10:54:38 2008
 #      by: PyQt4 UI code generator 4.3.3
 #
 # WARNING! All changes made in this file will be lost!
