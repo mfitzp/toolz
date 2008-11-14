@@ -22,6 +22,7 @@ import numpy as N
 import scipy as S
 
 from matplotlib.lines import Line2D
+from matplotlib.mlab import rec2csv
 
 from FolderParse import Load_FID_Folder as LFid
 from FolderParse import Load_mzXML_Folder as LmzXML
@@ -70,6 +71,12 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.topHatAction = QtGui.QAction("Apply TopHat",  self)
         self.specListWidget.addAction(self.topHatAction)
 
+        self.saveCSVAction = QtGui.QAction("Save to CSV",  self)
+        self.saveCSVAction.setShortcut("Ctrl+Alt+S")
+        self.plotWidget.addAction(self.saveCSVAction)
+        QtCore.QObject.connect(self.saveCSVAction,QtCore.SIGNAL("triggered()"), self.save2CSV)
+
+
         QtCore.QObject.connect(self.removeAction, QtCore.SIGNAL("triggered()"),self.removeFile)
         QtCore.QObject.connect(self.topHatAction, QtCore.SIGNAL("triggered()"), self.filterSpec)
 
@@ -96,6 +103,63 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         QtCore.QObject.connect(self.actionClear_Cursors,QtCore.SIGNAL("triggered()"),self.cursorClear)
         QtCore.QObject.connect(self.cursACB,QtCore.SIGNAL("stateChanged (int)"),self.toggleCA)
         QtCore.QObject.connect(self.cursBCB,QtCore.SIGNAL("stateChanged (int)"),self.toggleCB)
+
+
+    def SFDialog(self):
+        fileName = QtGui.QFileDialog.getSaveFileName(self,
+                                         "Select File to Save",
+                                         "",
+                                         "csv Files (*.csv)")
+        if not fileName.isEmpty():
+            print fileName
+            return fileName
+        else:
+            return None
+
+    def save2CSV(self):
+        path = self.SFDialog()
+        if path != None:
+            try:
+                lines = self.plotWidget.canvas.ax.get_lines()
+                tempList = []
+                numCols = 0
+                maxLen = 0
+                for line in lines:
+                    if line.get_label() is not '_nolegend_':
+                        x = line.get_xdata()
+                        y = line.get_ydata()
+                        #at times a masked array can be returned and
+                        #this is incompatible with the csv writer as there is meta-data stored
+                        if type(x) is N.ma.core.MaskedArray:
+                            x = x.filled()
+                        if type(y) is N.ma.core.MaskedArray:
+                            y = y.filled()
+                        tempList.append(x)
+                        tempList.append(y)
+                        numCols+=2 #one col for x and for y
+                        curLen = len(x)
+                        if curLen > maxLen:
+                            maxLen = curLen
+
+                data2write = N.zeros((numCols, maxLen))
+                #need to fill in zeros with data and N.resize will not work for this
+                i=0
+                for data in tempList:
+                    data2write[i][0:len(data)] = data
+                    i+=1
+
+                N.savetxt(str(path), N.transpose(data2write), delimiter = ',', fmt='%.4f')
+
+            except:
+                try:
+                    #this is for the case where the data may not be in float format?
+                    N.savetxt(str(path), N.transpose(data2write), delimiter = ',')
+                except:
+                    errorMsg ='Error saving figure data to csv\n\n'
+                    errorMsg += "Sorry: %s\n\n:%s\n"%(sys.exc_type, sys.exc_value)
+                    print errorMsg
+                    return QtGui.QMessageBox.warning(self, "Save Error",  errorMsg)
+
 
 
     def toggleCA(self, stateInt):

@@ -174,7 +174,7 @@ class MPL_Widget(QtGui.QWidget):
 
 
     def save2CSV(self):
-        path = self.OFDialog()
+        path = self.SFDialog()
         if path != None:
             try:
                 lines = self.canvas.ax.get_lines()
@@ -196,7 +196,7 @@ class MPL_Widget(QtGui.QWidget):
                     print errorMsg
 
 
-    def OFDialog(self):
+    def SFDialog(self):
         fileName = QtGui.QFileDialog.getSaveFileName(self,
                                          "Select File to Save",
                                          "",
