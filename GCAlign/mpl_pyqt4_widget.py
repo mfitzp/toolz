@@ -7,7 +7,7 @@ from matplotlib.backends.backend_qt4 import NavigationToolbar2QT as NavigationTo
 #from matplotlib.backend_bases import NavigationToolbar2
 
 from matplotlib.figure import Figure
-from matplotlib.widgets import SpanSelector
+from matplotlib.widgets import SpanSelector, RectangleSelector
 
 import numpy as N
 
@@ -121,12 +121,20 @@ class MPL_Widget(QtGui.QWidget):
         self.vbox.addWidget(self.canvas)
         self.vbox.addWidget(self.toolbar)
         self.setLayout(self.vbox)
-#        ############### Add Actions ################
 #
 #        self.Zoom = QtGui.QAction("Zoom",  self)
 #        self.Zoom.setShortcut("Ctrl+Z")
 #        self.addAction(self.Zoom)
 #        QtCore.QObject.connect(self.Zoom,QtCore.SIGNAL("triggered()"), self.ZoomToggle)
+#
+#        #####Data Rescale
+##        self.canvas.mpl_connect('button_press_event', self.onclick)
+#
+
+
+#        ############### Add Actions ################
+#
+
 #
 #        self.actionAutoScale = QtGui.QAction("AutoScale",  self)#self.MainWindow)
 #        self.actionAutoScale.setShortcut("Ctrl+A")
@@ -147,12 +155,12 @@ class MPL_Widget(QtGui.QWidget):
 #
 #    def ZoomToggle(self):
 #        #self.toolbar.zoom() #this implements the classic zoom
-#        if self.hZoom:
-#            self.hZoom = False
-#            self.span.visible = False
+#        if self.usrZoom:
+#            self.usrZoom = False
+#            self.RS.visible = False
 #        else:
-#            self.hZoom = True
-#            self.span.visible = True
+#            self.usrZoom = True
+#            self.RS.visible = True
 #
 #    def autoscale_plot(self):
 #        #self.toolbar.home() #implements the classic return to home

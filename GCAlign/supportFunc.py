@@ -25,9 +25,28 @@ from pylab import cm
 cmaps = [cm.spectral,  cm.hot,  cm.spectral]
 
 from LECO_IO import ChromaTOF_Reader as CR
-import SplitNStich as SNS
 import PeakFunctions as PF
+from scipy import ndimage#used for tophat filter
 
+
+def topHat(data, factor):
+    '''
+    data -- numpy array
+    pntFactor determines how finely the filter is applied to data.
+    A smaller number is faster but a trade-off is imposed
+    '''
+    pntFactor = factor
+    struct_pts = int(round(data.size*pntFactor))
+    str_el = N.repeat([1], struct_pts)
+    tFil = ndimage.white_tophat(data, None, str_el)
+
+    return tFil
+
+def normArray(arr2Norm):
+    arr2Norm.dtype = N.float32
+    arr2Norm /= arr2Norm.max()
+    arr2Norm *= 100
+    return arr2Norm
 
 def corrMatrix(ref, sam, focusList = None, excludeList = None, topHat = True):
 
@@ -43,10 +62,10 @@ def corrMatrix(ref, sam, focusList = None, excludeList = None, topHat = True):
     maxShift = []#array to hold the maximum shift observed for each mz value
     corVals = []#array to hold the cross correlation array for each EIC
 
-    if excludeList != None and len(excludeList)>0:
-        for j in excludeList:
-            ref[:,j] = 0
-            sam[:,j] = 0
+#    if excludeList != None and len(excludeList)>0:
+#        for j in excludeList:
+#            ref[:,j] = 0
+#            sam[:,j] = 0
 
     if focusList != None and len(focusList)>0:
         for i in focusList:
@@ -67,7 +86,22 @@ def corrMatrix(ref, sam, focusList = None, excludeList = None, topHat = True):
             outMtx[:, i]= cor
 
     else:
-        for i in xrange(cols):
+        #for the record I don't like this, but I can't
+        #think of a more elegant way to do this at this point
+        #The objective is to ignore the exclude list
+        #without setting the orignal matrix to zero....
+        if excludeList != None and len(excludeList)>0:
+            colIter = N.arange(cols)#sets up an array from 0 to length of columns
+            colIter = colIter.tolist()#needed to use the pop() method
+            initPop = excludeList[0]#this is needed because each time pop is called it changes the indexing
+            for popVal in excludeList:
+                colIter.pop(initPop)
+        else:
+            colIter = N.arange(cols)
+
+
+#        for i in xrange(cols):
+        for i in colIter:
             rSic=ref[:,i]#extracts the local chromatogram for each mz value
             sSic=sam[:,i]
 
@@ -118,8 +152,6 @@ def getShift(ref, sam):
     return cor, corVal, shift
 
 
-
-
 def topHatMatrix(inputMZMtx):
     '''
     Accepts a 2D numpy array with each row corresponding to a new mz value
@@ -127,12 +159,10 @@ def topHatMatrix(inputMZMtx):
     numRows = inputMZMtx.shape[0]
     for i in xrange(numRows):
         #replaces existing mass spectrum with a TH filtered version
-        inputMZMtx[i] = SNS.topHat(inputMZMtx[i], factor = 0.01)
+        inputMZMtx[i] = topHat(inputMZMtx[i], factor = 0.01)
 
 #    print "Finished TopHat filtering of m/z Matrix"
     return inputMZMtx
-
-
 
 def getBPC(mzMtx):
     '''
@@ -170,10 +200,10 @@ if __name__ == "__main__":
     randTest = S.rand(specLen*cols)
     randTest.shape = (specLen,cols)
 
-    imR = SNS.normArray(mzR[specStart:specStart+specLen])
-    #imS = SNS.normArray(mzS[specStart:specStart+specLen])
+    imR = normArray(mzR[specStart:specStart+specLen])
+    #imS = normArray(mzS[specStart:specStart+specLen])
     imS = randTest
-    #rowS = SNS.normArray(mzS[65000])
+    #rowS = normArray(mzS[65000])
 
     f.close()
     f2.close()
@@ -244,11 +274,11 @@ if __name__ == "__main__":
     The code below will extract a specific row and demonstrate the utility of TH filtering and
     its relation to correlation coeff.
     '''
-#    rowR = SNS.normArray(mzR[65000])
-#    rowS = SNS.normArray(mzS[65000])
+#    rowR = normArray(mzR[65000])
+#    rowS = normArray(mzS[65000])
 #
-#    rowRtH=SNS.topHat(rowR, factor = 0.01)
-#    rowStH=SNS.topHat(rowS, factor = 0.01)
+#    rowRtH=topHat(rowR, factor = 0.01)
+#    rowStH=topHat(rowS, factor = 0.01)
 #
 #    f.close()
 #    f2.close()
@@ -283,7 +313,7 @@ if __name__ == "__main__":
 #
 ##    pf = 0.001
 ##    for i in range(5):
-##        ax.plot(SNS.topHat(rowR, factor = pf),label = '%s'%pf)
+##        ax.plot(topHat(rowR, factor = pf),label = '%s'%pf)
 ##        pf+=0.005
 ##    ax.legend()
 #
