@@ -60,19 +60,57 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
 
     def setupGUI(self):
 
-        self.plotWidget.canvas.setupSub(2)
+        self.plotWidget.canvas.setupSub(1)
         self.plotWidget2.canvas.setupSub(2)
 
         self.imageAxis = self.plotWidget.canvas.axDict['ax1']
-        self.RS = RectangleSelector(self.imageAxis, self.setZScale,minspanx = 2,
+        self.RS = RectangleSelector(self.imageAxis, self.setZScale, minspanx = 2,
                         minspany = 2, drawtype='box',useblit=True)
         self.usrZoom = False
         self.RS.visible = False
+
+        self.plotWidget.canvas.mpl_connect('button_press_event', self.imageClick)
+
+        self.eicAxis = self.plotWidget2.canvas.axDict['ax1']
+        self.mzAxis = self.plotWidget2.canvas.axDict['ax2']
 
         self.indexHSlider.setMinimum(1)
         self.indexSpinBox.setMinimum(1)
         self.indexHSlider.setMaximum(self.numSpec)
         self.indexSpinBox.setMaximum(self.numSpec)
+
+        self.addPickers()
+
+    def addPickers(self, minX = 0):
+        #minX is provided so that the plot will scale correctly when a data trace is initiated
+        self.selectCursA,  = self.imageAxis.plot([minX], [0], 'o',\
+                                        ms=7, alpha=.8, color='yellow', visible=True,  label = '_nolegend_')
+        self.xLine = self.imageAxis.axvline(x=0, ls = ':', color = 'y', alpha = 0.6)
+        self.yLine = self.imageAxis.axhline(y=0, ls = ':', color = 'y', alpha = 0.6)
+#        self.cAPicker = self.plotWidget.canvas.mpl_connect('pick_event', self.imageClick)
+
+    def imageClick(self, event):
+
+#        if event.mouseevent.xdata != None and event.mouseevent.ydata != None:
+#            xPnt, yPnt =  int(N.round(event.mouseevent.xdata)), event.mouseevent.ydata
+        if event.xdata != None and event.ydata != None:
+            self.selectCursA.set_data([event.xdata], [event.ydata])
+            xPnt, yPnt =  int(N.round(event.xdata)), int(N.round(event.ydata))
+            print xPnt, yPnt
+#            self.selectCursA.set_data([xPnt], [yPnt])
+            self.xLine.set_xdata([xPnt])
+            self.yLine.set_ydata([yPnt])
+            self.imageAxis.draw_artist(self.selectCursA)
+            self.imageAxis.draw_artist(self.xLine)
+            self.imageAxis.draw_artist(self.yLine)
+
+
+
+
+            self.plotWidget.canvas.blit(self.imageAxis.bbox)
+
+
+
 
     def colorScale(self, dataMtx):
         dataMtx = N.ma.masked_where(dataMtx<= 0, dataMtx)
@@ -88,9 +126,11 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         for ax in self.plotWidget.canvas.axDict.itervalues():
             ax.cla()
 
+
         for ax in self.plotWidget2.canvas.axDict.itervalues():
             ax.cla()
 
+        self.addPickers()
         self.refZ, refOK = self.getMZSlice(self.ref, index)
         self.samZ, samOK = self.getMZSlice(self.sam, index)
 
@@ -121,7 +161,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
             #P.contourf(z, levs, norm=colors.LogNorm())
 
             ax1 = self.plotWidget.canvas.axDict['ax1']
-            self.refIm = ax1.contour(self.refZ, alpha = 1,  origin = 'lower',  cmap = cmaps[0], label = 'R')
+            self.refIm = ax1.contour(self.refZ, alpha = 1,  aspect = 'auto', origin = 'lower',  cmap = cmaps[0], label = 'R', picker = 5)
             #ax1.contour(self.samZ, alpha = 0.5,  origin = 'lower',  cmap = cmaps[1], label = 'S')
 #            ax1.contour(N.log(self.refZ), alpha = 1,  origin = 'lower',  cmap = cmaps[0], label = 'R')
 #            ax1.contour(N.log(self.samZ), alpha = 0.5,  origin = 'lower',  cmap = cmaps[1], label = 'S')
@@ -130,17 +170,19 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
 #            ax1.pcolormesh(self.refZ, alpha = 1,  origin = 'lower',  cmap = cmaps[0], label = 'R')
 #            ax1.pcolormesh(self.samZ, alpha = 0.5,  origin = 'lower',  cmap = cmaps[1], label = 'S')
 
-            ax2 = self.plotWidget.canvas.axDict['ax2']
-            ax2.plot(sicR)
-            ax2.plot(sicS)
+#            ax2 = self.plotWidget.canvas.axDict['ax2']
+#            ax2.plot(sicR)
+#            ax2.plot(sicS)
 
             ax1a = self.plotWidget2.canvas.axDict['ax1']
             ax2a = self.plotWidget2.canvas.axDict['ax2']
+            ax1a.plot(sicR)
+            ax1a.plot(sicS)
 
             #was ax3
 #            ax3 = self.plotWidget.canvas.axDict['ax3']
-            ax1a.plot(corVals)
-            ax1a.plot(corIndices, corMax, 'ro')
+#            ax1a.plot(corVals)
+#            ax1a.plot(corIndices, corMax, 'ro')
 
 #            ax4 = self.plotWidget.canvas.axDict['ax4']
 
@@ -148,6 +190,8 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
             nHisty = nHist[0]
             nHistx = nHist[1][:-1]
             ax2a.vlines(nHistx,0, nHisty, lw = 2.0)
+
+
 ########################################################################################
 #            ax1a = self.plotWidget2.canvas.axDict['ax1']
 #            ax1a.hist(maxShift[corVals.argsort()[-20:]], bins = int(cols*0.5))
