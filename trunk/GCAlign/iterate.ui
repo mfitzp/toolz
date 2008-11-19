@@ -5,15 +5,18 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1000</width>
-    <height>750</height>
+    <width>1004</width>
+    <height>804</height>
    </rect>
   </property>
   <property name="windowTitle" >
-   <string>Iterate</string>
+   <string>GeeCee</string>
   </property>
   <property name="windowIcon" >
    <iconset resource="../../../../SVN/toolz/SimpleView/icons.qrc" >:/new/prefix1/Retro Mario World_32.png</iconset>
+  </property>
+  <property name="layoutDirection" >
+   <enum>Qt::LeftToRight</enum>
   </property>
   <widget class="QWidget" name="centralwidget" >
    <layout class="QHBoxLayout" >
@@ -69,10 +72,164 @@
         <item>
          <layout class="QHBoxLayout" >
           <item>
-           <widget class="MPL_Widget" native="1" name="plotWidget" />
+           <widget class="QSplitter" name="splitter" >
+            <property name="orientation" >
+             <enum>Qt::Vertical</enum>
+            </property>
+            <widget class="MPL_Widget" native="1" name="plotWidget" >
+             <property name="sizePolicy" >
+              <sizepolicy vsizetype="Preferred" hsizetype="Expanding" >
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize" >
+              <size>
+               <width>500</width>
+               <height>350</height>
+              </size>
+             </property>
+            </widget>
+            <widget class="MPL_Widget" native="1" name="plotWidget2" >
+             <property name="sizePolicy" >
+              <sizepolicy vsizetype="Preferred" hsizetype="Expanding" >
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize" >
+              <size>
+               <width>500</width>
+               <height>350</height>
+              </size>
+             </property>
+            </widget>
+           </widget>
           </item>
           <item>
-           <widget class="MPL_Widget" native="1" name="plotWidget2" />
+           <layout class="QVBoxLayout" >
+            <item>
+             <widget class="QListWidget" name="listWidget" >
+              <property name="sizePolicy" >
+               <sizepolicy vsizetype="Minimum" hsizetype="Minimum" >
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize" >
+               <size>
+                <width>100</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="maximumSize" >
+               <size>
+                <width>200</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="baseSize" >
+               <size>
+                <width>100</width>
+                <height>250</height>
+               </size>
+              </property>
+              <property name="layoutDirection" >
+               <enum>Qt::RightToLeft</enum>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QFrame" name="frame" >
+              <property name="minimumSize" >
+               <size>
+                <width>100</width>
+                <height>16</height>
+               </size>
+              </property>
+              <property name="maximumSize" >
+               <size>
+                <width>200</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="frameShape" >
+               <enum>QFrame::StyledPanel</enum>
+              </property>
+              <property name="frameShadow" >
+               <enum>QFrame::Raised</enum>
+              </property>
+              <layout class="QGridLayout" >
+               <item row="0" column="0" >
+                <layout class="QGridLayout" >
+                 <item row="0" column="0" >
+                  <layout class="QGridLayout" >
+                   <property name="horizontalSpacing" >
+                    <number>6</number>
+                   </property>
+                   <item row="0" column="0" >
+                    <widget class="QLabel" name="label_3" >
+                     <property name="maximumSize" >
+                      <size>
+                       <width>50</width>
+                       <height>16777215</height>
+                      </size>
+                     </property>
+                     <property name="text" >
+                      <string>SIC m/z</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="1" >
+                    <widget class="QSpinBox" name="sicMZSB" >
+                     <property name="maximumSize" >
+                      <size>
+                       <width>75</width>
+                       <height>16777215</height>
+                      </size>
+                     </property>
+                     <property name="minimum" >
+                      <number>1</number>
+                     </property>
+                     <property name="maximum" >
+                      <number>400</number>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                 <item row="1" column="0" >
+                  <widget class="QPushButton" name="pltSICBtn" >
+                   <property name="maximumSize" >
+                    <size>
+                     <width>75</width>
+                     <height>16777215</height>
+                    </size>
+                   </property>
+                   <property name="text" >
+                    <string>Plot SIC</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="0" >
+                  <widget class="QPushButton" name="plotTICBtn" >
+                   <property name="maximumSize" >
+                    <size>
+                     <width>75</width>
+                     <height>16777215</height>
+                    </size>
+                   </property>
+                   <property name="text" >
+                    <string>Plot TIC</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </widget>
+            </item>
+           </layout>
           </item>
          </layout>
         </item>
@@ -136,6 +293,11 @@
         </layout>
        </widget>
       </widget>
+      <widget class="QWidget" name="pkListTab" >
+       <attribute name="title" >
+        <string>Peak List</string>
+       </attribute>
+      </widget>
      </widget>
     </item>
    </layout>
@@ -145,7 +307,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1000</width>
+     <width>1004</width>
      <height>21</height>
     </rect>
    </property>
