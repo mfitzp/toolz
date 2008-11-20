@@ -4,7 +4,7 @@ This module contains miscellaneous math functions
 Author:
    Mark Rivers
 
-Created: 
+Created:
    Sept. 16, 2002
 
 Modifications:
@@ -23,41 +23,41 @@ def polyfitw(x, y, w, ndegree, return_fit=0):
    Performs a weighted least-squares polynomial fit with optional error estimates.
 
    Inputs:
-      x: 
+      x:
          The independent variable vector.
 
-      y: 
-         The dependent variable vector.  This vector should be the same 
+      y:
+         The dependent variable vector.  This vector should be the same
          length as X.
 
-      w: 
-         The vector of weights.  This vector should be same length as 
+      w:
+         The vector of weights.  This vector should be same length as
          X and Y.
 
-      ndegree: 
+      ndegree:
          The degree of polynomial to fit.
 
    Outputs:
-      If return_fit==0 (the default) then polyfitw returns only C, a vector of 
+      If return_fit==0 (the default) then polyfitw returns only C, a vector of
       coefficients of length ndegree+1.
       If return_fit!=0 then polyfitw returns a tuple (c, yfit, yband, sigma, a)
-         yfit:  
+         yfit:
             The vector of calculated Y's.  Has an error of + or - Yband.
 
-         yband: 
+         yband:
             Error estimate for each point = 1 sigma.
 
-         sigma: 
+         sigma:
             The standard deviation in Y units.
 
-         a: 
+         a:
             Correlation matrix of the coefficients.
 
    Written by:   George Lawrence, LASP, University of Colorado,
                  December, 1981 in IDL.
                  Weights added, April, 1987,  G. Lawrence
-                 Fixed bug with checking number of params, November, 1998, 
-                 Mark Rivers.  
+                 Fixed bug with checking number of params, November, 1998,
+                 Mark Rivers.
                  Python version, May 2002, Mark Rivers
    """
    n = min(len(x), len(y)) # size = smaller of x,y
@@ -127,14 +127,14 @@ def fit_gaussian(chans, counts):
    Method:
       Takes advantage of the fact that the logarithm of a Gaussian peak is a
       parabola.  Fits the coefficients of the parabola using linear least
-      squares.  This means that the input Y values (counts)  must not be 
+      squares.  This means that the input Y values (counts)  must not be
       negative.  Any values less than 1 are replaced by 1.
    """
    center = (chans[0] + chans[-1])/2.
    x = N.asarray(chans, dtype=float)-center
-   y = N.log(N.clip(counts, 1, max(counts)))
+   y = N.log(N.clip(counts, 1, max(counts)))#changed from low clip from 1 10/19/2008 BHC
    w = N.asarray(counts, dtype=float)**2
-   w = N.clip(w, 1., max(w))
+   w = N.clip(w, 1., max(w))#changed from low clip from 1.0 10/19/2008 BHC
    fic = polyfitw(x, y, w, 2)
    fic[2] = min(fic[2], -.001)  # Protect against divide by 0
    amplitude = N.exp(fic[0] - fic[1]**2/(4.*fic[2]))
@@ -147,7 +147,7 @@ def fit_gaussian(chans, counts):
 ############################################################
 def compress_array(array, compress):
    """
-   Compresses an 1-D array by the integer factor "compress".  
+   Compresses an 1-D array by the integer factor "compress".
    Temporary fix until the equivalent of IDL's 'rebin' is found.
    """
 
@@ -162,7 +162,7 @@ def compress_array(array, compress):
 ############################################################
 def expand_array(array, expand, sample=0):
    """
-   Expands an 1-D array by the integer factor "expand".  
+   Expands an 1-D array by the integer factor "expand".
    if 'sample' is 1 the new array is created with sampling, if 1 then
    the new array is created via interpolation (default)
    Temporary fix until the equivalent of IDL's 'rebin' is found.
@@ -184,9 +184,9 @@ def expand_array(array, expand, sample=0):
 ##############################################################
 def newton(func, x0, fprime=None, args=(), tol=1.48e-8, maxiter=50):
     """
-    newton is taken directly from scipy.optimize.minpack.py.  
-    I have extracted it here so that users of my software don't have to install 
-    scipy.  This may change in the future as I use more scipy features, and 
+    newton is taken directly from scipy.optimize.minpack.py.
+    I have extracted it here so that users of my software don't have to install
+    scipy.  This may change in the future as I use more scipy features, and
     scipy will be required
 
     Given a function of a single variable and a starting point,
@@ -213,7 +213,7 @@ def newton(func, x0, fprime=None, args=(), tol=1.48e-8, maxiter=50):
         q0 = apply(func,(p0,)+args)
         q1 = apply(func,(p1,)+args)
         for iter in range(maxiter):
-            try:                
+            try:
                 p = p1 - q1*(p1-p0)/(q1-q0)
             except ZeroDivisionError:
                 if p1 != p0:
