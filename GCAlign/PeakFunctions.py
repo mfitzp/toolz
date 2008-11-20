@@ -22,10 +22,28 @@ import CARSMath as CM
 
     Revised for Python by Brian H. Clowers, October 15, 2007'''
 
+def crudeNoiseEstimate(datArray, sigmaThresh=3):
+    '''
+    Accepts a numpy array and zeros the values below the user defined threshold
+    '''
+    mean = datArray.mean()
+    std = datArray.std()
+    thresh = mean+std*5
+    #first pass selection to minimize contribution of large peaks
+    #only takes values below the thresh
+    #should use clip
+    noiseArray = N.select([datArray<thresh],[datArray],default = mean)
+
+
+    mean2 = noiseArray.mean()
+    std2 = noiseArray.std()
+    thresh2 = mean2+std2*sigmaThresh
+
+    return thresh2
 
 
 def findPeaks(data_array, peakWidth):
-    '''THIS ENTIRE THING ASSUMES THE PEAK WIDTHS ARE MUCH LESS THAN 5% OF YOUR SPECTRUM'''
+
     #y_data = data_array[:,1]
     y_data = data_array
 
@@ -33,8 +51,8 @@ def findPeaks(data_array, peakWidth):
     SlopeThreshold=1/(WidthPoints**3)
     y_stdev = N.std(y_data)
     y_len = len(y_data)
-    AmpThreshold=y_stdev*3# first estimation of noise
-    print 'Threshold', AmpThreshold
+    AmpThreshold=crudeNoiseEstimate(y_data, 3)#, sigmaThresh)y_stdev*2+N.mean(y_data)# first estimation of noise
+#    print 'Threshold', AmpThreshold
     SmoothWidth=WidthPoints/2; #changed to * instead of / for gaussian fit ## SmoothWidth should be roughly equal to 1/2 the peak width (in points)
     FitWidth=WidthPoints/2; #changed to * ## FitWidth should be roughly equal to 1/2 the peak widths(in points)
     if FitWidth < 3:
@@ -100,7 +118,7 @@ def findPeaks(data_array, peakWidth):
 
                 local_max = (local_max_prev + local_max_after)/2
 
-                if y_data[j] > 3*local_max: # if height of peak is larger than AmpThreshold
+                if y_data[j] > AmpThreshold:#3*local_max: # if height of peak is larger than AmpThreshold
                     #print j
                     xx=[]
                     yy=[]
@@ -109,12 +127,13 @@ def findPeaks(data_array, peakWidth):
                         groupindex=j+k-n+1
                         if groupindex<1:
                             groupindex=1
-                        if groupindex > vectorlength:
-                            groupindex = vectorlength
+                        if groupindex >= vectorlength:
+                            groupindex = vectorlength-1
                         xx.append(groupindex)
+#                        print len(y_data), groupindex
                         yy.append(y_data[groupindex])
 
-
+                    #print local_max
                     p = CM.fit_gaussian(xx, yy)
                     #noise_range = y_data[]
                     #if p[0] <= y_stdev:

@@ -126,7 +126,9 @@ def crudeNoiseFilter(datArray, sigmaThresh):
     thresh = mean+std*5
     #first pass selection to minimize contribution of large peaks
     #only takes values below the thresh
+    #should use clip
     noiseArray = N.select([datArray<thresh],[datArray],default = thresh)
+
 
     mean2 = noiseArray.mean()
     std2 = noiseArray.std()

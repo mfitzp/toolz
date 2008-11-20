@@ -123,12 +123,14 @@ def SplitNStitch(masterSpec,  spec2Align,  numSegs):
     ovrLen = int(N.ceil(segLen)*0.1)
     alignSpec = N.zeros(len(spec2Align))
 
-    masterSpec = normArray(masterSpec)
-    spec2Align = normArray(spec2Align)
+#    masterSpec = normArray(masterSpec)
+#    spec2Align = normArray(spec2Align)
 
     stopLoc = []
     oddPnts = []
     minima = N.zeros(len(masterSpec))
+    peakLoc=[]
+    peakInt=[]
 
 
     for i in xrange(numSegs):
@@ -165,11 +167,27 @@ def SplitNStitch(masterSpec,  spec2Align,  numSegs):
         alignSeg = N.roll(tempSeg, shift)
         alignSpec[optStart:optStop] = alignSeg
 
+        peakInfo = PF.findPeaks(refSeg, peakWidth = 25)
+        if len(peakInfo['peak_location']) > 0:
+            tempLoc = peakInfo['peak_location']
+            tempInt = peakInfo['peak_intensity']
+            for loc in tempLoc:
+                peakLoc.append(loc+optStart)
+            for yVal in tempInt:
+                peakInt.append(yVal)
+#            if len(peakInfo['peak_location']) == 1:
+#                peakLoc.append(tempLoc[0])
+#                peakInt.append(tempInt[0])
+#            else:
+#                for loc, yVal in tempLoc, tempInt:
+#                    peakLoc.append(loc)
+#                    peakInt.append(yVal)
+
         #store segment locations--used for debugging
         stopLoc.append(stop)
 
 
-    return alignSpec, stopLoc, oddPnts#, minima
+    return alignSpec, stopLoc, oddPnts, N.array(peakLoc), N.array(peakInt)#, minima
 
 def normArray(arr2Norm):
     arr2Norm.dtype = N.float32
@@ -205,26 +223,32 @@ if __name__ == "__main__":
     import pylab as P
     from pylab import cm
     cmaps = [cm.spectral,  cm.hot,  cm.spectral]
-    dataDict = getHDFColumns('Alignment.h5')
-    refSpec = dataDict.get('TCivR1')
-    testSpec = dataDict.get('TAiR1')
+#    dataDict = getHDFColumns('Alignment.h5')
+#    refSpec = dataDict.get('Acetone_Klean.h5')
+#    testSpec = dataDict.get('')
+
+    refSpec = P.load('TICRef.txt')
+    testSpec = P.load('TICSam.txt')
     fig = P.figure()
     ax = fig.add_subplot(311,  title = 'Unaligned')
     ax2 = fig.add_subplot(312,  sharex = ax)
     ax3 = fig.add_subplot(313,  sharex = ax, sharey = ax2)
 
-
-
-    aligned, stopLoc, oddPnts = SplitNStitch(refSpec,  testSpec,  500)
-    y = N.ones(len(stopLoc))*N.mean(aligned)
-    y1 = N.ones(len(oddPnts))*N.mean(aligned)
+    print len(refSpec)
     ax.plot(refSpec)
-    ax.plot(aligned)
-    ax2.plot(testSpec, 'r')
-#    ax3.plot(minima, 'g')
-    ax3.plot(stopLoc, y, 'go')
-    ax3.plot(oddPnts, y1, 'ro')
-    ax3.plot(aligned)
+    ax2.plot(testSpec)
+
+
+#    aligned, stopLoc, oddPnts = SplitNStitch(refSpec,  testSpec,  500)
+#    y = N.ones(len(stopLoc))*N.mean(aligned)
+#    y1 = N.ones(len(oddPnts))*N.mean(aligned)
+#    ax.plot(refSpec)
+#    ax.plot(aligned)
+#    ax2.plot(testSpec, 'r')
+##    ax3.plot(minima, 'g')
+#    ax3.plot(stopLoc, y, 'go')
+#    ax3.plot(oddPnts, y1, 'ro')
+#    ax3.plot(aligned)
 
 #    fig = P.figure()
 #    ax = fig.add_subplot(211)

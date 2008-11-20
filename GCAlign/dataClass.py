@@ -6,7 +6,7 @@ import numpy as N
 import scipy as S
 import tables as T
 
-class GC_GC_MS_CLASS():
+class GC_GC_MS_CLASS(QtCore.QObject):
     def __init__(self, filePath):
         '''
         filePath is an HDF5 file that has been converted from a LECO netCDF file
@@ -22,12 +22,12 @@ class GC_GC_MS_CLASS():
         self.colPoints = None
         self.rowPoints = None
         self.ticLayer = None
-        self.sicLayer = None
+        self.eicLayer = None
         self.curMZ = None
-        self.SIC = None
+        self.EIC = None
         self.TIC = None
 
-        self.sicOK = False
+        self.eicOK = False
         self.ticOK = False
         self.bpcOK = False
 
@@ -39,8 +39,34 @@ class GC_GC_MS_CLASS():
         #conversion to floats has occurred
         self.floated = False
 
+
         self.setTIC()
         self.setAttrs()
+        self.setupThreads()
+
+    def setupThreads(self):
+        self.BPCThread = BPCThread(self.filePath, self)
+        self.EICThread = EICThread(self.filePath, self)
+#        self.connect(self.BPCThread, QtCore.SIGNAL("finished(bool)"), self.updateBPC)
+
+    def updateEIC(self, finishedBool):
+        self.eicOK = finishedBool
+        if finishedBool:
+            self.EIC = self.EICThread.getEIC()
+            print "EIC finished processing"
+        else:
+            print "Please wait, EIC not finished processing"
+
+    def updateBPC(self, finishedBool):
+        self.bpcOK = finishedBool
+        if finishedBool:
+            self.BPC = self.BPCThread.getBPC()
+#            P.plot(self.BPC)
+#            P.show()
+            print "BPC finished processing"
+        else:
+            print "Please wait, BPC not finished processing"
+
 
     def getHandle(self):
         self.handle = T.openFile(self.filePath, 'r')
@@ -50,38 +76,60 @@ class GC_GC_MS_CLASS():
         self.handle.close()
         self.fileOpen = False
 
-    def setBPC(self):
-        self.getHandle()
-        if self.fileOpen:
-            mzCube = self.handle.root.dataCube
-
-            rows = len(self.TIC)
-            bpc = N.zeros(rows)
-            mzVals = N.zeros(rows)
-
-            for i in xrange(rows):
-                mz=mzCube[i]
-                mzVals[i] = mz.argmax()
-                bpc[i]= mz[mzVals[i]]
-
-            self.BPC, self.BPCmz = bpc, mzVals
-            self.closeHandle()
-            self.bpcOK = True
-        else:
-            print "Error opening HDF5 data file"
+    def _setBPC_(self):
+        self.BPCThread.start()
+#        self.getHandle()
+#        if self.fileOpen:
+#            mzCube = self.handle.root.dataCube
+#
+#            rows = len(self.TIC)
+#            bpc = N.zeros(rows)
+#            mzVals = N.zeros(rows)
+#
+#            for i in xrange(rows):
+#                mz=mzCube[i]
+#                mzVals[i] = mz.argmax()
+#                bpc[i]= mz[mzVals[i]]
+#
+#            self.BPC, self.BPCmz = bpc, mzVals
+#            self.closeHandle()
+#            self.bpcOK = True
+#        else:
+#            print "Error opening HDF5 data file"
 
 
     def getBPC(self):
         if self.bpcOK:
             return self.BPC, self.BPCmz
 
-    def _makeBPC_(self, mzMTX):
+    def _setEIC_(self, mzVals):
+        self.EICThread.initEICVals(mzVals)
+        self.EICThread.start()
         '''
-        Gets base peak chromatogram
+        mzVals is a list of integers. If the list has a length greater than 1 ,
+        a summed EIC of all numbers in the list will be returned.
         '''
+#        self.getHandle()
+#        if self.fileOpen and len(mzVals)>0:
+#            mzCube = self.handle.root.dataCube
+#
+#            rows = len(self.TIC)
+#            eic = N.zeros(rows)
+#
+#            for mz in mzVals:
+#                eic +=mzCube[:,mz]
+#
+#            self.EIC = eic
+#            self.closeHandle()
+#            self.eicOK = True
+#        else:
+#            print "Error opening HDF5 data file"
 
-
-        return sic, mzVals
+    def getEIC(self):
+        if self.eicOK:
+            return self.EIC
+        else:
+            print "No EIC generated--try _setEIC_(mzValList)"
 
     def setTIC(self):
         self.getHandle()
@@ -98,7 +146,7 @@ class GC_GC_MS_CLASS():
         if self.ticOK:
             return self.TIC
         else:
-            print "TIC not set or not found try setTIC"
+            print "TIC not set or not found try setTIC()"
 
     def setAttrs(self):
         self.getHandle()
@@ -122,104 +170,181 @@ class GC_GC_MS_CLASS():
 
             self.closeHandle()
 
-
-    def make2DTIC(self, TIC, colPoints):
-        rowPoints = int(len(TIC)/colPoints)
-        ticLayer = N.empty((rowPoints, colPoints), dtype = int)#  self.colPoints),  dtype=int)
-        print ticLayer.shape
+    def make2DLayer(self, cgram, colPoints):
+        '''
+        cgram = chromatogram
+        cLayer = 2D representation of cgram
+        '''
+        rowPoints = int(len(cgram)/colPoints)
+        cLayer = N.empty((rowPoints, colPoints), dtype = int)#  self.colPoints),  dtype=int)
+        print cLayer.shape
         x = 0
-        for i in xrange(len(TIC)):
+        for i in xrange(len(cgram)):
             y=i%colPoints
-            ticLayer[x][y] = TIC[i]
+            cLayer[x][y] = cgram[i]
             if i !=0 and (i%colPoints) == 0:
                 x+=1
 
-        return ticLayer
+        return cLayer
 
-class ReadThread(QtCore.QThread):
-    def __init__(self, fileName, parent = None):
+class BPCThread(QtCore.QThread):
+    def __init__(self, fileName, main, parent = None):
         QtCore.QThread.__init__(self, parent)
 
+        self.parent = main
         self.finished = False
-        self.ready = False
+        self.stopped = False
+        self.mutex = QtCore.QMutex()
         self.fileName = fileName
         self.handle = None
         self.fileOpen = False
 
-    def updateThread(self, loadList, loadmzXML = False):
-        self.loadList = loadList
-        self.loadmzXML = loadmzXML
-        self.numItems = len(loadList)
-        self.ready = True
-        return True
+        self.bpcOK = False
+        self.BPC = None
 
     def getHandle(self):
-        self.handle = T.openFile(self.filePath, 'r')
+        self.handle = T.openFile(self.fileName, 'r')
         self.fileOpen = True
 
     def closeHandle(self):
         self.handle.close()
         self.fileOpen = False
 
-    def getBPC(self):
+    def setBPC(self):
         self.getHandle()
         if self.fileOpen:
             mzCube = self.handle.root.dataCube
-            BPC, BPCmz = self._makeBPC_(mzCube)
+
+            rows = mzCube.shape[0]
+            bpc = N.zeros(rows)
+            mzVals = N.zeros(rows)
+
+            for i in xrange(rows):
+                mz=mzCube[i]
+                mzVals[i] = mz.argmax()
+                bpc[i]= mz[mzVals[i]]
+                if i%10000 == 0:
+                    print i
+
+            self.BPC, self.BPCmz = bpc, mzVals
             self.closeHandle()
-            self.bpcOK = True
+            return True
         else:
             print "Error opening HDF5 data file"
+            return False
 
-    def _makeBPC_(self, mzMTX):
+    def run(self):
+        self.finished = False
+        self.bpcOK = self.setBPC()
+#        self.emit(QtCore.SIGNAL("finished(bool)"),self.bpcOK)
+        self.finished = True
+        self.parent.updateBPC(self.bpcOK)
+
+    def getBPC(self):
+        if self.bpcOK:
+            return self.BPC
+
+    def stop(self):
+        print "stop try"
+        try:
+            self.mutex.lock()
+            self.stopped = True
+        finally:
+            self.mutex.unlock()
+
+    def isStopped(self):
+        print "stop try"
+        try:
+            self.mutex.lock()
+            return self.stopped
+        finally:
+            self.mutex.unlock()
+
+############################################################
+
+class EICThread(QtCore.QThread):
+    def __init__(self, fileName, main, parent = None):
+        QtCore.QThread.__init__(self, parent)
+
+        self.parent = main
+        self.finished = False
+        self.stopped = False
+        self.mutex = QtCore.QMutex()
+        self.fileName = fileName
+        self.handle = None
+        self.fileOpen = False
+
+        self.ready = False
+
+        self.eicOK = False
+        self.EIC = None
+        self.mzVals = None
+
+    def initEICVals(self, mzList):
         '''
-        Gets base peak chromatogram
+        Accepts a list of mzValues to get an EIC for
         '''
-        rows = mzMtx.shape[0]
+        if type(mzList) is list and len(mzList)>0:
+            self.mzVals = mzList
+            self.ready = True
 
-        sic = N.zeros(rows)
-        mzVals = N.zeros(rows)
 
-        for i in xrange(rows):
-            mz=mzMtx[i]
-            mzVals[i] = mz.argmax()
-            sic[i]= mz[mzVals[i]]
+    def getHandle(self):
+        self.handle = T.openFile(self.fileName, 'r')
+        self.fileOpen = True
 
-        return sic, mzVal
+    def closeHandle(self):
+        self.handle.close()
+        self.fileOpen = False
+
+    def setEIC(self):
+        self.getHandle()
+        if self.fileOpen and len(self.mzVals)>0:
+            mzCube = self.handle.root.dataCube
+
+            rows = mzCube.shape[0]
+            eic = N.zeros(rows)
+
+            for mz in self.mzVals:
+                eic +=mzCube[:,mz]
+
+            self.EIC = eic
+            self.closeHandle()
+            return True
+        else:
+            print "Error opening HDF5 data file"
+            return False
 
     def run(self):
         if self.ready:
-            if self.loadmzXML:
-                while not self.finished and self.numItems > 0:
-                    for item in self.loadList:
-#                            print os.path.basename(item)
-                        tempmzXML =  mzXMLR(item)
-                        tempSpec = tempmzXML.data['spectrum']
-                        if len(tempSpec)>0:
-#                                print 'Spec OK', os.path.basename(item)
-                            data2plot = DataPlot(tempSpec[0],  tempSpec[1],  name = os.path.basename(item), path = item)
-                            data2plot.setPeakList(tempmzXML.data['peaklist'])
-                            #this following line is key to pass python object via the SIGNAL/SLOT mechanism of PyQt
-                            #note PyQt_PyObject
-                            self.emit(QtCore.SIGNAL("itemLoaded(PyQt_PyObject)"),data2plot)
-                        else:
-                            print 'Empty spectrum: ', item
+            self.finished = False
+            self.eicOK = self.setEIC()
+    #        self.emit(QtCore.SIGNAL("finished(bool)"),self.eicOK)
+            self.finished = True
+            self.ready = False
+            self.parent.updateEIC(self.eicOK)
+        else:
+            print "No mz value list set, run initEICVals(mzList)"
 
-                        self.numItems -=1
-            else:
-                while not self.finished and self.numItems > 0:
-                    for item in self.loadList:
-                        tempFlex = FR(item)
-                        tempSpec = tempFlex.data['spectrum']
-                        data2plot = DataPlot(tempSpec[:, 0],  tempSpec[:, 1], name = item.split(os.path.sep)[-4], path = item)#the -4 index is to handle the Bruker File Structure
-                        data2plot.setPeakList(tempFlex.data['peaklist'])
-                        #this following line is key to pass python object via the SIGNAL/SLOT mechanism of PyQt
-                        self.emit(QtCore.SIGNAL("itemLoaded(PyQt_PyObject)"),data2plot)#note PyQt_PyObject
-                        self.numItems -=1
+    def getEIC(self):
+        if self.eicOK:
+            return self.EIC
 
-        def __del__(self):
-            self.exiting = True
-            self.wait()
+    def stop(self):
+        print "stop try"
+        try:
+            self.mutex.lock()
+            self.stopped = True
+        finally:
+            self.mutex.unlock()
+
+    def isStopped(self):
+        print "stop try"
+        try:
+            self.mutex.lock()
+            return self.stopped
+        finally:
+            self.mutex.unlock()
 
 
 if __name__ == "__main__":
@@ -239,35 +364,34 @@ if __name__ == "__main__":
     ax1 = w.canvas.axDict['ax1']
     ax2 = w.canvas.axDict['ax2']
 
+    t1 = time.clock()
+    data._setEIC_([53])
+    time.sleep(6)
+    eic = data.getEIC()
+    print 'EIC Generation: ', time.clock()-t1
 
 
     t1 = time.clock()
-    ticLayer = data.make2DTIC(tic, data.colPoints)
+    ticLayer = data.make2DLayer(tic, data.colPoints)
     print 'TIC Layer Generation: ', time.clock()-t1
 
     t1 = time.clock()
-    #data.setBPC()
+#    data._setBPC_()
     print 'BPC Generation: ', time.clock()-t1
 
-    #bpc, bpcMZ = data.getBPC()
+#    bpc, bpcMZ = data.getBPC()
 
     imAspect = data.rowPoints/(data.colPoints*1.0)
-    #print imAspect
-#    cdict ={
-#    'blue': ((0.0, 0.01, 0.05), (0.05, 0.75, 1), (0.65000000000000002, 1, 1), (0.75000000000000002, 0, 0), (1, 0, 0)),
-#    'green': ((0.0, 0, 0), (0.125, 0, 0), (0.375, 1, 1), (0.64000000000000001, 1, 1), (0.91000000000000003, 0, 0), (1, 0, 0)),
-#    'red': ((0.0, 0, 0), (0.34999999999999998, 0, 0), (0.56000000000000003, 1, 1), (0.89000000000000001, 1, 1), (1, 0.75, 0.75))
-#    }
+
     cdict ={
     'blue': ((0.0, 0.01, 0.01), (0.01, 0.25, 1), (0.65000000000000002, 1, 1), (0.75000000000000002, 0, 0), (1, 0, 0)),
     'green': ((0.0, 0, 0), (0.05, 0.75, 0.75), (0.25, 1, 1), (0.64000000000000001, 1, 1), (0.91000000000000003, 0, 0), (1, 0, 0)),
     'red': ((0.0, 0, 0), (0.15, 0.25, 0.25), (0.56000000000000003, 1, 1), (0.89000000000000001, 1, 1), (1, 0.75, 0.75))
     }
 
-
     my_cmap = C.LinearSegmentedColormap('mycmap', cdict, 512)
     ax1.imshow(N.transpose(ticLayer), origin = 'lower', aspect = 'auto', cmap = my_cmap)
-    ax2.imshow(N.transpose(ticLayer), origin = 'lower', aspect = 'auto')
+    #ax2.imshow(N.transpose(ticLayer), origin = 'lower', aspect = 'auto')
 #    ax1.set_xlim(0, data.rowPoints)
 #    ax1.set_ylim(0, data.colPoints)
 #    ax1.imshow(ticLayer, aspect = 'auto')
@@ -276,7 +400,16 @@ if __name__ == "__main__":
     tic *=100
 #    bpc /= bpc.max()
 #    bpc *=100
-    #ax2.plot(tic)
+    eic /= eic.max()
+    eic *=100
+
+
+#    gc2x = N.arange(1,len(eic), data.colPoints)
+#    gc2y = eic[::data.colPoints]
+#
+    ax2.plot(eic)
+#    N.savetxt("TICSam.txt", eic, delimiter = ',')
+#    ax2.plot(gc2x, gc2y, 'or', alpha = 0.6)
 #    ax2.plot(bpc, 'r')
 
 
