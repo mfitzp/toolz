@@ -36,6 +36,7 @@ def make2DLayer(cgram, colPoints):
 
     return cLayer
 
+#def showCoord(event):
 
 
 if __name__ == "__main__":
@@ -64,7 +65,7 @@ if __name__ == "__main__":
     ax1 = w.canvas.axDict['ax1']
     ax2 = w.canvas.axDict['ax2']
     ax1.plot(ticRef)
-    ax1.plot(peakLoc, peakInt, 'ro')
+    ax1.plot(peakLoc, peakInt, 'ro', alpha = 0.5)
 
     ticLayer = make2DLayer(ticRef, 500)
 
@@ -78,7 +79,9 @@ if __name__ == "__main__":
     ax2.imshow(N.transpose(ticLayer), origin = 'lower', aspect = 'auto', cmap = my_cmap)
 
     x,y = get2DPeakLoc(peakLoc, 555, 500)
-    ax2.plot(x,y,'yo', ms = 4, alpha = 0.5)
+    ax2.plot(x,y,'yo', ms = 4, alpha = 0.5, picker = 5)
+    N.savetxt('PeakLoc.txt',N.column_stack((x,y)),fmt = '%.2f', delimiter = ',')
+#    canvas.mpl_connect('pick_event', showCoord)
 
     #ax1.plot(ticSam[0:50000], 'r:')
     #ax2.plot(aligned)
