@@ -263,6 +263,9 @@ class ReadThread(QtCore.QThread):
         if self.bpcOK:
             return self.BPC
 
+    def getEIC(self):
+        if self.eicOK:
+            return self.EIC
 
     def initEICVals(self, mzList):
             '''
