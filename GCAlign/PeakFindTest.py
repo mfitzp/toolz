@@ -7,6 +7,30 @@ import scipy as S
 import tables as T
 import SplitNStich as SNS
 
+distTypeDist = {'Euclidiean':'euclidean',
+                'Normalized Euclidiean':'seuclidean',
+                'Chebyshev':'chebyshev',
+                'Mahalanobis':'mahalanobis',
+                'Squared Euclidiean':'sqeuclidean',
+                'Correlation':'correlation',
+                'Minkowski':'minkowski',
+                'Hamming':'hamming',
+                'Cosine':'cosine',
+                'Manhattan':'cityblock',
+                'Canberra':'canberra',
+                'Bray-Curtis':'braycurtis'
+                }
+
+clusterType = {'Linkage':'linkage',
+               'Single':'single',
+               'Complete':'complete',
+               'Average':'average',
+               'Weighted':'weighted',
+               'Centroid':'centroid',
+               'Median':'median',
+               'Ward':'ward'
+               }
+
 
 def get2DPeakLoc(peakLoc, rows, cols):
     x = N.empty(len(peakLoc), dtype = int)
