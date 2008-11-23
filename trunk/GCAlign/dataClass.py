@@ -330,93 +330,7 @@ class ReadThread(QtCore.QThread):
         finally:
             self.mutex.unlock()
 
-############################################################
 
-class EICThread(QtCore.QThread):
-    def __init__(self, fileName, main, parent = None):
-        QtCore.QThread.__init__(self, parent)
-
-        self.parent = main
-        self.finished = False
-        self.stopped = False
-        self.mutex = QtCore.QMutex()
-        self.fileName = fileName
-        self.handle = None
-        self.fileOpen = False
-
-        self.ready = False
-
-        self.eicOK = False
-        self.EIC = None
-        self.mzVals = None
-
-
-
-    def initEICVals(self, mzList):
-        '''
-        Accepts a list of mzValues to get an EIC for
-        '''
-        if type(mzList) is list and len(mzList)>0:
-            self.mzVals = mzList
-            self.ready = True
-
-
-    def getHandle(self):
-        self.handle = T.openFile(self.fileName, 'r')
-        self.fileOpen = True
-
-    def closeHandle(self):
-        self.handle.close()
-        self.fileOpen = False
-
-    def setEIC(self):
-        self.getHandle()
-        if self.fileOpen and len(self.mzVals)>0:
-            mzCube = self.handle.root.dataCube
-
-            rows = mzCube.shape[0]
-            eic = N.zeros(rows)
-
-            for mz in self.mzVals:
-                eic +=mzCube[:,mz]
-
-            self.EIC = eic
-            self.closeHandle()
-            return True
-        else:
-            print "Error opening HDF5 data file"
-            return False
-
-    def run(self):
-        if self.ready:
-            self.finished = False
-            self.eicOK = self.setEIC()
-    #        self.emit(QtCore.SIGNAL("finished(bool)"),self.eicOK)
-            self.finished = True
-            self.ready = False
-            self.parent.updateEIC(self.eicOK)
-        else:
-            print "No mz value list set, run initEICVals(mzList)"
-
-    def getEIC(self):
-        if self.eicOK:
-            return self.EIC
-
-    def stop(self):
-        print "stop try"
-        try:
-            self.mutex.lock()
-            self.stopped = True
-        finally:
-            self.mutex.unlock()
-
-    def isStopped(self):
-        print "stop try"
-        try:
-            self.mutex.lock()
-            return self.stopped
-        finally:
-            self.mutex.unlock()
 
 
 if __name__ == "__main__":
@@ -491,3 +405,93 @@ if __name__ == "__main__":
 #    w.canvas.fig.colorbar(ax1)
     w.show()
     sys.exit(app.exec_())
+
+
+    ###########
+    ############################################################
+#
+#class EICThread(QtCore.QThread):
+#    def __init__(self, fileName, main, parent = None):
+#        QtCore.QThread.__init__(self, parent)
+#
+#        self.parent = main
+#        self.finished = False
+#        self.stopped = False
+#        self.mutex = QtCore.QMutex()
+#        self.fileName = fileName
+#        self.handle = None
+#        self.fileOpen = False
+#
+#        self.ready = False
+#
+#        self.eicOK = False
+#        self.EIC = None
+#        self.mzVals = None
+#
+#
+#
+#    def initEICVals(self, mzList):
+#        '''
+#        Accepts a list of mzValues to get an EIC for
+#        '''
+#        if type(mzList) is list and len(mzList)>0:
+#            self.mzVals = mzList
+#            self.ready = True
+#
+#
+#    def getHandle(self):
+#        self.handle = T.openFile(self.fileName, 'r')
+#        self.fileOpen = True
+#
+#    def closeHandle(self):
+#        self.handle.close()
+#        self.fileOpen = False
+#
+#    def setEIC(self):
+#        self.getHandle()
+#        if self.fileOpen and len(self.mzVals)>0:
+#            mzCube = self.handle.root.dataCube
+#
+#            rows = mzCube.shape[0]
+#            eic = N.zeros(rows)
+#
+#            for mz in self.mzVals:
+#                eic +=mzCube[:,mz]
+#
+#            self.EIC = eic
+#            self.closeHandle()
+#            return True
+#        else:
+#            print "Error opening HDF5 data file"
+#            return False
+#
+#    def run(self):
+#        if self.ready:
+#            self.finished = False
+#            self.eicOK = self.setEIC()
+#            self.emit(QtCore.SIGNAL("finished(bool)"),self.eicOK)
+#            self.finished = True
+#            self.ready = False
+#            self.parent.updateEIC(self.eicOK)
+#        else:
+#            print "No mz value list set, run initEICVals(mzList)"
+#
+#    def getEIC(self):
+#        if self.eicOK:
+#            return self.EIC
+#
+#    def stop(self):
+#        print "stop try"
+#        try:
+#            self.mutex.lock()
+#            self.stopped = True
+#        finally:
+#            self.mutex.unlock()
+#
+#    def isStopped(self):
+#        print "stop try"
+#        try:
+#            self.mutex.lock()
+#            return self.stopped
+#        finally:
+#            self.mutex.unlock()
