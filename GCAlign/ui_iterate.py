@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/clowers/workspace/GCAlign/iterate.ui'
 #
-# Created: Sat Nov 22 20:13:34 2008
+# Created: Sun Nov 23 15:24:20 2008
 #      by: PyQt4 UI code generator 4.3.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -81,7 +81,7 @@ class Ui_MainWindow(object):
         self.plotWidget.setMinimumSize(QtCore.QSize(500,250))
         self.plotWidget.setObjectName("plotWidget")
 
-        self.plotWidget2 = MPL_Widget(self.splitter)
+        self.plotWidget2 = MPL_Chrom_Widget(self.splitter)
 
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
@@ -91,18 +91,18 @@ class Ui_MainWindow(object):
         self.plotWidget2.setMinimumSize(QtCore.QSize(500,100))
         self.plotWidget2.setObjectName("plotWidget2")
 
-        self.widget = QtGui.QWidget(self.splitter_2)
-        self.widget.setObjectName("widget")
+        self.layoutWidget = QtGui.QWidget(self.splitter_2)
+        self.layoutWidget.setObjectName("layoutWidget")
 
-        self.vboxlayout1 = QtGui.QVBoxLayout(self.widget)
+        self.vboxlayout1 = QtGui.QVBoxLayout(self.layoutWidget)
         self.vboxlayout1.setObjectName("vboxlayout1")
 
-        self.addFileBtn = QtGui.QPushButton(self.widget)
+        self.addFileBtn = QtGui.QPushButton(self.layoutWidget)
         self.addFileBtn.setMaximumSize(QtCore.QSize(100,16777215))
         self.addFileBtn.setObjectName("addFileBtn")
         self.vboxlayout1.addWidget(self.addFileBtn)
 
-        self.listWidget = QtGui.QListWidget(self.widget)
+        self.listWidget = QtGui.QListWidget(self.layoutWidget)
 
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Minimum)
         sizePolicy.setHorizontalStretch(0)
@@ -116,7 +116,7 @@ class Ui_MainWindow(object):
         self.listWidget.setObjectName("listWidget")
         self.vboxlayout1.addWidget(self.listWidget)
 
-        self.tableWidget = QtGui.QTableWidget(self.widget)
+        self.tableWidget = QtGui.QTableWidget(self.layoutWidget)
         self.tableWidget.setMaximumSize(QtCore.QSize(200,16777215))
         self.tableWidget.setLayoutDirection(QtCore.Qt.LeftToRight)
         self.tableWidget.setObjectName("tableWidget")
@@ -350,28 +350,28 @@ class Ui_MainWindow(object):
         self.optionsTab.setGeometry(QtCore.QRect(0,0,840,644))
         self.optionsTab.setObjectName("optionsTab")
 
-        self.layoutWidget = QtGui.QWidget(self.optionsTab)
-        self.layoutWidget.setGeometry(QtCore.QRect(11,13,360,226))
-        self.layoutWidget.setObjectName("layoutWidget")
+        self.layoutWidget1 = QtGui.QWidget(self.optionsTab)
+        self.layoutWidget1.setGeometry(QtCore.QRect(11,13,360,226))
+        self.layoutWidget1.setObjectName("layoutWidget1")
 
-        self.gridlayout1 = QtGui.QGridLayout(self.layoutWidget)
+        self.gridlayout1 = QtGui.QGridLayout(self.layoutWidget1)
         self.gridlayout1.setObjectName("gridlayout1")
 
-        self.loadmzXMLCB = QtGui.QCheckBox(self.layoutWidget)
+        self.loadmzXMLCB = QtGui.QCheckBox(self.layoutWidget1)
         self.loadmzXMLCB.setChecked(True)
         self.loadmzXMLCB.setObjectName("loadmzXMLCB")
         self.gridlayout1.addWidget(self.loadmzXMLCB,0,0,1,1)
 
-        self.plotPkListCB = QtGui.QCheckBox(self.layoutWidget)
+        self.plotPkListCB = QtGui.QCheckBox(self.layoutWidget1)
         self.plotPkListCB.setObjectName("plotPkListCB")
         self.gridlayout1.addWidget(self.plotPkListCB,0,1,1,1)
 
-        self.plotLegendCB = QtGui.QCheckBox(self.layoutWidget)
+        self.plotLegendCB = QtGui.QCheckBox(self.layoutWidget1)
         self.plotLegendCB.setChecked(True)
         self.plotLegendCB.setObjectName("plotLegendCB")
         self.gridlayout1.addWidget(self.plotLegendCB,1,0,1,1)
 
-        self.loadDirBtn = QtGui.QPushButton(self.layoutWidget)
+        self.loadDirBtn = QtGui.QPushButton(self.layoutWidget1)
         self.loadDirBtn.setObjectName("loadDirBtn")
         self.gridlayout1.addWidget(self.loadDirBtn,1,1,1,1)
 
@@ -382,12 +382,12 @@ class Ui_MainWindow(object):
         self.gridlayout3.setHorizontalSpacing(6)
         self.gridlayout3.setObjectName("gridlayout3")
 
-        self.label_3 = QtGui.QLabel(self.layoutWidget)
+        self.label_3 = QtGui.QLabel(self.layoutWidget1)
         self.label_3.setMaximumSize(QtCore.QSize(50,16777215))
         self.label_3.setObjectName("label_3")
         self.gridlayout3.addWidget(self.label_3,0,0,1,1)
 
-        self.sicMZSB = QtGui.QSpinBox(self.layoutWidget)
+        self.sicMZSB = QtGui.QSpinBox(self.layoutWidget1)
         self.sicMZSB.setMaximumSize(QtCore.QSize(75,16777215))
         self.sicMZSB.setMinimum(1)
         self.sicMZSB.setMaximum(400)
@@ -395,26 +395,26 @@ class Ui_MainWindow(object):
         self.gridlayout3.addWidget(self.sicMZSB,0,1,1,1)
         self.gridlayout2.addLayout(self.gridlayout3,0,0,1,1)
 
-        self.pltSICBtn = QtGui.QPushButton(self.layoutWidget)
+        self.pltSICBtn = QtGui.QPushButton(self.layoutWidget1)
         self.pltSICBtn.setMaximumSize(QtCore.QSize(75,16777215))
         self.pltSICBtn.setObjectName("pltSICBtn")
         self.gridlayout2.addWidget(self.pltSICBtn,1,0,1,1)
 
-        self.plotTICBtn = QtGui.QPushButton(self.layoutWidget)
+        self.plotTICBtn = QtGui.QPushButton(self.layoutWidget1)
         self.plotTICBtn.setMaximumSize(QtCore.QSize(75,16777215))
         self.plotTICBtn.setObjectName("plotTICBtn")
         self.gridlayout2.addWidget(self.plotTICBtn,2,0,1,1)
         self.gridlayout1.addLayout(self.gridlayout2,2,1,1,1)
 
-        self.showPickedPeaksCB = QtGui.QCheckBox(self.layoutWidget)
+        self.showPickedPeaksCB = QtGui.QCheckBox(self.layoutWidget1)
         self.showPickedPeaksCB.setObjectName("showPickedPeaksCB")
         self.gridlayout1.addWidget(self.showPickedPeaksCB,3,0,1,1)
 
-        self.topHatCB = QtGui.QCheckBox(self.layoutWidget)
+        self.topHatCB = QtGui.QCheckBox(self.layoutWidget1)
         self.topHatCB.setObjectName("topHatCB")
         self.gridlayout1.addWidget(self.topHatCB,3,1,1,1)
 
-        self.dendroCB = QtGui.QCheckBox(self.layoutWidget)
+        self.dendroCB = QtGui.QCheckBox(self.layoutWidget1)
         self.dendroCB.setObjectName("dendroCB")
         self.gridlayout1.addWidget(self.dendroCB,2,0,1,1)
         self.tabWidget.addTab(self.optionsTab,"")
@@ -533,5 +533,6 @@ class Ui_MainWindow(object):
         self.actionLabel_Peak.setText(QtGui.QApplication.translate("MainWindow", "Label Peak", None, QtGui.QApplication.UnicodeUTF8))
         self.actionCopy_to_Clipboard.setText(QtGui.QApplication.translate("MainWindow", "Copy to Clipboard", None, QtGui.QApplication.UnicodeUTF8))
 
+from mpl_chrom_widget import MPL_Chrom_Widget
 from mpl_pyqt4_widget import MPL_Widget
 import icons_rc

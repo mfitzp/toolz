@@ -192,10 +192,10 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
     def setupGUI(self):
 
         self.plotWidget.canvas.setupSub(1)
-        self.plotWidget2.canvas.setupSub(1)
+#        self.plotWidget2.canvas.setupSub(1)
 
         self.imageAxis = self.plotWidget.canvas.axDict['ax1']
-        self.chromAxis = self.plotWidget2.canvas.axDict['ax1']
+        self.chromAxis = self.plotWidget2.canvas.ax#Dict['ax1'] #use Dict when using multiplot PyQt4 Widget
         self.chromAxis2 = self.chromAxis.twiny()
         self.format2ndAxis(self.chromAxis2)
 

@@ -109,7 +109,7 @@
              </size>
             </property>
            </widget>
-           <widget class="MPL_Widget" native="1" name="plotWidget2" >
+           <widget class="MPL_Chrom_Widget" native="1" name="plotWidget2" >
             <property name="sizePolicy" >
              <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
               <horstretch>0</horstretch>
@@ -124,7 +124,7 @@
             </property>
            </widget>
           </widget>
-          <widget class="QWidget" name="" >
+          <widget class="QWidget" name="layoutWidget" >
            <layout class="QVBoxLayout" name="verticalLayout" >
             <item>
              <widget class="QPushButton" name="addFileBtn" >
@@ -893,6 +893,12 @@
    <class>MPL_Widget</class>
    <extends>QWidget</extends>
    <header>mpl_pyqt4_widget</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>MPL_Chrom_Widget</class>
+   <extends>QWidget</extends>
+   <header>mpl_chrom_widget</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

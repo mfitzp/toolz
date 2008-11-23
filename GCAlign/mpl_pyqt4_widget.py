@@ -116,7 +116,7 @@ class MPL_Widget(QtGui.QWidget):
         QtGui.QWidget.__init__(self, parent)
         self.canvas = MyMplCanvas()
         self.toolbar = NavigationToolbar(self.canvas, self.canvas)
-        #self.toolbar.hide()
+        self.toolbar.hide()
         self.vbox = QtGui.QVBoxLayout()
         self.vbox.addWidget(self.canvas)
         self.vbox.addWidget(self.toolbar)
