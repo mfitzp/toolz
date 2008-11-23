@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import os
 from PyQt4 import QtCore,  QtGui
 
 import numpy as N
@@ -12,6 +13,7 @@ class GC_GC_MS_CLASS(QtCore.QObject):
         filePath is an HDF5 file that has been converted from a LECO netCDF file
         '''
         self.filePath = filePath
+        self.name = os.path.basename(filePath)
         self.loadOK = False
         self.fileOpen = False
         self.handle = None
@@ -40,19 +42,22 @@ class GC_GC_MS_CLASS(QtCore.QObject):
         self.floated = False
 
 
-        self.setTIC()
+
         self.setAttrs()
         self.setupThreads()
+        self.setTIC()
+        self.ticLayer = self.make2DLayer(self.TIC, self.colPoints)
 
     def setupThreads(self):
-        self.BPCThread = BPCThread(self.filePath, self)
-        self.EICThread = EICThread(self.filePath, self)
+        self.ReadThread = ReadThread(self.filePath, self)
+#        self.BPCThread = BPCThread(self.filePath, self)
+#        self.EICThread = EICThread(self.filePath, self)
 #        self.connect(self.BPCThread, QtCore.SIGNAL("finished(bool)"), self.updateBPC)
 
     def updateEIC(self, finishedBool):
         self.eicOK = finishedBool
         if finishedBool:
-            self.EIC = self.EICThread.getEIC()
+            self.EIC = self.ReadThread.getEIC()
             print "EIC finished processing"
         else:
             print "Please wait, EIC not finished processing"
@@ -60,7 +65,7 @@ class GC_GC_MS_CLASS(QtCore.QObject):
     def updateBPC(self, finishedBool):
         self.bpcOK = finishedBool
         if finishedBool:
-            self.BPC = self.BPCThread.getBPC()
+            self.BPC = self.ReadThread.getBPC()
 #            P.plot(self.BPC)
 #            P.show()
             print "BPC finished processing"
@@ -77,7 +82,8 @@ class GC_GC_MS_CLASS(QtCore.QObject):
         self.fileOpen = False
 
     def _setBPC_(self):
-        self.BPCThread.start()
+        self.ReadThread.setType('BPC')
+        self.ReadThread.start()
 #        self.getHandle()
 #        if self.fileOpen:
 #            mzCube = self.handle.root.dataCube
@@ -103,8 +109,9 @@ class GC_GC_MS_CLASS(QtCore.QObject):
             return self.BPC, self.BPCmz
 
     def _setEIC_(self, mzVals):
-        self.EICThread.initEICVals(mzVals)
-        self.EICThread.start()
+        self.ReadThread.setType('EIC')
+        self.ReadThread.initEICVals(mzVals)
+        self.ReadThread.start()
         '''
         mzVals is a list of integers. If the list has a length greater than 1 ,
         a summed EIC of all numbers in the list will be returned.
@@ -185,9 +192,18 @@ class GC_GC_MS_CLASS(QtCore.QObject):
             if i !=0 and (i%colPoints) == 0:
                 x+=1
 
-        return cLayer
+        return N.transpose(cLayer)
 
-class BPCThread(QtCore.QThread):
+    def get2DPeakLoc(peakLoc, rows, cols):
+        x = N.empty(len(peakLoc), dtype = int)
+        y = N.empty(len(peakLoc), dtype = int)
+        for i,loc in enumerate(peakLoc):
+            x[i] = int(loc/cols)
+            y[i] = loc%cols
+
+        return x,y
+
+class ReadThread(QtCore.QThread):
     def __init__(self, fileName, main, parent = None):
         QtCore.QThread.__init__(self, parent)
 
@@ -201,6 +217,16 @@ class BPCThread(QtCore.QThread):
 
         self.bpcOK = False
         self.BPC = None
+
+        self.ready = False
+
+        self.eicOK = False
+        self.EIC = None
+        self.mzVals = None
+        self.specType = None
+
+    def setType(self, specType):
+            self.specType = specType
 
     def getHandle(self):
         self.handle = T.openFile(self.fileName, 'r')
@@ -233,16 +259,57 @@ class BPCThread(QtCore.QThread):
             print "Error opening HDF5 data file"
             return False
 
-    def run(self):
-        self.finished = False
-        self.bpcOK = self.setBPC()
-#        self.emit(QtCore.SIGNAL("finished(bool)"),self.bpcOK)
-        self.finished = True
-        self.parent.updateBPC(self.bpcOK)
-
     def getBPC(self):
         if self.bpcOK:
             return self.BPC
+
+
+    def initEICVals(self, mzList):
+            '''
+            Accepts a list of mzValues to get an EIC for
+            '''
+            if type(mzList) is list and len(mzList)>0:
+                self.mzVals = mzList
+                self.ready = True
+
+    def setEIC(self):
+        self.getHandle()
+        if self.fileOpen and len(self.mzVals)>0:
+            mzCube = self.handle.root.dataCube
+
+            rows = mzCube.shape[0]
+            eic = N.zeros(rows)
+
+            for mz in self.mzVals:
+                eic +=mzCube[:,mz]
+
+            self.EIC = eic
+            self.closeHandle()
+            return True
+        else:
+            print "Error opening HDF5 data file"
+            return False
+
+
+    def run(self):
+        self.finished = False
+        if self.specType == 'BPC':
+
+            self.bpcOK = self.setBPC()
+    #        self.emit(QtCore.SIGNAL("finished(bool)"),self.bpcOK)
+            self.finished = True
+            self.parent.updateBPC(self.bpcOK)
+        elif self.specType == 'EIC':
+            if self.ready:
+                self.finished = False
+                self.eicOK = self.setEIC()
+        #        self.emit(QtCore.SIGNAL("finished(bool)"),self.eicOK)
+                self.finished = True
+                self.ready = False
+                self.parent.updateEIC(self.eicOK)
+            else:
+                print "No mz value list set, run initEICVals(mzList)"
+
 
     def stop(self):
         print "stop try"
@@ -279,6 +346,8 @@ class EICThread(QtCore.QThread):
         self.eicOK = False
         self.EIC = None
         self.mzVals = None
+
+
 
     def initEICVals(self, mzList):
         '''
