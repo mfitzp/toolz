@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/home/clowers/workspace/GCAlign/iterate.ui'
+# Form implementation generated from reading ui file 'C:\Documents and Settings\d3p483\workspace\GCAlign\iterate.ui'
 #
-# Created: Sun Nov 23 15:24:20 2008
+# Created: Mon Nov 24 09:28:39 2008
 #      by: PyQt4 UI code generator 4.3.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -17,7 +17,6 @@ class Ui_MainWindow(object):
         MainWindow.setLayoutDirection(QtCore.Qt.LeftToRight)
 
         self.centralwidget = QtGui.QWidget(MainWindow)
-        self.centralwidget.setGeometry(QtCore.QRect(0,24,862,691))
         self.centralwidget.setObjectName("centralwidget")
 
         self.hboxlayout = QtGui.QHBoxLayout(self.centralwidget)
@@ -27,7 +26,6 @@ class Ui_MainWindow(object):
         self.tabWidget.setObjectName("tabWidget")
 
         self.plotTab = QtGui.QWidget()
-        self.plotTab.setGeometry(QtCore.QRect(0,0,840,644))
         self.plotTab.setObjectName("plotTab")
 
         self.vboxlayout = QtGui.QVBoxLayout(self.plotTab)
@@ -68,6 +66,13 @@ class Ui_MainWindow(object):
         self.splitter_2.setObjectName("splitter_2")
 
         self.splitter = QtGui.QSplitter(self.splitter_2)
+
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Expanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.splitter.sizePolicy().hasHeightForWidth())
+        self.splitter.setSizePolicy(sizePolicy)
+        self.splitter.setMinimumSize(QtCore.QSize(16,16))
         self.splitter.setOrientation(QtCore.Qt.Vertical)
         self.splitter.setObjectName("splitter")
 
@@ -99,6 +104,7 @@ class Ui_MainWindow(object):
 
         self.addFileBtn = QtGui.QPushButton(self.layoutWidget)
         self.addFileBtn.setMaximumSize(QtCore.QSize(100,16777215))
+        self.addFileBtn.setLayoutDirection(QtCore.Qt.LeftToRight)
         self.addFileBtn.setObjectName("addFileBtn")
         self.vboxlayout1.addWidget(self.addFileBtn)
 
@@ -347,7 +353,6 @@ class Ui_MainWindow(object):
         self.tabWidget.addTab(self.plotTab,"")
 
         self.optionsTab = QtGui.QWidget()
-        self.optionsTab.setGeometry(QtCore.QRect(0,0,840,644))
         self.optionsTab.setObjectName("optionsTab")
 
         self.layoutWidget1 = QtGui.QWidget(self.optionsTab)
@@ -420,7 +425,6 @@ class Ui_MainWindow(object):
         self.tabWidget.addTab(self.optionsTab,"")
 
         self.pkListTab = QtGui.QWidget()
-        self.pkListTab.setGeometry(QtCore.QRect(0,0,840,644))
         self.pkListTab.setObjectName("pkListTab")
 
         self.hboxlayout3 = QtGui.QHBoxLayout(self.pkListTab)
@@ -434,7 +438,7 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.menubar = QtGui.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0,0,862,24))
+        self.menubar.setGeometry(QtCore.QRect(0,0,862,21))
         self.menubar.setObjectName("menubar")
 
         self.menu_File = QtGui.QMenu(self.menubar)
@@ -445,7 +449,6 @@ class Ui_MainWindow(object):
         MainWindow.setMenuBar(self.menubar)
 
         self.statusbar = QtGui.QStatusBar(MainWindow)
-        self.statusbar.setGeometry(QtCore.QRect(0,715,862,24))
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
 
