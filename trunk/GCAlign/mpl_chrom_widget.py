@@ -108,15 +108,15 @@ class MPL_Chrom_Widget(QtGui.QWidget):
 
         ###############ZOOM CONTROLS ################
 
-        self.Zoom = QtGui.QAction("Zoom",  self)
-        self.Zoom.setShortcut("Ctrl+Shift+Z")
-        self.addAction(self.Zoom)
-        QtCore.QObject.connect(self.Zoom,QtCore.SIGNAL("triggered()"), self.ZoomToggle)
+        self.ZoomChrom = QtGui.QAction("Zoom Chrom",  self)
+        self.ZoomChrom.setShortcut("Ctrl+Shift+Z")
+        self.addAction(self.ZoomChrom)
+        QtCore.QObject.connect(self.ZoomChrom,QtCore.SIGNAL("triggered()"), self.ZoomToggle)
 
-        self.actionAutoScale = QtGui.QAction("AutoScale",  self)#self.MainWindow)
-        self.actionAutoScale.setShortcut("Ctrl+Shift+A")
-        self.addAction(self.actionAutoScale)
-        QtCore.QObject.connect(self.actionAutoScale,QtCore.SIGNAL("triggered()"), self.autoscale_plot)
+        self.actionAutoScaleChrom = QtGui.QAction("AutoScale Chrom",  self)#self.MainWindow)
+        self.actionAutoScaleChrom.setShortcut("Ctrl+Shift+A")
+        self.addAction(self.actionAutoScaleChrom)
+        QtCore.QObject.connect(self.actionAutoScaleChrom,QtCore.SIGNAL("triggered()"), self.autoscale_plot)
 
         self.span = SpanSelector(self.canvas.ax, self.onselect, 'horizontal', minspan =0.01,
                                  useblit=True, rectprops=dict(alpha=0.5, facecolor='#C6DEFF') )

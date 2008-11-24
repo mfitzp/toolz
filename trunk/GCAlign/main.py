@@ -196,8 +196,9 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
 
         self.imageAxis = self.plotWidget.canvas.axDict['ax1']
         self.chromAxis = self.plotWidget2.canvas.ax#Dict['ax1'] #use Dict when using multiplot PyQt4 Widget
-        self.chromAxis2 = self.chromAxis.twiny()
-        self.format2ndAxis(self.chromAxis2)
+        #for some reason when you add a second axis the zooming and autoscaling don't work well.
+#        self.chromAxis2 = self.chromAxis.twiny()
+#        self.format2ndAxis(self.chromAxis2)
 
         self.curData = None
         self.curIm = None
@@ -206,6 +207,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         self.curChrom = None
         self.curImPlot = None
         self.plotType = 'TIC'
+        self.prevChromLimits = 0
 
         self.cAPicker = None
         self.cBPicker = None
@@ -510,8 +512,14 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         if self.plotType == 'TIC':
             self.curIm = self.curData.ticLayer
         self.imageAxis.imshow(self.mainIm, alpha = 1,  aspect = 'auto', origin = 'lower',  cmap = my_cmap, label = 'R', picker = 5)
+
+        self.prevChromLimits = 0
+        self.plotWidget2.autoscale_plot()
+
         self.plotWidget.canvas.format_labels()
         self.plotWidget.canvas.draw()
+        self.plotWidget2.canvas.format_labels()
+        self.plotWidget2.canvas.draw()
 ################Original
 #        self.imageAxis.autoscale_view(tight = False, scalex=True, scaley=True)
 #        self.plotWidget.canvas.draw()
@@ -523,11 +531,17 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
             if event1.button == 1 and event2.button == 1:
                 'event1 and event2 are the press and release events'
                 dataCoord = [[int(N.round(event1.xdata)), int(N.round(event1.ydata))],[int(N.round(event2.xdata)), int(N.round(event2.ydata))]]
+                cols = self.curData.colPoints
+                chromLimits = [dataCoord[0][0]*cols+dataCoord[0][1]+self.prevChromLimits,\
+                               N.abs(self.prevChromLimits+(dataCoord[1][0]*cols+dataCoord[1][1]))]
+                #(dataCoord[1][0]+self.prevChromLimits[1])*self.curData.colPoints+dataCoord[1][1]]
                 dataCoord = N.array(dataCoord)
+                chromLimits = N.array(chromLimits)
                 xLim = dataCoord[:,0]
                 yLim = dataCoord[:,1]
                 xLim.sort()
                 yLim.sort()
+                chromLimits.sort()
 #                print 'X Limits', xLim
 #                print 'Y Limits',yLim
 #                self.imageAxis.set_xlim(xLim[0],xLim[1])
@@ -543,9 +557,26 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
                 self.imageAxis.imshow(self.curIm, alpha = 1,  aspect = 'auto', origin = 'lower',  cmap = my_cmap, label = 'R', picker = 5)
                 self.imageAxis.set_xticklabels(x)
                 self.imageAxis.set_yticklabels(y)
+
+#                print chromLimits
+                #Scale Chromatogram
+                x1 = chromLimits[0]#+self.prevChromLimits[0]
+                x2 = chromLimits[1]#N.abs(self.prevChromLimits[1]-chromLimits[1])
+                self.chromAxis.set_xlim(x1,x2)
+                tempChrom = self.curChrom[x1:x2]
+                if len(tempChrom) > 0:
+                    self.chromAxis.set_ylim(0, tempChrom.max()*1.1)
+#                self.prevChromLimits = [chromLimits[0]+self.prevChromLimits[0], N.abs(self.prevChromLimits[1]-chromLimits[1])]
+                self.prevChromLimits = x1
+#                print dataCoord
+#                print chromLimits
+
+                self.plotWidget2.canvas.format_labels()
+                self.plotWidget2.canvas.draw()
+
                 self.plotWidget.canvas.format_labels()
                 self.plotWidget.canvas.draw()
-                ##############################
+                ##############################Original without color scaling
                 #self.imageAxis
                 #self.curIm = self.imageAxis.imshow(curData.ticLayer, alpha = 1,  aspect = 'auto', origin = 'lower',  cmap = my_cmap, label = 'R', picker = 5)
     #

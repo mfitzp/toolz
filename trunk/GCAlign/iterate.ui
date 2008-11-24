@@ -13,21 +13,12 @@
    <string>GeeCee</string>
   </property>
   <property name="windowIcon" >
-   <iconset resource="icons.qrc" >
-    <normaloff>:/new/prefix1/Retro Mario World_32.png</normaloff>:/new/prefix1/Retro Mario World_32.png</iconset>
+   <iconset resource="icons.qrc" >:/new/prefix1/Retro Mario World_32.png</iconset>
   </property>
   <property name="layoutDirection" >
    <enum>Qt::LeftToRight</enum>
   </property>
   <widget class="QWidget" name="centralwidget" >
-   <property name="geometry" >
-    <rect>
-     <x>0</x>
-     <y>24</y>
-     <width>862</width>
-     <height>691</height>
-    </rect>
-   </property>
    <layout class="QHBoxLayout" >
     <item>
      <widget class="QTabWidget" name="tabWidget" >
@@ -35,18 +26,10 @@
        <number>0</number>
       </property>
       <widget class="QWidget" name="plotTab" >
-       <property name="geometry" >
-        <rect>
-         <x>0</x>
-         <y>0</y>
-         <width>840</width>
-         <height>644</height>
-        </rect>
-       </property>
        <attribute name="title" >
         <string>Plot</string>
        </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_2" >
+       <layout class="QVBoxLayout" >
         <item>
          <layout class="QHBoxLayout" >
           <item>
@@ -92,6 +75,18 @@
            <enum>Qt::Horizontal</enum>
           </property>
           <widget class="QSplitter" name="splitter" >
+           <property name="sizePolicy" >
+            <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize" >
+            <size>
+             <width>16</width>
+             <height>16</height>
+            </size>
+           </property>
            <property name="orientation" >
             <enum>Qt::Vertical</enum>
            </property>
@@ -125,7 +120,7 @@
            </widget>
           </widget>
           <widget class="QWidget" name="layoutWidget" >
-           <layout class="QVBoxLayout" name="verticalLayout" >
+           <layout class="QVBoxLayout" >
             <item>
              <widget class="QPushButton" name="addFileBtn" >
               <property name="maximumSize" >
@@ -133,6 +128,9 @@
                 <width>100</width>
                 <height>16777215</height>
                </size>
+              </property>
+              <property name="layoutDirection" >
+               <enum>Qt::LeftToRight</enum>
               </property>
               <property name="text" >
                <string>Add Experiment</string>
@@ -203,7 +201,7 @@
          </widget>
         </item>
         <item>
-         <layout class="QGridLayout" name="_4" >
+         <layout class="QGridLayout" >
           <property name="horizontalSpacing" >
            <number>3</number>
           </property>
@@ -586,14 +584,6 @@
        </layout>
       </widget>
       <widget class="QWidget" name="optionsTab" >
-       <property name="geometry" >
-        <rect>
-         <x>0</x>
-         <y>0</y>
-         <width>840</width>
-         <height>644</height>
-        </rect>
-       </property>
        <attribute name="title" >
         <string>Options</string>
        </attribute>
@@ -642,9 +632,9 @@
           </widget>
          </item>
          <item row="2" column="1" >
-          <layout class="QGridLayout" name="_2" >
+          <layout class="QGridLayout" >
            <item row="0" column="0" >
-            <layout class="QGridLayout" name="_3" >
+            <layout class="QGridLayout" >
              <property name="horizontalSpacing" >
               <number>6</number>
              </property>
@@ -732,18 +722,10 @@
        </widget>
       </widget>
       <widget class="QWidget" name="pkListTab" >
-       <property name="geometry" >
-        <rect>
-         <x>0</x>
-         <y>0</y>
-         <width>840</width>
-         <height>644</height>
-        </rect>
-       </property>
        <attribute name="title" >
         <string>Peak List</string>
        </attribute>
-       <layout class="QHBoxLayout" name="horizontalLayout" >
+       <layout class="QHBoxLayout" >
         <item>
          <widget class="QTableWidget" name="peakTable" >
           <property name="rowCount" >
@@ -820,7 +802,7 @@
      <x>0</x>
      <y>0</y>
      <width>862</width>
-     <height>24</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File" >
@@ -844,16 +826,7 @@
    <addaction name="menu_File" />
    <addaction name="menuTools" />
   </widget>
-  <widget class="QStatusBar" name="statusbar" >
-   <property name="geometry" >
-    <rect>
-     <x>0</x>
-     <y>715</y>
-     <width>862</width>
-     <height>24</height>
-    </rect>
-   </property>
-  </widget>
+  <widget class="QStatusBar" name="statusbar" />
   <action name="action_Open" >
    <property name="text" >
     <string>&amp;Open</string>
