@@ -42,19 +42,39 @@ def crudeNoiseEstimate(datArray, sigmaThresh=3):
     return thresh2
 
 
-def findPeaks(data_array, peakWidth):
+def findPeaks(data_array, peakWidth, minSNR = 3, slopeThresh = None, ampThresh = None,\
+              smthWidth = None, fitWidth = None,  peakWin = None):
+    '''
+    peakWidth = Average number of points in half-width of peaks (CHANGE TO FIT YOUR SIGNAL)
+    slopeThresh = threshold of the first derivative from which a peak should be detected
+    ampThresh = absolute value for the threshold cutoff
+    '''
 
-    #y_data = data_array[:,1]
-    y_data = data_array
-
-    WidthPoints=peakWidth  ##Average number of points in half-width of peaks (CHANGE TO FIT YOUR SIGNAL)
-    SlopeThreshold=1/(WidthPoints**3)
-    y_stdev = N.std(y_data)
-    y_len = len(y_data)
-    AmpThreshold=crudeNoiseEstimate(y_data, 3)#, sigmaThresh)y_stdev*2+N.mean(y_data)# first estimation of noise
+    if slopeThresh == None:
+        SlopeThreshold=1/(peakWidth**3)
+    else:
+        SlopeThreshold = slopeThresh
+    y_stdev = N.std(data_array)
+    y_len = len(data_array)
+    if ampThresh == None:
+        AmpThreshold=crudeNoiseEstimate(data_array, minSNR)#, sigmaThresh)y_stdev*2+N.mean(data_array)# first estimation of noise
+    else:
+        AmpThreshold = ampThresh
 #    print 'Threshold', AmpThreshold
-    SmoothWidth=WidthPoints/2; #changed to * instead of / for gaussian fit ## SmoothWidth should be roughly equal to 1/2 the peak width (in points)
-    FitWidth=WidthPoints/2; #changed to * ## FitWidth should be roughly equal to 1/2 the peak widths(in points)
+    if smthWidth == None:
+        SmoothWidth=peakWidth/2 #SmoothWidth should be roughly equal to 1/2 the peak width (in points)
+    else:
+        SmoothWidth = smthWidth
+
+    if fitWidth == None:
+        FitWidth=peakWidth/2 #FitWidth should be roughly equal to 1/2 the peak widths(in points)
+    else:
+        FitWidth = fitWidth
+
+    if peakWin == None:
+        peakWindow = 0.025
+    else:
+        peakWindow = peakWin
     if FitWidth < 3:
         FitWidth=3
 
@@ -62,15 +82,14 @@ def findPeaks(data_array, peakWidth):
 
     smoothwidth=round(SmoothWidth)
     peakgroup=round(FitWidth)
-    smoothed_data=savitzky_golay(y_data, kernel = 15, order = 4)
+    smoothed_data=savitzky_golay(data_array, kernel = 15, order = 4)
     #d=savitzky_golay(first_derivative(smoothed_data), kernel = 11, order = 4)
     d = derivative(smoothed_data)
-    second_d = derivative(d)
+#    second_d = derivative(d)
 
     n=round(peakgroup/2)
-    vectorlength=len(y_data)
+    vectorlength=len(data_array)
     peak=1
-    AmpTest=AmpThreshold
 
     p=N.arange(0,3,1)#peak parameters
     peak_loc=[]
@@ -81,35 +100,35 @@ def findPeaks(data_array, peakWidth):
     for j in range(len(d)-1): #d is the smoothed first derivative
         if sign(d[j]) > sign (d[j+1]): # Detects zero-crossing
             #print j
-            if d[j]-d[j+1] > SlopeThreshold*y_data[j]: # if slope of derivative is larger than SlopeThreshold
+            if d[j]-d[j+1] > SlopeThreshold*data_array[j]: # if slope of derivative is larger than SlopeThreshold
                 #setting up SNR screening which looks before and after the peak to get an idea of the local noise
-                if (j - WidthPoints) < 0:
+                if (j - peakWidth) < 0:
                     index_start_prev = 0#index start before peak
-                    index_end_prev = j - WidthPoints#index end before peak
+                    index_end_prev = j - peakWidth#index end before peak
                     local_max_prev = 0
-                elif (j - WidthPoints - 0.025*y_len) < 0:#if the peak location is close to the beginning
+                elif (j - peakWidth - peakWindow*y_len) < 0:#if the peak location is close to the beginning
                     index_start_prev = 0#index start before peak
-                    index_end_prev = j + WidthPoints#index end before peak #not sure if this is right changed to + sign 03/10/08 bhc
+                    index_end_prev = j + peakWidth#index end before peak #not sure if this is right changed to + sign 03/10/08 bhc
                     #print index_start_prev
                     #print index_end_prev
-                    local_max_prev = N.max(y_data[index_start_prev:index_end_prev])
+                    local_max_prev = N.max(data_array[index_start_prev:index_end_prev])
                 else:
-                    index_start_prev = j - WidthPoints - 0.025*y_len
-                    index_end_prev = j - WidthPoints
-                    local_max_prev = N.max(y_data[index_start_prev:index_end_prev])
+                    index_start_prev = j - peakWidth - peakWindow*y_len
+                    index_end_prev = j - peakWidth
+                    local_max_prev = N.max(data_array[index_start_prev:index_end_prev])
 
-                if (j + WidthPoints) > y_len:
+                if (j + peakWidth) > y_len:
                     index_start_after = 0#index start before peak
-                    index_end_after = j + WidthPoints#index end before peak
+                    index_end_after = j + peakWidth#index end before peak
                     local_max_after = 0
-                elif (j + WidthPoints + 0.025*y_len) > y_len:#if the peak location is close to the beginning
+                elif (j + peakWidth + peakWindow*y_len) > y_len:#if the peak location is close to the beginning
                     index_start_after = 0#index start before peak
-                    index_end_after = j + WidthPoints#index end before peak
-                    local_max_after = N.max(y_data[index_start_prev:index_end_prev])
+                    index_end_after = j + peakWidth#index end before peak
+                    local_max_after = N.max(data_array[index_start_prev:index_end_prev])
                 else:
-                    index_start_after = j + WidthPoints + 0.025*y_len
-                    index_end_after = j + WidthPoints
-                    local_max_after = N.max(y_data[index_start_prev:index_end_prev])
+                    index_start_after = j + peakWidth + peakWindow*y_len
+                    index_end_after = j + peakWidth
+                    local_max_after = N.max(data_array[index_start_prev:index_end_prev])
 
                 if local_max_prev == 0:
                     local_max_prev = local_max_after
@@ -118,7 +137,7 @@ def findPeaks(data_array, peakWidth):
 
                 local_max = (local_max_prev + local_max_after)/2
 
-                if y_data[j] > AmpThreshold:#3*local_max: # if height of peak is larger than AmpThreshold
+                if data_array[j] > AmpThreshold:#3*local_max: # if height of peak is larger than AmpThreshold
                     #print j
                     xx=[]
                     yy=[]
@@ -130,12 +149,12 @@ def findPeaks(data_array, peakWidth):
                         if groupindex >= vectorlength:
                             groupindex = vectorlength-1
                         xx.append(groupindex)
-#                        print len(y_data), groupindex
-                        yy.append(y_data[groupindex])
+#                        print len(data_array), groupindex
+                        yy.append(data_array[groupindex])
 
                     #print local_max
                     p = CM.fit_gaussian(xx, yy)
-                    #noise_range = y_data[]
+                    #noise_range = data_array[]
                     #if p[0] <= y_stdev:
                     #    print "low SNR...skipping"
                     #    continue
@@ -153,9 +172,9 @@ def findPeaks(data_array, peakWidth):
     file_info['peak_location'] = peak_loc
     file_info['peak_intensity'] = peak_intensity
     file_info['peak_width'] = peak_width
-    file_info['smoothed_data'] = smoothed_data
-    file_info['smoothed_deriv'] = d
-    file_info['second_deriv'] = second_d
+#    file_info['smoothed_data'] = smoothed_data
+#    file_info['smoothed_deriv'] = d
+#    file_info['second_deriv'] = second_d
 
     return file_info
 
