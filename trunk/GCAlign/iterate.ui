@@ -587,136 +587,224 @@
        <attribute name="title" >
         <string>Options</string>
        </attribute>
-       <widget class="QWidget" name="layoutWidget" >
+       <widget class="QWidget" name="" >
         <property name="geometry" >
          <rect>
           <x>11</x>
           <y>13</y>
-          <width>360</width>
-          <height>226</height>
+          <width>305</width>
+          <height>277</height>
          </rect>
         </property>
-        <layout class="QGridLayout" >
-         <item row="0" column="0" >
-          <widget class="QCheckBox" name="loadmzXMLCB" >
-           <property name="text" >
-            <string>Load mzXML</string>
-           </property>
-           <property name="checked" >
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1" >
-          <widget class="QCheckBox" name="plotPkListCB" >
-           <property name="text" >
-            <string>Plot Peak List</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0" >
-          <widget class="QCheckBox" name="plotLegendCB" >
-           <property name="text" >
-            <string>Plot Legend</string>
-           </property>
-           <property name="checked" >
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1" >
-          <widget class="QPushButton" name="loadDirBtn" >
-           <property name="text" >
-            <string>Load Directory</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="1" >
+        <layout class="QVBoxLayout" >
+         <item>
           <layout class="QGridLayout" >
            <item row="0" column="0" >
-            <layout class="QGridLayout" >
-             <property name="horizontalSpacing" >
-              <number>6</number>
+            <widget class="QCheckBox" name="loadmzXMLCB" >
+             <property name="text" >
+              <string>Load mzXML</string>
              </property>
+             <property name="checked" >
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1" >
+            <widget class="QCheckBox" name="plotPkListCB" >
+             <property name="text" >
+              <string>Plot Peak List</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0" >
+            <widget class="QCheckBox" name="plotLegendCB" >
+             <property name="text" >
+              <string>Plot Legend</string>
+             </property>
+             <property name="checked" >
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1" >
+            <widget class="QPushButton" name="loadDirBtn" >
+             <property name="text" >
+              <string>Load Directory</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1" >
+            <layout class="QGridLayout" >
              <item row="0" column="0" >
-              <widget class="QLabel" name="label_3" >
-               <property name="maximumSize" >
-                <size>
-                 <width>50</width>
-                 <height>16777215</height>
-                </size>
+              <layout class="QGridLayout" >
+               <property name="horizontalSpacing" >
+                <number>6</number>
                </property>
-               <property name="text" >
-                <string>SIC m/z</string>
-               </property>
-              </widget>
+               <item row="0" column="0" >
+                <widget class="QLabel" name="label_3" >
+                 <property name="maximumSize" >
+                  <size>
+                   <width>50</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="text" >
+                  <string>SIC m/z</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1" >
+                <widget class="QSpinBox" name="sicMZSB" >
+                 <property name="maximumSize" >
+                  <size>
+                   <width>75</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="minimum" >
+                  <number>1</number>
+                 </property>
+                 <property name="maximum" >
+                  <number>400</number>
+                 </property>
+                </widget>
+               </item>
+              </layout>
              </item>
-             <item row="0" column="1" >
-              <widget class="QSpinBox" name="sicMZSB" >
+             <item row="1" column="0" >
+              <widget class="QPushButton" name="pltSICBtn" >
                <property name="maximumSize" >
                 <size>
                  <width>75</width>
                  <height>16777215</height>
                 </size>
                </property>
-               <property name="minimum" >
-                <number>1</number>
+               <property name="text" >
+                <string>Plot SIC</string>
                </property>
-               <property name="maximum" >
-                <number>400</number>
+              </widget>
+             </item>
+             <item row="2" column="0" >
+              <widget class="QPushButton" name="plotTICBtn" >
+               <property name="maximumSize" >
+                <size>
+                 <width>75</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="text" >
+                <string>Plot TIC</string>
                </property>
               </widget>
              </item>
             </layout>
            </item>
-           <item row="1" column="0" >
-            <widget class="QPushButton" name="pltSICBtn" >
-             <property name="maximumSize" >
-              <size>
-               <width>75</width>
-               <height>16777215</height>
-              </size>
-             </property>
+           <item row="3" column="0" >
+            <widget class="QCheckBox" name="showPickedPeaksCB" >
              <property name="text" >
-              <string>Plot SIC</string>
+              <string>Show Picked Peaks</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1" >
+            <widget class="QCheckBox" name="topHatCB" >
+             <property name="text" >
+              <string>Use TopHat Filter</string>
              </property>
             </widget>
            </item>
            <item row="2" column="0" >
-            <widget class="QPushButton" name="plotTICBtn" >
-             <property name="maximumSize" >
-              <size>
-               <width>75</width>
-               <height>16777215</height>
-              </size>
-             </property>
+            <widget class="QCheckBox" name="dendroCB" >
              <property name="text" >
-              <string>Plot TIC</string>
+              <string>Show Peak Clustering Dendrogram</string>
              </property>
             </widget>
            </item>
           </layout>
          </item>
-         <item row="3" column="0" >
-          <widget class="QCheckBox" name="showPickedPeaksCB" >
-           <property name="text" >
-            <string>Show Picked Peaks</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="1" >
-          <widget class="QCheckBox" name="topHatCB" >
-           <property name="text" >
-            <string>Use TopHat Filter</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0" >
-          <widget class="QCheckBox" name="dendroCB" >
-           <property name="text" >
-            <string>Show Peak Clustering Dendrogram</string>
-           </property>
-          </widget>
+         <item>
+          <layout class="QVBoxLayout" >
+           <item>
+            <layout class="QHBoxLayout" >
+             <item>
+              <widget class="QLabel" name="label_14" >
+               <property name="text" >
+                <string>Minimum Signal-to-Noise</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QDoubleSpinBox" name="doubleSpinBox" >
+               <property name="minimum" >
+                <double>1.000000000000000</double>
+               </property>
+               <property name="maximum" >
+                <double>1000.000000000000000</double>
+               </property>
+               <property name="value" >
+                <double>3.000000000000000</double>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" >
+             <item>
+              <widget class="QLabel" name="label_15" >
+               <property name="text" >
+                <string>Slope Threshold</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QDoubleSpinBox" name="doubleSpinBox_2" />
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" >
+             <item>
+              <widget class="QLabel" name="label_17" >
+               <property name="text" >
+                <string>Smoothing Kernel Length</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QSpinBox" name="spinBox" >
+               <property name="value" >
+                <number>15</number>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" >
+             <item>
+              <widget class="QLabel" name="label_18" >
+               <property name="text" >
+                <string>Approximate Peak Width</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QDoubleSpinBox" name="doubleSpinBox_5" >
+               <property name="decimals" >
+                <number>1</number>
+               </property>
+               <property name="maximum" >
+                <double>1000.000000000000000</double>
+               </property>
+               <property name="value" >
+                <double>25.000000000000000</double>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
          </item>
         </layout>
        </widget>
