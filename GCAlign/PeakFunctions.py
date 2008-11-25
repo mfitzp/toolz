@@ -43,11 +43,13 @@ def crudeNoiseEstimate(datArray, sigmaThresh=3):
 
 
 def findPeaks(data_array, peakWidth, minSNR = 3, slopeThresh = None, ampThresh = None,\
-              smthWidth = None, fitWidth = None,  peakWin = None):
+              smthKern = None, fitWidth = None,  peakWin = None):
     '''
     peakWidth = Average number of points in half-width of peaks (CHANGE TO FIT YOUR SIGNAL)
+    minSNR = minimum SNR for a peak to be considered, noise is defined by function crudeNoiseEstimate
     slopeThresh = threshold of the first derivative from which a peak should be detected
     ampThresh = absolute value for the threshold cutoff
+    smthKern = width to use for Savitzky-Golay smoothing of derivative
     '''
 
     if slopeThresh == None:
@@ -61,10 +63,10 @@ def findPeaks(data_array, peakWidth, minSNR = 3, slopeThresh = None, ampThresh =
     else:
         AmpThreshold = ampThresh
 #    print 'Threshold', AmpThreshold
-    if smthWidth == None:
-        SmoothWidth=peakWidth/2 #SmoothWidth should be roughly equal to 1/2 the peak width (in points)
+    if smthKern == None:
+        smthKern = 15#=peakWidth/2 #SmoothWidth should be roughly equal to 1/2 the peak width (in points)
     else:
-        SmoothWidth = smthWidth
+        smthKern = smthKern
 
     if fitWidth == None:
         FitWidth=peakWidth/2 #FitWidth should be roughly equal to 1/2 the peak widths(in points)
@@ -80,9 +82,8 @@ def findPeaks(data_array, peakWidth, minSNR = 3, slopeThresh = None, ampThresh =
 
     PeakNumber=0
 
-    smoothwidth=round(SmoothWidth)
     peakgroup=round(FitWidth)
-    smoothed_data=savitzky_golay(data_array, kernel = 15, order = 4)
+    smoothed_data=savitzky_golay(data_array, kernel = smthKern, order = 4)
     #d=savitzky_golay(first_derivative(smoothed_data), kernel = 11, order = 4)
     d = derivative(smoothed_data)
 #    second_d = derivative(d)

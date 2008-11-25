@@ -1,5 +1,10 @@
 #!/usr/bin/env python
 
+'''
+Make it so that the BPC is stored when the file is created....11/24/2008 BHC
+'''
+
+
 import os
 from PyQt4 import QtCore,  QtGui
 
@@ -40,8 +45,6 @@ class GC_GC_MS_CLASS(QtCore.QObject):
         #need to use floats.  This is a boolean to see if the
         #conversion to floats has occurred
         self.floated = False
-
-
 
         self.setAttrs()
         self.setupThreads()
