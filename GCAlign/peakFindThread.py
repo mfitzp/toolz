@@ -9,21 +9,19 @@ import scipy as S
 
 import time
 
-#puRE pyTHON neTCDF reADER
-from pupynere import NetCDFFile as CDF
-#pytables
-import tables as T
-
 from scipy import ndimage#used for tophat filter
 
 import PeakFunctions as PF
 
 
 class PeakFindThread(QtCore.QThread):
-    def __init__(self, main, parent = None):
+    def __init__(self, main=None, parent = None):
         QtCore.QThread.__init__(self, parent)
 
-        self.parent = main
+        if main != None:
+            self.parent = main
+        else:
+            self.parent = None
         self.finished = False
         self.stopped = False
         self.mutex = QtCore.QMutex()
@@ -46,7 +44,12 @@ class PeakFindThread(QtCore.QThread):
         self.ready = False
 
 
-
+    def getPeakInfo(self):
+        if self.peakFindOK:
+            return self.peakInfo
+        else:
+            print "No PeakInfo exists--run peakFind again otherwise an error occured that did not commit the PeakInfo array to memory!"
+            return None
 
     def findMinima(self, seg, pad, threshFactor = 2):
         '''
@@ -58,11 +61,27 @@ class PeakFindThread(QtCore.QThread):
         returns start and stop (common values of local minima)
         '''
         thresh = seg.mean() + seg.std()*threshFactor
-        Min = N.select([seg>thresh],[seg],default = 0)#if the element is above thresh set to 0
+        Min = N.where(seg>thresh,seg,0)#if the element is above thresh set to 0
+#        print "Min", Min
+        startSeg = Min[0:pad]
+        endSeg = Min[-pad:]
+        startLows = N.where(startSeg == 0)[0]
+#        print "StartLows",startLows
+        if len(startLows)>0:
+            start = startLows[0]
+        else:
+            start = 0
+            print "no start minima found..."
 
-        start = Min[0:pad][0]#increments by 0.5
-        stop = Min[-pad:][-1]
+        endLows = N.where(endSeg == 0)[0]
+#        print "Endlows", endLows
+        if len(endLows)>0:
+            stop = endLows[-1]
+        else:
+            stop = 0
+            print "no stop minima found..."
         #we are adding one to stop because the indexing is from zero and pad is from 1
+#        print start, stop
         return start, stop+1
 
     def SplitNFind(self, spec2Pick, numSegs, pWidth = 25, minSNR = 3):
@@ -91,7 +110,7 @@ class PeakFindThread(QtCore.QThread):
 
             tempSeg = spec2Pick[start:stop]
 
-            optStart, optStop = findMinima(tempSeg, ovrLen)
+            optStart, optStop = self.findMinima(tempSeg, ovrLen)
 
             if optStart != 0 or (optStop-ovrLen) != 0:
                 oddPnts.append((optStop-ovrLen)+stop)
@@ -101,31 +120,34 @@ class PeakFindThread(QtCore.QThread):
             optStop =(optStop-ovrLen)+stop
 
             tempSeg = spec2Pick[optStart:optStop]
+            if len(tempSeg) > 0:
+                peakInfo = PF.findPeaks(tempSeg, peakWidth = pWidth, minSNR = minSNR,\
+                                        slopeThresh = self.slopeThresh, ampThresh = self.ampThresh,\
+                                        smthKern = self.smthKern, fitWidth = self.fitWidth
+                                        )
+                if len(peakInfo['peak_location']) > 0:
+                    tempLoc = peakInfo['peak_location']
+                    tempInt = peakInfo['peak_intensity']
+                    tempWidth = peakInfo['peak_width']
+                    for loc in tempLoc:
+                        peakLoc.append(loc+optStart)
+                    for yVal in tempInt:
+                        peakInt.append(yVal)
+                    for width in tempWidth:
+                        peakWidth.append(width)
+        #            if len(peakInfo['peak_location']) == 1:
+        #                peakLoc.append(tempLoc[0])
+        #                peakInt.append(tempInt[0])
+        #            else:
+        #                for loc, yVal in tempLoc, tempInt:
+        #                    peakLoc.append(loc)
+        #                    peakInt.append(yVal)
 
-            peakInfo = PF.findPeaks(tempSeg, peakWidth = pWidth, minSNR = minSNR,\
-                                    slopeThresh = self.slopeThresh, ampThresh = self.ampThresh,\
-                                    smthKern = self.smthKern, fitWidth = self.fitWidth
-                                    )
-            if len(peakInfo['peak_location']) > 0:
-                tempLoc = peakInfo['peak_location']
-                tempInt = peakInfo['peak_intensity']
-                tempWidth = peakInfo['peak_width']
-                for loc in tempLoc:
-                    peakLoc.append(loc+optStart)
-                for yVal in tempInt:
-                    peakInt.append(yVal)
-                for width in tempWidth:
-                    peakWidth.append(width)
-    #            if len(peakInfo['peak_location']) == 1:
-    #                peakLoc.append(tempLoc[0])
-    #                peakInt.append(tempInt[0])
-    #            else:
-    #                for loc, yVal in tempLoc, tempInt:
-    #                    peakLoc.append(loc)
-    #                    peakInt.append(yVal)
-
-            #store segment locations--used for debugging
-            stopLoc.append(stop)
+                #store segment locations--used for debugging
+                stopLoc.append(stop)
+                self.emit(QtCore.SIGNAL("progress(int)"), i)
+            else:
+                print optStart, optStop, start, stop
 
         peakDict = {'peakLoc':N.array(peakLoc),
                     'peakInt':N.array(peakInt),
@@ -133,8 +155,8 @@ class PeakFindThread(QtCore.QThread):
                     }
         return peakDict#, minima
 
-    def initSpectrum(self, spec, minSNR = 3, slopeThresh = None, smthKern = 15, \
-                     fitWidth = None, peakWidth = None, ampThresh = None,):
+    def initSpectrum(self, spec, numSegs, minSNR = 3, slopeThresh = None, \
+                     smthKern = 15, fitWidth = None, peakWidth = None, ampThresh = None,):
             '''
             Accepts a numpy spectrum containing gaussian like peaks...
             '''
@@ -146,6 +168,7 @@ class PeakFindThread(QtCore.QThread):
                 self.smthKern = smthKern
                 self.fitWidth = fitWidth
                 self.peakWidth = peakWidth
+                self.numSegs = numSegs
 
                 self.ready = True
 
@@ -154,12 +177,15 @@ class PeakFindThread(QtCore.QThread):
     def run(self):
         self.finished = False
         if self.ready:
+            t1 = time.clock()
             self.peakInfo = self.SplitNFind(self.spectrum, self.numSegs, self.peakWidth, self.minSNR)
             self.peakFindOK = True
-
-#            self.emit(QtCore.SIGNAL("finished(bool)"),self.bpcOK)
+            print "Peak Find Time: ", time.clock()-t1
+#            return self.peakInfo
+#            self.emit(QtCore.SIGNAL("itemLoaded(PyQt_PyObject)"),data2plot)
+            self.emit(QtCore.SIGNAL("finished(bool)"),self.peakFindOK)
         else:
-            print "No mz value list set, run initEICVals(mzList)"
+            print "Error finding peaks..."
 
 
     def stop(self):
@@ -265,14 +291,19 @@ if __name__ == "__main__":
     numSegs = 500
     SNR = 2
     fig = P.figure()
-    ax = fig.add_subplot(211,  title = 'Picked')
+    ax = fig.add_subplot(111,  title = 'Picked')
 
-    peakLoc, peakInt, peakWidth = SplitNFind(refSpec, numSegs, 25, minSNR = SNR)
+#    peakLoc, peakInt, peakWidth = SplitNFind(refSpec, numSegs, 25, minSNR = SNR)
+    peakThread = PeakFindThread()
+    peakThread.initSpectrum(refSpec, minSNR = 3, numSegs = 500, smthKern = 15, peakWidth = 25)
+    peakThread.start()
+    time.sleep(13)
+    peakInfo = peakThread.getPeakInfo()
     ax.plot(refSpec)
-    ax.plot(peakLoc, peakInt, 'ro', alpha = 0.4)
+    ax.plot(peakInfo['peakLoc'],peakInfo['peakInt'], 'ro', alpha = 0.4)
 
-    ax2 = fig.add_subplot(212,  title = 'Histo')
-    ax2.hist(peakInt, log = True, bins = 1000)
+#    ax2 = fig.add_subplot(212,  title = 'Histo')
+#    ax2.hist(peakInt, log = True, bins = 1000)
 
     P.show()
 

@@ -25,7 +25,7 @@ from pylab import cm
 cmaps = [cm.spectral,  cm.hot,  cm.spectral]
 
 from LECO_IO import ChromaTOF_Reader as CR
-import PeakFunctions as PF
+#import PeakFunctions as PF
 from scipy import ndimage#used for tophat filter
 
 
