@@ -127,6 +127,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         QtCore.QObject.connect(self.action_Open,QtCore.SIGNAL("triggered()"),self._getDataFile_)
         QtCore.QObject.connect(self.addFileBtn,QtCore.SIGNAL("clicked()"),self._getDataFile_)
         QtCore.QObject.connect(self.fndPeaksBtn,QtCore.SIGNAL("clicked()"),self.findChromPeaks)
+        QtCore.QObject.connect(self.action_Find_Peaks,QtCore.SIGNAL("triggered()"),self.findChromPeaks)
 
 
         QtCore.QObject.connect(self.handleActionA, QtCore.SIGNAL("triggered()"),self.SelectPointsA)
@@ -223,6 +224,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         ####Peak Info Variables############################
         self.peakInfo = None #when set will be a dictionary containing peak info for the chromatogram
         self.peakLoc2D = None #when set will be a 2D array of picked peak locations and intensities
+        self.peakParams = {} #dictionary of peak parameters
 
         ###############################
         self.cAPicker = None
@@ -329,7 +331,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
             self.curIm = self.curData.ticLayer
             self.curChrom = self.curData.getTIC()
             self.curImPlot = self.imageAxis.imshow(self.curIm, alpha = 1,  aspect = 'auto', origin = 'lower',  cmap = my_cmap, label = 'R', picker = 5)
-            self.curChromPlot = self.chromAxis.plot(self.curChrom, label = self.curData.name, picker = 5)
+            self.curChromPlot = self.chromAxis.plot(self.curChrom, 'b',label = self.curData.name, picker = 5)
 
         #update Chrom GUI elements for peak picking and other functions
         self.updateChromGUI()
@@ -641,17 +643,19 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
 ##########Peak Finding Routines######################
 
     def findChromPeaks(self):
-        numSegs = self.numSegsSB.value() #should be an integer
-        minSNR = self.minSNRSB.value() #should be an integer
-        smthKern = self.smthKernSB.value() #should be an integer
-        peakWidth = self.peakWidthSB.value() #should be an integer
+        self.peakParams['numSegs'] = self.numSegsSB.value() #should be an integer
+        self.peakParams['minSNR'] = self.minSNRSB.value() #should be an integer
+        self.peakParams['smthKern'] = self.smthKernSB.value() #should be an integer
+        self.peakParams['peakWidth'] = self.peakWidthSB.value() #should be an integer
 
-        if type(numSegs) is int and type(minSNR) is int and type(smthKern) is int and type(peakWidth) is int:
+        if type(self.peakParams['numSegs']) is int and type(self.peakParams['minSNR'])\
+        is int and type(self.peakParams['smthKern']) is int and type(self.peakParams['peakWidth']) is int:
             if self.curChrom != None:
                 if len(self.curChrom) > 0:
-                    self.PFT.initSpectrum(self.curChrom, minSNR = minSNR, numSegs = numSegs, smthKern = smthKern, peakWidth = peakWidth)
+                    self.PFT.initSpectrum(self.curChrom, minSNR = self.peakParams['minSNR'], numSegs = self.peakParams['numSegs'],\
+                                          smthKern = self.peakParams['smthKern'], peakWidth = self.peakParams['peakWidth'])
                     self.ToggleProgressBar(True)
-                    self.progressMax = N.float(numSegs)
+                    self.progressMax = N.float(self.peakParams['numSegs'])
                     self.PFT.start()
                     self.tabWidget.setCurrentIndex(0)
                 else:

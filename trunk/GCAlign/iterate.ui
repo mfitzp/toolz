@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>862</width>
-    <height>739</height>
+    <width>812</width>
+    <height>710</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -975,13 +975,13 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>862</width>
+     <width>812</width>
      <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuTools" >
     <property name="title" >
-     <string>ChromTools</string>
+     <string>&amp;ChromTools</string>
     </property>
     <addaction name="actionCursor_A" />
     <addaction name="actionCursor_B" />
@@ -995,9 +995,17 @@
     <property name="title" >
      <string>&amp;File</string>
     </property>
+    <addaction name="action_Open" />
+   </widget>
+   <widget class="QMenu" name="menu_Peak_Tools" >
+    <property name="title" >
+     <string>&amp;Peak Tools</string>
+    </property>
+    <addaction name="action_Find_Peaks" />
    </widget>
    <addaction name="menu_File" />
    <addaction name="menuTools" />
+   <addaction name="menu_Peak_Tools" />
   </widget>
   <widget class="QStatusBar" name="statusbar" />
   <action name="action_Open" >
@@ -1031,6 +1039,14 @@
   <action name="actionCopy_to_Clipboard" >
    <property name="text" >
     <string>Copy to Clipboard</string>
+   </property>
+  </action>
+  <action name="action_Find_Peaks" >
+   <property name="text" >
+    <string>&amp;Find Peaks</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+F</string>
    </property>
   </action>
  </widget>

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Documents and Settings\d3p483\workspace\GCAlign\iterate.ui'
 #
-# Created: Tue Nov 25 16:22:33 2008
+# Created: Wed Nov 26 09:01:01 2008
 #      by: PyQt4 UI code generator 4.3.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -12,7 +12,7 @@ from PyQt4 import QtCore, QtGui
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(QtCore.QSize(QtCore.QRect(0,0,862,739).size()).expandedTo(MainWindow.minimumSizeHint()))
+        MainWindow.resize(QtCore.QSize(QtCore.QRect(0,0,812,710).size()).expandedTo(MainWindow.minimumSizeHint()))
         MainWindow.setWindowIcon(QtGui.QIcon(":/new/prefix1/Retro Mario World_32.png"))
         MainWindow.setLayoutDirection(QtCore.Qt.LeftToRight)
 
@@ -545,7 +545,7 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.menubar = QtGui.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0,0,862,21))
+        self.menubar.setGeometry(QtCore.QRect(0,0,812,21))
         self.menubar.setObjectName("menubar")
 
         self.menuTools = QtGui.QMenu(self.menubar)
@@ -553,6 +553,9 @@ class Ui_MainWindow(object):
 
         self.menu_File = QtGui.QMenu(self.menubar)
         self.menu_File.setObjectName("menu_File")
+
+        self.menu_Peak_Tools = QtGui.QMenu(self.menubar)
+        self.menu_Peak_Tools.setObjectName("menu_Peak_Tools")
         MainWindow.setMenuBar(self.menubar)
 
         self.statusbar = QtGui.QStatusBar(MainWindow)
@@ -576,6 +579,9 @@ class Ui_MainWindow(object):
 
         self.actionCopy_to_Clipboard = QtGui.QAction(MainWindow)
         self.actionCopy_to_Clipboard.setObjectName("actionCopy_to_Clipboard")
+
+        self.action_Find_Peaks = QtGui.QAction(MainWindow)
+        self.action_Find_Peaks.setObjectName("action_Find_Peaks")
         self.menuTools.addAction(self.actionCursor_A)
         self.menuTools.addAction(self.actionCursor_B)
         self.menuTools.addAction(self.actionClear_Cursors)
@@ -583,8 +589,11 @@ class Ui_MainWindow(object):
         self.menuTools.addAction(self.actionLabel_Peak)
         self.menuTools.addSeparator()
         self.menuTools.addAction(self.actionCopy_to_Clipboard)
+        self.menu_File.addAction(self.action_Open)
+        self.menu_Peak_Tools.addAction(self.action_Find_Peaks)
         self.menubar.addAction(self.menu_File.menuAction())
         self.menubar.addAction(self.menuTools.menuAction())
+        self.menubar.addAction(self.menu_Peak_Tools.menuAction())
 
         self.retranslateUi(MainWindow)
         self.tabWidget.setCurrentIndex(0)
@@ -639,8 +648,9 @@ class Ui_MainWindow(object):
         self.peakTable.setColumnCount(4)
         self.peakTable.setRowCount(50)
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.pkListTab), QtGui.QApplication.translate("MainWindow", "Peak List", None, QtGui.QApplication.UnicodeUTF8))
-        self.menuTools.setTitle(QtGui.QApplication.translate("MainWindow", "ChromTools", None, QtGui.QApplication.UnicodeUTF8))
+        self.menuTools.setTitle(QtGui.QApplication.translate("MainWindow", "&ChromTools", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_File.setTitle(QtGui.QApplication.translate("MainWindow", "&File", None, QtGui.QApplication.UnicodeUTF8))
+        self.menu_Peak_Tools.setTitle(QtGui.QApplication.translate("MainWindow", "&Peak Tools", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Open.setText(QtGui.QApplication.translate("MainWindow", "&Open", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Open.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+O", None, QtGui.QApplication.UnicodeUTF8))
         self.actionCursor_A.setText(QtGui.QApplication.translate("MainWindow", "Cursor A", None, QtGui.QApplication.UnicodeUTF8))
@@ -648,6 +658,8 @@ class Ui_MainWindow(object):
         self.actionClear_Cursors.setText(QtGui.QApplication.translate("MainWindow", "Clear Cursors", None, QtGui.QApplication.UnicodeUTF8))
         self.actionLabel_Peak.setText(QtGui.QApplication.translate("MainWindow", "Label Peak", None, QtGui.QApplication.UnicodeUTF8))
         self.actionCopy_to_Clipboard.setText(QtGui.QApplication.translate("MainWindow", "Copy to Clipboard", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_Find_Peaks.setText(QtGui.QApplication.translate("MainWindow", "&Find Peaks", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_Find_Peaks.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+F", None, QtGui.QApplication.UnicodeUTF8))
 
 from mpl_chrom_widget import MPL_Chrom_Widget
 from mpl_pyqt4_widget import MPL_Widget
