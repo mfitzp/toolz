@@ -21,9 +21,10 @@ cmaps = [cm.jet, cm.BrBG, cm.gist_ncar, cm.bone_r,  cm.hot,  cm.spectral, cm.gis
 
 #from LECO_IO import ChromaTOF_Reader as CR
 #import SplitNStich as SNS
-import PeakFunctions as PF
+#import PeakFunctions as PF
 import supportFunc as SF
 from dataClass import GC_GC_MS_CLASS as GCDATA
+from peakFindThread import PeakFindThread as PFT
 
 import ui_iterate
 
@@ -45,10 +46,16 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
 
         self.setupVars()
         self.setupGUI()
-
+        self._setThreads_()
         self._setConnections_()
         self._setMessages_()
         self._setContext_()
+        self.LayoutStatusBar()
+
+
+
+    def _setThreads_(self):
+        self.PFT = PFT()
 
     def _setContext_(self):
 #        self.plotWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
@@ -119,6 +126,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
 
         QtCore.QObject.connect(self.action_Open,QtCore.SIGNAL("triggered()"),self._getDataFile_)
         QtCore.QObject.connect(self.addFileBtn,QtCore.SIGNAL("clicked()"),self._getDataFile_)
+        QtCore.QObject.connect(self.fndPeaksBtn,QtCore.SIGNAL("clicked()"),self.findChromPeaks)
 
 
         QtCore.QObject.connect(self.handleActionA, QtCore.SIGNAL("triggered()"),self.SelectPointsA)
@@ -133,6 +141,10 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         QtCore.QObject.connect(self.actionClear_Cursors,QtCore.SIGNAL("triggered()"),self.cursorClear)
         QtCore.QObject.connect(self.cursACB,QtCore.SIGNAL("stateChanged (int)"),self.toggleCA)
         QtCore.QObject.connect(self.cursBCB,QtCore.SIGNAL("stateChanged (int)"),self.toggleCB)
+
+        QtCore.QObject.connect(self.PFT, QtCore.SIGNAL("finished(bool)"), self.plotPickedPeaks)
+
+        QtCore.QObject.connect(self.PFT, QtCore.SIGNAL("progress(int)"), self.threadProgress)
 
 
     def _initDataFile_(self, dataFileName):
@@ -208,7 +220,11 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         self.curImPlot = None
         self.plotType = 'TIC'
         self.prevChromLimits = 0
+        ####Peak Info Variables############################
+        self.peakInfo = None #when set will be a dictionary containing peak info for the chromatogram
+        self.peakLoc2D = None #when set will be a 2D array of picked peak locations and intensities
 
+        ###############################
         self.cAPicker = None
         self.cBPicker = None
 
@@ -296,6 +312,10 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         return levs
         #cs = P.contourf(z, levs, norm=colors.LogNorm())
 
+    def updateChromGUI(self):
+        self.specLengthSB.setValue(len(self.curChrom))
+        self.numSegsSB.setValue(self.curData.rowPoints)
+
 
     def updatePlot(self, plotIndex):#, plotType = 'TIC'):
         self.imageAxis.cla()
@@ -310,6 +330,9 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
             self.curChrom = self.curData.getTIC()
             self.curImPlot = self.imageAxis.imshow(self.curIm, alpha = 1,  aspect = 'auto', origin = 'lower',  cmap = my_cmap, label = 'R', picker = 5)
             self.curChromPlot = self.chromAxis.plot(self.curChrom, label = self.curData.name, picker = 5)
+
+        #update Chrom GUI elements for peak picking and other functions
+        self.updateChromGUI()
 
         self.plotWidget.canvas.format_labels()
         self.plotWidget.canvas.draw()
@@ -339,8 +362,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
                 pass
 
             self.plotWidget2.canvas.draw()
-
-
 
     def cursBClear(self):
         if self.cBOn:# and self.cBPicker:
@@ -592,6 +613,15 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
             self.usrZoom = True
             self.RS.visible = True
 
+    def get2DPeakLoc(self, peakLoc, rows, cols):
+        x = N.empty(len(peakLoc), dtype = int)
+        y = N.empty(len(peakLoc), dtype = int)
+        for i,loc in enumerate(peakLoc):
+            x[i] = int(loc/cols)
+            y[i] = loc%cols
+
+        return [x,y]
+
 
 
     def getMZSlice(self, fileName, index):
@@ -608,7 +638,96 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         f.close()
 
         return mzSlice, getState
+##########Peak Finding Routines######################
 
+    def findChromPeaks(self):
+        numSegs = self.numSegsSB.value() #should be an integer
+        minSNR = self.minSNRSB.value() #should be an integer
+        smthKern = self.smthKernSB.value() #should be an integer
+        peakWidth = self.peakWidthSB.value() #should be an integer
+
+        if type(numSegs) is int and type(minSNR) is int and type(smthKern) is int and type(peakWidth) is int:
+            if self.curChrom != None:
+                if len(self.curChrom) > 0:
+                    self.PFT.initSpectrum(self.curChrom, minSNR = minSNR, numSegs = numSegs, smthKern = smthKern, peakWidth = peakWidth)
+                    self.ToggleProgressBar(True)
+                    self.progressMax = N.float(numSegs)
+                    self.PFT.start()
+                    self.tabWidget.setCurrentIndex(0)
+                else:
+                    return QtGui.QMessageBox.warning(self, "The Spectrum is empty",  "The spectrum has a length of zero--no peaks to pick.")
+            else:
+                return QtGui.QMessageBox.warning(self, "No Spectrum to Process",  "Is a file loaded...?")
+        else:
+            return QtGui.QMessageBox.warning(self, "Peak Find Parameter Error",  "Check selected values, all should be integers!")
+
+    def plotPickedPeaks(self, finishedBool):
+        if finishedBool:
+            self.peakInfo = self.PFT.getPeakInfo()
+            self.PFT.wait()#as per Ashoka's code...
+
+            if self.showPickedPeaksCB.isChecked():
+                self.autoscale_plot()
+                self.chromAxis.plot(self.peakInfo['peakLoc'],self.peakInfo['peakInt'], 'ro', ms = 3, alpha = 0.4, picker = 5)
+
+                self.peakLoc2D = self.get2DPeakLoc(self.peakInfo['peakLoc'], self.curData.rowPoints, self.curData.colPoints)
+                self.imageAxis.plot(self.peakLoc2D[0],self.peakLoc2D[1],'yo', ms = 3, alpha = 0.5, picker = 5)
+                #remember the image is transposed, so we need to swap the length of the axes
+                self.imageAxis.set_xlim(0,self.curData.rowPoints)
+                self.imageAxis.set_ylim(0,self.curData.colPoints)
+
+                self.plotWidget.canvas.format_labels()
+                self.plotWidget.canvas.draw()
+
+                self.plotWidget2.canvas.format_labels()
+                self.plotWidget2.canvas.draw()
+
+            self.SetStatusLabel("Peak Fitting Completed, %d Peaks Found" % len(self.peakInfo['peakLoc']))
+
+            self.resetProgressBar()
+
+        else:
+            return QtGui.QMessageBox.warning(self, "Peak Find Thread Error",  "The thread did not finish or return a value properly--contact Clowers...")
+
+
+##########Begin Ashoka Progress Bar Code....
+    def LayoutStatusBar(self):
+        self.progressBar = QtGui.QProgressBar()
+        self.statusLabel = QtGui.QLabel("Ready")
+#        self.statusLabel.setMinimumSize(self.statusLabel.sizeHint())
+        self.statusLabel.setAlignment(QtCore.Qt.AlignLeft)
+        self.statusLabel.setText("Ready")
+        self.statusbar.addPermanentWidget(self.statusLabel)
+        self.progressBar.setTextVisible(False)
+        self.progressBar.setRange(0,100)
+        self.progressBar.setValue(0)
+        self.progressBar.setFixedHeight(15)
+        self.progressBar.setFixedWidth(100)
+        self.ToggleProgressBar(False)
+        self.statusbar.addWidget(self.progressBar)
+
+    def resetProgressBar(self):
+        self.SetProgressValue(0)
+        self.ToggleProgressBar(False)
+
+    def SetStatusLabel(self, text):
+        self.statusLabel.setText(text)
+
+    def ShowStatusMessage(self, text, stime):
+        self.statusBar().showMessage(text, stime)
+
+    def SetProgressValue(self, val):
+        self.progressBar.setValue(val)
+
+    def ToggleProgressBar(self, toggle):
+        self.progressBar.setVisible(toggle)
+
+    def threadProgress(self, progVal):
+        self.SetStatusLabel("Fitting Peaks, %d segments completed." % progVal)
+        newVal = int(100*(progVal/self.progressMax))
+        self.SetProgressValue(newVal)
+#        self.AddMessage2Tab("  %d Iterations Done." % progVal)
+#        print progVal, newVal, self.progressMax
 
 if __name__ == "__main__":
     import sys

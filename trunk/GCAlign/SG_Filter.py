@@ -7,7 +7,7 @@ import numpy as N
 
 #######################
 
-def File_Dialog():    
+def File_Dialog():
 # setup the GUI main loop
     app = wx.PySimpleApp()
     filename = wx.FileSelector(message='Select Data File', default_path=os.getcwd(), parent=None)
@@ -22,6 +22,7 @@ def get_ascii_data(filename):
 ###################
 
 def savitzky_golay(data, kernel = 11, order = 4):
+#    print data
     """
         applies a Savitzky-Golay filter
         input parameters:
@@ -78,9 +79,9 @@ def first_derivative(y_data):
     """\
     calculates the derivative
     """
-        
+
     y = (y_data[1:]-y_data[:-1])
-    
+
     dy = y/2#((x_data[1:]-x_data[:-1])/2)
 
     return dy
@@ -99,18 +100,18 @@ def plot_smoothed(data_array):
     plot(smth_y_data)
     #plot(first_derivative(x_data, smth_y_data))
     plot(first_derivative(savitzky_golay(smth_y_data, kernel = 11, order = 4)))
-    
+
     font = {'fontname'   : 'Arial',
         'color'      : 'black',
         'fontweight' : 'bold',
         'fontsize'   : 10}
-    
+
     xlabel('x',font)
     ylabel('Intensity',font)
     grid(True,linewidth=0.5,color='g')
     show()
-    
-    
+
+
 
 
 
