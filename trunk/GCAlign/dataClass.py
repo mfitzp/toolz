@@ -25,9 +25,10 @@ class GC_GC_MS_CLASS(QtCore.QObject):
         self.BPC = None
         self.BPCmz = None#the mz values making up each BPC point
         self.peakPickOk = False
-        self.pickedPeaks1D = None
+        self.peakInfo1D = None
         self.pickedPeaksCluster = None
         self.peakPickParams = None
+        self.peakArrayNames = ['peakLoc', 'peakInt', 'peakWidth']
 
 
         self.colPoints = None
@@ -54,12 +55,20 @@ class GC_GC_MS_CLASS(QtCore.QObject):
         self.setupThreads()
         self.setTIC()
         self.ticLayer = self.make2DLayer(self.TIC, self.colPoints)
+        self.readPeakInfo()
+
+    def setPeakInfo(self, peakInfoDict):
+        if type(peakInfoDict) is dict:
+            if peakInfoDict.has_key('peakLoc'):
+                self.peakPickOk = True
+                self.peakInfo1D = peakInfoDict
+            else:
+                print "1D Peak Info Error, the dictionary does not have the appropriate keys"
+        else:
+            print "the supplied peak information is not in dictionary form"
 
     def setupThreads(self):
         self.ReadThread = ReadThread(self.filePath, self)
-#        self.BPCThread = BPCThread(self.filePath, self)
-#        self.EICThread = EICThread(self.filePath, self)
-#        self.connect(self.BPCThread, QtCore.SIGNAL("finished(bool)"), self.updateBPC)
 
     def updateEIC(self, finishedBool):
         self.eicOK = finishedBool
@@ -79,6 +88,39 @@ class GC_GC_MS_CLASS(QtCore.QObject):
         else:
             print "Please wait, BPC not finished processing"
 
+    def readPeakInfo(self):
+        self.getHandle()
+        childDict = self.handle.root._v_children #dictionary of children
+        if childDict.has_key(self.peakArrayNames[0]):
+            self.peakInfo1D = {}
+            for arrayName in self.peakArrayNames:
+                self.peakInfo1D[arrayName] = childDict[arrayName].read()
+            self.peakPickOk = True
+        self.closeHandle()
+
+    def writeArray2File(self, arrayName, array):
+        hdf = T.openFile(self.filePath, mode = "a")
+        if hdf.root._v_children.has_key(arrayName):
+            hdf.root._v_children[arrayName].remove()
+        filters = T.Filters(complevel=5, complib='zlib')
+        atom = T.FloatAtom()#Int32Atom()
+        shape = array.shape
+        try:
+
+            ca = hdf.createCArray(hdf.root, arrayName, atom, shape,  filters = filters)
+            ca[0:shape[0]] = array
+            ca.flush()
+            hdf.close()
+            print "Write %s to HDF OK!"%arrayName
+        except:
+            print "error writing %s to %s"%(arrayName,self.filePath)
+            hdf.close()
+
+    def savePeakInfo(self):
+        if self.peakPickOk:
+            for item in self.peakInfo1D.iteritems():
+                self.writeArray2File(item[0], item[1])
+
 
     def getHandle(self):
         self.handle = T.openFile(self.filePath, 'r')
@@ -91,25 +133,6 @@ class GC_GC_MS_CLASS(QtCore.QObject):
     def _setBPC_(self):
         self.ReadThread.setType('BPC')
         self.ReadThread.start()
-#        self.getHandle()
-#        if self.fileOpen:
-#            mzCube = self.handle.root.dataCube
-#
-#            rows = len(self.TIC)
-#            bpc = N.zeros(rows)
-#            mzVals = N.zeros(rows)
-#
-#            for i in xrange(rows):
-#                mz=mzCube[i]
-#                mzVals[i] = mz.argmax()
-#                bpc[i]= mz[mzVals[i]]
-#
-#            self.BPC, self.BPCmz = bpc, mzVals
-#            self.closeHandle()
-#            self.bpcOK = True
-#        else:
-#            print "Error opening HDF5 data file"
-
 
     def getBPC(self):
         if self.bpcOK:
