@@ -34,6 +34,12 @@ from peakFindThread import PeakFindThread as PFT
 
 import ui_iterate
 
+
+COLORS = ['#297AA3','#A3293D','#3B9DCE','#293DA3','#5229A3','#8F29A3','#A3297A',
+'#7AA329','#3DA329','#29A352','#29A38F','#A38F29','#3B9DCE','#6CB6DA','#CE6C3B','#DA916C',
+'#0080FF','#0000FF','#7ABDFF','#8000FF','#FF0080','#FF0000','#FF8000','#FFFF00','#A35229','#80FF00',
+'#00FF00','#00FF80','#00FFFF','#3D9EFF','#FF9E3D','#FFBD7A']
+
 cdict ={
 'blue': ((0.0, 0.01, 0.01), (0.01, 0.25, 1), (0.65000000000000002, 1, 1), (0.75000000000000002, 0, 0), (1, 0, 0)),
 'green': ((0.0, 0, 0), (0.05, 0.75, 0.75), (0.25, 1, 1), (0.64000000000000001, 1, 1), (0.91000000000000003, 0, 0), (1, 0, 0)),
@@ -171,12 +177,20 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         if self.dataDict.has_key(dataFileName):
             pass
         else:
+            #####Text Color Handler
+            if self.colorIndex%len(COLORS) == 0:
+                self.colorIndex = 0
+                self.txtColor = COLORS[self.colorIndex]
+                self.colorIndex +=1
+            else:
+                self.txtColor = COLORS[self.colorIndex]
+                self.colorIndex +=1
             self.dataDict[dataFileName] = GCDATA(dataFileName)
             self.dataList.append(dataFileName)
             tempData = self.dataDict[dataFileName]
             tempItem = QtGui.QListWidgetItem(tempData.name)
-    #        tempColor = QtGui.QColor(self.txtColor)
-    #        tempItem.setTextColor(tempColor)
+            tempColor = QtGui.QColor(self.txtColor)
+            tempItem.setTextColor(tempColor)
             tempItem.setToolTip(tempData.filePath)
                     #self.specListWidget.addItem(loadedItem.name)
             self.listWidget.addItem(tempItem)
@@ -219,18 +233,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         self.dataDict = {}
         self.dataList = []
 
-    def format2ndAxis(self, axis):
-        labels_x = axis.get_xticklabels()
-        labels_y = axis.get_yticklabels()
-#        axis.set_yticklabels([''])
-
-        for xlabel in labels_x:
-            xlabel.set_fontsize(8)
-        for ylabel in labels_y:
-            ylabel.set_fontsize(8)
-            ylabel.set_color('b')
-
-
     def setupGUI(self):
 
         self.plotWidget.canvas.setupSub(1)
@@ -255,7 +257,9 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         self.peakInfo = None #when set will be a dictionary containing peak info for the chromatogram
         self.peakLoc2D = None #when set will be a 2D array of picked peak locations and intensities
         self.peakParams = {} #dictionary of peak parameters
-
+        ##############################
+        self.txtColor = None
+        self.colorIndex = 0
         ###############################
         self.cAPicker = None
         self.cBPicker = None
@@ -288,6 +292,17 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
 
         self.addChromPickers()
         self.addImPickers()
+
+    def format2ndAxis(self, axis):
+        labels_x = axis.get_xticklabels()
+        labels_y = axis.get_yticklabels()
+#        axis.set_yticklabels([''])
+
+        for xlabel in labels_x:
+            xlabel.set_fontsize(8)
+        for ylabel in labels_y:
+            ylabel.set_fontsize(8)
+            ylabel.set_color('b')
 
     def addChromPickers(self, minX = 0):
         #minX is provided so that the plot will scale correctly when a data trace is initiated
@@ -327,8 +342,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
                         print event.ind[0]
                         for info in self.peakInfo.itervalues():
                             print info[event.ind[0]]
-
-
 
                     self.xLine.set_xdata([xPnt])
                     self.yLine.set_ydata([yPnt])
@@ -415,6 +428,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         if self.usrZoom:
             if event1.button == 1 and event2.button == 1:
                 'event1 and event2 are the press and release events'
+                #print event1.xdata, event1.ydata, event2.xdata, event2.ydata
                 dataCoord = [[int(N.round(event1.xdata)), int(N.round(event1.ydata))],[int(N.round(event2.xdata)), int(N.round(event2.ydata))]]
                 cols = self.curData.colPoints
                 chromLimits = [dataCoord[0][0]*cols+dataCoord[0][1]+self.prevChromLimits,\
@@ -426,13 +440,13 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
                 xLim.sort()
                 yLim.sort()
                 chromLimits.sort()
+#                print dataCoord
 #                print 'X Limits', xLim
 #                print 'Y Limits',yLim
 #                self.imageAxis.set_xlim(xLim[0],xLim[1])
 #                self.imageAxis.set_ylim(yLim[0],yLim[1])
                 #####################
-                x = N.arange(xLim[0], xLim[1])
-                y = N.arange(yLim[0], yLim[1])
+
 
 #                chromMin = chromLimits.min()
 #                chromMax = chromLimits.max()
@@ -453,14 +467,20 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
 
                 #indexing is done as below because the image is transposed.
                 self.curIm = self.curIm[yLim[0]:yLim[1],xLim[0]:xLim[1]]
-#                print 'Shape', localZoom.shape, self.curIm.shape
+#                print 'Shape', self.curIm.shape, len(x), len(y)
 
                 self.imageAxis.cla()
                 self.addImPickers()
                 self.imageAxis.imshow(self.curIm, alpha = 1,  aspect = 'auto', \
                                       origin = 'lower',  cmap = my_cmap, label = 'R')
+                xLen = len(self.imageAxis.get_xticklabels())
+                yLen = len(self.imageAxis.get_yticklabels())
+                x = N.arange(xLim[0], xLim[1], int(((xLim[1]-xLim[0])/xLen)))
+                y = N.arange(yLim[0], yLim[1], int(((yLim[1]-yLim[0])/yLen)))
                 self.imageAxis.set_xticklabels(x)
                 self.imageAxis.set_yticklabels(y)
+#                print self.imageAxis.get_xticklabels()
+#                print self.imageAxis.get_yticklabels()
 
                 x1 = chromLimits[0]
                 x2 = chromLimits[1]
@@ -498,12 +518,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
     #
     #            self.refIm.norm.autoscale(localRef)
     #            self.plotWidget.canvas.draw()
-
-
-
-
-
-
 
 
 

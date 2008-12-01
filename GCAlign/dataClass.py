@@ -24,6 +24,10 @@ class GC_GC_MS_CLASS(QtCore.QObject):
         self.handle = None
         self.BPC = None
         self.BPCmz = None#the mz values making up each BPC point
+        self.peakPickOk = False
+        self.pickedPeaks1D = None
+        self.pickedPeaksCluster = None
+        self.peakPickParams = None
 
 
         self.colPoints = None
