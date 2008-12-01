@@ -32,6 +32,133 @@ clusterType = {'Linkage':'linkage',
                }
 
 
+class PeakClusterThread(QtCore.QThread):
+    def __init__(self, fileName, main, parent = None):
+        QtCore.QThread.__init__(self, parent)
+
+        self.parent = main
+        self.finished = False
+        self.stopped = False
+        self.mutex = QtCore.QMutex()
+        self.fileName = fileName
+        self.handle = None
+        self.fileOpen = False
+
+        self.bpcOK = False
+        self.BPC = None
+
+        self.ready = False
+
+        self.eicOK = False
+        self.EIC = None
+        self.mzVals = None
+        self.specType = None
+
+    def setType(self, specType):
+            self.specType = specType
+
+    def getHandle(self):
+        self.handle = T.openFile(self.fileName, 'r')
+        self.fileOpen = True
+
+    def closeHandle(self):
+        self.handle.close()
+        self.fileOpen = False
+
+    def setBPC(self):
+        self.getHandle()
+        if self.fileOpen:
+            mzCube = self.handle.root.dataCube
+
+            rows = mzCube.shape[0]
+            bpc = N.zeros(rows)
+            mzVals = N.zeros(rows)
+
+            for i in xrange(rows):
+                mz=mzCube[i]
+                mzVals[i] = mz.argmax()
+                bpc[i]= mz[mzVals[i]]
+                if i%10000 == 0:
+                    print i
+
+            self.BPC, self.BPCmz = bpc, mzVals
+            self.closeHandle()
+            return True
+        else:
+            print "Error opening HDF5 data file"
+            return False
+
+    def getBPC(self):
+        if self.bpcOK:
+            return self.BPC
+
+    def getEIC(self):
+        if self.eicOK:
+            return self.EIC
+
+    def initEICVals(self, mzList):
+            '''
+            Accepts a list of mzValues to get an EIC for
+            '''
+            if type(mzList) is list and len(mzList)>0:
+                self.mzVals = mzList
+                self.ready = True
+
+    def setEIC(self):
+        self.getHandle()
+        if self.fileOpen and len(self.mzVals)>0:
+            mzCube = self.handle.root.dataCube
+
+            rows = mzCube.shape[0]
+            eic = N.zeros(rows)
+
+            for mz in self.mzVals:
+                eic +=mzCube[:,mz]
+
+            self.EIC = eic
+            self.closeHandle()
+            return True
+        else:
+            print "Error opening HDF5 data file"
+            return False
+
+
+    def run(self):
+        self.finished = False
+        if self.specType == 'BPC':
+
+            self.bpcOK = self.setBPC()
+    #        self.emit(QtCore.SIGNAL("finished(bool)"),self.bpcOK)
+            self.finished = True
+            self.parent.updateBPC(self.bpcOK)
+        elif self.specType == 'EIC':
+            if self.ready:
+                self.finished = False
+                self.eicOK = self.setEIC()
+        #        self.emit(QtCore.SIGNAL("finished(bool)"),self.eicOK)
+                self.finished = True
+                self.ready = False
+                self.parent.updateEIC(self.eicOK)
+            else:
+                print "No mz value list set, run initEICVals(mzList)"
+
+
+    def stop(self):
+        print "stop try"
+        try:
+            self.mutex.lock()
+            self.stopped = True
+        finally:
+            self.mutex.unlock()
+
+    def isStopped(self):
+        print "stop try"
+        try:
+            self.mutex.lock()
+            return self.stopped
+        finally:
+            self.mutex.unlock()
+
 def get2DPeakLoc(peakLoc, rows, cols):
     x = N.empty(len(peakLoc), dtype = int)
     y = N.empty(len(peakLoc), dtype = int)

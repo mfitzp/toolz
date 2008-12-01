@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Documents and Settings\d3p483\workspace\GCAlign\iterate.ui'
 #
-# Created: Wed Nov 26 09:01:01 2008
+# Created: Mon Dec 01 11:36:23 2008
 #      by: PyQt4 UI code generator 4.3.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -76,7 +76,7 @@ class Ui_MainWindow(object):
         self.splitter.setOrientation(QtCore.Qt.Vertical)
         self.splitter.setObjectName("splitter")
 
-        self.plotWidget = MPL_Widget(self.splitter)
+        self.plotWidget = MPL_Image_Widget(self.splitter)
 
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
@@ -528,18 +528,66 @@ class Ui_MainWindow(object):
         self.fndPeaksBtn.setObjectName("fndPeaksBtn")
         self.hboxlayout9.addWidget(self.fndPeaksBtn)
         self.gridlayout5.addLayout(self.hboxlayout9,6,0,1,1)
+
+        self.savePickedPeakBtn = QtGui.QPushButton(self.optionsTab)
+        self.savePickedPeakBtn.setObjectName("savePickedPeakBtn")
+        self.gridlayout5.addWidget(self.savePickedPeakBtn,7,0,1,1)
         self.gridlayout1.addLayout(self.gridlayout5,1,0,1,1)
+
+        self.gridlayout6 = QtGui.QGridLayout()
+        self.gridlayout6.setObjectName("gridlayout6")
+
+        self.plotClusterPeakCB = QtGui.QCheckBox(self.optionsTab)
+        self.plotClusterPeakCB.setObjectName("plotClusterPeakCB")
+        self.gridlayout6.addWidget(self.plotClusterPeakCB,0,0,1,1)
+
+        self.hboxlayout10 = QtGui.QHBoxLayout()
+        self.hboxlayout10.setObjectName("hboxlayout10")
+
+        self.label_16 = QtGui.QLabel(self.optionsTab)
+        self.label_16.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_16.setObjectName("label_16")
+        self.hboxlayout10.addWidget(self.label_16)
+
+        self.distMethodCB = QtGui.QComboBox(self.optionsTab)
+        self.distMethodCB.setObjectName("distMethodCB")
+        self.hboxlayout10.addWidget(self.distMethodCB)
+        self.gridlayout6.addLayout(self.hboxlayout10,1,0,1,1)
+
+        self.hboxlayout11 = QtGui.QHBoxLayout()
+        self.hboxlayout11.setObjectName("hboxlayout11")
+
+        self.label_21 = QtGui.QLabel(self.optionsTab)
+        self.label_21.setLayoutDirection(QtCore.Qt.LeftToRight)
+        self.label_21.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_21.setObjectName("label_21")
+        self.hboxlayout11.addWidget(self.label_21)
+
+        self.clusterTypeCB = QtGui.QComboBox(self.optionsTab)
+        self.clusterTypeCB.setObjectName("clusterTypeCB")
+        self.hboxlayout11.addWidget(self.clusterTypeCB)
+        self.gridlayout6.addLayout(self.hboxlayout11,2,0,1,1)
+
+        self.showDendroCB = QtGui.QCheckBox(self.optionsTab)
+        self.showDendroCB.setChecked(True)
+        self.showDendroCB.setObjectName("showDendroCB")
+        self.gridlayout6.addWidget(self.showDendroCB,3,0,1,1)
+
+        self.clusterBtn = QtGui.QPushButton(self.optionsTab)
+        self.clusterBtn.setObjectName("clusterBtn")
+        self.gridlayout6.addWidget(self.clusterBtn,4,0,1,1)
+        self.gridlayout1.addLayout(self.gridlayout6,1,1,1,1)
         self.tabWidget.addTab(self.optionsTab,"")
 
         self.pkListTab = QtGui.QWidget()
         self.pkListTab.setObjectName("pkListTab")
 
-        self.hboxlayout10 = QtGui.QHBoxLayout(self.pkListTab)
-        self.hboxlayout10.setObjectName("hboxlayout10")
+        self.hboxlayout12 = QtGui.QHBoxLayout(self.pkListTab)
+        self.hboxlayout12.setObjectName("hboxlayout12")
 
         self.peakTable = QtGui.QTableWidget(self.pkListTab)
         self.peakTable.setObjectName("peakTable")
-        self.hboxlayout10.addWidget(self.peakTable)
+        self.hboxlayout12.addWidget(self.peakTable)
         self.tabWidget.addTab(self.pkListTab,"")
         self.hboxlayout.addWidget(self.tabWidget)
         MainWindow.setCentralWidget(self.centralwidget)
@@ -603,8 +651,8 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow", "GeeCee", None, QtGui.QApplication.UnicodeUTF8))
-        self.label.setText(QtGui.QApplication.translate("MainWindow", "Spectrum Index:", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_2.setText(QtGui.QApplication.translate("MainWindow", "Spectrum Location:", None, QtGui.QApplication.UnicodeUTF8))
+        self.label.setText(QtGui.QApplication.translate("MainWindow", "Data Index:", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_2.setText(QtGui.QApplication.translate("MainWindow", "Data Location:", None, QtGui.QApplication.UnicodeUTF8))
         self.addFileBtn.setText(QtGui.QApplication.translate("MainWindow", "Add Experiment", None, QtGui.QApplication.UnicodeUTF8))
         self.tableWidget.setRowCount(7)
         self.tableWidget.setColumnCount(2)
@@ -641,6 +689,12 @@ class Ui_MainWindow(object):
         self.label_18.setText(QtGui.QApplication.translate("MainWindow", "Approximate Peak Width (in points):", None, QtGui.QApplication.UnicodeUTF8))
         self.showPickedPeaksCB.setText(QtGui.QApplication.translate("MainWindow", "Show Picked Peaks", None, QtGui.QApplication.UnicodeUTF8))
         self.fndPeaksBtn.setText(QtGui.QApplication.translate("MainWindow", "Find Peaks", None, QtGui.QApplication.UnicodeUTF8))
+        self.savePickedPeakBtn.setText(QtGui.QApplication.translate("MainWindow", "Save Picked Peaks", None, QtGui.QApplication.UnicodeUTF8))
+        self.plotClusterPeakCB.setText(QtGui.QApplication.translate("MainWindow", "Show Clustered Peaks", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_16.setText(QtGui.QApplication.translate("MainWindow", "Distance Calculation Method:", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_21.setText(QtGui.QApplication.translate("MainWindow", "Clustering Type:", None, QtGui.QApplication.UnicodeUTF8))
+        self.showDendroCB.setText(QtGui.QApplication.translate("MainWindow", "Show Clutered Dendrogram", None, QtGui.QApplication.UnicodeUTF8))
+        self.clusterBtn.setText(QtGui.QApplication.translate("MainWindow", "Cluster Peaks", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.optionsTab), QtGui.QApplication.translate("MainWindow", "Options", None, QtGui.QApplication.UnicodeUTF8))
         self.peakTable.setRowCount(50)
         self.peakTable.setColumnCount(4)
@@ -661,6 +715,6 @@ class Ui_MainWindow(object):
         self.action_Find_Peaks.setText(QtGui.QApplication.translate("MainWindow", "&Find Peaks", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Find_Peaks.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+F", None, QtGui.QApplication.UnicodeUTF8))
 
+from mpl_image_widget import MPL_Image_Widget
 from mpl_chrom_widget import MPL_Chrom_Widget
-from mpl_pyqt4_widget import MPL_Widget
 import icons_rc
