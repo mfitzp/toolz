@@ -2,6 +2,12 @@
 ###################################
 '''To Do:
 exclude list/include list with tolerance
+save/load peak list that was found...
+peak grouping
+is the m/z range correct (zero indexing?)
+kill child windows when spawned
+peak info when clicked
+export peak list
 '''
 ###################################
 import os, sys
@@ -96,7 +102,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         self.ResetAllDataText = "This operation will reset all your data.\nWould you like to continue?"
         self.EmptyArrayText = "There is no data in the array selected.  Perhaps the search criteria are too stringent.  Check ppm and e-Value cutoff values\n"
 
-
     def _setConnections_(self):
 
 #        QtCore.QObject.connect(self.indexSpinBox, QtCore.SIGNAL("valueChanged (int)"), self.updatePlot)
@@ -147,12 +152,36 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
 
         QtCore.QObject.connect(self.PFT, QtCore.SIGNAL("progress(int)"), self.threadProgress)
 
+        QtCore.QObject.connect(self.listWidget, QtCore.SIGNAL("itemClicked (QListWidgetItem *)"), self.specListSelect)
+
+    def specListSelect(self, widgetItem=None):
+        selectItems = self.listWidget.selectedItems()
+        #curRow
+        if len(selectItems) > 0:
+            self.updatePlot(self.listWidget.indexFromItem(selectItems[0]).row())
+#            self.multiPlotIndex = []#reset indexes to plot
+#            for item in selectItems:
+#                self.multiPlotIndex.append(self.specListWidget.indexFromItem(item).row())
+#
+#            self.plotByIndex(multiPlot = True)
+
 
     def _initDataFile_(self, dataFileName):
         print dataFileName
-        self.dataDict[dataFileName] = GCDATA(dataFileName)
-        self.dataList.append(dataFileName)
-        self.updatePlot(0)
+        if self.dataDict.has_key(dataFileName):
+            pass
+        else:
+            self.dataDict[dataFileName] = GCDATA(dataFileName)
+            self.dataList.append(dataFileName)
+            tempData = self.dataDict[dataFileName]
+            tempItem = QtGui.QListWidgetItem(tempData.name)
+    #        tempColor = QtGui.QColor(self.txtColor)
+    #        tempItem.setTextColor(tempColor)
+            tempItem.setToolTip(tempData.filePath)
+                    #self.specListWidget.addItem(loadedItem.name)
+            self.listWidget.addItem(tempItem)
+
+            self.updatePlot(len(self.dataList)-1)
 
 
     def _getDataFile_(self):
@@ -213,14 +242,15 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
 #        self.chromAxis2 = self.chromAxis.twiny()
 #        self.format2ndAxis(self.chromAxis2)
 
-        self.curData = None
-        self.curIm = None
-        self.mainIm = None
-        self.curImPlot = None
-        self.curChrom = None
-        self.curImPlot = None
+        self.curData = None #reference to the GCGCData Class
+        self.curIm = None #reference to the 2D image used during zoom events
+        self.mainIm = None #primary 2D plot image initialized when file is loaded and when autoscale is called
+        self.curImPlot = None #is the matplotlib axis reference
+        self.curChrom = None #current chromatogram
+        self.curImPlot = None #is the matplotlib axis reference
         self.plotType = 'TIC'
         self.prevChromLimits = 0
+        self.prevImLimits = [0,0]
         ####Peak Info Variables############################
         self.peakInfo = None #when set will be a dictionary containing peak info for the chromatogram
         self.peakLoc2D = None #when set will be a 2D array of picked peak locations and intensities
@@ -242,8 +272,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         self.dx = 0
         self.dy = 0
 
-
-        self.RS = RectangleSelector(self.imageAxis, self.setZScale, minspanx = 2,
+        self.RS = RectangleSelector(self.imageAxis, self.imageZoom, minspanx = 2,
                         minspany = 2, drawtype='box',useblit=True, rectprops = self.RSprops)
         self.usrZoom = False
         self.RS.visible = False
@@ -257,72 +286,78 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         self.indexHSlider.setMaximum(self.numSpec)
         self.indexSpinBox.setMaximum(self.numSpec)
 
-        self.addPickers()
+        self.addChromPickers()
+        self.addImPickers()
 
-    def addPickers(self, minX = 0):
+    def addChromPickers(self, minX = 0):
         #minX is provided so that the plot will scale correctly when a data trace is initiated
         #Pickers for the 2D image
         self.selectHandleA,  = self.chromAxis.plot([minX], [0], 'o',\
                                         ms=8, alpha=.4, color='yellow', visible=False,  label = '_nolegend_')
         self.selectHandleB,  = self.chromAxis.plot([minX], [0], 's',\
                                         ms=8, alpha=.4, color='green', visible=False,  label = '_nolegend_')
+    def addImPickers(self, minX = 0):
         #Pickers for the Chromatogram
         self.selectCursA,  = self.imageAxis.plot([minX], [0], 'o',\
-                                        ms=7, alpha=.8, color='yellow', visible=False,  label = '_nolegend_')
-        self.xLine = self.imageAxis.axvline(x=0, ls = ':', color = 'y', alpha = 0.6, visible = False)
-        self.yLine = self.imageAxis.axhline(y=0, ls = ':', color = 'y', alpha = 0.6, visible = False)
+                                        ms=5, alpha=.7, color='red', visible=True,  label = '_nolegend_')
+        self.xLine = self.imageAxis.axvline(x=0, ls = ':', color = 'y', alpha = 0.6, visible = True)
+        self.yLine = self.imageAxis.axhline(y=0, ls = ':', color = 'y', alpha = 0.6, visible = True)
 
 #        self.cursText = self.imageAxis.text(0, 0, '0rigin',  fontsize=9)
 
-#        self.cAPicker = self.plotWidget.canvas.mpl_connect('pick_event', self.imageClick)
+        self.peakPicker = self.plotWidget.canvas.mpl_connect('pick_event', self.imageClick)
+#        self.plotWidget.canvas.mpl_connect('pick_event', self.imageClick)
 
     def imageClick(self, event):
         '''how to use just mousebutton 3 or right mouse click without messing up zoom?'''
         #print event.button
 
         if event.mouseevent.xdata != None and event.mouseevent.ydata != None:
-            if event.mouseevent.button == 3:
-                self.selectCursA.set_data([event.mouseevent.xdata], [event.mouseevent.ydata])
-                xPnt, yPnt =  int(N.round(event.mouseevent.xdata)), event.mouseevent.ydata
+            if event.mouseevent.button == 1:
+                if isinstance(event.artist, Line2D):
+                    thisline = event.artist
+                    xdata = thisline.get_xdata()
+                    ydata = thisline.get_ydata()
+                    self.selectCursA.set_data(xdata[event.ind[0]], ydata[event.ind[0]])
+#                    self.selectCursA.set_data([event.mouseevent.xdata], [event.mouseevent.ydata])
+                    xPnt, yPnt =  int(N.round(event.mouseevent.xdata)), event.mouseevent.ydata
+    #                print xPnt, yPnt
 
-#        if event.xdata != None and event.ydata != None:
-#            if event.button == 3:
-#                self.selectCursA.set_data([event.xdata], [event.ydata])
-#                xPnt, yPnt =  int(N.round(event.xdata)), int(N.round(event.ydata))
-                #print xPnt, yPnt
-    #            self.selectCursA.set_data([xPnt], [yPnt])
-                self.xLine.set_xdata([xPnt])
-                self.yLine.set_ydata([yPnt])
-                try:#this is so that the cursor label gets removed
-                    self.cursText.remove()
-                except:
-                    pass
-                self.cursText = self.imageAxis.text(xPnt*1.01, yPnt, '%.1f\n%.1f'%(xPnt,yPnt),  fontsize=7, rotation = 45)
-                self.imageAxis.draw_artist(self.cursText)
-                self.imageAxis.draw_artist(self.selectCursA)
-                self.imageAxis.draw_artist(self.xLine)
-                self.imageAxis.draw_artist(self.yLine)
-                self.plotWidget.canvas.blit(self.imageAxis.bbox)
+                    if self.peakInfo != None:
+                        print event.ind[0]
+                        for info in self.peakInfo.itervalues():
+                            print info[event.ind[0]]
+
+
+
+                    self.xLine.set_xdata([xPnt])
+                    self.yLine.set_ydata([yPnt])
+
+                    self.imageAxis.draw_artist(self.selectCursA)
+                    self.imageAxis.draw_artist(self.xLine)
+                    self.imageAxis.draw_artist(self.yLine)
+                    self.plotWidget.canvas.blit(self.imageAxis.bbox)
+
+#                self.plotWidget2.canvas.format_labels()
+#                self.plotWidget2.canvas.draw()
+#                self.plotWidget2.setFocus()
 
 
     def colorScale(self, dataMtx):
         dataMtx = N.where(dataMtx<= 0, dataMtx,10)
         lev_exp = N.arange(0, N.log2(dataMtx.max())+1)
-        #print z.max(), z.min()
-        #print lev_exp
         levs = N.power(2, lev_exp)
         return levs
-        #cs = P.contourf(z, levs, norm=colors.LogNorm())
 
     def updateChromGUI(self):
         self.specLengthSB.setValue(len(self.curChrom))
         self.numSegsSB.setValue(self.curData.rowPoints)
 
-
     def updatePlot(self, plotIndex):#, plotType = 'TIC'):
         self.imageAxis.cla()
         self.chromAxis.cla()
-        self.addPickers()
+        self.addChromPickers()
+        self.addImPickers()
         curDataName = self.dataList[plotIndex]
         self.curData = self.dataDict[curDataName]
         self.specNameEdit.setText(self.curData.filePath)#use dataList to get the name
@@ -330,8 +365,10 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
             self.mainIm = self.curData.ticLayer
             self.curIm = self.curData.ticLayer
             self.curChrom = self.curData.getTIC()
-            self.curImPlot = self.imageAxis.imshow(self.curIm, alpha = 1,  aspect = 'auto', origin = 'lower',  cmap = my_cmap, label = 'R', picker = 5)
-            self.curChromPlot = self.chromAxis.plot(self.curChrom, 'b',label = self.curData.name, picker = 5)
+            self.curImPlot = self.imageAxis.imshow(self.curIm, alpha = 1,  aspect = 'auto',\
+                                                   origin = 'lower',  cmap = my_cmap, label = 'R')
+            self.curChromPlot = self.chromAxis.plot(self.curChrom, 'b', label = self.curData.name,\
+                                                    picker = 5)
 
         #update Chrom GUI elements for peak picking and other functions
         self.updateChromGUI()
@@ -344,6 +381,134 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         self.plotWidget2.canvas.draw()
         self.plotWidget2.setFocus()
 
+
+###########################
+
+    def autoscale_plot(self):
+        self.imageAxis.cla()
+        self.addImPickers()
+        if self.plotType == 'TIC':
+            self.curIm = self.curData.ticLayer
+        self.imageAxis.imshow(self.mainIm, alpha = 1,  aspect = 'auto', origin = 'lower',  cmap = my_cmap, label = 'R')
+
+        if self.showPickedPeaksCB.isChecked():
+            if self.peakInfo != None:
+                self.chromAxis.plot(self.peakInfo['peakLoc'],self.peakInfo['peakInt'], 'ro', ms = 3, alpha = 0.4, picker = 5)
+                self.imageAxis.plot(self.peakLoc2D[0],self.peakLoc2D[1],'yo', ms = 3, alpha = 0.6, picker = 5)
+                #remember the image is transposed, so we need to swap the length of the axes
+                self.imageAxis.set_xlim(0,self.curData.rowPoints)
+                self.imageAxis.set_ylim(0,self.curData.colPoints)
+
+        self.prevChromLimits = 0
+        self.prevImLimits = [0,0]
+        self.plotWidget2.autoscale_plot()
+
+        self.plotWidget.canvas.format_labels()
+        self.plotWidget.canvas.draw()
+        self.plotWidget2.canvas.format_labels()
+        self.plotWidget2.canvas.draw()
+################Original
+#        self.imageAxis.autoscale_view(tight = False, scalex=True, scaley=True)
+#        self.plotWidget.canvas.draw()
+
+    def imageZoom(self, event1, event2):
+        if self.usrZoom:
+            if event1.button == 1 and event2.button == 1:
+                'event1 and event2 are the press and release events'
+                dataCoord = [[int(N.round(event1.xdata)), int(N.round(event1.ydata))],[int(N.round(event2.xdata)), int(N.round(event2.ydata))]]
+                cols = self.curData.colPoints
+                chromLimits = [dataCoord[0][0]*cols+dataCoord[0][1]+self.prevChromLimits,\
+                               N.abs(self.prevChromLimits+(dataCoord[1][0]*cols+dataCoord[1][1]))]
+                dataCoord = N.array(dataCoord)
+                chromLimits = N.array(chromLimits)
+                xLim = dataCoord[:,0]
+                yLim = dataCoord[:,1]
+                xLim.sort()
+                yLim.sort()
+                chromLimits.sort()
+#                print 'X Limits', xLim
+#                print 'Y Limits',yLim
+#                self.imageAxis.set_xlim(xLim[0],xLim[1])
+#                self.imageAxis.set_ylim(yLim[0],yLim[1])
+                #####################
+                x = N.arange(xLim[0], xLim[1])
+                y = N.arange(yLim[0], yLim[1])
+
+#                chromMin = chromLimits.min()
+#                chromMax = chromLimits.max()
+#                print chromLimits
+#                xRange = []
+#                yRange = []
+#                xRange.append(int(chromMin/self.curData.colPoints))
+#                xRange.append(int(chromMax/self.curData.colPoints))
+#                yRange.append(int(chromMin%self.curData.colPoints))
+#                yRange.append(int(chromMax%self.curData.colPoints))
+#                xRange = N.array(xRange)
+#                yRange = N.array(yRange)
+#                xRange.sort()
+#                yRange.sort()
+#
+#                x = N.arange(xRange[0], xRange[1])
+#                y = N.arange(yRange[0], yRange[1])
+
+                #indexing is done as below because the image is transposed.
+                self.curIm = self.curIm[yLim[0]:yLim[1],xLim[0]:xLim[1]]
+#                print 'Shape', localZoom.shape, self.curIm.shape
+
+                self.imageAxis.cla()
+                self.addImPickers()
+                self.imageAxis.imshow(self.curIm, alpha = 1,  aspect = 'auto', \
+                                      origin = 'lower',  cmap = my_cmap, label = 'R')
+                self.imageAxis.set_xticklabels(x)
+                self.imageAxis.set_yticklabels(y)
+
+                x1 = chromLimits[0]
+                x2 = chromLimits[1]
+                self.chromAxis.set_xlim(x1,x2)
+                tempChrom = self.curChrom[x1:x2]
+                if len(tempChrom) > 0:
+                    self.chromAxis.set_ylim(0, tempChrom.max()*1.1)
+                self.prevChromLimits = x1
+
+                #####2D Peak Locations#####
+
+                if self.peakInfo != None:
+                    tempPeaks = self.peakInfo['peakLoc']
+                    rangeCrit = (tempPeaks >= x1) & (tempPeaks <= x2) #criterion for selection
+                    tempPeakInd = N.where(rangeCrit) #peak indicies
+                    tempPeakLoc2D = self.get2DPeakLoc(self.peakInfo['peakLoc'][tempPeakInd], self.curData.rowPoints, self.curData.colPoints)
+                    self.imageAxis.plot(tempPeakLoc2D[0]-xLim[0]-self.prevImLimits[0],\
+                                        tempPeakLoc2D[1]-yLim[0]-self.prevImLimits[1],\
+                                        'yo', ms = 3, alpha = 0.6, picker = 5)
+                    #self.peakLoc2D = self.get2DPeakLoc(self.peakInfo['peakLoc'], self.curData.rowPoints, self.curData.colPoints)
+                    self.imageAxis.set_xlim(0, self.curIm.shape[1]-1)
+                    self.imageAxis.set_ylim(0, self.curIm.shape[0])
+                    #print tempPeakInd
+
+                self.prevImLimits = [xLim[0]+self.prevImLimits[0],yLim[0]+self.prevImLimits[1]]
+
+                self.plotWidget2.canvas.format_labels()
+                self.plotWidget2.canvas.draw()
+
+                self.plotWidget.canvas.format_labels()
+                self.plotWidget.canvas.draw()
+                ##############################Original without color scaling
+                #self.imageAxis
+                #self.curIm = self.imageAxis.imshow(curData.ticLayer, alpha = 1,  aspect = 'auto', origin = 'lower',  cmap = my_cmap, label = 'R', picker = 5)
+    #
+    #            self.refIm.norm.autoscale(localRef)
+    #            self.plotWidget.canvas.draw()
+
+
+
+
+
+
+
+
+
+
+###########Cursor Controls
     def cursAClear(self):
         if self.cAOn:# and self.cAPicker:
             self.selectHandleA.set_visible(False)
@@ -386,7 +551,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
 
             self.plotWidget2.canvas.draw()
 
-
     def cursorClear(self):
         self.cursACB.nextCheckState()
         self.cursBCB.nextCheckState()#setCheckState(0)
@@ -423,7 +587,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         if self.cAPicker ==None:
             self.cAPicker = self.plotWidget2.canvas.mpl_connect('pick_event', self.OnPickA)
             self.cAOn = True
-
 
     def SelectPointsB(self):
 
@@ -469,8 +632,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
             self.cursorStats()
 
             self.plotWidget2.canvas.draw()
-
-            #print self.cursorAInfo
 
     def OnPickB(self, event):
         #print "Pick B"
@@ -527,85 +688,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
 #            mplAx.text(x, y*1.05, '%.1f'%x,  fontsize=8, rotation = 45)
 
 
-###########################
-
-    def autoscale_plot(self):
-        #self.toolbar.home() #implements the classic return to home
-        self.imageAxis.cla()
-        if self.plotType == 'TIC':
-            self.curIm = self.curData.ticLayer
-        self.imageAxis.imshow(self.mainIm, alpha = 1,  aspect = 'auto', origin = 'lower',  cmap = my_cmap, label = 'R', picker = 5)
-
-        self.prevChromLimits = 0
-        self.plotWidget2.autoscale_plot()
-
-        self.plotWidget.canvas.format_labels()
-        self.plotWidget.canvas.draw()
-        self.plotWidget2.canvas.format_labels()
-        self.plotWidget2.canvas.draw()
-################Original
-#        self.imageAxis.autoscale_view(tight = False, scalex=True, scaley=True)
-#        self.plotWidget.canvas.draw()
-
-    def setZScale(self, event1, event2):
-#        print event1.button, event2.button
-
-        if self.usrZoom:
-            if event1.button == 1 and event2.button == 1:
-                'event1 and event2 are the press and release events'
-                dataCoord = [[int(N.round(event1.xdata)), int(N.round(event1.ydata))],[int(N.round(event2.xdata)), int(N.round(event2.ydata))]]
-                cols = self.curData.colPoints
-                chromLimits = [dataCoord[0][0]*cols+dataCoord[0][1]+self.prevChromLimits,\
-                               N.abs(self.prevChromLimits+(dataCoord[1][0]*cols+dataCoord[1][1]))]
-                #(dataCoord[1][0]+self.prevChromLimits[1])*self.curData.colPoints+dataCoord[1][1]]
-                dataCoord = N.array(dataCoord)
-                chromLimits = N.array(chromLimits)
-                xLim = dataCoord[:,0]
-                yLim = dataCoord[:,1]
-                xLim.sort()
-                yLim.sort()
-                chromLimits.sort()
-#                print 'X Limits', xLim
-#                print 'Y Limits',yLim
-#                self.imageAxis.set_xlim(xLim[0],xLim[1])
-#                self.imageAxis.set_ylim(yLim[0],yLim[1])
-                #####################
-                x = N.arange(xLim[0], xLim[1])
-                y = N.arange(yLim[0], yLim[1])
-                #indexing is done as below becuase the image is transposed.
-                self.curIm = self.curIm[yLim[0]:yLim[1],xLim[0]:xLim[1]]
-#                print 'Shape', localZoom.shape, self.curIm.shape
-
-                self.imageAxis.cla()
-                self.imageAxis.imshow(self.curIm, alpha = 1,  aspect = 'auto', origin = 'lower',  cmap = my_cmap, label = 'R', picker = 5)
-                self.imageAxis.set_xticklabels(x)
-                self.imageAxis.set_yticklabels(y)
-
-#                print chromLimits
-                #Scale Chromatogram
-                x1 = chromLimits[0]#+self.prevChromLimits[0]
-                x2 = chromLimits[1]#N.abs(self.prevChromLimits[1]-chromLimits[1])
-                self.chromAxis.set_xlim(x1,x2)
-                tempChrom = self.curChrom[x1:x2]
-                if len(tempChrom) > 0:
-                    self.chromAxis.set_ylim(0, tempChrom.max()*1.1)
-#                self.prevChromLimits = [chromLimits[0]+self.prevChromLimits[0], N.abs(self.prevChromLimits[1]-chromLimits[1])]
-                self.prevChromLimits = x1
-#                print dataCoord
-#                print chromLimits
-
-                self.plotWidget2.canvas.format_labels()
-                self.plotWidget2.canvas.draw()
-
-                self.plotWidget.canvas.format_labels()
-                self.plotWidget.canvas.draw()
-                ##############################Original without color scaling
-                #self.imageAxis
-                #self.curIm = self.imageAxis.imshow(curData.ticLayer, alpha = 1,  aspect = 'auto', origin = 'lower',  cmap = my_cmap, label = 'R', picker = 5)
-    #
-    #            self.refIm.norm.autoscale(localRef)
-    #            self.plotWidget.canvas.draw()
-
     def ZoomToggle(self):
         #self.toolbar.zoom() #this implements the classic zoom
         if self.usrZoom:
@@ -623,8 +705,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
             y[i] = loc%cols
 
         return [x,y]
-
-
 
     def getMZSlice(self, fileName, index):
         f = T.openFile(fileName, 'r')
@@ -662,29 +742,29 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
                     return QtGui.QMessageBox.warning(self, "The Spectrum is empty",  "The spectrum has a length of zero--no peaks to pick.")
             else:
                 return QtGui.QMessageBox.warning(self, "No Spectrum to Process",  "Is a file loaded...?")
-        else:
+        else:#                self.chromAxis.plot(self.peakInfo['peakLoc'],self.peakInfo['peakInt'], 'ro', ms = 3, alpha = 0.4, picker = 5)
+
+#                self.peakLoc2D = self.get2DPeakLoc(self.peakInfo['peakLoc'], self.curData.rowPoints, self.curData.colPoints)
+#                self.imageAxis.plot(self.peakLoc2D[0],self.peakLoc2D[1],'yo', ms = 3, alpha = 0.6, picker = 5)
+                #remember the image is transposed, so we need to swap the length of the axes
+#                self.imageAxis.set_xlim(0,self.curData.rowPoints)
+#                self.imageAxis.set_ylim(0,self.curData.colPoints)
+
+#                self.plotWidget.canvas.format_labels()
+#                self.plotWidget.canvas.draw()
+#
+#                self.plotWidget2.canvas.format_labels()
+#                self.plotWidget2.canvas.draw()
             return QtGui.QMessageBox.warning(self, "Peak Find Parameter Error",  "Check selected values, all should be integers!")
 
-    def plotPickedPeaks(self, finishedBool):
+    def plotPickedPeaks(self, finishedBool):#this function is called when the peak finding thread is finished
         if finishedBool:
             self.peakInfo = self.PFT.getPeakInfo()
             self.PFT.wait()#as per Ashoka's code...
 
             if self.showPickedPeaksCB.isChecked():
-                self.autoscale_plot()
-                self.chromAxis.plot(self.peakInfo['peakLoc'],self.peakInfo['peakInt'], 'ro', ms = 3, alpha = 0.4, picker = 5)
-
                 self.peakLoc2D = self.get2DPeakLoc(self.peakInfo['peakLoc'], self.curData.rowPoints, self.curData.colPoints)
-                self.imageAxis.plot(self.peakLoc2D[0],self.peakLoc2D[1],'yo', ms = 3, alpha = 0.5, picker = 5)
-                #remember the image is transposed, so we need to swap the length of the axes
-                self.imageAxis.set_xlim(0,self.curData.rowPoints)
-                self.imageAxis.set_ylim(0,self.curData.colPoints)
-
-                self.plotWidget.canvas.format_labels()
-                self.plotWidget.canvas.draw()
-
-                self.plotWidget2.canvas.format_labels()
-                self.plotWidget2.canvas.draw()
+                self.autoscale_plot()#this is the function that actually plots the peaks in 1 and 2D
 
             self.SetStatusLabel("Peak Fitting Completed, %d Peaks Found" % len(self.peakInfo['peakLoc']))
 
