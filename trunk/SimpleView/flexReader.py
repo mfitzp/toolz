@@ -60,15 +60,15 @@ class brukerFlexDoc:
                     'date':'',
                     'analyzer':'',
                     'notes':'',
-                    'runID':'', 
+                    'runID':'',
                     'msManufacturer':'Bruker Daltonics',
-                    'msModel':'autoFlex TOF-TOF', 
-                    'ionization':'MALDI', 
+                    'msModel':'autoFlex TOF-TOF',
+                    'ionization':'MALDI',
                     'acqSoft':'',
-                    'polarity':'',  
+                    'polarity':'',
                     'spectrum':[],
                     'peaklist':None,
-                    'basePeak':None, 
+                    'basePeak':None,
                     'basePeakInt':None
                     }
         self.filename = path
@@ -80,7 +80,7 @@ class brukerFlexDoc:
             self.fragScan = True
         self.getDocument(self.filename)
     # ----
-    
+
     def encodeSpec(self):
         #t1 = T.clock()
         specList = self.data.get('spectrum')
@@ -94,13 +94,13 @@ class brukerFlexDoc:
                 try:
                     endian = '!'
                     pointsCount = len(data)#/struct.calcsize(endian+'f')
-                    
-                    data = struct.pack(endian+'f'*pointsCount, *data)#data[start:end])            
+
+                    data = struct.pack(endian+'f'*pointsCount, *data)#data[start:end])
                     data64 = base64.b64encode(data)
                 except:
                     raise
                     return False
-                
+
                 t2 = T.clock()
                 #print t2-t1
                 return data64
@@ -321,7 +321,7 @@ class brukerFlexDoc:
                 self.data['polarity'] = '+'
             else:
                 self.data['polarity'] = '-'
-                
+
         if acquParams.has_key('FCVer'):
             self.data['acqSoft'] = acquParams['FCVer'][1:-1]
         if acquParams.has_key('SPOTNO'):
@@ -391,7 +391,7 @@ class brukerFlexDoc:
         """ Convert time to mass according to calibration constants. """
 
         cropIndex = None
-        
+
         #print type(data)
         if type(data) is list:
             data = N.array(data)
@@ -464,39 +464,39 @@ class brukerFlexDoc:
 
         return buff
     # ----
-if __name__ == "__main__":
-    
-    import sys
-    import time
-    #import numpy as N
-    import pylab as P
-    from scipy import ndimage
-    from matplotlib.lines import Line2D
-    app = QApplication(sys.argv)
-    fn = open_file()
-    
-    if fn:
-        t1 = time.clock()
-        flex = brukerFlexDoc(fn)
-        spectrum = flex.data.get('spectrum')
-        t2 = time.clock()
-        print t2-t1
-#        
-        struct_pts = int(round(spectrum[:, 1].size*0.005))
-        str_el = N.repeat([1], struct_pts)
-        tFil = ndimage.white_tophat(spectrum[:, 1], None, str_el)
-#        
-
-        
-        #P.save('A10_TOF_LIFT.txt',  spectrum)
-        fig = P.figure()
-        ax = fig.add_subplot(111)
-        ax.plot(spectrum[:, 0],  spectrum[:, 1])
-        ax.plot(spectrum[:, 0], tFil, ':r')
-        #print flex.data['basePeak'], flex.data['basePeakInt']
-        if flex.data['basePeak'] != None:
-            peaklist = flex.data['peaklist']
-            for peak in peaklist:
-                ax.text(peak[0], peak[1]*1.05, '%.3f'%peak[0],  fontsize=9, rotation = 90)
-        P.show()
-    sys.exit(app.exec_())
+#if __name__ == "__main__":
+#
+#    import sys
+#    import time
+#    #import numpy as N
+#    import pylab as P
+#    from scipy import ndimage
+#    from matplotlib.lines import Line2D
+#    app = QApplication(sys.argv)
+#    fn = open_file()
+#
+#    if fn:
+#        t1 = time.clock()
+#        flex = brukerFlexDoc(fn)
+#        spectrum = flex.data.get('spectrum')
+#        t2 = time.clock()
+#        print t2-t1
+##
+#        struct_pts = int(round(spectrum[:, 1].size*0.005))
+#        str_el = N.repeat([1], struct_pts)
+#        tFil = ndimage.white_tophat(spectrum[:, 1], None, str_el)
+##
+#
+#
+#        #P.save('A10_TOF_LIFT.txt',  spectrum)
+#        fig = P.figure()
+#        ax = fig.add_subplot(111)
+#        ax.plot(spectrum[:, 0],  spectrum[:, 1])
+#        ax.plot(spectrum[:, 0], tFil, ':r')
+#        #print flex.data['basePeak'], flex.data['basePeakInt']
+#        if flex.data['basePeak'] != None:
+#            peaklist = flex.data['peaklist']
+#            for peak in peaklist:
+#                ax.text(peak[0], peak[1]*1.05, '%.3f'%peak[0],  fontsize=9, rotation = 90)
+#        P.show()
+#    sys.exit(app.exec_())

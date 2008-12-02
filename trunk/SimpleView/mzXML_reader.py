@@ -30,7 +30,8 @@ THIS VERSION ONLY GETS THE FIRST SPECTRUM IN A FILE!!!!!!!!!!!!!!!!'''
 
 from PyQt4.QtGui import QFileDialog,  QApplication
 import numpy as N
-from pylab import load as pload
+#from pylab import load as pload
+from matplotlib.mlab import load as pload
 
 import os.path
 import sys
