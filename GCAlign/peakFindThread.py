@@ -181,8 +181,6 @@ class PeakFindThread(QtCore.QThread):
             self.peakInfo = self.SplitNFind(self.spectrum, self.numSegs, self.peakWidth, self.minSNR)
             self.peakFindOK = True
             print "Peak Find Time: ", time.clock()-t1
-#            return self.peakInfo
-#            self.emit(QtCore.SIGNAL("itemLoaded(PyQt_PyObject)"),data2plot)
             self.emit(QtCore.SIGNAL("finished(bool)"),self.peakFindOK)
         else:
             print "Error finding peaks..."
