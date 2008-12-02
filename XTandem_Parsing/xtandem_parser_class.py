@@ -1,4 +1,5 @@
 import re
+import xml.etree.ElementTree#imported for py2exe to work
 from xml.etree import cElementTree as ET
 import numpy as N
 import time
@@ -8,24 +9,24 @@ import time
 #    psyco.full()
 #except:
 #    print "No psyco..."
-    
+
 from xtandem_peptide import XT_peptide, XT_protein
 
 class XT_RESULTS:
     def __init__(self, fileName,  parseFile = True,  evalue_cutoff = None,  ppm_cutoff = None):
-        t1 = time.clock()   
+        t1 = time.clock()
         self.fileName = fileName
-        
+
         if evalue_cutoff:
             self.evalue_cutoff = evalue_cutoff
         else:
             self.evalue_cutoff = 1
-        
+
         if ppm_cutoff:
             self.ppm_cutoff = ppm_cutoff
         else:
-            self.ppm_cutoff = 10000  
-            
+            self.ppm_cutoff = 10000
+
 #        self.ppm_errors = None
 #        self.theoMZs = None
 #        self.scanID = None
@@ -34,10 +35,10 @@ class XT_RESULTS:
 #        self.pepLens = None
 #        self.hScores = None
 #        self.nextScores = None
-        
+
         pepID = []
         proID = []
-        
+
         ppm_error = []
         theoMZ = []
         scanID = []
@@ -47,19 +48,19 @@ class XT_RESULTS:
         nextScore = []
         pepLen = []
         deltaH = []
-        
+
         self.prot_dict = None
-        
+
         if parseFile:
-            pttrn = re.compile('.*id=(\d+)\s.*')        
+            pttrn = re.compile('.*id=(\d+)\s.*')
             #pttrn = re.compile('.*scan=(\d+)\s.*')
             tree = ET.parse(fileName)
             r = tree.getroot()
             groups = r.getchildren()
-      
+
             n = 0
             for group in groups:
-                if group.get('type') != 'no model obtained':       
+                if group.get('type') != 'no model obtained':
                     for protein in group.findall('protein'):
                         cur_scan  = protein.get('id')
                         cur_protID = protein.attrib['label']
@@ -86,28 +87,28 @@ class XT_RESULTS:
                                     hScore.append(cur_hscore)
                                     nextScore.append(cur_nextscore)
                                     deltaH.append(cur_deltaH)
-            
+
             t2 = time.clock()
-            print "Initial Read Time (s): ",(t2-t1) 
+            print "Initial Read Time (s): ",(t2-t1)
             self.iterLen = len(scanID)
             if len(pepID) != 0:
                 self.dataDict = {
-                    'pepID': pepID, 
-                    'pep_eValue' : N.array(pep_eValue), 
-                    'scanID' : N.array(scanID), 
+                    'pepID': pepID,
+                    'pep_eValue' : N.array(pep_eValue),
+                    'scanID' : N.array(scanID),
                     'ppm_error':N.array(ppm_error),
-                    'theoMZ':N.array(theoMZ), 
+                    'theoMZ':N.array(theoMZ),
                     'hScore':N.array(hScore),
                     'nextScore':N.array(nextScore),
-                    'pepLen':N.array(pepLen), 
-                    'proID':proID, 
-                    'pro_eVal':N.array(pro_eVal), 
+                    'pepLen':N.array(pepLen),
+                    'proID':proID,
+                    'pro_eVal':N.array(pro_eVal),
                     'deltaH':N.array(deltaH)
                     }
             else:
                 self.dataDict = False
-            
-    
+
+
     def setArrays(self, arrayDict):
         '''Need to be in the following order:
         [
@@ -135,11 +136,11 @@ class XT_RESULTS:
 #            self.pepLens= arrayDict.get('pepLens')
 #            self.proIDs = arrayDict.get('proIDs')
 #            self.pro_eVals = arrayDict.get('pro_eVals')
-    
+
     def setFN(self, fileName):
         if fileName:
             self.fileName = fileName
-            
+
     def getProtDict(self,  XT_peplist):
         '''Accepts a list of peptides parsed from an X-Tandem xml file'''
         temp_dict = {}
@@ -148,17 +149,17 @@ class XT_RESULTS:
                 temp_dict[pep.protID].append(pep)
             else:
                 temp_dict[pep.protID] = [pep]
-        
+
         return temp_dict
-    
-    
-    
-        
+
+
+
+
 
 if __name__ == '__main__':
     import numpy as N
     import time
-    t1 = time.clock()    
+    t1 = time.clock()
     #the returned list contains tuples with  6 items, ppm, scan#, protein e-value, protein, peptide e-value, and peptide sequence
     filename = 'C:\\SVN\\toolz\\XTandem_Parsing\\xmlFiles\\BSATest.xml'
     x = XT_RESULTS(filename)
