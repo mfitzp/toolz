@@ -4,7 +4,7 @@ from PyQt4 import QtCore,  QtGui
 from mpl_custom_widget import MPL_Widget
 import PCA.pca_module as pca
 import numpy as N
-import pylab as P
+from matplotlib.mlab import load
 
 class PCA_Widget(MPL_Widget):
     def __init__(self,  data = None,  parent = None):
@@ -14,36 +14,36 @@ class PCA_Widget(MPL_Widget):
         self.setWindowTitle('PCA Plot')
         self.resize(800, 400)
         self.pcaPlot = MPL_Widget(self)
-        
-        
+
+
         self.scores = None
         self.loading = None
         self.explanation = None
-        
+
         if data != None:
             self.data = data
             self.executePCA()
             self.initializePlot()
-        
+
         layout = QtGui.QVBoxLayout(self)
         layout.addWidget(self.pcaPlot)
         self.setLayout(layout)
         self.show()
-    
+
     def executePCA(self):
         if len(self.data[0]) < 2:
             raise "More than 1 dimension of data is necessary for PCA"
         else:
             self.scores,  self.loading,  self.explanation = pca.PCA_nipals2(self.data, standardize=True, E_matrices=True)
-            
-            
+
+
     def initializePlot(self):
         '''Sets up the plot variables used for interaction'''
         self.handleA,  = self.pcaPlot.canvas.ax.plot([0], [0], 'o',\
                                         ms=8, alpha=.5, color='yellow', visible=False,  label = 'Cursor A')
         self.is_hZoom = False
         self.pcaPlot.canvas.mpl_connect('pick_event', self.OnPickPlot)
-        
+
         if self.scores != None:#you can just use "if self.scores" It raises an error
             self.x = self.scores[:, 0]
             self.y = self.scores[:, 1]
@@ -52,11 +52,11 @@ class PCA_Widget(MPL_Widget):
             self.pcaPlot.canvas.PlotTitle = ''
             self.pcaPlot.canvas.ax.grid()
             self.pcaPlot.canvas.ax.scatter(self.x, self.y,  color = 'r',alpha = 0.3, picker = 5)
-            
-            
+
+
             self.pcaPlot.canvas.format_labels()
             self.pcaPlot.canvas.draw()
-            
+
     def OnPickPlot(self, event):
         self.pickIndex = event.ind[0]
 #        try:
@@ -77,16 +77,16 @@ class PCA_Widget(MPL_Widget):
 #                                        transform=self.plotWidget.canvas.ax.transAxes, va='top')
 #        self.updateSelectInfo(self.pickIndex,  self.curTbl)
         self.pcaPlot.canvas.draw()
-        
+
 def main():
     import sys
     app = QtGui.QApplication(sys.argv)
-    data = P.load('PCA_Matrix_noProE.csv',  delimiter = ',',  skiprows = 1)
+    data = load('PCA_Matrix_noProE.csv',  delimiter = ',',  skiprows = 1)
     w = PCA_Widget(data)
     #w.show()
     sys.exit(app.exec_())
-    
+
 if __name__ == "__main__":
     main()
 
-        
+

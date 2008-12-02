@@ -1,6 +1,6 @@
 import os, sys
 import sqlite3 as sql
-from tables import *
+import tables as T
 import numpy as N
 
 from PyQt4 import QtCore, QtGui
@@ -11,12 +11,12 @@ import time
 #class dbError(object):
 #    def __init__(self, msg):
 #        self.msg = msg
-#    
+#
 #    def __str__(self):
 #        return self.msg
-#        
+#
 class XT_DB(object):#X!Tandem Database Class
-    '''Represents the interface to SQLite'''    
+    '''Represents the interface to SQLite'''
     def __init__(self,  db, createNew=False,  tableName = None, parent = None):#db is the path to the database on disk
         if parent:
             self.parent = parent
@@ -31,15 +31,15 @@ class XT_DB(object):#X!Tandem Database Class
             self.dbOK = False
         try:
             if createNew:
-                self.CREATE_RESULTS_TABLE(tableName)            
+                self.CREATE_RESULTS_TABLE(tableName)
                 self.cnx.commit()
         except:
             self.cnx.close()
             raise
-    
+
     def getCurrentTableName(self):
         return self.curTblName
-    
+
     def INSERT_XT_VALUES(self, tableName, XT_RESULTS):
         t1 = time.clock()
         tableExists =self.cnx.execute("SELECT COUNT(*) FROM sqlite_master WHERE name=?", (tableName,)).fetchone()[0]
@@ -60,36 +60,36 @@ class XT_DB(object):#X!Tandem Database Class
             self.cur.execute(
                             'INSERT INTO "%s" VALUES (?,?,?,?,?,?,?,?,?,?,?,?)'%tableName,#again I know %s is not recommended but I don't know how to do this more elegantly.
                             (
-                            i, 
-                            XT_RESULTS.dataDict.get('pepID')[i], 
-                            XT_RESULTS.dataDict.get('pep_eValue')[i], 
-                            XT_RESULTS.dataDict.get('scanID')[i], 
-                            XT_RESULTS.dataDict.get('ppm_error')[i], 
-                            XT_RESULTS.dataDict.get('theoMZ')[i], 
-                            XT_RESULTS.dataDict.get('hScore')[i], 
+                            i,
+                            XT_RESULTS.dataDict.get('pepID')[i],
+                            XT_RESULTS.dataDict.get('pep_eValue')[i],
+                            XT_RESULTS.dataDict.get('scanID')[i],
+                            XT_RESULTS.dataDict.get('ppm_error')[i],
+                            XT_RESULTS.dataDict.get('theoMZ')[i],
+                            XT_RESULTS.dataDict.get('hScore')[i],
                             XT_RESULTS.dataDict.get('nextScore')[i],
-                           XT_RESULTS.dataDict.get('deltaH')[i],  
-                            XT_RESULTS.dataDict.get('pepLen')[i], 
-                            XT_RESULTS.dataDict.get('proID')[i], 
-                            XT_RESULTS.dataDict.get('pro_eVal')[i] 
+                           XT_RESULTS.dataDict.get('deltaH')[i],
+                            XT_RESULTS.dataDict.get('pepLen')[i],
+                            XT_RESULTS.dataDict.get('proID')[i],
+                            XT_RESULTS.dataDict.get('pro_eVal')[i]
                             ))
         self.cnx.commit()
         t2 = time.clock()
         print "SQLite Commit Time (s): ", (t2-t1)
         return True
-        
+
     def close(self):
         self.cnx.close()
         self.dbOK = False
-    
+
     def LIST_TABLES(self):
         self.tblList = []
         self.cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name != 'sqlite_sequence' ORDER BY name")
         for row in self.cur.fetchall():
             self.tblList.append(str(row[0]))#row[0] by itself produces a unicode object, and row itself is a tuple
-        
+
         return self.tblList
-    
+
 #    def COPY_DB(self, ):
 #        def dump_to_disk(con, filename):
 #    """
@@ -107,14 +107,14 @@ class XT_DB(object):#X!Tandem Database Class
 #(table_name, table_name))
 #    cur.execute("detach __extdb")
 
-    
+
     def LIST_COLUMNS(self,  tableName):
         self.colList = []
         self.cur.execute('PRAGMA table_info(%s)'%tableName)
         for row in self.cur.fetchall():
             self.colList.append(str(row[1]))#row[1] by itself produces a unicode object, and row itself is a tuple, row[1] is the column name
         return self.colList
-    
+
     def DROP_TABLE(self, tableName):
         try:
             self.cur.execute('DROP TABLE %s'%tableName)
@@ -126,14 +126,14 @@ class XT_DB(object):#X!Tandem Database Class
             msg = self.errorMsg + '\nCheck File Name! No Funky Characters'
             error = QtGui.QMessageBox.warning(self.parent, "Table Drop Error!",  msg)
             return False
-        
-        
+
+
     def CREATE_RESULTS_TABLE(self, tableName,  overWrite = False):
         if overWrite:
             self.DROP_TABLE(tableName)
-            
+
         self.curTblName = tableName
-    
+
         self.cur.execute('CREATE TABLE IF NOT EXISTS "%s"(id INTEGER PRIMARY KEY AUTOINCREMENT,\
         pepID TEXT,\
         pep_eVal REAL,\
@@ -147,7 +147,7 @@ class XT_DB(object):#X!Tandem Database Class
         proID TEXT,\
         pro_eVal REAL)'
             %tableName)
-    
+
     def GET_CURRENT_QUERY(self,  truncate = False):
         result = []
         if truncate:
@@ -169,7 +169,7 @@ class XT_DB(object):#X!Tandem Database Class
                     rowList.append(str(item))
                 result.append(rowList)
             return result
-    
+
     def GET_VALUE_BY_TYPE(self, tableName, fieldType,  fieldValue,  savePrompt = False):
         if savePrompt:
             '''Saves query to the database--only if the user commits to the database upon close of the application'''
@@ -184,8 +184,8 @@ class XT_DB(object):#X!Tandem Database Class
                         self.DROP_TABLE(newTableName)
                     else:
                         return False#this will be captured by the len condition on the receiving end...
-                        
-                        
+
+
                 self.cur.execute("CREATE TABLE %s AS SELECT * FROM %s WHERE %s LIKE '%s'"%(newTableName, tableName, fieldType, fieldValue))
                 self.cur.execute("SELECT * FROM %s"%(newTableName))
                 #print "CREATE TABLE %s AS SELECT * FROM %s WHERE %s LIKE '%s'"%(newTableName, tableName, fieldType, fieldValue)
@@ -194,18 +194,18 @@ class XT_DB(object):#X!Tandem Database Class
                 return result
             else:#this is the case if the user cancels the input of the new table
                 return False
-                
+
         else:
             '''Simply returns the selected query but does not save it to the database'''
             self.cur.execute("SELECT * FROM %s WHERE %s LIKE '%s'"%(tableName, fieldType, fieldValue))
             print "SELECT * FROM %s WHERE %s LIKE '%s'"%(tableName, fieldType, fieldValue)
             result = self.GET_CURRENT_QUERY()
             return result
-    
+
     def READ_XT_VALUES(self, tableName, XT_RESULTS):
         '''The XT_RESULTS in this case is empty instance that will be filled, however, it could be one that needs to be updated too.'''
         t1 = time.clock()
-        
+
         pepID = []
         pep_eValue= []
         scanID = []
@@ -217,7 +217,7 @@ class XT_DB(object):#X!Tandem Database Class
         proID = []
         pro_eVal = []
         deltaH = []
-        
+
         self.cur.execute('SELECT * FROM "%s"'%tableName)
         for row in self.cur.fetchall():
             pepID.append(row[1])
@@ -231,53 +231,53 @@ class XT_DB(object):#X!Tandem Database Class
             pepLen.append(row[9])
             proID.append(row[10])
             pro_eVal.append(row[11])
-            
+
         arrayDict = {
-                'pepID': pepID, 
-                'pep_eValue' : N.array(pep_eValue), 
-                'scanID' : N.array(scanID), 
+                'pepID': pepID,
+                'pep_eValue' : N.array(pep_eValue),
+                'scanID' : N.array(scanID),
                 'ppm_error':N.array(ppm_error),
-                'theoMZ':N.array(theoMZ), 
+                'theoMZ':N.array(theoMZ),
                 'hScore':N.array(hScore),
                 'nextScore':N.array(nextScore),
-                'pepLen':N.array(pepLen), 
-                'proID':proID, 
-                'pro_eVal':N.array(pro_eVal), 
+                'pepLen':N.array(pepLen),
+                'proID':proID,
+                'pro_eVal':N.array(pro_eVal),
                 'deltaH':N.array(deltaH)
                 }
         XT_RESULTS.setArrays(arrayDict)
-        XT_RESULTS.setFN(tableName)    
+        XT_RESULTS.setFN(tableName)
         self.curTblName=tableName
-        
+
         t2 = str(time.clock()-t1)
         print "SQLite Read Time for %s (s): %s"%(tableName, t2)
-        
-#############################################        
+
+#############################################
 '''Begin HDF5 and PyTables Interface'''
 #############################################
 #Row class for PyTables
-class XTResultsTable(IsDescription):
-    idnum = Int32Col()
-    pepID = StringCol(64) 
-    pep_eVal = Float64Col()
-    scanID = Int32Col()
-    ppm_error = Float64Col()
-    theoMZ = Float64Col()
-    hScore = Float64Col()
-    nextScore = Float64Col()
-    deltaH = Float64Col()
-    pepLen = Int32Col()
-    proID = StringCol(64)
-    pro_eVal = Float64Col()
-    
+class XTResultsTable(T.IsDescription):
+    idnum = T.Int32Col()
+    pepID = T.StringCol(64)
+    pep_eVal = T.Float64Col()
+    scanID = T.Int32Col()
+    ppm_error = T.Float64Col()
+    theoMZ = T.Float64Col()
+    hScore = T.Float64Col()
+    nextScore = T.Float64Col()
+    deltaH = T.Float64Col()
+    pepLen = T.Int32Col()
+    proID = T.StringCol(64)
+    pro_eVal = T.Float64Col()
+
 def save_XT_HDF5(filename, xtXML):
     #xtXML is an instance of XT_RESULTS found i xtandem_parse_class.py
-    
+
     xtTbl = True
-    
-    hdf = openFile(filename, mode = "w", title = 'X!Tandem Results')
+
+    hdf = T.openFile(filename, mode = "w", title = 'X!Tandem Results')
     varGroup = hdf.createGroup("/", 'pepGroup', 'Peptide Results')
-    
+
     if xtTbl:
         pepTbl = hdf.createTable(varGroup, 'pepResults', XTResultsTable, "XT Peptides")
         pepTbl.attrs.origFileName = str(xtXML.fileName)
@@ -299,14 +299,14 @@ def save_XT_HDF5(filename, xtXML):
 
             peptide.append()
 
-                    
+
     if xtTbl is False:
-        pepTbl.flush()  
+        pepTbl.flush()
     hdf.close()
 
 def load_XT_HDF5(filename,  xtXML):
     if os.path.isfile(filename):
-        
+
         pepID = []
         pep_eValue= []
         scanID = []
@@ -318,10 +318,10 @@ def load_XT_HDF5(filename,  xtXML):
         proID = []
         pro_eVal = []
         deltaH = []
-        
+
         origFileName = None
-        
-        hdf = openFile(filename, mode = "r")
+
+        hdf = T.openFile(filename, mode = "r")
         groupDict = hdf.root._v_groups
         if groupDict.has_key('pepGroup'):
             for node in hdf.root.pepGroup._f_iterNodes():
@@ -339,20 +339,20 @@ def load_XT_HDF5(filename,  xtXML):
                         proID.append(row['proID'])
                         pro_eVal.append(row['pro_eVal'])
                         deltaH.append(row['deltaH'])
-                
-        
+
+
         hdf.close()
         arrayDict = {
-                        'pepID': pepID, 
-                        'pep_eValue' : N.array(pep_eValue), 
-                        'scanID' : N.array(scanID), 
+                        'pepID': pepID,
+                        'pep_eValue' : N.array(pep_eValue),
+                        'scanID' : N.array(scanID),
                         'ppm_error':N.array(ppm_error),
-                        'theoMZ':N.array(theoMZ), 
+                        'theoMZ':N.array(theoMZ),
                         'hScore':N.array(hScore),
                         'nextScore':N.array(nextScore),
-                        'pepLen':N.array(pepLen), 
-                        'proID':proID, 
-                        'pro_eVal':N.array(pro_eVal), 
+                        'pepLen':N.array(pepLen),
+                        'proID':proID,
+                        'pro_eVal':N.array(pro_eVal),
                         'deltaH':N.array(deltaH)
                         }
         xtXML.setArrays(arrayDict)
