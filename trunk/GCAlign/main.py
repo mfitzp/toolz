@@ -30,6 +30,7 @@ cmaps = [cm.jet, cm.BrBG, cm.gist_ncar, cm.bone_r,  cm.hot,  cm.spectral, cm.gis
 import supportFunc as SF
 from dataClass import GC_GC_MS_CLASS as GCDATA
 from peakFindThread import PeakFindThread as PFT
+import peakClusterThread as PCT
 import hcluster_bhc as H
 from mpl_pyqt4_widget import MPL_Widget
 
@@ -67,6 +68,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
 
     def _setThreads_(self):
         self.PFT = PFT()
+        self.PCT = PCT.PeakClusterThread()
 
     def _setContext_(self):
 #        self.plotWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
@@ -154,30 +156,55 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         QtCore.QObject.connect(self.cursBCB,QtCore.SIGNAL("stateChanged (int)"),self.toggleCB)
 
         QtCore.QObject.connect(self.PFT, QtCore.SIGNAL("finished(bool)"), self.plotPickedPeaks)
-
         QtCore.QObject.connect(self.PFT, QtCore.SIGNAL("progress(int)"), self.threadProgress)
+
+        QtCore.QObject.connect(self.PCT, QtCore.SIGNAL("finished(bool)"), self.plotLinkage)
+        QtCore.QObject.connect(self.PCT, QtCore.SIGNAL("clusterThreadUpdate(PyQt_PyObject)"), self.PCTProgress)
+
 
         QtCore.QObject.connect(self.listWidget, QtCore.SIGNAL("itemClicked (QListWidgetItem *)"), self.specListSelect)
 
         QtCore.QObject.connect(self.savePickedPeakBtn,QtCore.SIGNAL("clicked()"),self.savePeaks2HDF)
         QtCore.QObject.connect(self.clusterBtn,QtCore.SIGNAL("clicked()"),self.clusterPeaks)
 
+    def plotLinkage(self, finishedBool):
+        if finishedBool:
+            if self.showDendroCB.isChecked:
+                self.linkagePlot = MPL_Widget()
+                self.linkagePlot.setWindowTitle(('Clustered Peaks for %s'%self.curData.name))
+                self.linkagePlot.canvas.setupSub(1)
+                ax1 = self.linkagePlot.canvas.axDict['ax1']
+                H.dendrogram(self.PCT.linkageResult, colorthreshold=10, customMPL = ax1)
+                self.linkagePlot.show()
+
     def clusterPeaks(self):
-        if self.showDendroCB.isChecked():
-            if self.peakInfo != None:
-                self.peakLoc2D = self.get2DPeakLoc(self.peakInfo['peakLoc'], self.curData.rowPoints,\
-                                                   self.curData.colPoints, peakIntensity = self.peakInfo['peakInt'])
-                X = N.column_stack((self.peakLoc2D[0], self.peakLoc2D[1]))
-                X = N.column_stack((X, N.sqrt(self.peakLoc2D[2])))
+#        if self.showDendroCB.isChecked():
+        if self.peakInfo != None:
+            self.peakLoc2D = self.get2DPeakLoc(self.peakInfo['peakLoc'], self.curData.rowPoints,\
+                                               self.curData.colPoints, peakIntensity = self.peakInfo['peakInt'])
+            X = N.column_stack((self.peakLoc2D[0], self.peakLoc2D[1]))
+            X = N.column_stack((X, N.sqrt(self.peakLoc2D[2])))
 #                if self.peakLoc2D != None:
 #                    X = self.peakLoc2D[0]
 #                    for i in xrange(1, len(self.peakLoc2D)):
 #                        X = N.column_stack((X,self.peakLoc2D[i]))
-                self.linkagePlot = MPL_Widget()
-                Y = H.pdist(X)
-                Z = H.linkage(Y)
-                H.dendrogram(Z, colorthreshold=10, customMPL = self.linkagePlot.canvas.ax)
-                self.linkagePlot.show()
+            self.PCT.initClusterThread(X, plotLinkage = self.showDendroCB.isChecked(), name = self.curData.name)
+            self.PCT.start()
+#            self.linkagePlot = MPL_Widget()
+#            self.linkagePlot.setWindowTitle(('Clustered Peaks for %s'%self.curData.name))
+#            Y = H.pdist(X)
+#            Z = H.linkage(Y)
+#
+#            self.linkagePlot.canvas.setupSub(2)
+#            ax1 = self.linkagePlot.canvas.axDict['ax1']
+#            ax2 = self.linkagePlot.canvas.axDict['ax2']
+#            H.dendrogram(Z, colorthreshold=10, customMPL = ax1)
+#            R = H.inconsistent(Z, d = 4)
+#            print R.shape
+#            ax2.plot(R[:,0])
+#            ax2a = ax2.twinx()
+#            ax2a.plot(R[:,3], 'r:')
+#            self.linkagePlot.show()
 
 
     def closeEvent(self,  event = None):
@@ -189,6 +216,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
 #            pass
 #        else:
 #            event.ignore()
+
 
 
     def savePeaks2HDF(self):
@@ -277,6 +305,12 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         #for some reason when you add a second axis the zooming and autoscaling don't work well.
 #        self.chromAxis2 = self.chromAxis.twiny()
 #        self.format2ndAxis(self.chromAxis2)
+
+        self.distMethodCB.addItems(PCT.distTypeDist.keys())
+        self.clusterTypeCB.addItems(PCT.clusterType.keys())
+        self.distMethodCB.setCurrentIndex(self.distMethodCB.findText('Euclidean'))
+        self.clusterTypeCB.setCurrentIndex(self.clusterTypeCB.findText('Single'))
+
 
         self.curData = None #reference to the GCGCData Class
         self.curIm = None #reference to the 2D image used during zoom events
@@ -842,6 +876,10 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         self.SetProgressValue(newVal)
 #        self.AddMessage2Tab("  %d Iterations Done." % progVal)
 #        print progVal, newVal, self.progressMax
+
+    def PCTProgress(self, updateString):
+        self.SetStatusLabel(updateString)
+
 
 if __name__ == "__main__":
     import sys

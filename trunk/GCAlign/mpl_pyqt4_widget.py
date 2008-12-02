@@ -20,16 +20,13 @@ import numpy as N
 class MyMplCanvas(FigureCanvas):
     def __init__(self, parent=None, width = 5, height = 5, dpi = 100, sharex = None, sharey = None):
         self.fig = Figure(figsize = (width, height), dpi=dpi, facecolor = '#FFFFFF')
-        self.ax = self.fig.add_subplot(111, sharex = sharex, sharey = sharey)
-        self.fig.subplots_adjust(left=0.1, bottom=0.1, right=0.9, top=0.9)
-        self.xtitle=""
-        self.ytitle=""
-        #self.PlotTitle = "Plot"
-        self.grid_status = True
-        self.xaxis_style = 'linear'
-        self.yaxis_style = 'linear'
-        self.format_labels()
-        self.ax.hold(True)
+        self.axDict = {}
+        self.figInit = False
+
+        self.sharey = sharey
+        self.sharey = sharey
+
+#        self.ax1.hold(True)
 
 
         FigureCanvas.__init__(self, self.fig)
@@ -38,24 +35,50 @@ class MyMplCanvas(FigureCanvas):
             QtGui.QSizePolicy.Expanding,
             QtGui.QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(self)
+        self.setupSub(1)
+
+    def setupSub(self, numSubRows, numSubCols = 1):
+        self.fig.clf()
+        for m in range(1,numSubRows+1):
+            for n in range(1,numSubCols+1):
+                axName = 'ax%s'%m
+                axLoc = 100*numSubRows+10*n+m
+                #print axLoc
+                self.axDict[axName] = self.fig.add_subplot(axLoc)#, sharex = self.sharex, sharey = self.sharey)
+
+        self.figInit = True
+
+        self.fig.subplots_adjust(left=0.1, bottom=0.1, right=0.9, top=0.9)
+        self.xtitle=""
+        self.ytitle=""
+        #self.PlotTitle = "Plot"
+        self.grid_status = True
+        self.xaxis_style = 'linear'
+        self.yaxis_style = 'linear'
+        self.format_labels()
+
+
 
     def format_labels(self):
-        #self.ax.set_title(self.PlotTitle)
-        self.ax.title.set_fontsize(10)
-        self.ax.set_xlabel(self.xtitle, fontsize = 9)
-        self.ax.set_ylabel(self.ytitle, fontsize = 9)
-        labels_x = self.ax.get_xticklabels()
-        labels_y = self.ax.get_yticklabels()
+        if self.figInit:
+            for ax in self.axDict.itervalues():
+                ax.title.set_fontsize(10)
+                ax.set_xlabel(self.xtitle, fontsize = 9)
+                ax.set_ylabel(self.ytitle, fontsize = 9)
+                labels_x = ax.get_xticklabels()
+                labels_y = ax.get_yticklabels()
 
-        for xlabel in labels_x:
-            xlabel.set_fontsize(8)
-        for ylabel in labels_y:
-            ylabel.set_fontsize(8)
-            ylabel.set_color('b')
-        if self.ax.get_legend() != None:
-            texts = self.ax.get_legend().get_texts()
-            for text in texts:
-                text.set_fontsize(8)
+                for xlabel in labels_x:
+                    xlabel.set_fontsize(8)
+                for ylabel in labels_y:
+                    ylabel.set_fontsize(8)
+                    ylabel.set_color('b')
+                if ax.get_legend() != None:
+                    texts = ax.get_legend().get_texts()
+                    for text in texts:
+                        text.set_fontsize(8)
+        else:
+            print "please initiate the number of subplots. Call *.canvas.setupSub(numofSubs)"
 
     def sizeHint(self):
         w, h = self.get_width_height()
@@ -106,7 +129,7 @@ class MPL_Widget(QtGui.QWidget):
         self.vbox.addWidget(self.canvas)
         self.vbox.addWidget(self.toolbar)
         self.setLayout(self.vbox)
-
+        self.ax1 = self.canvas.axDict['ax1']
         ###############ZOOM CONTROLS ################
 
         self.ZoomChrom = QtGui.QAction("Zoom Chrom",  self)
@@ -119,7 +142,7 @@ class MPL_Widget(QtGui.QWidget):
         self.addAction(self.actionAutoScaleChrom)
         QtCore.QObject.connect(self.actionAutoScaleChrom,QtCore.SIGNAL("triggered()"), self.autoscale_plot)
 
-        self.span = SpanSelector(self.canvas.ax, self.onselect, 'horizontal', minspan =0.01,
+        self.span = SpanSelector(self.ax1, self.onselect, 'horizontal', minspan =0.01,
                                  useblit=True, rectprops=dict(alpha=0.5, facecolor='#C6DEFF') )
         self.hZoom = False
         self.span.visible = False
@@ -157,7 +180,7 @@ class MPL_Widget(QtGui.QWidget):
 
     def autoscale_plot(self):
         #self.toolbar.home() #implements the classic return to home
-        self.canvas.ax.autoscale_view(tight = False, scalex=True, scaley=True)
+        self.ax1.autoscale_view(tight = False, scalex=True, scaley=True)
         self.canvas.draw()
 
     def onclick(self, event):
@@ -170,15 +193,15 @@ class MPL_Widget(QtGui.QWidget):
     def onselect(self, xmin, xmax):
         #print xmin,  xmax
         if self.hZoom:
-            self.canvas.ax.set_ylim(ymax = self.localYMax)
-            self.canvas.ax.set_xlim(xmin,  xmax)
+            self.ax1.set_ylim(ymax = self.localYMax)
+            self.ax1.set_xlim(xmin,  xmax)
 
 
     def save2CSV(self):
         path = self.SFDialog()
         if path != None:
             try:
-                lines = self.canvas.ax.get_lines()
+                lines = self.ax1.get_lines()
                 data2write = []
                 for line in lines:
                     data2write.append(line.get_data()[0])
@@ -257,11 +280,13 @@ def main():
     import sys
     app = QtGui.QApplication(sys.argv)
     w = MPL_Widget()
+    w.canvas.setupSub(2)
+    ax1 = w.canvas.axDict['ax1']
     x = N.arange(0, 20)
     y = N.sin(x)
     y2 = N.cos(x)
-    w.canvas.ax.plot(x, y)
-    w.canvas.ax.plot(x, y2)
+    ax1.plot(x, y)
+    ax1.plot(x, y2)
     w.show()
     sys.exit(app.exec_())
 
