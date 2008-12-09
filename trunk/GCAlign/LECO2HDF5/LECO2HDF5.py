@@ -151,12 +151,12 @@ class LECOConvert(ui_main.Ui_MainWindow):
             data= QtGui.QFileDialog.getExistingDirectory(self.MainWindow,\
                                                              "Select LECO Data Folder")
         if data:
-            if ' ' in data:
-                self.filePathError()
-            else:
-                self.LECODataOk = True
-                self.LECOData = data
-                self.__updateGUI__()
+#            if ' ' in data:
+#                self.filePathError()
+#            else:
+            self.LECODataOk = True
+            self.LECOData = data
+            self.__updateGUI__()
 
 
 
@@ -308,10 +308,13 @@ class saveThread(QtCore.QThread):
 
         data = cdf.TIC
         shape = data.shape
-        ca = hdf.createCArray(hdf.root, 'TIC', atom, shape,  filters = filters)
-        ca[0:shape[0]] = data
-        ca.flush()
+        tic = hdf.createCArray(hdf.root, 'TIC', atom, shape,  filters = filters)
+        tic[0:shape[0]] = data
+        tic.flush()
         #print "TIC OK"
+
+        bpc = hdf.createCArray(hdf.root, 'BPC', atom, shape,  filters = filters)
+        bpcMZ = hdf.createCArray(hdf.root, 'BPCmz', atom, shape,  filters = filters)
 
 
         #sicCube = hdf.createEArray(hdf.root, 'sicCube', atom, (mzMax,0), filters = filters,  expectedrows = mzMax)#,  chunkshape = chunkS)
@@ -323,14 +326,16 @@ class saveThread(QtCore.QThread):
                 m=0
                 for i in cdf.scanIndex:
 
-                    localMaxIndex = i+cdf.pntCount[m]
+                    localMaxIndex = i+cdf.pntCount[m]#index for current mass spectrum
                     mz2Write = N.zeros(mzMax)#ADDING 1 so that indicies work out!!!!!!!!!!!!!!!DOUBLE CHECK THIS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    mzLocal = N.array(cdf.vars['mass_values'].data[i:localMaxIndex])
+                    mzLocal = N.array(cdf.vars['mass_values'].data[i:localMaxIndex])#the current mz values
                     mzLocal +=1 #!!!!!!!!!!!!!!DOUBLE CHECK THIS
-                    intLocal = cdf.vars['intensity_values'].data[i:localMaxIndex]
+                    intLocal = cdf.vars['intensity_values'].data[i:localMaxIndex]#the current mz intensity values
                     N.put(mz2Write,  mzLocal, intLocal)
                     dataCube.append(mz2Write[N.newaxis,:])
-                    dataCube.flush()
+                    bpc[m] = mz2Write.max()
+                    bpcMZ[m] = mz2Write.argmax()
+
 
                     if m%10000 == 0:
                         msg = "%s mass spectra\n"%m
@@ -342,6 +347,9 @@ class saveThread(QtCore.QThread):
 #                        print time.clock()-t1, 'seconds'
 #                        hdf.close()
 #                        return
+                dataCube.flush()
+                bpc.flush()
+                bpcMZ.flush()
                 print time.clock()-t1, 'seconds'
                 hdf.close()
 
