@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Documents and Settings\d3p483\workspace\GCAlign\iterate.ui'
 #
-# Created: Mon Dec 01 15:27:29 2008
+# Created: Mon Dec 08 13:02:50 2008
 #      by: PyQt4 UI code generator 4.3.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -12,7 +12,7 @@ from PyQt4 import QtCore, QtGui
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(QtCore.QSize(QtCore.QRect(0,0,812,710).size()).expandedTo(MainWindow.minimumSizeHint()))
+        MainWindow.resize(QtCore.QSize(QtCore.QRect(0,0,791,673).size()).expandedTo(MainWindow.minimumSizeHint()))
         MainWindow.setWindowIcon(QtGui.QIcon(":/new/prefix1/Retro Mario World_32.png"))
         MainWindow.setLayoutDirection(QtCore.Qt.LeftToRight)
 
@@ -480,10 +480,10 @@ class Ui_MainWindow(object):
         self.label_15.setObjectName("label_15")
         self.hboxlayout6.addWidget(self.label_15)
 
-        self.doubleSpinBox_2 = QtGui.QDoubleSpinBox(self.optionsTab)
-        self.doubleSpinBox_2.setEnabled(False)
-        self.doubleSpinBox_2.setObjectName("doubleSpinBox_2")
-        self.hboxlayout6.addWidget(self.doubleSpinBox_2)
+        self.slopeThreshSB = QtGui.QDoubleSpinBox(self.optionsTab)
+        self.slopeThreshSB.setEnabled(False)
+        self.slopeThreshSB.setObjectName("slopeThreshSB")
+        self.hboxlayout6.addWidget(self.slopeThreshSB)
         self.gridlayout5.addLayout(self.hboxlayout6,3,0,1,1)
 
         self.hboxlayout7 = QtGui.QHBoxLayout()
@@ -537,10 +537,6 @@ class Ui_MainWindow(object):
         self.gridlayout6 = QtGui.QGridLayout()
         self.gridlayout6.setObjectName("gridlayout6")
 
-        self.plotClusterPeakCB = QtGui.QCheckBox(self.optionsTab)
-        self.plotClusterPeakCB.setObjectName("plotClusterPeakCB")
-        self.gridlayout6.addWidget(self.plotClusterPeakCB,0,0,1,1)
-
         self.hboxlayout10 = QtGui.QHBoxLayout()
         self.hboxlayout10.setObjectName("hboxlayout10")
 
@@ -552,7 +548,7 @@ class Ui_MainWindow(object):
         self.distMethodCB = QtGui.QComboBox(self.optionsTab)
         self.distMethodCB.setObjectName("distMethodCB")
         self.hboxlayout10.addWidget(self.distMethodCB)
-        self.gridlayout6.addLayout(self.hboxlayout10,1,0,1,1)
+        self.gridlayout6.addLayout(self.hboxlayout10,3,0,1,1)
 
         self.hboxlayout11 = QtGui.QHBoxLayout()
         self.hboxlayout11.setObjectName("hboxlayout11")
@@ -566,34 +562,57 @@ class Ui_MainWindow(object):
         self.clusterTypeCB = QtGui.QComboBox(self.optionsTab)
         self.clusterTypeCB.setObjectName("clusterTypeCB")
         self.hboxlayout11.addWidget(self.clusterTypeCB)
-        self.gridlayout6.addLayout(self.hboxlayout11,2,0,1,1)
+        self.gridlayout6.addLayout(self.hboxlayout11,4,0,1,1)
 
         self.showDendroCB = QtGui.QCheckBox(self.optionsTab)
         self.showDendroCB.setChecked(True)
         self.showDendroCB.setObjectName("showDendroCB")
-        self.gridlayout6.addWidget(self.showDendroCB,3,0,1,1)
+        self.gridlayout6.addWidget(self.showDendroCB,5,0,1,1)
 
         self.clusterBtn = QtGui.QPushButton(self.optionsTab)
         self.clusterBtn.setObjectName("clusterBtn")
-        self.gridlayout6.addWidget(self.clusterBtn,4,0,1,1)
+        self.gridlayout6.addWidget(self.clusterBtn,6,0,1,1)
+
+        self.hboxlayout12 = QtGui.QHBoxLayout()
+        self.hboxlayout12.setObjectName("hboxlayout12")
+
+        self.distanceLabel = QtGui.QLabel(self.optionsTab)
+        self.distanceLabel.setEnabled(False)
+        self.distanceLabel.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.distanceLabel.setObjectName("distanceLabel")
+        self.hboxlayout12.addWidget(self.distanceLabel)
+
+        self.maxDistThreshSB = QtGui.QDoubleSpinBox(self.optionsTab)
+        self.maxDistThreshSB.setEnabled(False)
+        self.maxDistThreshSB.setMinimum(0.01)
+        self.maxDistThreshSB.setProperty("value",QtCore.QVariant(10.0))
+        self.maxDistThreshSB.setObjectName("maxDistThreshSB")
+        self.hboxlayout12.addWidget(self.maxDistThreshSB)
+        self.gridlayout6.addLayout(self.hboxlayout12,1,0,1,1)
+
+        self.calcThreshCB = QtGui.QCheckBox(self.optionsTab)
+        self.calcThreshCB.setLayoutDirection(QtCore.Qt.LeftToRight)
+        self.calcThreshCB.setChecked(True)
+        self.calcThreshCB.setObjectName("calcThreshCB")
+        self.gridlayout6.addWidget(self.calcThreshCB,2,0,1,1)
         self.gridlayout1.addLayout(self.gridlayout6,1,1,1,1)
         self.tabWidget.addTab(self.optionsTab,"")
 
         self.pkListTab = QtGui.QWidget()
         self.pkListTab.setObjectName("pkListTab")
 
-        self.hboxlayout12 = QtGui.QHBoxLayout(self.pkListTab)
-        self.hboxlayout12.setObjectName("hboxlayout12")
+        self.hboxlayout13 = QtGui.QHBoxLayout(self.pkListTab)
+        self.hboxlayout13.setObjectName("hboxlayout13")
 
         self.peakTable = QtGui.QTableWidget(self.pkListTab)
         self.peakTable.setObjectName("peakTable")
-        self.hboxlayout12.addWidget(self.peakTable)
+        self.hboxlayout13.addWidget(self.peakTable)
         self.tabWidget.addTab(self.pkListTab,"")
         self.hboxlayout.addWidget(self.tabWidget)
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.menubar = QtGui.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0,0,812,21))
+        self.menubar.setGeometry(QtCore.QRect(0,0,791,21))
         self.menubar.setObjectName("menubar")
 
         self.menuTools = QtGui.QMenu(self.menubar)
@@ -690,11 +709,13 @@ class Ui_MainWindow(object):
         self.showPickedPeaksCB.setText(QtGui.QApplication.translate("MainWindow", "Show Picked Peaks", None, QtGui.QApplication.UnicodeUTF8))
         self.fndPeaksBtn.setText(QtGui.QApplication.translate("MainWindow", "Find Peaks", None, QtGui.QApplication.UnicodeUTF8))
         self.savePickedPeakBtn.setText(QtGui.QApplication.translate("MainWindow", "Save Picked Peaks", None, QtGui.QApplication.UnicodeUTF8))
-        self.plotClusterPeakCB.setText(QtGui.QApplication.translate("MainWindow", "Show Clustered Peaks", None, QtGui.QApplication.UnicodeUTF8))
         self.label_16.setText(QtGui.QApplication.translate("MainWindow", "Distance Calculation Method:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_21.setText(QtGui.QApplication.translate("MainWindow", "Clustering Type:", None, QtGui.QApplication.UnicodeUTF8))
-        self.showDendroCB.setText(QtGui.QApplication.translate("MainWindow", "Show Clutered Dendrogram", None, QtGui.QApplication.UnicodeUTF8))
+        self.showDendroCB.setText(QtGui.QApplication.translate("MainWindow", "Show Clustered Dendrogram", None, QtGui.QApplication.UnicodeUTF8))
         self.clusterBtn.setText(QtGui.QApplication.translate("MainWindow", "Cluster Peaks", None, QtGui.QApplication.UnicodeUTF8))
+        self.distanceLabel.setText(QtGui.QApplication.translate("MainWindow", "Distance Threshold:", None, QtGui.QApplication.UnicodeUTF8))
+        self.calcThreshCB.setText(QtGui.QApplication.translate("MainWindow", "Determine Distance Threshold by\n"
+        " Cluster Tree Inconsistencies", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.optionsTab), QtGui.QApplication.translate("MainWindow", "Options", None, QtGui.QApplication.UnicodeUTF8))
         self.peakTable.setRowCount(50)
         self.peakTable.setColumnCount(4)
