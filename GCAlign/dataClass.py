@@ -22,8 +22,7 @@ class GC_GC_MS_CLASS(QtCore.QObject):
         self.loadOK = False
         self.fileOpen = False
         self.handle = None
-        self.BPC = None
-        self.BPCmz = None#the mz values making up each BPC point
+
         self.peakPickOk = False
         self.peakInfo1D = None
         self.pickedPeaksCluster = None
@@ -38,6 +37,8 @@ class GC_GC_MS_CLASS(QtCore.QObject):
         self.curMZ = None
         self.EIC = None
         self.TIC = None
+        self.BPC = None
+        self.BPCmz = None#the mz values making up each BPC point
 
         self.eicOK = False
         self.ticOK = False
@@ -55,6 +56,8 @@ class GC_GC_MS_CLASS(QtCore.QObject):
         self.setupThreads()
         self.setTIC()
         self.ticLayer = self.make2DLayer(self.TIC, self.colPoints)
+        self.setBPC()
+        self.bpcLayer = self.make2DLayer(self.BPC, self.colPoints)
         self.readPeakInfo()
 
     def setPeakInfo(self, peakInfoDict):
@@ -106,7 +109,6 @@ class GC_GC_MS_CLASS(QtCore.QObject):
         atom = T.FloatAtom()#Int32Atom()
         shape = array.shape
         try:
-
             ca = hdf.createCArray(hdf.root, arrayName, atom, shape,  filters = filters)
             ca[0:shape[0]] = array
             ca.flush()
@@ -121,7 +123,6 @@ class GC_GC_MS_CLASS(QtCore.QObject):
             for item in self.peakInfo1D.iteritems():
                 self.writeArray2File(item[0], item[1])
 
-
     def getHandle(self):
         self.handle = T.openFile(self.filePath, 'r')
         self.fileOpen = True
@@ -131,12 +132,14 @@ class GC_GC_MS_CLASS(QtCore.QObject):
         self.fileOpen = False
 
     def _setBPC_(self):
-        self.ReadThread.setType('BPC')
-        self.ReadThread.start()
+        print "This function has been disabled"
+#        self.ReadThread.setType('BPC')
+#        self.ReadThread.start()
 
     def getBPC(self):
         if self.bpcOK:
-            return self.BPC, self.BPCmz
+            print "BPC returned"
+            return self.BPC#, self.BPCmz
 
     def _setEIC_(self, mzVals):
         self.ReadThread.setType('EIC')
@@ -176,6 +179,19 @@ class GC_GC_MS_CLASS(QtCore.QObject):
             if len(tic)>0:
                 self.ticOK = True
                 self.TIC = tic
+            else:
+                print "Error opening HDF5 data file, no TIC found"
+
+    def setBPC(self):
+        self.getHandle()
+        if self.fileOpen:
+            bpc = self.handle.root.BPC.read()
+            bpcMZ = self.handle.root.BPC.read()
+            self.closeHandle()
+            if len(bpc)>0:
+                self.bpcOK = True
+                self.BPC = bpc
+                self.BPCmz = bpcMZ
             else:
                 print "Error opening HDF5 data file, no TIC found"
 
@@ -371,7 +387,7 @@ if __name__ == "__main__":
     import time
     app = QtGui.QApplication(sys.argv)
 
-    file = 'Acetone_Klean.h5'
+    file = '/home/clowers/Desktop/Acetone_Klean.h5'
     data = GC_GC_MS_CLASS(file)
     tic = data.getTIC()
 
@@ -380,20 +396,21 @@ if __name__ == "__main__":
     ax1 = w.canvas.axDict['ax1']
     ax2 = w.canvas.axDict['ax2']
 
-    t1 = time.clock()
-    data._setEIC_([53])
-    time.sleep(6)
-    eic = data.getEIC()
-    print 'EIC Generation: ', time.clock()-t1
+#    t1 = time.clock()
+#    data._setEIC_([53])
+#    time.sleep(6)
+    bpc = data.getBPC()
+#    print 'EIC Generation: ', time.clock()-t1
 
 
-    t1 = time.clock()
-    ticLayer = data.make2DLayer(tic, data.colPoints)
-    print 'TIC Layer Generation: ', time.clock()-t1
-
-    t1 = time.clock()
-#    data._setBPC_()
-    print 'BPC Generation: ', time.clock()-t1
+#    t1 = time.clock()
+    ticLayer = data.ticLayer
+    bpcLayer = data.bpcLayer
+#    print 'TIC Layer Generation: ', time.clock()-t1
+#
+#    t1 = time.clock()
+##    data._setBPC_()
+#    print 'BPC Generation: ', time.clock()-t1
 
 #    bpc, bpcMZ = data.getBPC()
 
@@ -406,24 +423,24 @@ if __name__ == "__main__":
     }
 
     my_cmap = C.LinearSegmentedColormap('mycmap', cdict, 512)
-    ax1.imshow(N.transpose(ticLayer), origin = 'lower', aspect = 'auto', cmap = my_cmap)
+    ax1.imshow(bpcLayer, origin = 'lower', aspect = 'auto', cmap = my_cmap)
     #ax2.imshow(N.transpose(ticLayer), origin = 'lower', aspect = 'auto')
 #    ax1.set_xlim(0, data.rowPoints)
 #    ax1.set_ylim(0, data.colPoints)
 #    ax1.imshow(ticLayer, aspect = 'auto')
 
-    tic /= tic.max()
-    tic *=100
-#    bpc /= bpc.max()
-#    bpc *=100
-    eic /= eic.max()
-    eic *=100
+#    tic /= tic.max()
+#    tic *=100
+##    bpc /= bpc.max()
+##    bpc *=100
+#    eic /= eic.max()
+#    eic *=100
 
 
 #    gc2x = N.arange(1,len(eic), data.colPoints)
 #    gc2y = eic[::data.colPoints]
 #
-    ax2.plot(eic)
+    ax2.plot(bpc)
 #    N.savetxt("TICSam.txt", eic, delimiter = ',')
 #    ax2.plot(gc2x, gc2y, 'or', alpha = 0.6)
 #    ax2.plot(bpc, 'r')

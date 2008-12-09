@@ -347,7 +347,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         self.curImPlot = None #is the matplotlib axis reference
         self.curChrom = None #current chromatogram
         self.curImPlot = None #is the matplotlib axis reference
-        self.plotType = 'TIC'
+        self.plotType = 'BPC'
         self.prevChromLimits = 0
         self.prevImLimits = [0,0]
         ####Peak Info Variables############################
@@ -480,10 +480,13 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
             self.mainIm = self.curData.ticLayer
             self.curIm = self.curData.ticLayer
             self.curChrom = self.curData.getTIC()
+        elif self.plotType == 'BPC':
+            self.mainIm = self.curData.bpcLayer
+            self.curIm = self.curData.bpcLayer
+            self.curChrom = self.curData.getBPC()
 #            self.curImPlot = self.imageAxis.imshow(self.curIm, alpha = 1,  aspect = 'auto',\
 #                                                   origin = 'lower',  cmap = my_cmap, label = 'R')
-            self.curChromPlot = self.chromAxis.plot(self.curChrom, 'b', label = self.curData.name,\
-                                                    picker = 5)
+        self.curChromPlot = self.chromAxis.plot(self.curChrom, 'b', label = self.curData.name, picker = 5)
         if self.showPickedPeaksCB.isChecked():
             if self.curData.peakPickOk:
                 self.peakInfo = self.curData.peakInfo1D
@@ -514,6 +517,9 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         self.addImPickers()
         if self.plotType == 'TIC':
             self.curIm = self.curData.ticLayer
+        elif self.plotType == 'BPC':
+            self.curIm = self.curData.bpcLayer
+
         self.curImPlot = self.imageAxis.imshow(self.mainIm, alpha = 1,  aspect = 'auto',\
                                                origin = 'lower',  cmap = my_cmap, label = 'R')
 
