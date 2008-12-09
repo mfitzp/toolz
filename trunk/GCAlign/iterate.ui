@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>812</width>
-    <height>710</height>
+    <width>791</width>
+    <height>673</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -814,7 +814,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QDoubleSpinBox" name="doubleSpinBox_2" >
+             <widget class="QDoubleSpinBox" name="slopeThreshSB" >
               <property name="enabled" >
                <bool>false</bool>
               </property>
@@ -902,14 +902,7 @@
         </item>
         <item row="1" column="1" >
          <layout class="QGridLayout" >
-          <item row="0" column="0" >
-           <widget class="QCheckBox" name="plotClusterPeakCB" >
-            <property name="text" >
-             <string>Show Clustered Peaks</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0" >
+          <item row="3" column="0" >
            <layout class="QHBoxLayout" >
             <item>
              <widget class="QLabel" name="label_16" >
@@ -926,7 +919,7 @@
             </item>
            </layout>
           </item>
-          <item row="2" column="0" >
+          <item row="4" column="0" >
            <layout class="QHBoxLayout" >
             <item>
              <widget class="QLabel" name="label_21" >
@@ -946,20 +939,64 @@
             </item>
            </layout>
           </item>
-          <item row="3" column="0" >
+          <item row="5" column="0" >
            <widget class="QCheckBox" name="showDendroCB" >
             <property name="text" >
-             <string>Show Clutered Dendrogram</string>
+             <string>Show Clustered Dendrogram</string>
             </property>
             <property name="checked" >
              <bool>true</bool>
             </property>
            </widget>
           </item>
-          <item row="4" column="0" >
+          <item row="6" column="0" >
            <widget class="QPushButton" name="clusterBtn" >
             <property name="text" >
              <string>Cluster Peaks</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" >
+           <layout class="QHBoxLayout" >
+            <item>
+             <widget class="QLabel" name="distanceLabel" >
+              <property name="enabled" >
+               <bool>false</bool>
+              </property>
+              <property name="text" >
+               <string>Distance Threshold:</string>
+              </property>
+              <property name="alignment" >
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QDoubleSpinBox" name="maxDistThreshSB" >
+              <property name="enabled" >
+               <bool>false</bool>
+              </property>
+              <property name="minimum" >
+               <double>0.010000000000000</double>
+              </property>
+              <property name="value" >
+               <double>10.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="2" column="0" >
+           <widget class="QCheckBox" name="calcThreshCB" >
+            <property name="layoutDirection" >
+             <enum>Qt::LeftToRight</enum>
+            </property>
+            <property name="text" >
+             <string>Determine Distance Threshold by
+ Cluster Tree Inconsistencies</string>
+            </property>
+            <property name="checked" >
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -1047,7 +1084,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>812</width>
+     <width>791</width>
      <height>21</height>
     </rect>
    </property>

@@ -645,7 +645,8 @@ def totree(Z, rd=False):
     n = Z.shape[0] + 1
 
     # Create a list full of None's to store the node objects
-    d = [None] * (n*2-1)
+#    d = [None] * (n*2-1)
+    d = {}#BHC
 
     # If we encounter a cluster being combined more than once, the matrix
     # must be corrupt.

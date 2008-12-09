@@ -167,15 +167,37 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         QtCore.QObject.connect(self.savePickedPeakBtn,QtCore.SIGNAL("clicked()"),self.savePeaks2HDF)
         QtCore.QObject.connect(self.clusterBtn,QtCore.SIGNAL("clicked()"),self.clusterPeaks)
 
+        QtCore.QObject.connect(self.calcThreshCB,QtCore.SIGNAL("stateChanged(int)"),self.toggleDistance)
+
+    def toggleDistance(self, intState):
+#        print intState
+        if intState == 0:
+            self.maxDistThreshSB.setEnabled(True)
+            self.distanceLabel.setEnabled(True)
+        elif intState == 2:
+            self.maxDistThreshSB.setEnabled(False)
+            self.distanceLabel.setEnabled(False)
+
     def plotLinkage(self, finishedBool):
         if finishedBool:
-            if self.showDendroCB.isChecked:
+            if self.showDendroCB.isChecked():
                 self.linkagePlot = MPL_Widget()
                 self.linkagePlot.setWindowTitle(('Clustered Peaks for %s'%self.curData.name))
                 self.linkagePlot.canvas.setupSub(1)
                 ax1 = self.linkagePlot.canvas.axDict['ax1']
-                H.dendrogram(self.PCT.linkageResult, colorthreshold=10, customMPL = ax1)
+#                print len(self.PCT.tempMIHist[0]), len(self.PCT.tempMIHist[1])
+#
+                ax1.plot(self.PCT.tempMIHist[1][1:], self.PCT.tempMIHist[0])
+#                ax1.plot(self.PCT.tempMDHist[1][1:], self.PCT.tempMDHist[0])
+                if self.PCT.maxDist != None:
+                    print "Maximum Distance Allowed: ",self.PCT.maxDist
+#                    H.dendrogram(self.PCT.linkageResult, colorthreshold=self.PCT.maxDist, customMPL = ax1)
+#                else:
+#                    H.dendrogram(self.PCT.linkageResult, colorthreshold= 10, customMPL = ax1)
                 self.linkagePlot.show()
+            self.clustLoc2D = self.PCT.peakCentroids
+            self.autoscale_plot()
+
 
     def clusterPeaks(self):
 #        if self.showDendroCB.isChecked():
@@ -188,7 +210,14 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
 #                    X = self.peakLoc2D[0]
 #                    for i in xrange(1, len(self.peakLoc2D)):
 #                        X = N.column_stack((X,self.peakLoc2D[i]))
-            self.PCT.initClusterThread(X, plotLinkage = self.showDendroCB.isChecked(), name = self.curData.name)
+            self.tabWidget.setCurrentIndex(0)#return to plot tab
+            if self.calcThreshCB.isChecked():
+                self.PCT.initClusterThread(X, plotLinkage = self.showDendroCB.isChecked(), name = self.curData.name,\
+                                       threshType = 'inconsistent')
+            else:
+                self.PCT.initClusterThread(X, plotLinkage = self.showDendroCB.isChecked(), name = self.curData.name,\
+                                           distThresh = self.maxDistThreshSB.value(), threshType = 'distance')
+
             self.PCT.start()
 #            self.linkagePlot = MPL_Widget()
 #            self.linkagePlot.setWindowTitle(('Clustered Peaks for %s'%self.curData.name))
@@ -324,6 +353,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         ####Peak Info Variables############################
         self.peakInfo = None #when set will be a dictionary containing peak info for the chromatogram
         self.peakLoc2D = None #when set will be a 2D array of picked peak locations and intensities
+        self.clustLoc2D = None
         self.peakParams = {} #dictionary of peak parameters
         self.peakArrayNames = ['peakLoc', 'peakInt', 'peakWidth']
         ##############################
@@ -438,6 +468,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
     def updatePlot(self, plotIndex):#, plotType = 'TIC'):
         self.peakInfo = None
         self.peakLoc2D = None
+        self.clustLoc2D = None
         self.imageAxis.cla()
         self.chromAxis.cla()
         self.addChromPickers()
@@ -490,6 +521,8 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
             if self.peakInfo != None:
                 self.chromAxis.plot(self.peakInfo['peakLoc'],self.peakInfo['peakInt'], 'ro', ms = 3, alpha = 0.4, picker = 5)
                 self.imageAxis.plot(self.peakLoc2D[0],self.peakLoc2D[1],'yo', ms = 3, alpha = 0.6, picker = 5)
+                if self.clustLoc2D != None:
+                    self.imageAxis.plot(self.clustLoc2D[:,0],self.clustLoc2D[:,1],'rs', ms = 4, alpha = 0.7, picker = 5)
                 #remember the image is transposed, so we need to swap the length of the axes
                 self.imageAxis.set_xlim(0,self.curData.rowPoints)
                 self.imageAxis.set_ylim(0,self.curData.colPoints)
@@ -546,6 +579,10 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
                 self.prevChromLimits = x1
 
                 #####2D Peak Locations#####
+                if self.clustLoc2D != None:
+                    self.imageAxis.plot(self.clustLoc2D[:,0]-xLim[0]-self.prevImLimits[0],\
+                                        self.clustLoc2D[:,1]-yLim[0]-self.prevImLimits[1],\
+                                        'rs', ms = 4, alpha = 0.6, picker = 5)
 
                 if self.peakInfo != None:
                     tempPeaks = self.peakInfo['peakLoc']
