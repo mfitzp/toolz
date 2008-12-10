@@ -95,6 +95,7 @@ class PeakFindThread(QtCore.QThread):
         peakLoc=[]
         peakInt=[]
         peakWidth = []
+        peakArea = []
 
 
         for i in xrange(numSegs):
@@ -129,12 +130,15 @@ class PeakFindThread(QtCore.QThread):
                     tempLoc = peakInfo['peak_location']
                     tempInt = peakInfo['peak_intensity']
                     tempWidth = peakInfo['peak_width']
+                    tempArea = peakInfo['peak_area']
                     for loc in tempLoc:
                         peakLoc.append(loc+optStart)
                     for yVal in tempInt:
                         peakInt.append(yVal)
                     for width in tempWidth:
                         peakWidth.append(width)
+                    for area in tempArea:
+                        peakArea.append(area)
         #            if len(peakInfo['peak_location']) == 1:
         #                peakLoc.append(tempLoc[0])
         #                peakInt.append(tempInt[0])
@@ -151,7 +155,8 @@ class PeakFindThread(QtCore.QThread):
 
         peakDict = {'peakLoc':N.array(peakLoc),
                     'peakInt':N.array(peakInt),
-                    'peakWidth':N.array(peakWidth)
+                    'peakWidth':N.array(peakWidth),
+                    'peakArea':N.array(peakArea)
                     }
         return peakDict#, minima
 

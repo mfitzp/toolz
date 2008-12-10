@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Documents and Settings\d3p483\workspace\GCAlign\iterate.ui'
 #
-# Created: Mon Dec 08 13:02:50 2008
+# Created: Tue Dec 09 14:56:09 2008
 #      by: PyQt4 UI code generator 4.3.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -12,7 +12,7 @@ from PyQt4 import QtCore, QtGui
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(QtCore.QSize(QtCore.QRect(0,0,791,673).size()).expandedTo(MainWindow.minimumSizeHint()))
+        MainWindow.resize(QtCore.QSize(QtCore.QRect(0,0,793,674).size()).expandedTo(MainWindow.minimumSizeHint()))
         MainWindow.setWindowIcon(QtGui.QIcon(":/new/prefix1/Retro Mario World_32.png"))
         MainWindow.setLayoutDirection(QtCore.Qt.LeftToRight)
 
@@ -28,8 +28,8 @@ class Ui_MainWindow(object):
         self.plotTab = QtGui.QWidget()
         self.plotTab.setObjectName("plotTab")
 
-        self.vboxlayout = QtGui.QVBoxLayout(self.plotTab)
-        self.vboxlayout.setObjectName("vboxlayout")
+        self.gridlayout = QtGui.QGridLayout(self.plotTab)
+        self.gridlayout.setObjectName("gridlayout")
 
         self.hboxlayout1 = QtGui.QHBoxLayout()
         self.hboxlayout1.setObjectName("hboxlayout1")
@@ -46,7 +46,7 @@ class Ui_MainWindow(object):
         self.indexSpinBox = QtGui.QSpinBox(self.plotTab)
         self.indexSpinBox.setObjectName("indexSpinBox")
         self.hboxlayout1.addWidget(self.indexSpinBox)
-        self.vboxlayout.addLayout(self.hboxlayout1)
+        self.gridlayout.addLayout(self.hboxlayout1,0,0,1,1)
 
         self.hboxlayout2 = QtGui.QHBoxLayout()
         self.hboxlayout2.setObjectName("hboxlayout2")
@@ -59,26 +59,18 @@ class Ui_MainWindow(object):
         self.specNameEdit.setReadOnly(True)
         self.specNameEdit.setObjectName("specNameEdit")
         self.hboxlayout2.addWidget(self.specNameEdit)
-        self.vboxlayout.addLayout(self.hboxlayout2)
+        self.gridlayout.addLayout(self.hboxlayout2,1,0,1,1)
 
-        self.splitter_2 = QtGui.QSplitter(self.plotTab)
-        self.splitter_2.setOrientation(QtCore.Qt.Horizontal)
-        self.splitter_2.setObjectName("splitter_2")
+        self.hboxlayout3 = QtGui.QHBoxLayout()
+        self.hboxlayout3.setObjectName("hboxlayout3")
 
-        self.splitter = QtGui.QSplitter(self.splitter_2)
-
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Expanding)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.splitter.sizePolicy().hasHeightForWidth())
-        self.splitter.setSizePolicy(sizePolicy)
-        self.splitter.setMinimumSize(QtCore.QSize(16,16))
+        self.splitter = QtGui.QSplitter(self.plotTab)
         self.splitter.setOrientation(QtCore.Qt.Vertical)
         self.splitter.setObjectName("splitter")
 
         self.plotWidget = MPL_Image_Widget(self.splitter)
 
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Expanding)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Maximum,QtGui.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.plotWidget.sizePolicy().hasHeightForWidth())
@@ -88,27 +80,25 @@ class Ui_MainWindow(object):
 
         self.plotWidget2 = MPL_Chrom_Widget(self.splitter)
 
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Expanding)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Maximum,QtGui.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.plotWidget2.sizePolicy().hasHeightForWidth())
         self.plotWidget2.setSizePolicy(sizePolicy)
         self.plotWidget2.setMinimumSize(QtCore.QSize(500,100))
         self.plotWidget2.setObjectName("plotWidget2")
+        self.hboxlayout3.addWidget(self.splitter)
 
-        self.layoutWidget = QtGui.QWidget(self.splitter_2)
-        self.layoutWidget.setObjectName("layoutWidget")
+        self.vboxlayout = QtGui.QVBoxLayout()
+        self.vboxlayout.setObjectName("vboxlayout")
 
-        self.vboxlayout1 = QtGui.QVBoxLayout(self.layoutWidget)
-        self.vboxlayout1.setObjectName("vboxlayout1")
-
-        self.addFileBtn = QtGui.QPushButton(self.layoutWidget)
+        self.addFileBtn = QtGui.QPushButton(self.plotTab)
         self.addFileBtn.setMaximumSize(QtCore.QSize(100,16777215))
         self.addFileBtn.setLayoutDirection(QtCore.Qt.LeftToRight)
         self.addFileBtn.setObjectName("addFileBtn")
-        self.vboxlayout1.addWidget(self.addFileBtn)
+        self.vboxlayout.addWidget(self.addFileBtn)
 
-        self.listWidget = QtGui.QListWidget(self.layoutWidget)
+        self.listWidget = QtGui.QListWidget(self.plotTab)
 
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Minimum)
         sizePolicy.setHorizontalStretch(0)
@@ -120,19 +110,26 @@ class Ui_MainWindow(object):
         self.listWidget.setBaseSize(QtCore.QSize(100,250))
         self.listWidget.setLayoutDirection(QtCore.Qt.LeftToRight)
         self.listWidget.setObjectName("listWidget")
-        self.vboxlayout1.addWidget(self.listWidget)
+        self.vboxlayout.addWidget(self.listWidget)
 
-        self.tableWidget = QtGui.QTableWidget(self.layoutWidget)
+        self.tableWidget = QtGui.QTableWidget(self.plotTab)
+
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred,QtGui.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.tableWidget.sizePolicy().hasHeightForWidth())
+        self.tableWidget.setSizePolicy(sizePolicy)
         self.tableWidget.setMaximumSize(QtCore.QSize(200,16777215))
         self.tableWidget.setLayoutDirection(QtCore.Qt.LeftToRight)
         self.tableWidget.setObjectName("tableWidget")
-        self.vboxlayout1.addWidget(self.tableWidget)
-        self.vboxlayout.addWidget(self.splitter_2)
+        self.vboxlayout.addWidget(self.tableWidget)
+        self.hboxlayout3.addLayout(self.vboxlayout)
+        self.gridlayout.addLayout(self.hboxlayout3,2,0,1,1)
 
-        self.gridlayout = QtGui.QGridLayout()
-        self.gridlayout.setHorizontalSpacing(3)
-        self.gridlayout.setVerticalSpacing(2)
-        self.gridlayout.setObjectName("gridlayout")
+        self.gridlayout1 = QtGui.QGridLayout()
+        self.gridlayout1.setHorizontalSpacing(3)
+        self.gridlayout1.setVerticalSpacing(2)
+        self.gridlayout1.setObjectName("gridlayout1")
 
         self.cALabelLE = QtGui.QLineEdit(self.plotTab)
         self.cALabelLE.setMaximumSize(QtCore.QSize(16777215,17))
@@ -142,7 +139,7 @@ class Ui_MainWindow(object):
         self.cALabelLE.setFont(font)
         self.cALabelLE.setReadOnly(True)
         self.cALabelLE.setObjectName("cALabelLE")
-        self.gridlayout.addWidget(self.cALabelLE,0,3,1,1)
+        self.gridlayout1.addWidget(self.cALabelLE,0,3,1,1)
 
         self.cAIndexLE = QtGui.QLineEdit(self.plotTab)
         self.cAIndexLE.setMaximumSize(QtCore.QSize(16777215,17))
@@ -152,7 +149,7 @@ class Ui_MainWindow(object):
         self.cAIndexLE.setFont(font)
         self.cAIndexLE.setReadOnly(True)
         self.cAIndexLE.setObjectName("cAIndexLE")
-        self.gridlayout.addWidget(self.cAIndexLE,0,5,1,1)
+        self.gridlayout1.addWidget(self.cAIndexLE,0,5,1,1)
 
         self.cA_XLE = QtGui.QLineEdit(self.plotTab)
         self.cA_XLE.setMaximumSize(QtCore.QSize(16777215,17))
@@ -162,7 +159,7 @@ class Ui_MainWindow(object):
         self.cA_XLE.setFont(font)
         self.cA_XLE.setReadOnly(True)
         self.cA_XLE.setObjectName("cA_XLE")
-        self.gridlayout.addWidget(self.cA_XLE,0,7,1,1)
+        self.gridlayout1.addWidget(self.cA_XLE,0,7,1,1)
 
         self.cA_YLE = QtGui.QLineEdit(self.plotTab)
         self.cA_YLE.setMaximumSize(QtCore.QSize(16777215,17))
@@ -172,7 +169,7 @@ class Ui_MainWindow(object):
         self.cA_YLE.setFont(font)
         self.cA_YLE.setReadOnly(True)
         self.cA_YLE.setObjectName("cA_YLE")
-        self.gridlayout.addWidget(self.cA_YLE,0,9,1,1)
+        self.gridlayout1.addWidget(self.cA_YLE,0,9,1,1)
 
         self.cBLabelLE = QtGui.QLineEdit(self.plotTab)
         self.cBLabelLE.setMaximumSize(QtCore.QSize(16777215,17))
@@ -182,7 +179,7 @@ class Ui_MainWindow(object):
         self.cBLabelLE.setFont(font)
         self.cBLabelLE.setReadOnly(True)
         self.cBLabelLE.setObjectName("cBLabelLE")
-        self.gridlayout.addWidget(self.cBLabelLE,1,3,1,1)
+        self.gridlayout1.addWidget(self.cBLabelLE,1,3,1,1)
 
         self.cBIndexLE = QtGui.QLineEdit(self.plotTab)
         self.cBIndexLE.setMaximumSize(QtCore.QSize(16777215,17))
@@ -192,7 +189,7 @@ class Ui_MainWindow(object):
         self.cBIndexLE.setFont(font)
         self.cBIndexLE.setReadOnly(True)
         self.cBIndexLE.setObjectName("cBIndexLE")
-        self.gridlayout.addWidget(self.cBIndexLE,1,5,1,1)
+        self.gridlayout1.addWidget(self.cBIndexLE,1,5,1,1)
 
         self.cB_XLE = QtGui.QLineEdit(self.plotTab)
         self.cB_XLE.setMaximumSize(QtCore.QSize(16777215,17))
@@ -202,7 +199,7 @@ class Ui_MainWindow(object):
         self.cB_XLE.setFont(font)
         self.cB_XLE.setReadOnly(True)
         self.cB_XLE.setObjectName("cB_XLE")
-        self.gridlayout.addWidget(self.cB_XLE,1,7,1,1)
+        self.gridlayout1.addWidget(self.cB_XLE,1,7,1,1)
 
         self.cB_YLE = QtGui.QLineEdit(self.plotTab)
         self.cB_YLE.setMaximumSize(QtCore.QSize(16777215,17))
@@ -212,7 +209,7 @@ class Ui_MainWindow(object):
         self.cB_YLE.setFont(font)
         self.cB_YLE.setReadOnly(True)
         self.cB_YLE.setObjectName("cB_YLE")
-        self.gridlayout.addWidget(self.cB_YLE,1,9,1,1)
+        self.gridlayout1.addWidget(self.cB_YLE,1,9,1,1)
 
         self.label_4 = QtGui.QLabel(self.plotTab)
 
@@ -221,7 +218,7 @@ class Ui_MainWindow(object):
         self.label_4.setFont(font)
         self.label_4.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_4.setObjectName("label_4")
-        self.gridlayout.addWidget(self.label_4,0,2,1,1)
+        self.gridlayout1.addWidget(self.label_4,0,2,1,1)
 
         self.label_5 = QtGui.QLabel(self.plotTab)
 
@@ -230,7 +227,7 @@ class Ui_MainWindow(object):
         self.label_5.setFont(font)
         self.label_5.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_5.setObjectName("label_5")
-        self.gridlayout.addWidget(self.label_5,1,2,1,1)
+        self.gridlayout1.addWidget(self.label_5,1,2,1,1)
 
         self.label_6 = QtGui.QLabel(self.plotTab)
 
@@ -239,7 +236,7 @@ class Ui_MainWindow(object):
         self.label_6.setFont(font)
         self.label_6.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_6.setObjectName("label_6")
-        self.gridlayout.addWidget(self.label_6,0,4,1,1)
+        self.gridlayout1.addWidget(self.label_6,0,4,1,1)
 
         self.label_7 = QtGui.QLabel(self.plotTab)
 
@@ -248,7 +245,7 @@ class Ui_MainWindow(object):
         self.label_7.setFont(font)
         self.label_7.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_7.setObjectName("label_7")
-        self.gridlayout.addWidget(self.label_7,0,6,1,1)
+        self.gridlayout1.addWidget(self.label_7,0,6,1,1)
 
         self.label_8 = QtGui.QLabel(self.plotTab)
 
@@ -257,7 +254,7 @@ class Ui_MainWindow(object):
         self.label_8.setFont(font)
         self.label_8.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_8.setObjectName("label_8")
-        self.gridlayout.addWidget(self.label_8,0,8,1,1)
+        self.gridlayout1.addWidget(self.label_8,0,8,1,1)
 
         self.label_9 = QtGui.QLabel(self.plotTab)
 
@@ -266,7 +263,7 @@ class Ui_MainWindow(object):
         self.label_9.setFont(font)
         self.label_9.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_9.setObjectName("label_9")
-        self.gridlayout.addWidget(self.label_9,1,4,1,1)
+        self.gridlayout1.addWidget(self.label_9,1,4,1,1)
 
         self.label_10 = QtGui.QLabel(self.plotTab)
 
@@ -275,7 +272,7 @@ class Ui_MainWindow(object):
         self.label_10.setFont(font)
         self.label_10.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_10.setObjectName("label_10")
-        self.gridlayout.addWidget(self.label_10,1,6,1,1)
+        self.gridlayout1.addWidget(self.label_10,1,6,1,1)
 
         self.label_11 = QtGui.QLabel(self.plotTab)
 
@@ -284,7 +281,7 @@ class Ui_MainWindow(object):
         self.label_11.setFont(font)
         self.label_11.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_11.setObjectName("label_11")
-        self.gridlayout.addWidget(self.label_11,1,8,1,1)
+        self.gridlayout1.addWidget(self.label_11,1,8,1,1)
 
         self.label_12 = QtGui.QLabel(self.plotTab)
 
@@ -293,7 +290,7 @@ class Ui_MainWindow(object):
         self.label_12.setFont(font)
         self.label_12.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_12.setObjectName("label_12")
-        self.gridlayout.addWidget(self.label_12,0,10,1,1)
+        self.gridlayout1.addWidget(self.label_12,0,10,1,1)
 
         self.label_13 = QtGui.QLabel(self.plotTab)
 
@@ -302,7 +299,7 @@ class Ui_MainWindow(object):
         self.label_13.setFont(font)
         self.label_13.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_13.setObjectName("label_13")
-        self.gridlayout.addWidget(self.label_13,1,10,1,1)
+        self.gridlayout1.addWidget(self.label_13,1,10,1,1)
 
         self.dxLE = QtGui.QLineEdit(self.plotTab)
         self.dxLE.setMaximumSize(QtCore.QSize(16777215,17))
@@ -312,7 +309,7 @@ class Ui_MainWindow(object):
         self.dxLE.setFont(font)
         self.dxLE.setReadOnly(True)
         self.dxLE.setObjectName("dxLE")
-        self.gridlayout.addWidget(self.dxLE,0,11,1,1)
+        self.gridlayout1.addWidget(self.dxLE,0,11,1,1)
 
         self.dyLE = QtGui.QLineEdit(self.plotTab)
         self.dyLE.setMaximumSize(QtCore.QSize(16777215,17))
@@ -322,7 +319,7 @@ class Ui_MainWindow(object):
         self.dyLE.setFont(font)
         self.dyLE.setReadOnly(True)
         self.dyLE.setObjectName("dyLE")
-        self.gridlayout.addWidget(self.dyLE,1,11,1,1)
+        self.gridlayout1.addWidget(self.dyLE,1,11,1,1)
 
         self.cursACB = QtGui.QCheckBox(self.plotTab)
 
@@ -335,7 +332,7 @@ class Ui_MainWindow(object):
         self.cursACB.setFont(font)
         self.cursACB.setLayoutDirection(QtCore.Qt.RightToLeft)
         self.cursACB.setObjectName("cursACB")
-        self.gridlayout.addWidget(self.cursACB,0,0,1,1)
+        self.gridlayout1.addWidget(self.cursACB,0,0,1,1)
 
         self.cursBCB = QtGui.QCheckBox(self.plotTab)
 
@@ -348,88 +345,101 @@ class Ui_MainWindow(object):
         self.cursBCB.setFont(font)
         self.cursBCB.setLayoutDirection(QtCore.Qt.RightToLeft)
         self.cursBCB.setObjectName("cursBCB")
-        self.gridlayout.addWidget(self.cursBCB,1,0,1,1)
-        self.vboxlayout.addLayout(self.gridlayout)
+        self.gridlayout1.addWidget(self.cursBCB,1,0,1,1)
+        self.gridlayout.addLayout(self.gridlayout1,3,0,1,1)
         self.tabWidget.addTab(self.plotTab,"")
 
         self.optionsTab = QtGui.QWidget()
         self.optionsTab.setObjectName("optionsTab")
 
-        self.gridlayout1 = QtGui.QGridLayout(self.optionsTab)
-        self.gridlayout1.setObjectName("gridlayout1")
-
-        self.gridlayout2 = QtGui.QGridLayout()
+        self.gridlayout2 = QtGui.QGridLayout(self.optionsTab)
         self.gridlayout2.setObjectName("gridlayout2")
-
-        self.plotPkListCB = QtGui.QCheckBox(self.optionsTab)
-        self.plotPkListCB.setObjectName("plotPkListCB")
-        self.gridlayout2.addWidget(self.plotPkListCB,0,0,1,1)
 
         self.gridlayout3 = QtGui.QGridLayout()
         self.gridlayout3.setObjectName("gridlayout3")
 
+        self.plotPkListCB = QtGui.QCheckBox(self.optionsTab)
+        self.plotPkListCB.setObjectName("plotPkListCB")
+        self.gridlayout3.addWidget(self.plotPkListCB,0,0,1,1)
+
         self.gridlayout4 = QtGui.QGridLayout()
-        self.gridlayout4.setHorizontalSpacing(6)
         self.gridlayout4.setObjectName("gridlayout4")
+
+        self.gridlayout5 = QtGui.QGridLayout()
+        self.gridlayout5.setHorizontalSpacing(6)
+        self.gridlayout5.setObjectName("gridlayout5")
 
         self.label_3 = QtGui.QLabel(self.optionsTab)
         self.label_3.setMaximumSize(QtCore.QSize(50,16777215))
         self.label_3.setObjectName("label_3")
-        self.gridlayout4.addWidget(self.label_3,0,0,1,1)
+        self.gridlayout5.addWidget(self.label_3,0,0,1,1)
 
         self.sicMZSB = QtGui.QSpinBox(self.optionsTab)
         self.sicMZSB.setMaximumSize(QtCore.QSize(75,16777215))
         self.sicMZSB.setMinimum(1)
         self.sicMZSB.setMaximum(400)
         self.sicMZSB.setObjectName("sicMZSB")
-        self.gridlayout4.addWidget(self.sicMZSB,0,1,1,1)
-        self.gridlayout3.addLayout(self.gridlayout4,0,0,1,1)
+        self.gridlayout5.addWidget(self.sicMZSB,0,1,1,1)
+        self.gridlayout4.addLayout(self.gridlayout5,0,0,1,1)
 
         self.pltSICBtn = QtGui.QPushButton(self.optionsTab)
         self.pltSICBtn.setMaximumSize(QtCore.QSize(75,16777215))
         self.pltSICBtn.setObjectName("pltSICBtn")
-        self.gridlayout3.addWidget(self.pltSICBtn,1,0,1,1)
+        self.gridlayout4.addWidget(self.pltSICBtn,1,0,1,1)
 
         self.plotTICBtn = QtGui.QPushButton(self.optionsTab)
         self.plotTICBtn.setMaximumSize(QtCore.QSize(75,16777215))
         self.plotTICBtn.setObjectName("plotTICBtn")
-        self.gridlayout3.addWidget(self.plotTICBtn,2,0,1,1)
+        self.gridlayout4.addWidget(self.plotTICBtn,2,0,1,1)
 
         self.plotBPCBtn = QtGui.QPushButton(self.optionsTab)
         self.plotBPCBtn.setMaximumSize(QtCore.QSize(75,16777215))
         self.plotBPCBtn.setObjectName("plotBPCBtn")
-        self.gridlayout3.addWidget(self.plotBPCBtn,3,0,1,1)
-        self.gridlayout2.addLayout(self.gridlayout3,0,2,2,1)
+        self.gridlayout4.addWidget(self.plotBPCBtn,3,0,1,1)
+        self.gridlayout3.addLayout(self.gridlayout4,0,2,2,1)
 
         self.dendroCB = QtGui.QCheckBox(self.optionsTab)
         self.dendroCB.setObjectName("dendroCB")
-        self.gridlayout2.addWidget(self.dendroCB,1,0,1,2)
+        self.gridlayout3.addWidget(self.dendroCB,1,0,1,2)
 
         self.topHatCB = QtGui.QCheckBox(self.optionsTab)
         self.topHatCB.setObjectName("topHatCB")
-        self.gridlayout2.addWidget(self.topHatCB,2,0,1,1)
+        self.gridlayout3.addWidget(self.topHatCB,2,0,1,1)
 
         self.plotLegendCB = QtGui.QCheckBox(self.optionsTab)
         self.plotLegendCB.setChecked(True)
         self.plotLegendCB.setObjectName("plotLegendCB")
-        self.gridlayout2.addWidget(self.plotLegendCB,2,1,1,2)
-        self.gridlayout1.addLayout(self.gridlayout2,0,0,1,1)
+        self.gridlayout3.addWidget(self.plotLegendCB,2,1,1,2)
+
+        self.hboxlayout4 = QtGui.QHBoxLayout()
+        self.hboxlayout4.setObjectName("hboxlayout4")
+
+        self.label_23 = QtGui.QLabel(self.optionsTab)
+        self.label_23.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_23.setObjectName("label_23")
+        self.hboxlayout4.addWidget(self.label_23)
+
+        self.chromStyleCB = QtGui.QComboBox(self.optionsTab)
+        self.chromStyleCB.setObjectName("chromStyleCB")
+        self.hboxlayout4.addWidget(self.chromStyleCB)
+        self.gridlayout3.addLayout(self.hboxlayout4,0,1,1,1)
+        self.gridlayout2.addLayout(self.gridlayout3,0,0,1,2)
 
         self.loadDirBtn = QtGui.QPushButton(self.optionsTab)
         self.loadDirBtn.setObjectName("loadDirBtn")
-        self.gridlayout1.addWidget(self.loadDirBtn,0,1,1,1)
+        self.gridlayout2.addWidget(self.loadDirBtn,0,2,1,1)
 
-        self.gridlayout5 = QtGui.QGridLayout()
-        self.gridlayout5.setObjectName("gridlayout5")
+        self.gridlayout6 = QtGui.QGridLayout()
+        self.gridlayout6.setObjectName("gridlayout6")
 
-        self.hboxlayout3 = QtGui.QHBoxLayout()
-        self.hboxlayout3.setObjectName("hboxlayout3")
+        self.hboxlayout5 = QtGui.QHBoxLayout()
+        self.hboxlayout5.setObjectName("hboxlayout5")
 
         self.label_20 = QtGui.QLabel(self.optionsTab)
         self.label_20.setLayoutDirection(QtCore.Qt.LeftToRight)
         self.label_20.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_20.setObjectName("label_20")
-        self.hboxlayout3.addWidget(self.label_20)
+        self.hboxlayout5.addWidget(self.label_20)
 
         self.specLengthSB = QtGui.QSpinBox(self.optionsTab)
         self.specLengthSB.setReadOnly(True)
@@ -437,182 +447,182 @@ class Ui_MainWindow(object):
         self.specLengthSB.setMaximum(1000000)
         self.specLengthSB.setProperty("value",QtCore.QVariant(250000))
         self.specLengthSB.setObjectName("specLengthSB")
-        self.hboxlayout3.addWidget(self.specLengthSB)
-        self.gridlayout5.addLayout(self.hboxlayout3,0,0,1,1)
+        self.hboxlayout5.addWidget(self.specLengthSB)
+        self.gridlayout6.addLayout(self.hboxlayout5,0,0,1,1)
 
-        self.hboxlayout4 = QtGui.QHBoxLayout()
-        self.hboxlayout4.setObjectName("hboxlayout4")
+        self.hboxlayout6 = QtGui.QHBoxLayout()
+        self.hboxlayout6.setObjectName("hboxlayout6")
 
         self.label_19 = QtGui.QLabel(self.optionsTab)
         self.label_19.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_19.setObjectName("label_19")
-        self.hboxlayout4.addWidget(self.label_19)
+        self.hboxlayout6.addWidget(self.label_19)
 
         self.numSegsSB = QtGui.QSpinBox(self.optionsTab)
         self.numSegsSB.setMaximum(1000000)
         self.numSegsSB.setProperty("value",QtCore.QVariant(500))
         self.numSegsSB.setObjectName("numSegsSB")
-        self.hboxlayout4.addWidget(self.numSegsSB)
-        self.gridlayout5.addLayout(self.hboxlayout4,1,0,1,1)
+        self.hboxlayout6.addWidget(self.numSegsSB)
+        self.gridlayout6.addLayout(self.hboxlayout6,1,0,1,1)
 
-        self.hboxlayout5 = QtGui.QHBoxLayout()
-        self.hboxlayout5.setObjectName("hboxlayout5")
+        self.hboxlayout7 = QtGui.QHBoxLayout()
+        self.hboxlayout7.setObjectName("hboxlayout7")
 
         self.label_14 = QtGui.QLabel(self.optionsTab)
         self.label_14.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_14.setObjectName("label_14")
-        self.hboxlayout5.addWidget(self.label_14)
+        self.hboxlayout7.addWidget(self.label_14)
 
         self.minSNRSB = QtGui.QSpinBox(self.optionsTab)
         self.minSNRSB.setMinimum(2)
         self.minSNRSB.setMaximum(250000)
         self.minSNRSB.setProperty("value",QtCore.QVariant(3))
         self.minSNRSB.setObjectName("minSNRSB")
-        self.hboxlayout5.addWidget(self.minSNRSB)
-        self.gridlayout5.addLayout(self.hboxlayout5,2,0,1,1)
+        self.hboxlayout7.addWidget(self.minSNRSB)
+        self.gridlayout6.addLayout(self.hboxlayout7,2,0,1,1)
 
-        self.hboxlayout6 = QtGui.QHBoxLayout()
-        self.hboxlayout6.setObjectName("hboxlayout6")
+        self.hboxlayout8 = QtGui.QHBoxLayout()
+        self.hboxlayout8.setObjectName("hboxlayout8")
 
         self.label_15 = QtGui.QLabel(self.optionsTab)
         self.label_15.setEnabled(False)
         self.label_15.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_15.setObjectName("label_15")
-        self.hboxlayout6.addWidget(self.label_15)
+        self.hboxlayout8.addWidget(self.label_15)
 
         self.slopeThreshSB = QtGui.QDoubleSpinBox(self.optionsTab)
         self.slopeThreshSB.setEnabled(False)
         self.slopeThreshSB.setObjectName("slopeThreshSB")
-        self.hboxlayout6.addWidget(self.slopeThreshSB)
-        self.gridlayout5.addLayout(self.hboxlayout6,3,0,1,1)
+        self.hboxlayout8.addWidget(self.slopeThreshSB)
+        self.gridlayout6.addLayout(self.hboxlayout8,3,0,1,1)
 
-        self.hboxlayout7 = QtGui.QHBoxLayout()
-        self.hboxlayout7.setObjectName("hboxlayout7")
+        self.hboxlayout9 = QtGui.QHBoxLayout()
+        self.hboxlayout9.setObjectName("hboxlayout9")
 
         self.label_17 = QtGui.QLabel(self.optionsTab)
         self.label_17.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_17.setObjectName("label_17")
-        self.hboxlayout7.addWidget(self.label_17)
+        self.hboxlayout9.addWidget(self.label_17)
 
         self.smthKernSB = QtGui.QSpinBox(self.optionsTab)
         self.smthKernSB.setProperty("value",QtCore.QVariant(15))
         self.smthKernSB.setObjectName("smthKernSB")
-        self.hboxlayout7.addWidget(self.smthKernSB)
-        self.gridlayout5.addLayout(self.hboxlayout7,4,0,1,1)
+        self.hboxlayout9.addWidget(self.smthKernSB)
+        self.gridlayout6.addLayout(self.hboxlayout9,4,0,1,1)
 
-        self.hboxlayout8 = QtGui.QHBoxLayout()
-        self.hboxlayout8.setObjectName("hboxlayout8")
+        self.hboxlayout10 = QtGui.QHBoxLayout()
+        self.hboxlayout10.setObjectName("hboxlayout10")
 
         self.label_18 = QtGui.QLabel(self.optionsTab)
         self.label_18.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_18.setObjectName("label_18")
-        self.hboxlayout8.addWidget(self.label_18)
+        self.hboxlayout10.addWidget(self.label_18)
 
         self.peakWidthSB = QtGui.QSpinBox(self.optionsTab)
         self.peakWidthSB.setMinimum(3)
         self.peakWidthSB.setMaximum(200000)
         self.peakWidthSB.setProperty("value",QtCore.QVariant(25))
         self.peakWidthSB.setObjectName("peakWidthSB")
-        self.hboxlayout8.addWidget(self.peakWidthSB)
-        self.gridlayout5.addLayout(self.hboxlayout8,5,0,1,1)
+        self.hboxlayout10.addWidget(self.peakWidthSB)
+        self.gridlayout6.addLayout(self.hboxlayout10,5,0,1,1)
 
-        self.hboxlayout9 = QtGui.QHBoxLayout()
-        self.hboxlayout9.setObjectName("hboxlayout9")
+        self.hboxlayout11 = QtGui.QHBoxLayout()
+        self.hboxlayout11.setObjectName("hboxlayout11")
 
         self.showPickedPeaksCB = QtGui.QCheckBox(self.optionsTab)
         self.showPickedPeaksCB.setChecked(True)
         self.showPickedPeaksCB.setObjectName("showPickedPeaksCB")
-        self.hboxlayout9.addWidget(self.showPickedPeaksCB)
+        self.hboxlayout11.addWidget(self.showPickedPeaksCB)
 
         self.fndPeaksBtn = QtGui.QPushButton(self.optionsTab)
         self.fndPeaksBtn.setObjectName("fndPeaksBtn")
-        self.hboxlayout9.addWidget(self.fndPeaksBtn)
-        self.gridlayout5.addLayout(self.hboxlayout9,6,0,1,1)
+        self.hboxlayout11.addWidget(self.fndPeaksBtn)
+        self.gridlayout6.addLayout(self.hboxlayout11,6,0,1,1)
 
         self.savePickedPeakBtn = QtGui.QPushButton(self.optionsTab)
         self.savePickedPeakBtn.setObjectName("savePickedPeakBtn")
-        self.gridlayout5.addWidget(self.savePickedPeakBtn,7,0,1,1)
-        self.gridlayout1.addLayout(self.gridlayout5,1,0,1,1)
+        self.gridlayout6.addWidget(self.savePickedPeakBtn,7,0,1,1)
+        self.gridlayout2.addLayout(self.gridlayout6,1,0,1,1)
 
-        self.gridlayout6 = QtGui.QGridLayout()
-        self.gridlayout6.setObjectName("gridlayout6")
+        self.gridlayout7 = QtGui.QGridLayout()
+        self.gridlayout7.setObjectName("gridlayout7")
 
-        self.hboxlayout10 = QtGui.QHBoxLayout()
-        self.hboxlayout10.setObjectName("hboxlayout10")
+        self.hboxlayout12 = QtGui.QHBoxLayout()
+        self.hboxlayout12.setObjectName("hboxlayout12")
 
         self.label_16 = QtGui.QLabel(self.optionsTab)
         self.label_16.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_16.setObjectName("label_16")
-        self.hboxlayout10.addWidget(self.label_16)
+        self.hboxlayout12.addWidget(self.label_16)
 
         self.distMethodCB = QtGui.QComboBox(self.optionsTab)
         self.distMethodCB.setObjectName("distMethodCB")
-        self.hboxlayout10.addWidget(self.distMethodCB)
-        self.gridlayout6.addLayout(self.hboxlayout10,3,0,1,1)
+        self.hboxlayout12.addWidget(self.distMethodCB)
+        self.gridlayout7.addLayout(self.hboxlayout12,3,0,1,1)
 
-        self.hboxlayout11 = QtGui.QHBoxLayout()
-        self.hboxlayout11.setObjectName("hboxlayout11")
+        self.hboxlayout13 = QtGui.QHBoxLayout()
+        self.hboxlayout13.setObjectName("hboxlayout13")
 
         self.label_21 = QtGui.QLabel(self.optionsTab)
         self.label_21.setLayoutDirection(QtCore.Qt.LeftToRight)
         self.label_21.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_21.setObjectName("label_21")
-        self.hboxlayout11.addWidget(self.label_21)
+        self.hboxlayout13.addWidget(self.label_21)
 
         self.clusterTypeCB = QtGui.QComboBox(self.optionsTab)
         self.clusterTypeCB.setObjectName("clusterTypeCB")
-        self.hboxlayout11.addWidget(self.clusterTypeCB)
-        self.gridlayout6.addLayout(self.hboxlayout11,4,0,1,1)
+        self.hboxlayout13.addWidget(self.clusterTypeCB)
+        self.gridlayout7.addLayout(self.hboxlayout13,4,0,1,1)
 
         self.showDendroCB = QtGui.QCheckBox(self.optionsTab)
         self.showDendroCB.setChecked(True)
         self.showDendroCB.setObjectName("showDendroCB")
-        self.gridlayout6.addWidget(self.showDendroCB,5,0,1,1)
+        self.gridlayout7.addWidget(self.showDendroCB,5,0,1,1)
 
         self.clusterBtn = QtGui.QPushButton(self.optionsTab)
         self.clusterBtn.setObjectName("clusterBtn")
-        self.gridlayout6.addWidget(self.clusterBtn,6,0,1,1)
+        self.gridlayout7.addWidget(self.clusterBtn,6,0,1,1)
 
-        self.hboxlayout12 = QtGui.QHBoxLayout()
-        self.hboxlayout12.setObjectName("hboxlayout12")
+        self.hboxlayout14 = QtGui.QHBoxLayout()
+        self.hboxlayout14.setObjectName("hboxlayout14")
 
         self.distanceLabel = QtGui.QLabel(self.optionsTab)
         self.distanceLabel.setEnabled(False)
         self.distanceLabel.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.distanceLabel.setObjectName("distanceLabel")
-        self.hboxlayout12.addWidget(self.distanceLabel)
+        self.hboxlayout14.addWidget(self.distanceLabel)
 
         self.maxDistThreshSB = QtGui.QDoubleSpinBox(self.optionsTab)
         self.maxDistThreshSB.setEnabled(False)
         self.maxDistThreshSB.setMinimum(0.01)
         self.maxDistThreshSB.setProperty("value",QtCore.QVariant(10.0))
         self.maxDistThreshSB.setObjectName("maxDistThreshSB")
-        self.hboxlayout12.addWidget(self.maxDistThreshSB)
-        self.gridlayout6.addLayout(self.hboxlayout12,1,0,1,1)
+        self.hboxlayout14.addWidget(self.maxDistThreshSB)
+        self.gridlayout7.addLayout(self.hboxlayout14,1,0,1,1)
 
         self.calcThreshCB = QtGui.QCheckBox(self.optionsTab)
         self.calcThreshCB.setLayoutDirection(QtCore.Qt.LeftToRight)
         self.calcThreshCB.setChecked(True)
         self.calcThreshCB.setObjectName("calcThreshCB")
-        self.gridlayout6.addWidget(self.calcThreshCB,2,0,1,1)
-        self.gridlayout1.addLayout(self.gridlayout6,1,1,1,1)
+        self.gridlayout7.addWidget(self.calcThreshCB,2,0,1,1)
+        self.gridlayout2.addLayout(self.gridlayout7,1,1,1,2)
         self.tabWidget.addTab(self.optionsTab,"")
 
         self.pkListTab = QtGui.QWidget()
         self.pkListTab.setObjectName("pkListTab")
 
-        self.hboxlayout13 = QtGui.QHBoxLayout(self.pkListTab)
-        self.hboxlayout13.setObjectName("hboxlayout13")
+        self.hboxlayout15 = QtGui.QHBoxLayout(self.pkListTab)
+        self.hboxlayout15.setObjectName("hboxlayout15")
 
-        self.peakTable = QtGui.QTableWidget(self.pkListTab)
-        self.peakTable.setObjectName("peakTable")
-        self.hboxlayout13.addWidget(self.peakTable)
+        self.tabPeakTable = CustomTable(self.pkListTab)
+        self.tabPeakTable.setObjectName("tabPeakTable")
+        self.hboxlayout15.addWidget(self.tabPeakTable)
         self.tabWidget.addTab(self.pkListTab,"")
         self.hboxlayout.addWidget(self.tabWidget)
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.menubar = QtGui.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0,0,791,21))
+        self.menubar.setGeometry(QtCore.QRect(0,0,793,21))
         self.menubar.setObjectName("menubar")
 
         self.menuTools = QtGui.QMenu(self.menubar)
@@ -649,6 +659,12 @@ class Ui_MainWindow(object):
 
         self.action_Find_Peaks = QtGui.QAction(MainWindow)
         self.action_Find_Peaks.setObjectName("action_Find_Peaks")
+
+        self.actionSave_Peaks_to_CSV = QtGui.QAction(MainWindow)
+        self.actionSave_Peaks_to_CSV.setObjectName("actionSave_Peaks_to_CSV")
+
+        self.actionSave_Peaks_to_Data_File = QtGui.QAction(MainWindow)
+        self.actionSave_Peaks_to_Data_File.setObjectName("actionSave_Peaks_to_Data_File")
         self.menuTools.addAction(self.actionCursor_A)
         self.menuTools.addAction(self.actionCursor_B)
         self.menuTools.addAction(self.actionClear_Cursors)
@@ -658,6 +674,8 @@ class Ui_MainWindow(object):
         self.menuTools.addAction(self.actionCopy_to_Clipboard)
         self.menu_File.addAction(self.action_Open)
         self.menu_Peak_Tools.addAction(self.action_Find_Peaks)
+        self.menu_Peak_Tools.addAction(self.actionSave_Peaks_to_CSV)
+        self.menu_Peak_Tools.addAction(self.actionSave_Peaks_to_Data_File)
         self.menubar.addAction(self.menu_File.menuAction())
         self.menubar.addAction(self.menuTools.menuAction())
         self.menubar.addAction(self.menu_Peak_Tools.menuAction())
@@ -699,6 +717,7 @@ class Ui_MainWindow(object):
         self.dendroCB.setText(QtGui.QApplication.translate("MainWindow", "Show Peak Clustering Dendrogram", None, QtGui.QApplication.UnicodeUTF8))
         self.topHatCB.setText(QtGui.QApplication.translate("MainWindow", "Use TopHat Filter", None, QtGui.QApplication.UnicodeUTF8))
         self.plotLegendCB.setText(QtGui.QApplication.translate("MainWindow", "Plot Legend", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_23.setText(QtGui.QApplication.translate("MainWindow", "Chromatogram Peak Style:", None, QtGui.QApplication.UnicodeUTF8))
         self.loadDirBtn.setText(QtGui.QApplication.translate("MainWindow", "Load Directory", None, QtGui.QApplication.UnicodeUTF8))
         self.label_20.setText(QtGui.QApplication.translate("MainWindow", "Length of Current Spectrum:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_19.setText(QtGui.QApplication.translate("MainWindow", "Number of Spectrum Segments:", None, QtGui.QApplication.UnicodeUTF8))
@@ -717,11 +736,9 @@ class Ui_MainWindow(object):
         self.calcThreshCB.setText(QtGui.QApplication.translate("MainWindow", "Determine Distance Threshold by\n"
         " Cluster Tree Inconsistencies", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.optionsTab), QtGui.QApplication.translate("MainWindow", "Options", None, QtGui.QApplication.UnicodeUTF8))
-        self.peakTable.setRowCount(50)
-        self.peakTable.setColumnCount(4)
-        self.peakTable.clear()
-        self.peakTable.setColumnCount(4)
-        self.peakTable.setRowCount(50)
+        self.tabPeakTable.clear()
+        self.tabPeakTable.setColumnCount(0)
+        self.tabPeakTable.setRowCount(0)
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.pkListTab), QtGui.QApplication.translate("MainWindow", "Peak List", None, QtGui.QApplication.UnicodeUTF8))
         self.menuTools.setTitle(QtGui.QApplication.translate("MainWindow", "&ChromTools", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_File.setTitle(QtGui.QApplication.translate("MainWindow", "&File", None, QtGui.QApplication.UnicodeUTF8))
@@ -735,7 +752,10 @@ class Ui_MainWindow(object):
         self.actionCopy_to_Clipboard.setText(QtGui.QApplication.translate("MainWindow", "Copy to Clipboard", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Find_Peaks.setText(QtGui.QApplication.translate("MainWindow", "&Find Peaks", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Find_Peaks.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+F", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionSave_Peaks_to_CSV.setText(QtGui.QApplication.translate("MainWindow", "Save Peaks to CSV", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionSave_Peaks_to_Data_File.setText(QtGui.QApplication.translate("MainWindow", "Save Peaks to Data File", None, QtGui.QApplication.UnicodeUTF8))
 
-from mpl_image_widget import MPL_Image_Widget
 from mpl_chrom_widget import MPL_Chrom_Widget
+from mpl_image_widget import MPL_Image_Widget
+from customTable import CustomTable
 import icons_rc

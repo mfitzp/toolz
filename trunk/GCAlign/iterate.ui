@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>791</width>
-    <height>673</height>
+    <width>793</width>
+    <height>674</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -29,8 +29,8 @@
        <attribute name="title" >
         <string>Plot</string>
        </attribute>
-       <layout class="QVBoxLayout" >
-        <item>
+       <layout class="QGridLayout" >
+        <item row="0" column="0" >
          <layout class="QHBoxLayout" >
           <item>
            <widget class="QLabel" name="label" >
@@ -51,7 +51,7 @@
           </item>
          </layout>
         </item>
-        <item>
+        <item row="1" column="0" >
          <layout class="QHBoxLayout" >
           <item>
            <widget class="QLabel" name="label_2" >
@@ -69,57 +69,44 @@
           </item>
          </layout>
         </item>
-        <item>
-         <widget class="QSplitter" name="splitter_2" >
-          <property name="orientation" >
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <widget class="QSplitter" name="splitter" >
-           <property name="sizePolicy" >
-            <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize" >
-            <size>
-             <width>16</width>
-             <height>16</height>
-            </size>
-           </property>
-           <property name="orientation" >
-            <enum>Qt::Vertical</enum>
-           </property>
-           <widget class="MPL_Image_Widget" native="1" name="plotWidget" >
-            <property name="sizePolicy" >
-             <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
+        <item row="2" column="0" >
+         <layout class="QHBoxLayout" >
+          <item>
+           <widget class="QSplitter" name="splitter" >
+            <property name="orientation" >
+             <enum>Qt::Vertical</enum>
             </property>
-            <property name="minimumSize" >
-             <size>
-              <width>500</width>
-              <height>250</height>
-             </size>
-            </property>
+            <widget class="MPL_Image_Widget" native="1" name="plotWidget" >
+             <property name="sizePolicy" >
+              <sizepolicy vsizetype="Expanding" hsizetype="Maximum" >
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize" >
+              <size>
+               <width>500</width>
+               <height>250</height>
+              </size>
+             </property>
+            </widget>
+            <widget class="MPL_Chrom_Widget" native="1" name="plotWidget2" >
+             <property name="sizePolicy" >
+              <sizepolicy vsizetype="Expanding" hsizetype="Maximum" >
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize" >
+              <size>
+               <width>500</width>
+               <height>100</height>
+              </size>
+             </property>
+            </widget>
            </widget>
-           <widget class="MPL_Chrom_Widget" native="1" name="plotWidget2" >
-            <property name="sizePolicy" >
-             <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize" >
-             <size>
-              <width>500</width>
-              <height>100</height>
-             </size>
-            </property>
-           </widget>
-          </widget>
-          <widget class="QWidget" name="layoutWidget" >
+          </item>
+          <item>
            <layout class="QVBoxLayout" >
             <item>
              <widget class="QPushButton" name="addFileBtn" >
@@ -170,6 +157,12 @@
             </item>
             <item>
              <widget class="QTableWidget" name="tableWidget" >
+              <property name="sizePolicy" >
+               <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
               <property name="maximumSize" >
                <size>
                 <width>200</width>
@@ -197,10 +190,10 @@
              </widget>
             </item>
            </layout>
-          </widget>
-         </widget>
+          </item>
+         </layout>
         </item>
-        <item>
+        <item row="3" column="0" >
          <layout class="QGridLayout" >
           <property name="horizontalSpacing" >
            <number>3</number>
@@ -588,7 +581,7 @@
         <string>Options</string>
        </attribute>
        <layout class="QGridLayout" >
-        <item row="0" column="0" >
+        <item row="0" column="0" colspan="2" >
          <layout class="QGridLayout" >
           <item row="0" column="0" >
            <widget class="QCheckBox" name="plotPkListCB" >
@@ -700,9 +693,26 @@
             </property>
            </widget>
           </item>
+          <item row="0" column="1" >
+           <layout class="QHBoxLayout" >
+            <item>
+             <widget class="QLabel" name="label_23" >
+              <property name="text" >
+               <string>Chromatogram Peak Style:</string>
+              </property>
+              <property name="alignment" >
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QComboBox" name="chromStyleCB" />
+            </item>
+           </layout>
+          </item>
          </layout>
         </item>
-        <item row="0" column="1" >
+        <item row="0" column="2" >
          <widget class="QPushButton" name="loadDirBtn" >
           <property name="text" >
            <string>Load Directory</string>
@@ -900,7 +910,7 @@
           </item>
          </layout>
         </item>
-        <item row="1" column="1" >
+        <item row="1" column="1" colspan="2" >
          <layout class="QGridLayout" >
           <item row="3" column="0" >
            <layout class="QHBoxLayout" >
@@ -1010,68 +1020,7 @@
        </attribute>
        <layout class="QHBoxLayout" >
         <item>
-         <widget class="QTableWidget" name="peakTable" >
-          <property name="rowCount" >
-           <number>50</number>
-          </property>
-          <property name="columnCount" >
-           <number>4</number>
-          </property>
-          <row/>
-          <row/>
-          <row/>
-          <row/>
-          <row/>
-          <row/>
-          <row/>
-          <row/>
-          <row/>
-          <row/>
-          <row/>
-          <row/>
-          <row/>
-          <row/>
-          <row/>
-          <row/>
-          <row/>
-          <row/>
-          <row/>
-          <row/>
-          <row/>
-          <row/>
-          <row/>
-          <row/>
-          <row/>
-          <row/>
-          <row/>
-          <row/>
-          <row/>
-          <row/>
-          <row/>
-          <row/>
-          <row/>
-          <row/>
-          <row/>
-          <row/>
-          <row/>
-          <row/>
-          <row/>
-          <row/>
-          <row/>
-          <row/>
-          <row/>
-          <row/>
-          <row/>
-          <row/>
-          <row/>
-          <row/>
-          <row/>
-          <row/>
-          <column/>
-          <column/>
-          <column/>
-          <column/>
-         </widget>
+         <widget class="CustomTable" name="tabPeakTable" />
         </item>
        </layout>
       </widget>
@@ -1084,7 +1033,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>791</width>
+     <width>793</width>
      <height>21</height>
     </rect>
    </property>
@@ -1111,6 +1060,8 @@
      <string>&amp;Peak Tools</string>
     </property>
     <addaction name="action_Find_Peaks" />
+    <addaction name="actionSave_Peaks_to_CSV" />
+    <addaction name="actionSave_Peaks_to_Data_File" />
    </widget>
    <addaction name="menu_File" />
    <addaction name="menuTools" />
@@ -1158,6 +1109,16 @@
     <string>Ctrl+F</string>
    </property>
   </action>
+  <action name="actionSave_Peaks_to_CSV" >
+   <property name="text" >
+    <string>Save Peaks to CSV</string>
+   </property>
+  </action>
+  <action name="actionSave_Peaks_to_Data_File" >
+   <property name="text" >
+    <string>Save Peaks to Data File</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -1171,6 +1132,11 @@
    <extends>QWidget</extends>
    <header>mpl_image_widget</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>CustomTable</class>
+   <extends>QTableWidget</extends>
+   <header>customTable</header>
   </customwidget>
  </customwidgets>
  <resources>
