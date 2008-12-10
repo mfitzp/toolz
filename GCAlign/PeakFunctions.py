@@ -51,7 +51,7 @@ def findPeaks(data_array, peakWidth, minSNR = 3, slopeThresh = None, ampThresh =
     ampThresh = absolute value for the threshold cutoff
     smthKern = width to use for Savitzky-Golay smoothing of derivative
     '''
-
+    data_array = data_array.astype(N.float32)
     if slopeThresh == None:
         SlopeThreshold=1/(peakWidth**3)
     else:
@@ -96,6 +96,7 @@ def findPeaks(data_array, peakWidth, minSNR = 3, slopeThresh = None, ampThresh =
     peak_loc=[]
     peak_intensity=[]
     peak_width=[]
+    peak_area = []
 
 
     for j in range(len(d)-1): #d is the smoothed first derivative
@@ -160,9 +161,15 @@ def findPeaks(data_array, peakWidth, minSNR = 3, slopeThresh = None, ampThresh =
                     #    print "low SNR...skipping"
                     #    continue
 
+#                    if p[0]>53185522652:
+#                        plot(data_array)
+#                        show()
+#                        print 'too big'
+
                     peak_intensity.append(p[0])
                     peak_loc.append(abs(p[1]))
                     peak_width.append(p[2])
+                    peak_area.append(N.trapz(yy, xx))
 
                     ##print "Peak Intensity: ", p[0]
                     ##print "Peak Location:", p[1]
@@ -173,6 +180,7 @@ def findPeaks(data_array, peakWidth, minSNR = 3, slopeThresh = None, ampThresh =
     file_info['peak_location'] = peak_loc
     file_info['peak_intensity'] = peak_intensity
     file_info['peak_width'] = peak_width
+    file_info['peak_area'] = peak_area
 #    file_info['smoothed_data'] = smoothed_data
 #    file_info['smoothed_deriv'] = d
 #    file_info['second_deriv'] = second_d

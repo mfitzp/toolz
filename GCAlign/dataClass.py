@@ -27,7 +27,7 @@ class GC_GC_MS_CLASS(QtCore.QObject):
         self.peakInfo1D = None
         self.pickedPeaksCluster = None
         self.peakPickParams = None
-        self.peakArrayNames = ['peakLoc', 'peakInt', 'peakWidth']
+        self.peakArrayNames = ['peakLoc', 'peakInt', 'peakWidth', 'peakArea']
 
 
         self.colPoints = None
@@ -138,8 +138,11 @@ class GC_GC_MS_CLASS(QtCore.QObject):
 
     def getBPC(self):
         if self.bpcOK:
-            print "BPC returned"
+#            print "BPC returned"
             return self.BPC#, self.BPCmz
+    def getBPCmz(self):
+        if self.bpcOK:
+            return self.BPCmz
 
     def _setEIC_(self, mzVals):
         self.ReadThread.setType('EIC')

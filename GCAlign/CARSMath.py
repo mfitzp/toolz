@@ -105,6 +105,11 @@ def polyfitw(x, y, w, ndegree, return_fit=0):
 ############################################################
 def fit_gaussian(chans, counts):
    """
+   BHC--There is some weirdness that sometimes occurs when
+   calculating the amplitude.  A sanity check was put in place
+   to remove these errors.
+
+
    Fits a peak to a Gaussian using a linearizing method
    Returns (amplitude, centroid, fwhm).
    Inputs:
@@ -138,6 +143,9 @@ def fit_gaussian(chans, counts):
    fic = polyfitw(x, y, w, 2)
    fic[2] = min(fic[2], -.001)  # Protect against divide by 0
    amplitude = N.exp(fic[0] - fic[1]**2/(4.*fic[2]))
+
+   if amplitude > (max(counts))**2:#sanity check
+       amplitude = max(counts)
    centroid  = center - fic[1]/(2.*fic[2])
    sigma     = N.sqrt(-1/(2.*fic[2]))
    fwhm      = 2.35482 * sigma

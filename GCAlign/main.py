@@ -34,6 +34,10 @@ import peakClusterThread as PCT
 import hcluster_bhc as H
 from mpl_pyqt4_widget import MPL_Widget
 
+#from tableSortTest import MyTableModel
+#from pylab import load as L
+#from customTable import customTable
+
 import ui_iterate
 
 
@@ -70,45 +74,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         self.PFT = PFT()
         self.PCT = PCT.PeakClusterThread()
 
-    def _setContext_(self):
-#        self.plotWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
-#        self.plotWidget.connect(self.plotWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self._imageContext_)
-        self.plotWidget2.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
-        self.plotWidget2.connect(self.plotWidget2, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self._chromContext_)
-#        self.specListWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
-#        self.specListWidget.connect(self.specListWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self.__listContext__)
-
-    def _chromContext_(self, point):
-        '''Create a menu for the chromatogram widget'''
-        ct_menu = QtGui.QMenu("Plot Menu", self.plotWidget2)
-#        ct_menu.addAction(self.ui.actionZoom)
-#        ct_menu.addAction(self.ui.actionAutoScale)
-#        ct_menu.addSeparator()
-#        ct_menu.addAction(self.ui.actionPlotOptions)
-#        ct_menu.addSeparator()
-#        ct_menu.addAction(self.ui.actionClear)
-#        ct_menu.addSeparator()
-        ct_menu.addAction(self.handleActionA)
-        ct_menu.addAction(self.handleActionB)
-        ct_menu.addAction(self.cursorClearAction)
-        ct_menu.addSeparator()
-        ct_menu.addAction(self.labelAction)
-#        ct_menu.addSeparator()
-#        ct_menu.addAction(self.plotWidget2.mpl2ClipAction)
-        ct_menu.exec_(self.plotWidget2.mapToGlobal(point))
-
-    def _setMessages_(self):
-        '''This function is obvious'''
-        self.ClearTableText = "Are you sure you want to erase\nthe entire table content?"
-        self.ClearAllDataText = "Are you sure you want to erase\nthe entire data set?"
-        self.NotEditableText = "Sorry, this data format is not table-editable."
-        self.OpenScriptText = "Choose a python script to launch:"
-        self.SaveDataText = "Choose a name for the data file to save:"
-        self.ScratchSavePrompt = "Choose file name to save the scratch pad:"
-        self.OpenDataText = "Choose a data file to open:"
-        self.ResetAllDataText = "This operation will reset all your data.\nWould you like to continue?"
-        self.EmptyArrayText = "There is no data in the array selected.  Perhaps the search criteria are too stringent.  Check ppm and e-Value cutoff values\n"
-
     def _setConnections_(self):
 
 #        QtCore.QObject.connect(self.indexSpinBox, QtCore.SIGNAL("valueChanged (int)"), self.updatePlot)
@@ -140,6 +105,8 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         QtCore.QObject.connect(self.addFileBtn,QtCore.SIGNAL("clicked()"),self._getDataFile_)
         QtCore.QObject.connect(self.fndPeaksBtn,QtCore.SIGNAL("clicked()"),self.findChromPeaks)
         QtCore.QObject.connect(self.action_Find_Peaks,QtCore.SIGNAL("triggered()"),self.findChromPeaks)
+        QtCore.QObject.connect(self.actionSave_Peaks_to_CSV,QtCore.SIGNAL("triggered()"),self.savePeaks2CSV)
+
 
 
         QtCore.QObject.connect(self.handleActionA, QtCore.SIGNAL("triggered()"),self.SelectPointsA)
@@ -163,11 +130,153 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
 
 
         QtCore.QObject.connect(self.listWidget, QtCore.SIGNAL("itemClicked (QListWidgetItem *)"), self.specListSelect)
+        QtCore.QObject.connect(self.chromStyleCB, QtCore.SIGNAL("currentIndexChanged(QString)"), self.plotTypeChanged)
+
 
         QtCore.QObject.connect(self.savePickedPeakBtn,QtCore.SIGNAL("clicked()"),self.savePeaks2HDF)
+        QtCore.QObject.connect(self.actionSave_Peaks_to_Data_File, QtCore.SIGNAL("triggered()"),self.savePeaks2HDF)
         QtCore.QObject.connect(self.clusterBtn,QtCore.SIGNAL("clicked()"),self.clusterPeaks)
 
+
         QtCore.QObject.connect(self.calcThreshCB,QtCore.SIGNAL("stateChanged(int)"),self.toggleDistance)
+
+    def plotTypeChanged(self, plotTypeQString):
+        self.tabWidget.setCurrentIndex(0)#return to plot tab
+        self.plotType = str(plotTypeQString)
+        self.specListSelect()
+
+    def setupVars(self):
+
+        self.numSpec = 25
+#        self.startIndex = 55000
+#        self.specIncrement = 400
+
+        self._curDir = os.getcwd()
+
+        self.dataDict = {}
+        self.dataList = []
+
+        self.curData = None #reference to the GCGCData Class
+        self.curIm = None #reference to the 2D image used during zoom events
+        self.mainIm = None #primary 2D plot image initialized when file is loaded and when autoscale is called
+        self.curImPlot = None #is the matplotlib axis reference
+        self.curChrom = None #current chromatogram
+        self.curChromPlot = None
+
+        self.peakPickPlot2D = None
+        self.peakPickPlot1D = None
+        self.clustPlot = None
+
+
+        self.plotType = 'TIC'
+        self.prevChromLimits = 0
+        self.prevImLimits = [0,0]
+        ####Peak Info Variables############################
+        self.peakInfo = None #when set will be a dictionary containing peak info for the chromatogram
+        self.peakLoc2D = None #when set will be a 2D array of picked peak locations and intensities
+        self.clustLoc2D = None
+        self.peakParams = {} #dictionary of peak parameters
+        self.peakArrayNames = ['peakLoc', 'peakInt', 'peakWidth']
+        ##############################
+        self.txtColor = None
+        self.colorIndex = 0
+        ###############################
+        self.linkagePlot = None
+        ###############################
+        self.chromStyles = ['BPC','TIC']#,'SIC']
+        ###############################
+        self.cAPicker = None
+        self.cBPicker = None
+
+        self.cAOn = False#also used for picker
+        self.cBOn = False
+
+        self.cursorAInfo=[0, 0, 0, 0]
+        self.cursorBInfo=[0, 0, 0, 0]
+
+        self.indexA = 0
+        self.indexB = 0
+
+        self.dx = 0
+        self.dy = 0
+
+        self.RSprops = {}
+        self.RSprops['edgecolor'] = 'yellow'
+        self.RSprops['facecolor'] = 'yellow'
+        self.RSprops['alpha'] = 0.3
+
+        self.usrZoom = False
+
+
+    def setupGUI(self):
+
+        self.plotWidget.canvas.setupSub(1)
+#        self.plotWidget2.canvas.setupSub(1)
+
+        self.imageAxis = self.plotWidget.canvas.axDict['ax1']
+        self.chromAxis = self.plotWidget2.canvas.ax#Dict['ax1'] #use Dict when using multiplot PyQt4 Widget
+        #for some reason when you add a second axis the zooming and autoscaling don't work well.
+#        self.chromAxis2 = self.chromAxis.twiny()
+#        self.format2ndAxis(self.chromAxis2)
+
+        self.distMethodCB.addItems(PCT.distTypeDist.keys())
+        self.clusterTypeCB.addItems(PCT.clusterType.keys())
+        self.distMethodCB.setCurrentIndex(self.distMethodCB.findText('Euclidean'))
+        self.clusterTypeCB.setCurrentIndex(self.clusterTypeCB.findText('Single'))
+
+        self.chromStyleCB.addItems(self.chromStyles)
+        self.chromStyleCB.setCurrentIndex(self.chromStyleCB.findText('BPC'))
+        self.plotType = str(self.chromStyleCB.currentText())
+
+        self.RS = RectangleSelector(self.imageAxis, self.imageZoom, minspanx = 2,
+                        minspany = 2, drawtype='box',useblit=True, rectprops = self.RSprops)
+        self.RS.visible = False
+        #self.plotWidget.canvas.mpl_connect('button_press_event', self.imageClick)
+
+#        self.mzAxis = self.plotWidget2.canvas.axDict['ax2']
+
+        self.indexHSlider.setMinimum(1)
+        self.indexSpinBox.setMinimum(1)
+        self.indexHSlider.setMaximum(self.numSpec)
+        self.indexSpinBox.setMaximum(self.numSpec)
+
+        self.addChromPickers()
+        self.addImPickers()
+#        self.setupTable()
+
+    def setupTable(self):
+        self.tabPeakTable.clear()
+        #need to disable sorting as it corrupts data addition
+        self.tabPeakTable.setSortingEnabled(False)
+        header = []#'Index', 'Locations', 'Intensity','Width', 'Area']
+#        simpleIndex = N.arange(len(self.peakInfo['peakLoc']))
+        i = 0
+        for item in self.peakInfo.iteritems():
+            if i == 0:
+                header.append(item[0])
+                peakVals = item[1]
+            else:
+                header.append(item[0])
+                peakVals = N.column_stack((peakVals,item[1]))
+            i+=1
+##        peakVals = self.peakInfo.values()
+#        peakVals = N.array(peakVals)
+#        peakVals.transpose()
+        self.tabPeakTable.addData(peakVals)
+#        tm = MyTableModel(peakVals, header, self)
+#        self.tabPeakTable.setModel(tm)
+#        self.tabPeakTable.resizeColumnsToContents()
+#        self.tabPeakTable.verticalHeader()
+##        vh.setVisible(False)
+        self.tabPeakTable.setHorizontalHeaderLabels(header)
+        self.tabPeakTable.setSortingEnabled(True)
+
+    def _getDataFile_(self):
+        dataFileName = QtGui.QFileDialog.getOpenFileName(self,\
+                                                             self.OpenDataText,\
+                                                             self._curDir, 'HDF5 File (*.h5)')
+        if dataFileName:
+            self._initDataFile_(str(dataFileName))
 
     def toggleDistance(self, intState):
 #        print intState
@@ -181,6 +290,9 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
     def plotLinkage(self, finishedBool):
         if finishedBool:
             if self.showDendroCB.isChecked():
+                if isinstance(self.linkagePlot, MPL_Widget):
+                    self.linkagePlot.close()
+                    self.linkagePlot = None
                 self.linkagePlot = MPL_Widget()
                 self.linkagePlot.setWindowTitle(('Clustered Peaks for %s'%self.curData.name))
                 self.linkagePlot.canvas.setupSub(1)
@@ -249,19 +361,52 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
 
 
     def savePeaks2HDF(self):
-        if self.curData.peakPickOk:
-            self.curData.savePeakInfo()
+        if self.curData != None:
+            if self.curData.peakPickOk:
+                self.curData.savePeakInfo()
+        else:
+            return QtGui.QMessageBox.warning(self, "No Data to Save",  'Load a Data File!')
 
-    def specListSelect(self, widgetItem=None):
-        selectItems = self.listWidget.selectedItems()
-        #curRow
-        if len(selectItems) > 0:
-            self.updatePlot(self.listWidget.indexFromItem(selectItems[0]).row())
-#            self.multiPlotIndex = []#reset indexes to plot
-#            for item in selectItems:
-#                self.multiPlotIndex.append(self.specListWidget.indexFromItem(item).row())
-#
-#            self.plotByIndex(multiPlot = True)
+
+    def SFDialog(self):
+        fileName = QtGui.QFileDialog.getSaveFileName(self,
+                                         "Select File to Save",
+                                         "",
+                                         "csv Files (*.csv)")
+        if not fileName.isEmpty():
+            print fileName
+            return fileName
+        else:
+            return None
+
+    def savePeaks2CSV(self):
+        path = self.SFDialog()
+        if path != None:
+            try:
+                if self.peakInfo != None:
+                    header = []#'Index', 'Locations', 'Intensity','Width', 'Area']
+            #        simpleIndex = N.arange(len(self.peakInfo['peakLoc']))
+                    i = 0
+                    for item in self.peakInfo.iteritems():
+                        if i == 0:
+                            header.append(item[0])
+                            data2write = item[1]
+                        else:
+                            header.append(item[0])
+                            data2write = N.column_stack((data2write,item[1]))
+                        i+=1
+
+                    N.savetxt(str(path), data2write, delimiter = ',', fmt='%.4f')
+                else:
+                    raise 'No Peak List Exists to Save'
+
+            except:
+                errorMsg ='Error saving figure data to csv\n\n'
+                errorMsg += "Sorry: %s\n\n%s\n"%(sys.exc_type, sys.exc_value)
+                print errorMsg
+                return QtGui.QMessageBox.warning(self, "Save Error",  errorMsg)
+
+
 
 
     def _initDataFile_(self, dataFileName):
@@ -288,15 +433,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
 
             self.updatePlot(len(self.dataList)-1)
 
-
-    def _getDataFile_(self):
-        dataFileName = QtGui.QFileDialog.getOpenFileName(self,\
-                                                             self.OpenDataText,\
-                                                             self._curDir, 'HDF5 File (*.h5)')
-        if dataFileName:
-            self._initDataFile_(str(dataFileName))
-
-
     def _getDir_(self):
         directory = QtGui.QFileDialog.getExistingDirectory(self, '', self.curDir)
         directory = str(directory)
@@ -305,92 +441,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         else:
             self.curDir = os.getcwd()
 
-    def setupVars(self):
-
-        self.ref = 'Acetone_Klean.h5'
-        self.sam = 'Acetone_R.h5'
-
-        self.numSpec = 25
-        self.startIndex = 55000
-        self.specIncrement = 400
-
-        self.RSprops = {}
-        self.RSprops['edgecolor'] = 'yellow'
-        self.RSprops['facecolor'] = 'yellow'
-        self.RSprops['alpha'] = 0.3
-
-        self._curDir = os.getcwd()
-
-        self.dataDict = {}
-        self.dataList = []
-
-    def setupGUI(self):
-
-        self.plotWidget.canvas.setupSub(1)
-#        self.plotWidget2.canvas.setupSub(1)
-
-        self.imageAxis = self.plotWidget.canvas.axDict['ax1']
-        self.chromAxis = self.plotWidget2.canvas.ax#Dict['ax1'] #use Dict when using multiplot PyQt4 Widget
-        #for some reason when you add a second axis the zooming and autoscaling don't work well.
-#        self.chromAxis2 = self.chromAxis.twiny()
-#        self.format2ndAxis(self.chromAxis2)
-
-        self.distMethodCB.addItems(PCT.distTypeDist.keys())
-        self.clusterTypeCB.addItems(PCT.clusterType.keys())
-        self.distMethodCB.setCurrentIndex(self.distMethodCB.findText('Euclidean'))
-        self.clusterTypeCB.setCurrentIndex(self.clusterTypeCB.findText('Single'))
-
-
-        self.curData = None #reference to the GCGCData Class
-        self.curIm = None #reference to the 2D image used during zoom events
-        self.mainIm = None #primary 2D plot image initialized when file is loaded and when autoscale is called
-        self.curImPlot = None #is the matplotlib axis reference
-        self.curChrom = None #current chromatogram
-        self.curImPlot = None #is the matplotlib axis reference
-        self.plotType = 'BPC'
-        self.prevChromLimits = 0
-        self.prevImLimits = [0,0]
-        ####Peak Info Variables############################
-        self.peakInfo = None #when set will be a dictionary containing peak info for the chromatogram
-        self.peakLoc2D = None #when set will be a 2D array of picked peak locations and intensities
-        self.clustLoc2D = None
-        self.peakParams = {} #dictionary of peak parameters
-        self.peakArrayNames = ['peakLoc', 'peakInt', 'peakWidth']
-        ##############################
-        self.txtColor = None
-        self.colorIndex = 0
-        ###############################
-        self.cAPicker = None
-        self.cBPicker = None
-
-        self.cAOn = False#also used for picker
-        self.cBOn = False
-
-        self.cursorAInfo=[0, 0, 0, 0]
-        self.cursorBInfo=[0, 0, 0, 0]
-
-        self.indexA = 0
-        self.indexB = 0
-
-        self.dx = 0
-        self.dy = 0
-
-        self.RS = RectangleSelector(self.imageAxis, self.imageZoom, minspanx = 2,
-                        minspany = 2, drawtype='box',useblit=True, rectprops = self.RSprops)
-        self.usrZoom = False
-        self.RS.visible = False
-
-        #self.plotWidget.canvas.mpl_connect('button_press_event', self.imageClick)
-
-#        self.mzAxis = self.plotWidget2.canvas.axDict['ax2']
-
-        self.indexHSlider.setMinimum(1)
-        self.indexSpinBox.setMinimum(1)
-        self.indexHSlider.setMaximum(self.numSpec)
-        self.indexSpinBox.setMaximum(self.numSpec)
-
-        self.addChromPickers()
-        self.addImPickers()
 
     def format2ndAxis(self, axis):
         labels_x = axis.get_xticklabels()
@@ -403,15 +453,57 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
             ylabel.set_fontsize(8)
             ylabel.set_color('b')
 
+    def _setContext_(self):
+#        self.plotWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+#        self.plotWidget.connect(self.plotWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self._imageContext_)
+        self.plotWidget2.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.plotWidget2.connect(self.plotWidget2, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self._chromContext_)
+#        self.specListWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+#        self.specListWidget.connect(self.specListWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self.__listContext__)
+
+    def _chromContext_(self, point):
+        '''Create a menu for the chromatogram widget'''
+        ct_menu = QtGui.QMenu("Plot Menu", self.plotWidget2)
+#        ct_menu.addAction(self.ui.actionZoom)
+#        ct_menu.addAction(self.ui.actionAutoScale)
+#        ct_menu.addSeparator()
+#        ct_menu.addAction(self.ui.actionPlotOptions)
+#        ct_menu.addSeparator()
+#        ct_menu.addAction(self.ui.actionClear)
+#        ct_menu.addSeparator()
+        ct_menu.addAction(self.handleActionA)
+        ct_menu.addAction(self.handleActionB)
+        ct_menu.addAction(self.cursorClearAction)
+        ct_menu.addSeparator()
+        ct_menu.addAction(self.labelAction)
+#        ct_menu.addSeparator()
+#        ct_menu.addAction(self.plotWidget2.mpl2ClipAction)
+        ct_menu.exec_(self.plotWidget2.mapToGlobal(point))
+
+    def _setMessages_(self):
+        '''This function is obvious'''
+        self.ClearTableText = "Are you sure you want to erase\nthe entire table content?"
+        self.ClearAllDataText = "Are you sure you want to erase\nthe entire data set?"
+        self.NotEditableText = "Sorry, this data format is not table-editable."
+        self.OpenScriptText = "Choose a python script to launch:"
+        self.SaveDataText = "Choose a name for the data file to save:"
+        self.ScratchSavePrompt = "Choose file name to save the scratch pad:"
+        self.OpenDataText = "Choose a data file to open:"
+        self.ResetAllDataText = "This operation will reset all your data.\nWould you like to continue?"
+        self.EmptyArrayText = "There is no data in the array selected.  Perhaps the search criteria are too stringent.  Check ppm and e-Value cutoff values\n"
+
+
     def addChromPickers(self, minX = 0):
-        #minX is provided so that the plot will scale correctly when a data trace is initiated
-        #Pickers for the 2D image
+        '''
+        minX is provided so that the plot will scale correctly when a data trace is initiated
+        Pickers for the 2D image
+        '''
         self.selectHandleA,  = self.chromAxis.plot([minX], [0], 'o',\
                                         ms=8, alpha=.4, color='yellow', visible=False,  label = '_nolegend_')
         self.selectHandleB,  = self.chromAxis.plot([minX], [0], 's',\
                                         ms=8, alpha=.4, color='green', visible=False,  label = '_nolegend_')
     def addImPickers(self, minX = 0):
-        #Pickers for the Chromatogram
+        '''Pickers for the Chromatogram'''
         self.selectCursA,  = self.imageAxis.plot([minX], [0], 'o',\
                                         ms=5, alpha=.7, color='red', visible=True,  label = '_nolegend_')
         self.xLine = self.imageAxis.axvline(x=0, ls = ':', color = 'y', alpha = 0.6, visible = True)
@@ -420,10 +512,9 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
 #        self.cursText = self.imageAxis.text(0, 0, '0rigin',  fontsize=9)
 
         self.peakPicker = self.plotWidget.canvas.mpl_connect('pick_event', self.imageClick)
-#        self.plotWidget.canvas.mpl_connect('pick_event', self.imageClick)
 
     def imageClick(self, event):
-        '''how to use just mousebutton 3 or right mouse click without messing up zoom?'''
+        '''Sets cross hairs for picked peaks after selection'''
         #print event.button
 
         if event.mouseevent.xdata != None and event.mouseevent.ydata != None:
@@ -465,6 +556,16 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         self.specLengthSB.setValue(len(self.curChrom))
         self.numSegsSB.setValue(self.curData.rowPoints)
 
+    def specListSelect(self, widgetItem=None):
+        selectItems = self.listWidget.selectedItems()
+        if len(selectItems) > 0:
+            self.updatePlot(self.listWidget.indexFromItem(selectItems[0]).row())
+#            self.multiPlotIndex = []#reset indexes to plot
+#            for item in selectItems:
+#                self.multiPlotIndex.append(self.specListWidget.indexFromItem(item).row())
+#
+#            self.plotByIndex(multiPlot = True)
+
     def updatePlot(self, plotIndex):#, plotType = 'TIC'):
         self.peakInfo = None
         self.peakLoc2D = None
@@ -486,11 +587,12 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
             self.curChrom = self.curData.getBPC()
 #            self.curImPlot = self.imageAxis.imshow(self.curIm, alpha = 1,  aspect = 'auto',\
 #                                                   origin = 'lower',  cmap = my_cmap, label = 'R')
-        self.curChromPlot = self.chromAxis.plot(self.curChrom, 'b', label = self.curData.name, picker = 5)
+        self.curChromPlot, = self.chromAxis.plot(self.curChrom, 'b', label = self.curData.name, picker = 5)
         if self.showPickedPeaksCB.isChecked():
             if self.curData.peakPickOk:
                 self.peakInfo = self.curData.peakInfo1D
                 self.peakLoc2D = self.get2DPeakLoc(self.peakInfo['peakLoc'], self.curData.rowPoints, self.curData.colPoints)
+                self.setupTable()
         #update Chrom GUI elements for peak picking and other functions
         self.updateChromGUI()
 
@@ -525,10 +627,10 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
 
         if self.showPickedPeaksCB.isChecked():
             if self.peakInfo != None:
-                self.chromAxis.plot(self.peakInfo['peakLoc'],self.peakInfo['peakInt'], 'ro', ms = 3, alpha = 0.4, picker = 5)
-                self.imageAxis.plot(self.peakLoc2D[0],self.peakLoc2D[1],'yo', ms = 3, alpha = 0.6, picker = 5)
+                self.peakPickPlot2D, = self.chromAxis.plot(self.peakInfo['peakLoc'],self.peakInfo['peakInt'], 'ro', ms = 3, alpha = 0.4, picker = 5)
+                self.peakPickPlot1D, = self.imageAxis.plot(self.peakLoc2D[0],self.peakLoc2D[1],'yo', ms = 3, alpha = 0.6, picker = 5)
                 if self.clustLoc2D != None:
-                    self.imageAxis.plot(self.clustLoc2D[:,0],self.clustLoc2D[:,1],'rs', ms = 4, alpha = 0.7, picker = 5)
+                    self.clustPlot, = self.imageAxis.plot(self.clustLoc2D[:,0],self.clustLoc2D[:,1],'rs', ms = 4, alpha = 0.7, picker = 5)
                 #remember the image is transposed, so we need to swap the length of the axes
                 self.imageAxis.set_xlim(0,self.curData.rowPoints)
                 self.imageAxis.set_ylim(0,self.curData.colPoints)
@@ -870,14 +972,24 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
             self.curData.setPeakInfo(self.peakInfo)
             self.PFT.wait()#as per Ashoka's code...
 
+            if self.peakPickPlot2D != None:
+                self.peakPickPlot2D.remove()
+            if self.peakPickPlot1D != None:
+                self.peakPickPlot1D.remove()
+            if self.clustPlot != None:
+                self.clustPlot.remove()
+
+
+
             if self.showPickedPeaksCB.isChecked():
                 self.peakLoc2D = self.get2DPeakLoc(self.peakInfo['peakLoc'], self.curData.rowPoints, self.curData.colPoints)
+
                 self.autoscale_plot()#this is the function that actually plots the peaks in 1 and 2D
 
             self.SetStatusLabel("Peak Fitting Completed, %d Peaks Found" % len(self.peakInfo['peakLoc']))
 
             self.resetProgressBar()
-
+            self.setupTable()
         else:
             return QtGui.QMessageBox.warning(self, "Peak Find Thread Error",  "The thread did not finish or return a value properly--contact Clowers...")
 
