@@ -6,7 +6,6 @@ peak grouping
 is the m/z range correct (zero indexing?)
 kill child windows when spawned
 peak info when clicked
-export peak list
 '''
 ###################################
 import os, sys
@@ -33,6 +32,7 @@ from peakFindThread import PeakFindThread as PFT
 import peakClusterThread as PCT
 import hcluster_bhc as H
 from mpl_pyqt4_widget import MPL_Widget
+from dbscan import dbscan
 
 #from tableSortTest import MyTableModel
 #from pylab import load as L
@@ -106,8 +106,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         QtCore.QObject.connect(self.fndPeaksBtn,QtCore.SIGNAL("clicked()"),self.findChromPeaks)
         QtCore.QObject.connect(self.action_Find_Peaks,QtCore.SIGNAL("triggered()"),self.findChromPeaks)
         QtCore.QObject.connect(self.actionSave_Peaks_to_CSV,QtCore.SIGNAL("triggered()"),self.savePeaks2CSV)
-
-
+        QtCore.QObject.connect(self.actionSave_Raw_Peaks_to_CSV,QtCore.SIGNAL("triggered()"),self.saveRawPeaks2CSV)
 
         QtCore.QObject.connect(self.handleActionA, QtCore.SIGNAL("triggered()"),self.SelectPointsA)
         QtCore.QObject.connect(self.handleActionB, QtCore.SIGNAL("triggered()"),self.SelectPointsB)
@@ -128,7 +127,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         QtCore.QObject.connect(self.PCT, QtCore.SIGNAL("finished(bool)"), self.plotLinkage)
         QtCore.QObject.connect(self.PCT, QtCore.SIGNAL("clusterThreadUpdate(PyQt_PyObject)"), self.PCTProgress)
 
-
         QtCore.QObject.connect(self.listWidget, QtCore.SIGNAL("itemClicked (QListWidgetItem *)"), self.specListSelect)
         QtCore.QObject.connect(self.chromStyleCB, QtCore.SIGNAL("currentIndexChanged(QString)"), self.plotTypeChanged)
 
@@ -137,8 +135,9 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         QtCore.QObject.connect(self.actionSave_Peaks_to_Data_File, QtCore.SIGNAL("triggered()"),self.savePeaks2HDF)
         QtCore.QObject.connect(self.clusterBtn,QtCore.SIGNAL("clicked()"),self.clusterPeaks)
 
-
         QtCore.QObject.connect(self.calcThreshCB,QtCore.SIGNAL("stateChanged(int)"),self.toggleDistance)
+        QtCore.QObject.connect(self.dbScanCB,QtCore.SIGNAL("stateChanged(int)"),self.toggleClusterType)
+        QtCore.QObject.connect(self.dbAutoCalcCB,QtCore.SIGNAL("stateChanged(int)"),self.toggleDBDist)
 
     def plotTypeChanged(self, plotTypeQString):
         self.tabWidget.setCurrentIndex(0)#return to plot tab
@@ -166,7 +165,13 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         self.peakPickPlot2D = None
         self.peakPickPlot1D = None
         self.clustPlot = None
+        #######DBSCAN VARIABLES#######################
+        self.densityCluster= None
+        self.Type = None
+        self.Eps = None
+        self.dbScanOK = True
 
+        ##############################
 
         self.plotType = 'TIC'
         self.prevChromLimits = 0
@@ -287,6 +292,40 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
             self.maxDistThreshSB.setEnabled(False)
             self.distanceLabel.setEnabled(False)
 
+    def toggleClusterType(self, intState):
+#        print intState
+        if intState == 0:
+            self.dbAutoCalcCB.setEnabled(False)
+            ##################################
+            self.showDendroCB.setEnabled(True)
+            self.clustTypeLbl.setEnabled(True)
+            self.clusterTypeCB.setEnabled(True)
+#            self.distCalMethLbl.setEnabled(True)
+#            self.distMethodCB.setEnabled(True)
+            self.calcThreshCB.setEnabled(True)
+            if not self.distanceLabel.isEnabled():
+                self.toggleDistance(self.calcThreshCB.checkState())
+        elif intState == 2:
+            self.dbAutoCalcCB.setEnabled(True)
+            ##################################
+            self.showDendroCB.setEnabled(False)
+            self.clustTypeLbl.setEnabled(False)
+            self.clusterTypeCB.setEnabled(False)
+#            self.distCalMethLbl.setEnabled(False)
+#            self.distMethodCB.setEnabled(False)
+            self.calcThreshCB.setEnabled(False)
+            if self.distanceLabel.isEnabled():
+                self.distanceLabel.setEnabled(False)
+                self.maxDistThreshSB.setEnabled(False)
+
+    def toggleDBDist(self, intState):
+        if intState == 0:
+            self.densityDistThreshSB.setEnabled(True)
+            self.denDistLbl.setEnabled(True)
+        elif intState == 2:
+            self.densityDistThreshSB.setEnabled(False)
+            self.denDistLbl.setEnabled(False)
+
     def plotLinkage(self, finishedBool):
         if finishedBool:
             if self.showDendroCB.isChecked():
@@ -299,11 +338,11 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
                 ax1 = self.linkagePlot.canvas.axDict['ax1']
 #                print len(self.PCT.tempMIHist[0]), len(self.PCT.tempMIHist[1])
 #
-                ax1.plot(self.PCT.tempMIHist[1][1:], self.PCT.tempMIHist[0])
+#                ax1.plot(self.PCT.tempMIHist[1][1:], self.PCT.tempMIHist[0])
 #                ax1.plot(self.PCT.tempMDHist[1][1:], self.PCT.tempMDHist[0])
                 if self.PCT.maxDist != None:
                     print "Maximum Distance Allowed: ",self.PCT.maxDist
-#                    H.dendrogram(self.PCT.linkageResult, colorthreshold=self.PCT.maxDist, customMPL = ax1)
+                    H.dendrogram(self.PCT.linkageResult, colorthreshold=self.PCT.maxDist, customMPL = ax1)
 #                else:
 #                    H.dendrogram(self.PCT.linkageResult, colorthreshold= 10, customMPL = ax1)
                 self.linkagePlot.show()
@@ -315,22 +354,33 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
 #        if self.showDendroCB.isChecked():
         if self.peakInfo != None:
             self.peakLoc2D = self.get2DPeakLoc(self.peakInfo['peakLoc'], self.curData.rowPoints,\
-                                               self.curData.colPoints, peakIntensity = self.peakInfo['peakInt'])
+                                   self.curData.colPoints, peakIntensity = self.peakInfo['peakInt'])
             X = N.column_stack((self.peakLoc2D[0], self.peakLoc2D[1]))
-            X = N.column_stack((X, N.sqrt(self.peakLoc2D[2])))
+            self.tabWidget.setCurrentIndex(0)#return to plot tab
+            if self.dbScanCB.isChecked():
+                if self.dbAutoCalcCB.isChecked():
+                    self.densityCluster, self.Type, self.Eps, self.dbScanOK = dbscan(X, 1,\
+                                                                                     distMethod = PCT.distTypeDist[str(self.distMethodCB.currentText())])
+                else:
+                    self.densityCluster, self.Type, self.Eps, self.dbScanOK = dbscan(X, 1, Eps = self.densityDistThreshSB.valus(),\
+                                                                                     distMethod = PCT.distTypeDist[str(self.distMethodCB.currentText())])
+                self.autoscale_plot()
+
+#            X = N.column_stack((X, N.sqrt(self.peakLoc2D[2])))
 #                if self.peakLoc2D != None:
 #                    X = self.peakLoc2D[0]
 #                    for i in xrange(1, len(self.peakLoc2D)):
 #                        X = N.column_stack((X,self.peakLoc2D[i]))
-            self.tabWidget.setCurrentIndex(0)#return to plot tab
-            if self.calcThreshCB.isChecked():
-                self.PCT.initClusterThread(X, plotLinkage = self.showDendroCB.isChecked(), name = self.curData.name,\
-                                       threshType = 'inconsistent')
             else:
-                self.PCT.initClusterThread(X, plotLinkage = self.showDendroCB.isChecked(), name = self.curData.name,\
-                                           distThresh = self.maxDistThreshSB.value(), threshType = 'distance')
+                if self.calcThreshCB.isChecked():
+                    self.PCT.initClusterThread(X, plotLinkage = self.showDendroCB.isChecked(), name = self.curData.name,\
+                                               threshType = 'inconsistent', distMethod = PCT.distTypeDist[str(self.distMethodCB.currentText())])
+                else:
+                    self.PCT.initClusterThread(X, plotLinkage = self.showDendroCB.isChecked(), name = self.curData.name,\
+                                               distThresh = self.maxDistThreshSB.value(), threshType = 'distance',\
+                                               distMethod = PCT.distTypeDist[str(self.distMethodCB.currentText())])
 
-            self.PCT.start()
+                self.PCT.start()
 #            self.linkagePlot = MPL_Widget()
 #            self.linkagePlot.setWindowTitle(('Clustered Peaks for %s'%self.curData.name))
 #            Y = H.pdist(X)
@@ -378,6 +428,27 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
             return fileName
         else:
             return None
+
+    def saveRawPeaks2CSV(self):
+        path = self.SFDialog()
+        if path != None:
+            try:
+                if self.peakLoc2D != None:
+                    self.peakLoc2D = self.get2DPeakLoc(self.peakInfo['peakLoc'], self.curData.rowPoints,\
+                                                       self.curData.colPoints, peakIntensity = self.peakInfo['peakInt'])
+                    data2write = N.column_stack((self.peakLoc2D[0],self.peakLoc2D[1], self.peakLoc2D[2]))
+                    N.savetxt(str(path), data2write, delimiter = ',', fmt='%.4f')
+
+                else:
+                    raise 'No Peak List Exists to Save'
+
+                print "Raw Peaks written to: %s"%str(path)
+
+            except:
+                errorMsg ='Error saving figure data to csv\n\n'
+                errorMsg += "Sorry: %s\n\n%s\n"%(sys.exc_type, sys.exc_value)
+                print errorMsg
+                return QtGui.QMessageBox.warning(self, "Save Error",  errorMsg)
 
     def savePeaks2CSV(self):
         path = self.SFDialog()
@@ -617,6 +688,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         '''
         self.imageAxis.cla()
         self.addImPickers()
+        self.tabWidget.setCurrentIndex(0)
         if self.plotType == 'TIC':
             self.curIm = self.curData.ticLayer
         elif self.plotType == 'BPC':
@@ -627,10 +699,22 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
 
         if self.showPickedPeaksCB.isChecked():
             if self.peakInfo != None:
-                self.peakPickPlot2D, = self.chromAxis.plot(self.peakInfo['peakLoc'],self.peakInfo['peakInt'], 'ro', ms = 3, alpha = 0.4, picker = 5)
-                self.peakPickPlot1D, = self.imageAxis.plot(self.peakLoc2D[0],self.peakLoc2D[1],'yo', ms = 3, alpha = 0.6, picker = 5)
+                self.peakPickPlot1D, = self.chromAxis.plot(self.peakInfo['peakLoc'],self.peakInfo['peakInt'], 'ro', ms = 3, alpha = 0.4, picker = 5)
+                self.peakPickPlot2D, = self.imageAxis.plot(self.peakLoc2D[0],self.peakLoc2D[1],'yo', ms = 3, alpha = 0.4, picker = 5)
                 if self.clustLoc2D != None:
                     self.clustPlot, = self.imageAxis.plot(self.clustLoc2D[:,0],self.clustLoc2D[:,1],'rs', ms = 4, alpha = 0.7, picker = 5)
+                if self.densityCluster!= None and self.dbScanCB.isChecked():
+                    xy = N.column_stack((self.peakLoc2D[0],self.peakLoc2D[1]))
+                    i = self.densityCluster.max()
+                    for m in xrange(int(i)):
+                        if self.colorIndex%len(COLORS) == 0:
+                            self.colorIndex = 0
+                        curColor = COLORS[self.colorIndex]
+                        self.colorIndex +=1
+                        ind = N.where(m == self.densityCluster)
+                        temp = xy[ind]
+                        self.imageAxis.plot(temp[:,0],temp[:,1],'s', alpha = 0.6, ms = 3, color = curColor)
+
                 #remember the image is transposed, so we need to swap the length of the axes
                 self.imageAxis.set_xlim(0,self.curData.rowPoints)
                 self.imageAxis.set_ylim(0,self.curData.colPoints)
@@ -718,6 +802,55 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
 
                 self.plotWidget.canvas.format_labels()
                 self.plotWidget.canvas.draw()
+
+##########Peak Finding Routines######################
+
+    def findChromPeaks(self):
+        self.peakParams['numSegs'] = self.numSegsSB.value() #should be an integer
+        self.peakParams['minSNR'] = self.minSNRSB.value() #should be an integer
+        self.peakParams['smthKern'] = self.smthKernSB.value() #should be an integer
+        self.peakParams['peakWidth'] = self.peakWidthSB.value() #should be an integer
+
+        if type(self.peakParams['numSegs']) is int and type(self.peakParams['minSNR'])\
+        is int and type(self.peakParams['smthKern']) is int and type(self.peakParams['peakWidth']) is int:
+            if self.curChrom != None:
+                if len(self.curChrom) > 0:
+                    self.PFT.initSpectrum(self.curChrom, minSNR = self.peakParams['minSNR'], numSegs = self.peakParams['numSegs'],\
+                                          smthKern = self.peakParams['smthKern'], peakWidth = self.peakParams['peakWidth'])
+                    self.ToggleProgressBar(True)
+                    self.progressMax = N.float(self.peakParams['numSegs'])
+                    self.PFT.start()
+                    self.tabWidget.setCurrentIndex(0)
+                else:
+                    return QtGui.QMessageBox.warning(self, "The Spectrum is empty",  "The spectrum has a length of zero--no peaks to pick.")
+            else:
+                return QtGui.QMessageBox.warning(self, "No Spectrum to Process",  "Is a file loaded...?")
+        else:
+            return QtGui.QMessageBox.warning(self, "Peak Find Parameter Error",  "Check selected values, all should be integers!")
+
+    def plotPickedPeaks(self, finishedBool):#this function is called when the peak finding thread is finished
+        if finishedBool:
+            self.peakInfo = self.PFT.getPeakInfo()
+            self.curData.setPeakInfo(self.peakInfo)
+            self.PFT.wait()#as per Ashoka's code...
+
+            if self.peakPickPlot2D != None:
+                self.peakPickPlot2D.remove()
+            if self.peakPickPlot1D != None:
+                self.peakPickPlot1D.remove()
+            if self.clustPlot != None:
+                self.clustPlot.remove()
+            if self.showPickedPeaksCB.isChecked():
+                self.peakLoc2D = self.get2DPeakLoc(self.peakInfo['peakLoc'], self.curData.rowPoints, self.curData.colPoints)
+
+                self.autoscale_plot()#this is the function that actually plots the peaks in 1 and 2D
+
+            self.SetStatusLabel("Peak Fitting Completed, %d Peaks Found" % len(self.peakInfo['peakLoc']))
+
+            self.resetProgressBar()
+            self.setupTable()
+        else:
+            return QtGui.QMessageBox.warning(self, "Peak Find Thread Error",  "The thread did not finish or return a value properly--contact Clowers...")
 
 ###########Cursor Controls####################
     def cursAClear(self):
@@ -941,57 +1074,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
 
         return mzSlice, getState
 
-##########Peak Finding Routines######################
-
-    def findChromPeaks(self):
-        self.peakParams['numSegs'] = self.numSegsSB.value() #should be an integer
-        self.peakParams['minSNR'] = self.minSNRSB.value() #should be an integer
-        self.peakParams['smthKern'] = self.smthKernSB.value() #should be an integer
-        self.peakParams['peakWidth'] = self.peakWidthSB.value() #should be an integer
-
-        if type(self.peakParams['numSegs']) is int and type(self.peakParams['minSNR'])\
-        is int and type(self.peakParams['smthKern']) is int and type(self.peakParams['peakWidth']) is int:
-            if self.curChrom != None:
-                if len(self.curChrom) > 0:
-                    self.PFT.initSpectrum(self.curChrom, minSNR = self.peakParams['minSNR'], numSegs = self.peakParams['numSegs'],\
-                                          smthKern = self.peakParams['smthKern'], peakWidth = self.peakParams['peakWidth'])
-                    self.ToggleProgressBar(True)
-                    self.progressMax = N.float(self.peakParams['numSegs'])
-                    self.PFT.start()
-                    self.tabWidget.setCurrentIndex(0)
-                else:
-                    return QtGui.QMessageBox.warning(self, "The Spectrum is empty",  "The spectrum has a length of zero--no peaks to pick.")
-            else:
-                return QtGui.QMessageBox.warning(self, "No Spectrum to Process",  "Is a file loaded...?")
-        else:
-            return QtGui.QMessageBox.warning(self, "Peak Find Parameter Error",  "Check selected values, all should be integers!")
-
-    def plotPickedPeaks(self, finishedBool):#this function is called when the peak finding thread is finished
-        if finishedBool:
-            self.peakInfo = self.PFT.getPeakInfo()
-            self.curData.setPeakInfo(self.peakInfo)
-            self.PFT.wait()#as per Ashoka's code...
-
-            if self.peakPickPlot2D != None:
-                self.peakPickPlot2D.remove()
-            if self.peakPickPlot1D != None:
-                self.peakPickPlot1D.remove()
-            if self.clustPlot != None:
-                self.clustPlot.remove()
-
-
-
-            if self.showPickedPeaksCB.isChecked():
-                self.peakLoc2D = self.get2DPeakLoc(self.peakInfo['peakLoc'], self.curData.rowPoints, self.curData.colPoints)
-
-                self.autoscale_plot()#this is the function that actually plots the peaks in 1 and 2D
-
-            self.SetStatusLabel("Peak Fitting Completed, %d Peaks Found" % len(self.peakInfo['peakLoc']))
-
-            self.resetProgressBar()
-            self.setupTable()
-        else:
-            return QtGui.QMessageBox.warning(self, "Peak Find Thread Error",  "The thread did not finish or return a value properly--contact Clowers...")
 
 ##########Begin Ashoka Progress Bar Code....
     def LayoutStatusBar(self):
