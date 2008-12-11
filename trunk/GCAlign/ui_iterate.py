@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Documents and Settings\d3p483\workspace\GCAlign\iterate.ui'
 #
-# Created: Tue Dec 09 14:56:09 2008
+# Created: Thu Dec 11 14:46:04 2008
 #      by: PyQt4 UI code generator 4.3.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -550,73 +550,104 @@ class Ui_MainWindow(object):
         self.hboxlayout12 = QtGui.QHBoxLayout()
         self.hboxlayout12.setObjectName("hboxlayout12")
 
-        self.label_16 = QtGui.QLabel(self.optionsTab)
-        self.label_16.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
-        self.label_16.setObjectName("label_16")
-        self.hboxlayout12.addWidget(self.label_16)
-
-        self.distMethodCB = QtGui.QComboBox(self.optionsTab)
-        self.distMethodCB.setObjectName("distMethodCB")
-        self.hboxlayout12.addWidget(self.distMethodCB)
-        self.gridlayout7.addLayout(self.hboxlayout12,3,0,1,1)
-
-        self.hboxlayout13 = QtGui.QHBoxLayout()
-        self.hboxlayout13.setObjectName("hboxlayout13")
-
-        self.label_21 = QtGui.QLabel(self.optionsTab)
-        self.label_21.setLayoutDirection(QtCore.Qt.LeftToRight)
-        self.label_21.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
-        self.label_21.setObjectName("label_21")
-        self.hboxlayout13.addWidget(self.label_21)
-
-        self.clusterTypeCB = QtGui.QComboBox(self.optionsTab)
-        self.clusterTypeCB.setObjectName("clusterTypeCB")
-        self.hboxlayout13.addWidget(self.clusterTypeCB)
-        self.gridlayout7.addLayout(self.hboxlayout13,4,0,1,1)
-
-        self.showDendroCB = QtGui.QCheckBox(self.optionsTab)
-        self.showDendroCB.setChecked(True)
-        self.showDendroCB.setObjectName("showDendroCB")
-        self.gridlayout7.addWidget(self.showDendroCB,5,0,1,1)
-
-        self.clusterBtn = QtGui.QPushButton(self.optionsTab)
-        self.clusterBtn.setObjectName("clusterBtn")
-        self.gridlayout7.addWidget(self.clusterBtn,6,0,1,1)
-
-        self.hboxlayout14 = QtGui.QHBoxLayout()
-        self.hboxlayout14.setObjectName("hboxlayout14")
-
         self.distanceLabel = QtGui.QLabel(self.optionsTab)
         self.distanceLabel.setEnabled(False)
         self.distanceLabel.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.distanceLabel.setObjectName("distanceLabel")
-        self.hboxlayout14.addWidget(self.distanceLabel)
+        self.hboxlayout12.addWidget(self.distanceLabel)
 
         self.maxDistThreshSB = QtGui.QDoubleSpinBox(self.optionsTab)
         self.maxDistThreshSB.setEnabled(False)
         self.maxDistThreshSB.setMinimum(0.01)
         self.maxDistThreshSB.setProperty("value",QtCore.QVariant(10.0))
         self.maxDistThreshSB.setObjectName("maxDistThreshSB")
-        self.hboxlayout14.addWidget(self.maxDistThreshSB)
-        self.gridlayout7.addLayout(self.hboxlayout14,1,0,1,1)
+        self.hboxlayout12.addWidget(self.maxDistThreshSB)
+        self.gridlayout7.addLayout(self.hboxlayout12,0,0,1,1)
 
         self.calcThreshCB = QtGui.QCheckBox(self.optionsTab)
         self.calcThreshCB.setLayoutDirection(QtCore.Qt.LeftToRight)
         self.calcThreshCB.setChecked(True)
         self.calcThreshCB.setObjectName("calcThreshCB")
-        self.gridlayout7.addWidget(self.calcThreshCB,2,0,1,1)
+        self.gridlayout7.addWidget(self.calcThreshCB,1,0,1,1)
+
+        self.hboxlayout13 = QtGui.QHBoxLayout()
+        self.hboxlayout13.setObjectName("hboxlayout13")
+
+        self.distCalMethLbl = QtGui.QLabel(self.optionsTab)
+        self.distCalMethLbl.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.distCalMethLbl.setObjectName("distCalMethLbl")
+        self.hboxlayout13.addWidget(self.distCalMethLbl)
+
+        self.distMethodCB = QtGui.QComboBox(self.optionsTab)
+        self.distMethodCB.setObjectName("distMethodCB")
+        self.hboxlayout13.addWidget(self.distMethodCB)
+        self.gridlayout7.addLayout(self.hboxlayout13,2,0,1,1)
+
+        self.hboxlayout14 = QtGui.QHBoxLayout()
+        self.hboxlayout14.setObjectName("hboxlayout14")
+
+        self.clustTypeLbl = QtGui.QLabel(self.optionsTab)
+        self.clustTypeLbl.setLayoutDirection(QtCore.Qt.LeftToRight)
+        self.clustTypeLbl.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.clustTypeLbl.setObjectName("clustTypeLbl")
+        self.hboxlayout14.addWidget(self.clustTypeLbl)
+
+        self.clusterTypeCB = QtGui.QComboBox(self.optionsTab)
+        self.clusterTypeCB.setObjectName("clusterTypeCB")
+        self.hboxlayout14.addWidget(self.clusterTypeCB)
+        self.gridlayout7.addLayout(self.hboxlayout14,3,0,1,1)
+
+        self.showDendroCB = QtGui.QCheckBox(self.optionsTab)
+        self.showDendroCB.setChecked(True)
+        self.showDendroCB.setObjectName("showDendroCB")
+        self.gridlayout7.addWidget(self.showDendroCB,4,0,1,1)
+
+        self.hboxlayout15 = QtGui.QHBoxLayout()
+        self.hboxlayout15.setObjectName("hboxlayout15")
+
+        self.dbScanCB = QtGui.QCheckBox(self.optionsTab)
+        self.dbScanCB.setObjectName("dbScanCB")
+        self.hboxlayout15.addWidget(self.dbScanCB)
+
+        self.dbAutoCalcCB = QtGui.QCheckBox(self.optionsTab)
+        self.dbAutoCalcCB.setEnabled(False)
+        self.dbAutoCalcCB.setChecked(True)
+        self.dbAutoCalcCB.setObjectName("dbAutoCalcCB")
+        self.hboxlayout15.addWidget(self.dbAutoCalcCB)
+
+        self.hboxlayout16 = QtGui.QHBoxLayout()
+        self.hboxlayout16.setObjectName("hboxlayout16")
+
+        self.denDistLbl = QtGui.QLabel(self.optionsTab)
+        self.denDistLbl.setEnabled(False)
+        self.denDistLbl.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.denDistLbl.setObjectName("denDistLbl")
+        self.hboxlayout16.addWidget(self.denDistLbl)
+
+        self.densityDistThreshSB = QtGui.QDoubleSpinBox(self.optionsTab)
+        self.densityDistThreshSB.setEnabled(False)
+        self.densityDistThreshSB.setMinimum(0.01)
+        self.densityDistThreshSB.setProperty("value",QtCore.QVariant(10.0))
+        self.densityDistThreshSB.setObjectName("densityDistThreshSB")
+        self.hboxlayout16.addWidget(self.densityDistThreshSB)
+        self.hboxlayout15.addLayout(self.hboxlayout16)
+        self.gridlayout7.addLayout(self.hboxlayout15,5,0,1,1)
+
+        self.clusterBtn = QtGui.QPushButton(self.optionsTab)
+        self.clusterBtn.setObjectName("clusterBtn")
+        self.gridlayout7.addWidget(self.clusterBtn,6,0,1,1)
         self.gridlayout2.addLayout(self.gridlayout7,1,1,1,2)
         self.tabWidget.addTab(self.optionsTab,"")
 
         self.pkListTab = QtGui.QWidget()
         self.pkListTab.setObjectName("pkListTab")
 
-        self.hboxlayout15 = QtGui.QHBoxLayout(self.pkListTab)
-        self.hboxlayout15.setObjectName("hboxlayout15")
+        self.hboxlayout17 = QtGui.QHBoxLayout(self.pkListTab)
+        self.hboxlayout17.setObjectName("hboxlayout17")
 
         self.tabPeakTable = CustomTable(self.pkListTab)
         self.tabPeakTable.setObjectName("tabPeakTable")
-        self.hboxlayout15.addWidget(self.tabPeakTable)
+        self.hboxlayout17.addWidget(self.tabPeakTable)
         self.tabWidget.addTab(self.pkListTab,"")
         self.hboxlayout.addWidget(self.tabWidget)
         MainWindow.setCentralWidget(self.centralwidget)
@@ -665,6 +696,9 @@ class Ui_MainWindow(object):
 
         self.actionSave_Peaks_to_Data_File = QtGui.QAction(MainWindow)
         self.actionSave_Peaks_to_Data_File.setObjectName("actionSave_Peaks_to_Data_File")
+
+        self.actionSave_Raw_Peaks_to_CSV = QtGui.QAction(MainWindow)
+        self.actionSave_Raw_Peaks_to_CSV.setObjectName("actionSave_Raw_Peaks_to_CSV")
         self.menuTools.addAction(self.actionCursor_A)
         self.menuTools.addAction(self.actionCursor_B)
         self.menuTools.addAction(self.actionClear_Cursors)
@@ -676,6 +710,7 @@ class Ui_MainWindow(object):
         self.menu_Peak_Tools.addAction(self.action_Find_Peaks)
         self.menu_Peak_Tools.addAction(self.actionSave_Peaks_to_CSV)
         self.menu_Peak_Tools.addAction(self.actionSave_Peaks_to_Data_File)
+        self.menu_Peak_Tools.addAction(self.actionSave_Raw_Peaks_to_CSV)
         self.menubar.addAction(self.menu_File.menuAction())
         self.menubar.addAction(self.menuTools.menuAction())
         self.menubar.addAction(self.menu_Peak_Tools.menuAction())
@@ -728,13 +763,16 @@ class Ui_MainWindow(object):
         self.showPickedPeaksCB.setText(QtGui.QApplication.translate("MainWindow", "Show Picked Peaks", None, QtGui.QApplication.UnicodeUTF8))
         self.fndPeaksBtn.setText(QtGui.QApplication.translate("MainWindow", "Find Peaks", None, QtGui.QApplication.UnicodeUTF8))
         self.savePickedPeakBtn.setText(QtGui.QApplication.translate("MainWindow", "Save Picked Peaks", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_16.setText(QtGui.QApplication.translate("MainWindow", "Distance Calculation Method:", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_21.setText(QtGui.QApplication.translate("MainWindow", "Clustering Type:", None, QtGui.QApplication.UnicodeUTF8))
-        self.showDendroCB.setText(QtGui.QApplication.translate("MainWindow", "Show Clustered Dendrogram", None, QtGui.QApplication.UnicodeUTF8))
-        self.clusterBtn.setText(QtGui.QApplication.translate("MainWindow", "Cluster Peaks", None, QtGui.QApplication.UnicodeUTF8))
         self.distanceLabel.setText(QtGui.QApplication.translate("MainWindow", "Distance Threshold:", None, QtGui.QApplication.UnicodeUTF8))
         self.calcThreshCB.setText(QtGui.QApplication.translate("MainWindow", "Determine Distance Threshold by\n"
         " Cluster Tree Inconsistencies", None, QtGui.QApplication.UnicodeUTF8))
+        self.distCalMethLbl.setText(QtGui.QApplication.translate("MainWindow", "Distance Calculation Method:", None, QtGui.QApplication.UnicodeUTF8))
+        self.clustTypeLbl.setText(QtGui.QApplication.translate("MainWindow", "Clustering Type:", None, QtGui.QApplication.UnicodeUTF8))
+        self.showDendroCB.setText(QtGui.QApplication.translate("MainWindow", "Show Clustered Dendrogram", None, QtGui.QApplication.UnicodeUTF8))
+        self.dbScanCB.setText(QtGui.QApplication.translate("MainWindow", "Use DBSCAN Clustering", None, QtGui.QApplication.UnicodeUTF8))
+        self.dbAutoCalcCB.setText(QtGui.QApplication.translate("MainWindow", "Auto-Calculate Threshold", None, QtGui.QApplication.UnicodeUTF8))
+        self.denDistLbl.setText(QtGui.QApplication.translate("MainWindow", "Density Distance Threshold:", None, QtGui.QApplication.UnicodeUTF8))
+        self.clusterBtn.setText(QtGui.QApplication.translate("MainWindow", "Cluster Peaks", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.optionsTab), QtGui.QApplication.translate("MainWindow", "Options", None, QtGui.QApplication.UnicodeUTF8))
         self.tabPeakTable.clear()
         self.tabPeakTable.setColumnCount(0)
@@ -754,6 +792,7 @@ class Ui_MainWindow(object):
         self.action_Find_Peaks.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+F", None, QtGui.QApplication.UnicodeUTF8))
         self.actionSave_Peaks_to_CSV.setText(QtGui.QApplication.translate("MainWindow", "Save Peaks to CSV", None, QtGui.QApplication.UnicodeUTF8))
         self.actionSave_Peaks_to_Data_File.setText(QtGui.QApplication.translate("MainWindow", "Save Peaks to Data File", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionSave_Raw_Peaks_to_CSV.setText(QtGui.QApplication.translate("MainWindow", "Save Raw Peaks to CSV", None, QtGui.QApplication.UnicodeUTF8))
 
 from mpl_chrom_widget import MPL_Chrom_Widget
 from mpl_image_widget import MPL_Image_Widget

@@ -195,6 +195,7 @@ if __name__ == "__main__":
     import pylab as P
     import matplotlib.colors as C
     from mpl_pyqt4_widget import MPL_Widget
+    from dbscan import dbscan
     import time
     app = QtGui.QApplication(sys.argv)
 
@@ -231,7 +232,17 @@ if __name__ == "__main__":
 
     x,y = get2DPeakLoc(peakLoc, 555, 500)
     ax2.plot(x,y,'yo', ms = 4, alpha = 0.5, picker = 5)
-    N.savetxt('PeakLoc.txt',N.column_stack((x,y)),fmt = '%.2f', delimiter = ',')
+    xy = N.column_stack((x,y))
+#    N.savetxt('PeakLoc.txt',xy,fmt = '%.2f', delimiter = ',')
+
+    cClass, tType, Eps = dbscan(xy, 1)
+    print cClass.max(), len(tType)
+    i = cClass.max()
+    for m in xrange(int(i)):
+        ind = N.where(m == cClass)
+        temp = xy[ind]
+        ax2.plot(temp[:,0],temp[:,1],'s', alpha = 0.7, ms = 3)
+
 #    canvas.mpl_connect('pick_event', showCoord)
 
     #ax1.plot(ticSam[0:50000], 'r:')
