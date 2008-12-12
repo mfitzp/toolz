@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Documents and Settings\d3p483\workspace\SimpleView\main.ui'
 #
-# Created: Mon Nov 10 11:00:14 2008
+# Created: Tue Dec 09 14:55:41 2008
 #      by: PyQt4 UI code generator 4.3.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -336,6 +336,7 @@ class Ui_MainWindow(object):
         self.gridlayout1.addWidget(self.loadDirBtn,1,1,1,1)
 
         self.invertCompCB = QtGui.QCheckBox(self.layoutWidget1)
+        self.invertCompCB.setChecked(True)
         self.invertCompCB.setObjectName("invertCompCB")
         self.gridlayout1.addWidget(self.invertCompCB,2,1,1,1)
         self.tabWidget.addTab(self.optionsTab,"")
