@@ -186,14 +186,12 @@ if __name__ == "__main__":
     import scipy as S
     x1 = S.rand(30,2)*2
     x2 = (S.rand(40,2)*0.5+1)*4
-    xy= N.concatenate((x1,x2))
-    P.scatter(xy[:,0],xy[:,1], alpha =  0.5)
-#    [class,type, Eps]=dbscan(x,5,[]);
+#    xy= N.concatenate((x1,x2))
+#    P.scatter(xy[:,0],xy[:,1], alpha =  0.5)
+#    xy = N.column_stack((xy[:,0],xy[:,1]))
+#    cClass, tType, Eps, boolAns = dbscan(xy, 5)
 
-#    % x=[randn(30,2)*.4;randn(40,2)*.5+ones(40,1)*[4 4]];
-#% [class,type, Eps]=dbscan(x,5,[]);
-
-#    xy = P.load('RawPeaks.csv', delimiter = ',')
+    xy = P.load('RawPeaks.csv', delimiter = ',')
 
 #    distThresh = N.arange(1,20)
 #    cMax = []
@@ -208,16 +206,26 @@ if __name__ == "__main__":
 #    P.plot(distThresh,EpsArray)
 #    P.plot(cMax,EpsArray)
 
-#    P.plot(xy[:,0],xy[:,1],'ro', alpha = 0.6)
+    P.plot(xy[:,0],xy[:,1],'ro', alpha = 0.4)
+    cClass, tType, Eps, boolAns = dbscan(xy[:,0:2], 1)
 #    cClass, tType, Eps, boolAns = dbscan(xy[:,0:2], 1)
-    xy = N.column_stack((xy[:,0],xy[:,1]))
-    cClass, tType, Eps, boolAns = dbscan(xy, 5)
-    print cClass.max(), len(tType)
+
+    print cClass.max(), len(tType), Eps
     i = cClass.max()
+    screened = []
+
     for m in xrange(int(i)+1):
         ind = N.where(m == cClass)
         temp = xy[ind]
-        P.plot(temp[:,0],temp[:,1],'s', alpha = 0.7, ms = 3)
+        if len(temp)<20:
+            screened.append(temp)
+            P.plot(temp[:,0],temp[:,1],'s', alpha = 0.7, ms = 3)
 
+    print screened
+#    P.figure()
+#    histo = N.histogram(cClass, bins = len(cClass)/10, new = True)
+#    print histo
+#    P.hist(histo[0], bins = 50)
+#    P.hist(cClass, bins = len(cClass)/10)
 
     P.show()

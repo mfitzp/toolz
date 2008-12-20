@@ -288,6 +288,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         if intState == 0:
             self.maxDistThreshSB.setEnabled(True)
             self.distanceLabel.setEnabled(True)
+
         elif intState == 2:
             self.maxDistThreshSB.setEnabled(False)
             self.distanceLabel.setEnabled(False)
@@ -296,6 +297,8 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
 #        print intState
         if intState == 0:
             self.dbAutoCalcCB.setEnabled(False)
+            self.denGrpNumThresh.setEnabled(False)
+            self.denGrpNum.setEnabled(False)
             ##################################
             self.showDendroCB.setEnabled(True)
             self.clustTypeLbl.setEnabled(True)
@@ -307,6 +310,8 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
                 self.toggleDistance(self.calcThreshCB.checkState())
         elif intState == 2:
             self.dbAutoCalcCB.setEnabled(True)
+            self.denGrpNumThresh.setEnabled(True)
+            self.denGrpNum.setEnabled(True)
             ##################################
             self.showDendroCB.setEnabled(False)
             self.clustTypeLbl.setEnabled(False)
@@ -319,12 +324,18 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
                 self.maxDistThreshSB.setEnabled(False)
 
     def toggleDBDist(self, intState):
+        '''
+        Controls visibility of DBSCAN related GUI items.
+        '''
         if intState == 0:
             self.densityDistThreshSB.setEnabled(True)
             self.denDistLbl.setEnabled(True)
+
         elif intState == 2:
             self.densityDistThreshSB.setEnabled(False)
             self.denDistLbl.setEnabled(False)
+            self.denGrpNumThresh.setEnabled(False)
+            self.denGrpNum.setEnabled(False)
 
     def plotLinkage(self, finishedBool):
         if finishedBool:
@@ -641,6 +652,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         self.peakInfo = None
         self.peakLoc2D = None
         self.clustLoc2D = None
+        self.densityCluster = None
         self.imageAxis.cla()
         self.chromAxis.cla()
         self.addChromPickers()
@@ -681,6 +693,22 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
 
 ###########################
 
+    def plotDBSCAN(self, xpntMod = 0, ypntMod = 0, ms = 3):
+        '''
+        Plots result from DBSCAN clustering
+        '''
+        if self.densityCluster!= None and self.dbScanCB.isChecked():
+            xy = N.column_stack((self.peakLoc2D[0],self.peakLoc2D[1]))
+            i = self.densityCluster.max()
+            for m in xrange(int(i)):
+                if self.colorIndex%len(COLORS) == 0:
+                    self.colorIndex = 0
+                curColor = COLORS[self.colorIndex]
+                self.colorIndex +=1
+                ind = N.where(m == self.densityCluster)
+                temp = xy[ind]
+                self.imageAxis.plot(temp[:,0]+xpntMod,temp[:,1]+ypntMod,'s', alpha = 0.6, ms = ms, color = curColor)
+
     def autoscale_plot(self):
         '''
         This function actually does most of the plotting.  Especially when a new data set is loaded. Key
@@ -703,17 +731,8 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
                 self.peakPickPlot2D, = self.imageAxis.plot(self.peakLoc2D[0],self.peakLoc2D[1],'yo', ms = 3, alpha = 0.4, picker = 5)
                 if self.clustLoc2D != None:
                     self.clustPlot, = self.imageAxis.plot(self.clustLoc2D[:,0],self.clustLoc2D[:,1],'rs', ms = 4, alpha = 0.7, picker = 5)
-                if self.densityCluster!= None and self.dbScanCB.isChecked():
-                    xy = N.column_stack((self.peakLoc2D[0],self.peakLoc2D[1]))
-                    i = self.densityCluster.max()
-                    for m in xrange(int(i)):
-                        if self.colorIndex%len(COLORS) == 0:
-                            self.colorIndex = 0
-                        curColor = COLORS[self.colorIndex]
-                        self.colorIndex +=1
-                        ind = N.where(m == self.densityCluster)
-                        temp = xy[ind]
-                        self.imageAxis.plot(temp[:,0],temp[:,1],'s', alpha = 0.6, ms = 3, color = curColor)
+
+                self.plotDBSCAN()
 
                 #remember the image is transposed, so we need to swap the length of the axes
                 self.imageAxis.set_xlim(0,self.curData.rowPoints)
@@ -775,6 +794,8 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
                     self.imageAxis.plot(self.clustLoc2D[:,0]-xLim[0]-self.prevImLimits[0],\
                                         self.clustLoc2D[:,1]-yLim[0]-self.prevImLimits[1],\
                                         'rs', ms = 4, alpha = 0.6, picker = 5)
+
+                self.plotDBSCAN((-xLim[0]-self.prevImLimits[0]), (-yLim[0]-self.prevImLimits[1]), ms = 5)
 
                 if self.peakInfo != None:
                     tempPeaks = self.peakInfo['peakLoc']
