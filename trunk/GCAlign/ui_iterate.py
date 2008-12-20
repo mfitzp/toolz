@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Documents and Settings\d3p483\workspace\GCAlign\iterate.ui'
 #
-# Created: Thu Dec 11 14:46:04 2008
+# Created: Sat Dec 20 14:23:35 2008
 #      by: PyQt4 UI code generator 4.3.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -633,21 +633,40 @@ class Ui_MainWindow(object):
         self.hboxlayout15.addLayout(self.hboxlayout16)
         self.gridlayout7.addLayout(self.hboxlayout15,5,0,1,1)
 
+        self.hboxlayout17 = QtGui.QHBoxLayout()
+        self.hboxlayout17.setObjectName("hboxlayout17")
+
+        self.denGrpNum = QtGui.QLabel(self.optionsTab)
+        self.denGrpNum.setEnabled(False)
+        self.denGrpNum.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.denGrpNum.setObjectName("denGrpNum")
+        self.hboxlayout17.addWidget(self.denGrpNum)
+
+        self.denGrpNumThresh = QtGui.QDoubleSpinBox(self.optionsTab)
+        self.denGrpNumThresh.setEnabled(False)
+        self.denGrpNumThresh.setDecimals(0)
+        self.denGrpNumThresh.setMinimum(1.0)
+        self.denGrpNumThresh.setMaximum(20000.0)
+        self.denGrpNumThresh.setProperty("value",QtCore.QVariant(10.0))
+        self.denGrpNumThresh.setObjectName("denGrpNumThresh")
+        self.hboxlayout17.addWidget(self.denGrpNumThresh)
+        self.gridlayout7.addLayout(self.hboxlayout17,6,0,1,1)
+
         self.clusterBtn = QtGui.QPushButton(self.optionsTab)
         self.clusterBtn.setObjectName("clusterBtn")
-        self.gridlayout7.addWidget(self.clusterBtn,6,0,1,1)
+        self.gridlayout7.addWidget(self.clusterBtn,7,0,1,1)
         self.gridlayout2.addLayout(self.gridlayout7,1,1,1,2)
         self.tabWidget.addTab(self.optionsTab,"")
 
         self.pkListTab = QtGui.QWidget()
         self.pkListTab.setObjectName("pkListTab")
 
-        self.hboxlayout17 = QtGui.QHBoxLayout(self.pkListTab)
-        self.hboxlayout17.setObjectName("hboxlayout17")
+        self.hboxlayout18 = QtGui.QHBoxLayout(self.pkListTab)
+        self.hboxlayout18.setObjectName("hboxlayout18")
 
         self.tabPeakTable = CustomTable(self.pkListTab)
         self.tabPeakTable.setObjectName("tabPeakTable")
-        self.hboxlayout17.addWidget(self.tabPeakTable)
+        self.hboxlayout18.addWidget(self.tabPeakTable)
         self.tabWidget.addTab(self.pkListTab,"")
         self.hboxlayout.addWidget(self.tabWidget)
         MainWindow.setCentralWidget(self.centralwidget)
@@ -772,6 +791,9 @@ class Ui_MainWindow(object):
         self.dbScanCB.setText(QtGui.QApplication.translate("MainWindow", "Use DBSCAN Clustering", None, QtGui.QApplication.UnicodeUTF8))
         self.dbAutoCalcCB.setText(QtGui.QApplication.translate("MainWindow", "Auto-Calculate Threshold", None, QtGui.QApplication.UnicodeUTF8))
         self.denDistLbl.setText(QtGui.QApplication.translate("MainWindow", "Density Distance Threshold:", None, QtGui.QApplication.UnicodeUTF8))
+        self.denGrpNum.setText(QtGui.QApplication.translate("MainWindow", "Minimum Number in a Group:", None, QtGui.QApplication.UnicodeUTF8))
+        self.denGrpNumThresh.setToolTip(QtGui.QApplication.translate("MainWindow", "Sets the minimum number of peaks in a group \n"
+        "for the first pass of clustering.", None, QtGui.QApplication.UnicodeUTF8))
         self.clusterBtn.setText(QtGui.QApplication.translate("MainWindow", "Cluster Peaks", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.optionsTab), QtGui.QApplication.translate("MainWindow", "Options", None, QtGui.QApplication.UnicodeUTF8))
         self.tabPeakTable.clear()
