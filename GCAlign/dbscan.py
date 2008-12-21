@@ -178,6 +178,23 @@ function [D]=dist(i,x)
 
 '''
 
+def runDBSCAN(coordArray, ms = 4):
+    cClass, tType, Eps, boolAns = dbscan(coordArray, 1)
+    print Eps
+    if boolAns:
+        plotResults(coordArray, cClass, tType, ms)
+
+
+def plotResults(coords, cClass, tType, ms):
+    singles = N.where(tType == -1)[0]
+    temp = coords[singles]
+    P.plot(temp[:,0],temp[:,1],'dg', alpha = 0.7, ms = ms)
+
+    for m in xrange(int(i)+1):
+        ind = N.where(m == cClass)
+        temp = coords[ind]
+#        screened = N.append(screened,temp[:,0:2], axis = 0)
+        P.plot(temp[:,0],temp[:,1],'s', alpha = 0.7, ms = 3)
 
 
 
@@ -192,7 +209,7 @@ if __name__ == "__main__":
 #    cClass, tType, Eps, boolAns = dbscan(xy, 5)
 
     xy = P.load('RawPeaks.csv', delimiter = ',')
-
+#    xy = xy[0:500]
 #    distThresh = N.arange(1,20)
 #    cMax = []
 #    EpsArray = []
@@ -210,18 +227,50 @@ if __name__ == "__main__":
     cClass, tType, Eps, boolAns = dbscan(xy[:,0:2], 1)
 #    cClass, tType, Eps, boolAns = dbscan(xy[:,0:2], 1)
 
-    print cClass.max(), len(tType), Eps
+#    print cClass.max(), len(tType), Eps
+#    print len(xy), len(cClass)
     i = cClass.max()
-    screened = []
+    screened = N.zeros((1,2))
+
+    singles = N.where(tType == -1)[0]
+    temp = xy[singles]
+#    runDBSCAN(temp[:,0:2], ms = 8)
+    P.plot(temp[:,0],temp[:,1],'dr', alpha = 0.7, ms = 7)
+
+    j = len(temp)
+    for m in xrange(int(i)+1):
+        ind = N.where(m == cClass)[0]
+        j+=len(ind)
+#        print tType[m]
+#        if len(ind) == 2:
+#            print 1,m, ind
+        temp = xy[ind]
+        if len(temp)<=20:
+#            if len(temp) == 2:
+#                print "2"
+#            print temp
+
+            screened = N.append(screened,temp[:,0:2], axis = 0)
+        else:
+            runDBSCAN(temp[:,0:2], 12)
+#            P.plot(temp[:,0],temp[:,1],'^y', alpha = 0.7, ms = 4)
+
+#    print "j", j, len(cClass)
+    cClass, tType, Eps, boolAns = dbscan(screened, 1, N.sqrt(Eps)*2)
+
+    singles = N.where(tType == -1)
+    temp = screened[singles]
+#    runDBSCAN(temp[:,0:2], 12)
+    P.plot(temp[:,0],temp[:,1],'db', alpha = 0.7, ms = 7)
 
     for m in xrange(int(i)+1):
         ind = N.where(m == cClass)
-        temp = xy[ind]
-        if len(temp)<20:
-            screened.append(temp)
-            P.plot(temp[:,0],temp[:,1],'s', alpha = 0.7, ms = 3)
+        temp = screened[ind]
+#        screened = N.append(screened,temp[:,0:2], axis = 0)
+        P.plot(temp[:,0],temp[:,1],'s', alpha = 0.7, ms = 3)
 
-    print screened
+
+#    print screened
 #    P.figure()
 #    histo = N.histogram(cClass, bins = len(cClass)/10, new = True)
 #    print histo

@@ -235,7 +235,7 @@ if __name__ == "__main__":
     xy = N.column_stack((x,y))
 #    N.savetxt('PeakLoc.txt',xy,fmt = '%.2f', delimiter = ',')
 
-    cClass, tType, Eps = dbscan(xy, 1)
+    cClass, tType, Eps, boolAns = dbscan(xy, 1)
     print cClass.max(), len(tType)
     i = cClass.max()
     for m in xrange(int(i)):

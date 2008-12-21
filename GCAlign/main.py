@@ -360,6 +360,85 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
             self.clustLoc2D = self.PCT.peakCentroids
             self.autoscale_plot()
 
+    def iterDBSCAN(self, X):
+        tempCluster, tempType, typeEps, tempBool = dbscan(X, 1,\
+                                                          distMethod = PCT.distTypeDist[str(self.distMethodCB.currentText())])
+        singlesIndex = N.where(tempType == -1)[0]#these are the indices that have 1 member per cluster
+        singles = X[singlesIndex]
+        print "singles",singles.shape, " X", X.shape
+        if self.clustLoc2D != None:
+            self.clustLoc2D = N.append(self.clustLoc2D, singles, axis = 0)
+        else:
+            self.clustLoc2D = N.zeros((1,2))
+#        singles = X[singlesIndex]
+        i = tempCluster.max()
+        for m in xrange(int(i)+1):#double check that adding one is ok?
+            ind = N.where(m == tempCluster)[0]
+            temp = X[ind]
+            '''
+            if the length of the cluster is bigger than
+            the user defined threshold then the clustering
+            will be done again in order to separate
+            the clusters into finer pieces.
+            '''
+            if len(temp) > 0:
+                centroid = temp.mean(axis = 0)
+                centroid.shape = (1,2)
+                print centroid.shape, self.clustLoc2D.shape
+                self.clustLoc2D = N.append(self.clustLoc2D,centroid, axis = 0)
+
+    def clusterDBSCAN(self, X):
+        '''
+        Is there a good way to calc the center
+        based upon the intensity too?
+        Also, how best to select the 2nd round of the EPS filter?
+        '''
+        if self.dbAutoCalcCB.isChecked():
+            self.densityCluster, self.Type, self.Eps, self.dbScanOK = dbscan(X, 1,\
+                                                                             distMethod = PCT.distTypeDist[str(self.distMethodCB.currentText())])
+
+            singlesIndex = N.where(self.Type == -1)[0]#these are the indices that have 1 member per cluster
+            self.clustLoc2D = X[singlesIndex]
+            print "1st Round",self.Eps, self.clustLoc2D.shape
+#            singles = X[singlesIndex]
+            filtered = N.zeros((1,2))
+            i = self.densityCluster.max()
+            for m in xrange(int(i)+1):#double check that adding one is ok?
+                ind = N.where(m == self.densityCluster)[0]
+                temp = X[ind]
+                '''
+                if the length of the cluster is bigger than
+                the user defined threshold then the clustering
+                will be done again in order to separate
+                the clusters into finer pieces.
+                '''
+                if len(temp)<self.denGrpNumThresh.value():#need to add value from GUI
+                    filtered = N.append(filtered,temp, axis = 0)
+                else:
+                    self.iterDBSCAN(temp)#tempCluster, tempType, typeEps, tempBool = dbscan(temp)
+
+            self.densityCluster, self.Type, self.Eps, self.dbScanOK = dbscan(filtered, 1, Eps = N.sqrt(self.Eps)*2,\
+                                                                             distMethod = PCT.distTypeDist[str(self.distMethodCB.currentText())])
+            print "2nd Round",self.Eps, self.clustLoc2D.shape
+#            self.clustLoc2D = N.zeros((1,2))
+            for m in xrange(int(i)+1):
+#                if self.colorIndex%len(COLORS) == 0:
+#                    self.colorIndex = 0
+#                curColor = COLORS[self.colorIndex]
+#                self.colorIndex +=1
+                ind = N.where(m == self.densityCluster)[0]
+                temp = filtered[ind]
+                if len(temp)>0:
+                    centroid = temp.mean(axis = 0)
+                    centroid.shape = (1,2)
+    #                print centroid, centroid.shape
+                    self.clustLoc2D = N.append(self.clustLoc2D,centroid, axis = 0)
+#                        self.imageAxis.plot(temp[:,0],temp[:,1],'s', alpha = 0.6, ms = 4, color = curColor)
+
+        else:
+            self.densityCluster, self.Type, self.Eps, self.dbScanOK = dbscan(X, 1, Eps = self.densityDistThreshSB.value(),\
+                                                                             distMethod = PCT.distTypeDist[str(self.distMethodCB.currentText())])
+
 
     def clusterPeaks(self):
 #        if self.showDendroCB.isChecked():
@@ -369,12 +448,9 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
             X = N.column_stack((self.peakLoc2D[0], self.peakLoc2D[1]))
             self.tabWidget.setCurrentIndex(0)#return to plot tab
             if self.dbScanCB.isChecked():
-                if self.dbAutoCalcCB.isChecked():
-                    self.densityCluster, self.Type, self.Eps, self.dbScanOK = dbscan(X, 1,\
-                                                                                     distMethod = PCT.distTypeDist[str(self.distMethodCB.currentText())])
-                else:
-                    self.densityCluster, self.Type, self.Eps, self.dbScanOK = dbscan(X, 1, Eps = self.densityDistThreshSB.valus(),\
-                                                                                     distMethod = PCT.distTypeDist[str(self.distMethodCB.currentText())])
+                self.clusterDBSCAN(X)
+
+
                 self.autoscale_plot()
 
 #            X = N.column_stack((X, N.sqrt(self.peakLoc2D[2])))
@@ -419,15 +495,12 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
 #        else:
 #            event.ignore()
 
-
-
     def savePeaks2HDF(self):
         if self.curData != None:
             if self.curData.peakPickOk:
                 self.curData.savePeakInfo()
         else:
             return QtGui.QMessageBox.warning(self, "No Data to Save",  'Load a Data File!')
-
 
     def SFDialog(self):
         fileName = QtGui.QFileDialog.getSaveFileName(self,
@@ -488,9 +561,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
                 print errorMsg
                 return QtGui.QMessageBox.warning(self, "Save Error",  errorMsg)
 
-
-
-
     def _initDataFile_(self, dataFileName):
         print dataFileName
         if self.dataDict.has_key(dataFileName):
@@ -522,7 +592,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
             self.curDir = directory
         else:
             self.curDir = os.getcwd()
-
 
     def format2ndAxis(self, axis):
         labels_x = axis.get_xticklabels()
@@ -573,7 +642,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         self.OpenDataText = "Choose a data file to open:"
         self.ResetAllDataText = "This operation will reset all your data.\nWould you like to continue?"
         self.EmptyArrayText = "There is no data in the array selected.  Perhaps the search criteria are too stringent.  Check ppm and e-Value cutoff values\n"
-
 
     def addChromPickers(self, minX = 0):
         '''
@@ -732,7 +800,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
                 if self.clustLoc2D != None:
                     self.clustPlot, = self.imageAxis.plot(self.clustLoc2D[:,0],self.clustLoc2D[:,1],'rs', ms = 4, alpha = 0.7, picker = 5)
 
-                self.plotDBSCAN()
+                #self.plotDBSCAN()
 
                 #remember the image is transposed, so we need to swap the length of the axes
                 self.imageAxis.set_xlim(0,self.curData.rowPoints)
@@ -795,7 +863,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
                                         self.clustLoc2D[:,1]-yLim[0]-self.prevImLimits[1],\
                                         'rs', ms = 4, alpha = 0.6, picker = 5)
 
-                self.plotDBSCAN((-xLim[0]-self.prevImLimits[0]), (-yLim[0]-self.prevImLimits[1]), ms = 5)
+                #self.plotDBSCAN((-xLim[0]-self.prevImLimits[0]), (-yLim[0]-self.prevImLimits[1]), ms = 5)
 
                 if self.peakInfo != None:
                     tempPeaks = self.peakInfo['peakLoc']

@@ -647,7 +647,7 @@ class Ui_MainWindow(object):
         self.denGrpNumThresh.setDecimals(0)
         self.denGrpNumThresh.setMinimum(1.0)
         self.denGrpNumThresh.setMaximum(20000.0)
-        self.denGrpNumThresh.setProperty("value",QtCore.QVariant(10.0))
+        self.denGrpNumThresh.setProperty("value",QtCore.QVariant(20.0))
         self.denGrpNumThresh.setObjectName("denGrpNumThresh")
         self.hboxlayout17.addWidget(self.denGrpNumThresh)
         self.gridlayout7.addLayout(self.hboxlayout17,6,0,1,1)
