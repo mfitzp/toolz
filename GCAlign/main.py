@@ -19,7 +19,7 @@ import tables as T
 
 from matplotlib import colors as C
 from matplotlib.lines import Line2D
-from matplotlib.widgets import SpanSelector, RectangleSelector
+from matplotlib.widgets_bhc import SpanSelector, RectangleSelector
 from pylab import cm
 cmaps = [cm.jet, cm.BrBG, cm.gist_ncar, cm.bone_r,  cm.hot,  cm.spectral, cm.gist_ncar, cm.RdYlBu, cm.BrBG, cm.Accent]
 
@@ -33,6 +33,7 @@ import peakClusterThread as PCT
 import hcluster_bhc as H
 from mpl_pyqt4_widget import MPL_Widget
 from dbscan import dbscan
+from lassoPlot import LassoManager as LM
 
 #from tableSortTest import MyTableModel
 #from pylab import load as L
@@ -78,15 +79,20 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
 
 #        QtCore.QObject.connect(self.indexSpinBox, QtCore.SIGNAL("valueChanged (int)"), self.updatePlot)
 
-        self.Zoom = QtGui.QAction("Zoom",  self)
-        self.Zoom.setShortcut("Ctrl+Z")
-        self.plotWidget.addAction(self.Zoom)
-        QtCore.QObject.connect(self.Zoom,QtCore.SIGNAL("triggered()"), self.ZoomToggle)
+        self.zoomAction = QtGui.QAction("Zoom", self)
+        self.zoomAction.setShortcut("Ctrl+Z")
+        self.plotWidget.addAction(self.zoomAction)
+        QtCore.QObject.connect(self.zoomAction,QtCore.SIGNAL("triggered()"), self.zoomToggle)
 
-        self.actionAutoScale = QtGui.QAction("AutoScale",  self)#self.MainWindow)
+        self.actionAutoScale = QtGui.QAction("AutoScale", self)#self.MainWindow)
         self.actionAutoScale.setShortcut("Ctrl+A")
         self.plotWidget.addAction(self.actionAutoScale)
         QtCore.QObject.connect(self.actionAutoScale,QtCore.SIGNAL("triggered()"), self.autoscale_plot)
+
+        self.actionLasso = QtGui.QAction("Lasso", self)#self.MainWindow)
+        self.actionLasso.setShortcut("Ctrl+L")
+        self.plotWidget.addAction(self.actionLasso)
+        QtCore.QObject.connect(self.actionLasso,QtCore.SIGNAL("triggered()"), self.lassoToggle)
 
         self.handleActionA = QtGui.QAction("Cursor A", self)
         self.plotWidget2.addAction(self.handleActionA)
@@ -211,7 +217,9 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         self.RSprops['alpha'] = 0.3
 
         self.usrZoom = False
+        self.usrLasso = False
 
+        self.imLasso = None
 
     def setupGUI(self):
 
@@ -234,9 +242,14 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         self.plotType = str(self.chromStyleCB.currentText())
 
         self.RS = RectangleSelector(self.imageAxis, self.imageZoom, minspanx = 2,
-                        minspany = 2, drawtype='box',useblit=True, rectprops = self.RSprops)
-        self.RS.visible = False
-        #self.plotWidget.canvas.mpl_connect('button_press_event', self.imageClick)
+                        minspany = 2, drawtype='box',useblit=True, rectprops = self.RSprops,
+                        primaryBtn = 1)#, spancoords='pixels')
+
+        self.RS.set_active(False)# = False
+
+
+#        self.plotWidget.canvas.mpl_connect('button_press_event', self.btnHandler)
+#        self.plotWidget.canvas.mpl_connect('button_release_event', self.btnHandler)
 
 #        self.mzAxis = self.plotWidget2.canvas.axDict['ax2']
 
@@ -248,6 +261,16 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         self.addChromPickers()
         self.addImPickers()
 #        self.setupTable()
+
+    def btnHandler(self, event):
+        if event.button == 1:
+            pass
+        else:
+            self.RS.set_active(False)
+            self.RS.set_active(True)
+            return True
+#            event.ignore()
+
 
     def setupTable(self):
         self.tabPeakTable.clear()
@@ -439,7 +462,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
             self.densityCluster, self.Type, self.Eps, self.dbScanOK = dbscan(X, 1, Eps = self.densityDistThreshSB.value(),\
                                                                              distMethod = PCT.distTypeDist[str(self.distMethodCB.currentText())])
 
-
     def clusterPeaks(self):
 #        if self.showDendroCB.isChecked():
         if self.peakInfo != None:
@@ -605,12 +627,19 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
             ylabel.set_color('b')
 
     def _setContext_(self):
-#        self.plotWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
-#        self.plotWidget.connect(self.plotWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self._imageContext_)
+        self.plotWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.plotWidget.connect(self.plotWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self._imageContext_)
         self.plotWidget2.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.plotWidget2.connect(self.plotWidget2, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self._chromContext_)
 #        self.specListWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
 #        self.specListWidget.connect(self.specListWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self.__listContext__)
+
+    def _imageContext_(self, point):
+        ct_menu = QtGui.QMenu("Image Menu", self.plotWidget)
+        ct_menu.addAction(self.zoomAction)
+        ct_menu.addAction(self.actionAutoScale)
+        ct_menu.addAction(self.actionLasso)
+        ct_menu.exec_(self.plotWidget.mapToGlobal(point))
 
     def _chromContext_(self, point):
         '''Create a menu for the chromatogram widget'''
@@ -665,8 +694,9 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
 
     def imageClick(self, event):
         '''Sets cross hairs for picked peaks after selection'''
+#        print event
         #print event.button
-
+#        if event.mouseevent.button == 1:
         if event.mouseevent.xdata != None and event.mouseevent.ydata != None:
             if event.mouseevent.button == 1:
                 if isinstance(event.artist, Line2D):
@@ -694,6 +724,10 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
 #                self.plotWidget2.canvas.format_labels()
 #                self.plotWidget2.canvas.draw()
 #                self.plotWidget2.setFocus()
+            else:
+#                event.ignore()
+#                print "Not button 1"
+                return True
 
 
     def colorScale(self, dataMtx):
@@ -819,13 +853,14 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
 #        self.imageAxis.autoscale_view(tight = False, scalex=True, scaley=True)
 #        self.plotWidget.canvas.draw()
 
-    def imageZoom(self, event1, event2):
+    def imageZoom(self, event1 = None, event2 = None):
         '''
         This function is perhaps overly complicated but I don't know of a more elegant way to do this.  In essence
         this function takes the limits supplied by the RectangleSelector and replots the data after taking the appropriate
         subset.  The xLim, yLim, and prevChrom/prevImLimits are used to keep track of the scaling and fancy indexing is used
         to make it appear to the user that they are actually zooming when in fact a new image is plotted each time.
         '''
+#        print event1, event2
         if self.usrZoom:
             if event1.button == 1 and event2.button == 1:
                 'event1 and event2 are the press and release events'
@@ -891,6 +926,11 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
 
                 self.plotWidget.canvas.format_labels()
                 self.plotWidget.canvas.draw()
+    #            else:
+    #                print event1, event2
+    #                print event1.button, event2.button
+    #                return True
+
 
 ##########Peak Finding Routines######################
 
@@ -1123,14 +1163,33 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
 ###############################################
 ##########END CURSOR CONTROLS##################
 
-    def ZoomToggle(self):
+    def lassoToggle(self):
+        if self.usrLasso:
+            self.usrLasso = False
+            self.imLasso.setActive(False)
+            self.imLasso = None
+            print "Turned lasso off"
+        else:
+            if self.usrZoom:
+                'need to turn the zooming off'
+                self.zoomToggle()
+            if self.peakLoc2D != None:
+                X = N.column_stack((self.peakLoc2D[0], self.peakLoc2D[1]))
+                self.imLasso = LM(self.imageAxis, X)
+            self.usrLasso = True
+
+            print "Turned lasso on"
+
+    def zoomToggle(self):
         #self.toolbar.zoom() #this implements the classic zoom
         if self.usrZoom:
             self.usrZoom = False
-            self.RS.visible = False
+#            self.RS.visible = False
+            self.RS.set_active(False)
         else:
             self.usrZoom = True
-            self.RS.visible = True
+#            self.RS.visible = True
+            self.RS.set_active(True)
 
     def get2DPeakLoc(self, peakLoc, rows, cols, peakIntensity = None):
         x = N.empty(len(peakLoc), dtype = int)
