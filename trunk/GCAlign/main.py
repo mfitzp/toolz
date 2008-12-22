@@ -112,17 +112,18 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         QtCore.QObject.connect(self.fndPeaksBtn,QtCore.SIGNAL("clicked()"),self.findChromPeaks)
         QtCore.QObject.connect(self.action_Find_Peaks,QtCore.SIGNAL("triggered()"),self.findChromPeaks)
         QtCore.QObject.connect(self.actionSave_Peaks_to_CSV,QtCore.SIGNAL("triggered()"),self.savePeaks2CSV)
-        QtCore.QObject.connect(self.actionSave_Raw_Peaks_to_CSV,QtCore.SIGNAL("triggered()"),self.saveRawPeaks2CSV)
+        QtCore.QObject.connect(self.actionSave_2D_Peaks_to_CSV,QtCore.SIGNAL("triggered()"),self.saveRaw2DPeaks2CSV)
+        QtCore.QObject.connect(self.actionToggle_Peak_Cross_Hairs,QtCore.SIGNAL("triggered()"),self.toggleImPickers)
 
-        QtCore.QObject.connect(self.handleActionA, QtCore.SIGNAL("triggered()"),self.SelectPointsA)
-        QtCore.QObject.connect(self.handleActionB, QtCore.SIGNAL("triggered()"),self.SelectPointsB)
+        QtCore.QObject.connect(self.handleActionA, QtCore.SIGNAL("triggered()"),self.toggleCA)#SelectPointsA)
+        QtCore.QObject.connect(self.handleActionB, QtCore.SIGNAL("triggered()"),self.toggleCB)#SelectPointsB)
         QtCore.QObject.connect(self.cursorClearAction, QtCore.SIGNAL("triggered()"),self.cursorClear)
         QtCore.QObject.connect(self.labelAction, QtCore.SIGNAL("triggered()"),self.labelPeak)
 
         QtCore.QObject.connect(self.actionLabel_Peak,QtCore.SIGNAL("triggered()"),self.labelPeak)
 #        QtCore.QObject.connect(self.actionCopy_to_Clipboard,QtCore.SIGNAL("triggered()"),self.mpl2Clip)
-        QtCore.QObject.connect(self.actionCursor_A,QtCore.SIGNAL("triggered()"),self.SelectPointsA)
-        QtCore.QObject.connect(self.actionCursor_B,QtCore.SIGNAL("triggered()"),self.SelectPointsB)
+        QtCore.QObject.connect(self.actionCursor_A,QtCore.SIGNAL("triggered()"),self.toggleCA)#SelectPointsA)
+        QtCore.QObject.connect(self.actionCursor_B,QtCore.SIGNAL("triggered()"),self.toggleCB)#SelectPointsB)
         QtCore.QObject.connect(self.actionClear_Cursors,QtCore.SIGNAL("triggered()"),self.cursorClear)
         QtCore.QObject.connect(self.cursACB,QtCore.SIGNAL("stateChanged (int)"),self.toggleCA)
         QtCore.QObject.connect(self.cursBCB,QtCore.SIGNAL("stateChanged (int)"),self.toggleCB)
@@ -196,6 +197,9 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         ###############################
         self.chromStyles = ['BPC','TIC']#,'SIC']
         ###############################
+
+        self.showImPickers = False
+
         self.cAPicker = None
         self.cBPicker = None
 
@@ -224,7 +228,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
     def setupGUI(self):
 
         self.plotWidget.canvas.setupSub(1)
-#        self.plotWidget2.canvas.setupSub(1)
 
         self.imageAxis = self.plotWidget.canvas.axDict['ax1']
         self.chromAxis = self.plotWidget2.canvas.ax#Dict['ax1'] #use Dict when using multiplot PyQt4 Widget
@@ -247,12 +250,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
 
         self.RS.set_active(False)# = False
 
-
-#        self.plotWidget.canvas.mpl_connect('button_press_event', self.btnHandler)
-#        self.plotWidget.canvas.mpl_connect('button_release_event', self.btnHandler)
-
-#        self.mzAxis = self.plotWidget2.canvas.axDict['ax2']
-
         self.indexHSlider.setMinimum(1)
         self.indexSpinBox.setMinimum(1)
         self.indexHSlider.setMaximum(self.numSpec)
@@ -261,15 +258,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         self.addChromPickers()
         self.addImPickers()
 #        self.setupTable()
-
-    def btnHandler(self, event):
-        if event.button == 1:
-            pass
-        else:
-            self.RS.set_active(False)
-            self.RS.set_active(True)
-            return True
-#            event.ignore()
 
 
     def setupTable(self):
@@ -463,7 +451,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
                                                                              distMethod = PCT.distTypeDist[str(self.distMethodCB.currentText())])
 
     def clusterPeaks(self):
-#        if self.showDendroCB.isChecked():
         if self.peakInfo != None:
             self.peakLoc2D = self.get2DPeakLoc(self.peakInfo['peakLoc'], self.curData.rowPoints,\
                                    self.curData.colPoints, peakIntensity = self.peakInfo['peakInt'])
@@ -475,11 +462,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
 
                 self.autoscale_plot()
 
-#            X = N.column_stack((X, N.sqrt(self.peakLoc2D[2])))
-#                if self.peakLoc2D != None:
-#                    X = self.peakLoc2D[0]
-#                    for i in xrange(1, len(self.peakLoc2D)):
-#                        X = N.column_stack((X,self.peakLoc2D[i]))
             else:
                 if self.calcThreshCB.isChecked():
                     self.PCT.initClusterThread(X, plotLinkage = self.showDendroCB.isChecked(), name = self.curData.name,\
@@ -490,21 +472,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
                                                distMethod = PCT.distTypeDist[str(self.distMethodCB.currentText())])
 
                 self.PCT.start()
-#            self.linkagePlot = MPL_Widget()
-#            self.linkagePlot.setWindowTitle(('Clustered Peaks for %s'%self.curData.name))
-#            Y = H.pdist(X)
-#            Z = H.linkage(Y)
-#
-#            self.linkagePlot.canvas.setupSub(2)
-#            ax1 = self.linkagePlot.canvas.axDict['ax1']
-#            ax2 = self.linkagePlot.canvas.axDict['ax2']
-#            H.dendrogram(Z, colorthreshold=10, customMPL = ax1)
-#            R = H.inconsistent(Z, d = 4)
-#            print R.shape
-#            ax2.plot(R[:,0])
-#            ax2a = ax2.twinx()
-#            ax2a.plot(R[:,3], 'r:')
-#            self.linkagePlot.show()
 
 
     def closeEvent(self,  event = None):
@@ -535,7 +502,11 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         else:
             return None
 
-    def saveRawPeaks2CSV(self):
+    def saveRaw2DPeaks2CSV(self):
+        '''
+        Saves 2D peak locations to a CSV file
+        Note: these are just the raw locations--not the clustered peaks.
+        '''
         path = self.SFDialog()
         if path != None:
             try:
@@ -557,6 +528,9 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
                 return QtGui.QMessageBox.warning(self, "Save Error",  errorMsg)
 
     def savePeaks2CSV(self):
+        '''
+        Saves the raw 1D peaks in the full chromatogram to a file
+        '''
         path = self.SFDialog()
         if path != None:
             try:
@@ -596,6 +570,8 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
             else:
                 self.txtColor = COLORS[self.colorIndex]
                 self.colorIndex +=1
+            #sets up a new GCDATA File instance and adds it to a dictionary
+            #the key to that dictionary is the full file path, not simply the name
             self.dataDict[dataFileName] = GCDATA(dataFileName)
             self.dataList.append(dataFileName)
             tempData = self.dataDict[dataFileName]
@@ -684,50 +660,67 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
     def addImPickers(self, minX = 0):
         '''Pickers for the Chromatogram'''
         self.selectCursA,  = self.imageAxis.plot([minX], [0], 'o',\
-                                        ms=5, alpha=.7, color='red', visible=True,  label = '_nolegend_')
-        self.xLine = self.imageAxis.axvline(x=0, ls = ':', color = 'y', alpha = 0.6, visible = True)
-        self.yLine = self.imageAxis.axhline(y=0, ls = ':', color = 'y', alpha = 0.6, visible = True)
+                                        ms=5, alpha=.7, color='red', visible=self.showImPickers,  label = '_nolegend_')
+        self.xLine = self.imageAxis.axvline(x=0, ls = ':', color = 'y', alpha = 0.6, visible = self.showImPickers)
+        self.yLine = self.imageAxis.axhline(y=0, ls = ':', color = 'y', alpha = 0.6, visible = self.showImPickers)
 
 #        self.cursText = self.imageAxis.text(0, 0, '0rigin',  fontsize=9)
 
         self.peakPicker = self.plotWidget.canvas.mpl_connect('pick_event', self.imageClick)
+
+    def toggleImPickers(self):
+        '''we want to toggle the visibility of these items in a group
+        so a test for one is sufficient for all of them'''
+        if self.showImPickers:
+            self.showImPickers = False
+            self.selectCursA.set_visible(False)
+            self.xLine.set_visible(False)
+            self.yLine.set_visible(False)
+        else:
+            self.showImPickers = True
+            self.selectCursA.set_visible(True)
+            self.xLine.set_visible(True)
+            self.yLine.set_visible(True)
+
+
 
     def imageClick(self, event):
         '''Sets cross hairs for picked peaks after selection'''
 #        print event
         #print event.button
 #        if event.mouseevent.button == 1:
-        if event.mouseevent.xdata != None and event.mouseevent.ydata != None:
-            if event.mouseevent.button == 1:
-                if isinstance(event.artist, Line2D):
-                    thisline = event.artist
-                    xdata = thisline.get_xdata()
-                    ydata = thisline.get_ydata()
-                    self.selectCursA.set_data(xdata[event.ind[0]], ydata[event.ind[0]])
-#                    self.selectCursA.set_data([event.mouseevent.xdata], [event.mouseevent.ydata])
-                    xPnt, yPnt =  int(N.round(event.mouseevent.xdata)), event.mouseevent.ydata
-    #                print xPnt, yPnt
+        if self.showImPickers:
+            if event.mouseevent.xdata != None and event.mouseevent.ydata != None:
+                if event.mouseevent.button == 1:
+                    if isinstance(event.artist, Line2D):
+                        thisline = event.artist
+                        xdata = thisline.get_xdata()
+                        ydata = thisline.get_ydata()
+                        self.selectCursA.set_data(xdata[event.ind[0]], ydata[event.ind[0]])
+    #                    self.selectCursA.set_data([event.mouseevent.xdata], [event.mouseevent.ydata])
+                        xPnt, yPnt =  int(N.round(event.mouseevent.xdata)), event.mouseevent.ydata
+        #                print xPnt, yPnt
 
-                    if self.peakInfo != None:
-                        print event.ind[0]
-                        for info in self.peakInfo.itervalues():
-                            print info[event.ind[0]]
+                        if self.peakInfo != None:
+                            print event.ind[0]
+                            for info in self.peakInfo.itervalues():
+                                print info[event.ind[0]]
 
-                    self.xLine.set_xdata([xPnt])
-                    self.yLine.set_ydata([yPnt])
+                        self.xLine.set_xdata([xPnt])
+                        self.yLine.set_ydata([yPnt])
 
-                    self.imageAxis.draw_artist(self.selectCursA)
-                    self.imageAxis.draw_artist(self.xLine)
-                    self.imageAxis.draw_artist(self.yLine)
-                    self.plotWidget.canvas.blit(self.imageAxis.bbox)
+                        self.imageAxis.draw_artist(self.selectCursA)
+                        self.imageAxis.draw_artist(self.xLine)
+                        self.imageAxis.draw_artist(self.yLine)
+                        self.plotWidget.canvas.blit(self.imageAxis.bbox)
 
-#                self.plotWidget2.canvas.format_labels()
-#                self.plotWidget2.canvas.draw()
-#                self.plotWidget2.setFocus()
-            else:
-#                event.ignore()
-#                print "Not button 1"
-                return True
+    #                self.plotWidget2.canvas.format_labels()
+    #                self.plotWidget2.canvas.draw()
+    #                self.plotWidget2.setFocus()
+                else:
+    #                event.ignore()
+    #                print "Not button 1"
+                    return True
 
 
     def colorScale(self, dataMtx):
@@ -744,11 +737,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         selectItems = self.listWidget.selectedItems()
         if len(selectItems) > 0:
             self.updatePlot(self.listWidget.indexFromItem(selectItems[0]).row())
-#            self.multiPlotIndex = []#reset indexes to plot
-#            for item in selectItems:
-#                self.multiPlotIndex.append(self.specListWidget.indexFromItem(item).row())
-#
-#            self.plotByIndex(multiPlot = True)
 
     def updatePlot(self, plotIndex):#, plotType = 'TIC'):
         self.peakInfo = None
@@ -782,14 +770,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         self.updateChromGUI()
 
         self.autoscale_plot()
-
-
-#        self.plotWidget.canvas.format_labels()
-#        self.plotWidget.canvas.draw()
-#
-#
-#        self.plotWidget2.canvas.format_labels()
-#        self.plotWidget2.canvas.draw()
 
 
 
@@ -837,21 +817,29 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
                 #self.plotDBSCAN()
 
                 #remember the image is transposed, so we need to swap the length of the axes
-                self.imageAxis.set_xlim(0,self.curData.rowPoints)
-                self.imageAxis.set_ylim(0,self.curData.colPoints)
+                self._setImScale_()
+#                self.imageAxis.set_xlim(0,self.curData.rowPoints)
+#                self.imageAxis.set_ylim(0,self.curData.colPoints)
 
         self.prevChromLimits = 0
         self.prevImLimits = [0,0]
         self.plotWidget2.autoscale_plot()
 
-        self.plotWidget.canvas.format_labels()
-        self.plotWidget.canvas.draw()
-
-        self.plotWidget2.canvas.format_labels()
-        self.plotWidget2.canvas.draw()
+        self._drawCanvases_()
 ################Original
 #        self.imageAxis.autoscale_view(tight = False, scalex=True, scaley=True)
 #        self.plotWidget.canvas.draw()
+
+    def _setImScale_(self):
+        self.imageAxis.set_xlim(0, self.curIm.shape[1]-1)
+        self.imageAxis.set_ylim(0, self.curIm.shape[0])
+
+    def _drawCanvases_(self):
+        self.plotWidget2.canvas.format_labels()
+        self.plotWidget2.canvas.draw()
+
+        self.plotWidget.canvas.format_labels()
+        self.plotWidget.canvas.draw()
 
     def imageZoom(self, event1 = None, event2 = None):
         '''
@@ -908,8 +896,9 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
                     self.imageAxis.plot(tempPeakLoc2D[0]-xLim[0]-self.prevImLimits[0],\
                                         tempPeakLoc2D[1]-yLim[0]-self.prevImLimits[1],\
                                         'yo', ms = 3, alpha = 0.6, picker = 5)
-                    self.imageAxis.set_xlim(0, self.curIm.shape[1]-1)
-                    self.imageAxis.set_ylim(0, self.curIm.shape[0])
+
+                    self._setImScale_()
+
 
                 xLen = len(self.imageAxis.get_xticklabels())
                 yLen = len(self.imageAxis.get_yticklabels())
@@ -921,11 +910,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
                 #used for the next zooming event
                 self.prevImLimits = [xLim[0]+self.prevImLimits[0],yLim[0]+self.prevImLimits[1]]
 
-                self.plotWidget2.canvas.format_labels()
-                self.plotWidget2.canvas.draw()
-
-                self.plotWidget.canvas.format_labels()
-                self.plotWidget.canvas.draw()
+                self._drawCanvases_()
     #            else:
     #                print event1, event2
     #                print event1.button, event2.button
@@ -1057,7 +1042,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         """
         self.plotWidget2.canvas.mpl_disconnect(self.cBPicker)
         self.cBPicker = None
-        if self.cAPicker ==None:
+        if self.cAPicker == None:
             self.cAPicker = self.plotWidget2.canvas.mpl_connect('pick_event', self.OnPickA)
             self.cAOn = True
 
@@ -1135,17 +1120,29 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
 
             self.plotWidget2.canvas.draw()
 
-    def toggleCA(self, stateInt):
-        if stateInt == 2:
-            self.SelectPointsA()
+    def toggleCA(self, stateInt = None):
+        '''
+        setting the stateInt to None allows other actions
+        to toggle the state of the cursor because by calling
+        the nextCheckState function this function is called again
+        with the stateInt intact.  Nifty...
+        '''
+        if stateInt == None:
+            self.cursACB.nextCheckState()
         else:
-            self.cursAClear()
+            if stateInt == 2:
+                self.SelectPointsA()
+            else:
+                self.cursAClear()
 
-    def toggleCB(self, stateInt):
-        if stateInt == 2:
-            self.SelectPointsB()
+    def toggleCB(self, stateInt = None):
+        if stateInt == None:
+            self.cursBCB.nextCheckState()
         else:
-            self.cursBClear()
+            if stateInt == 2:
+                self.SelectPointsB()
+            else:
+                self.cursBClear()
 
  ###########Peak Label#########################
     def labelPeak(self):
@@ -1168,7 +1165,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
             self.usrLasso = False
             self.imLasso.setActive(False)
             self.imLasso = None
-            print "Turned lasso off"
+#            print "Turned lasso off"
         else:
             if self.usrZoom:
                 'need to turn the zooming off'
@@ -1178,15 +1175,18 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
                 self.imLasso = LM(self.imageAxis, X)
             self.usrLasso = True
 
-            print "Turned lasso on"
+#            print "Turned lasso on"
 
     def zoomToggle(self):
         #self.toolbar.zoom() #this implements the classic zoom
+
         if self.usrZoom:
             self.usrZoom = False
 #            self.RS.visible = False
             self.RS.set_active(False)
         else:
+            if self.usrLasso:
+                self.lassoToggle()
             self.usrZoom = True
 #            self.RS.visible = True
             self.RS.set_active(True)

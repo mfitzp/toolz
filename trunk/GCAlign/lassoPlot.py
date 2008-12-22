@@ -7,7 +7,7 @@ This is currently a proof-of-concept implementation (though it is
 usable as is).  There will be some refinement of the API and the
 inside polygon detection routine.
 """
-from matplotlib.widgets import Lasso
+from matplotlib.widgets_bhc import Lasso
 import matplotlib.mlab
 from matplotlib.nxutils import points_inside_poly
 from matplotlib.colors import colorConverter
@@ -40,7 +40,7 @@ class LassoManager:
         self.lassoLock = False
 #        self.ax.plot(data[:,0],data[:,1], 'ro')
 
-
+        self.releaseOK = False
         self.Nxy = data.shape[0]
 #
 #        facecolors = [d.color for d in data]
@@ -61,6 +61,10 @@ class LassoManager:
         self.ind = None
 
     def callback(self, verts):
+        '''
+        This needs to be run before the release event otherwise no indices will be set.
+        '''
+
         print "callback"
 #        print verts
 #        facecolors = self.collection.get_facecolors()
@@ -75,29 +79,34 @@ class LassoManager:
         self.canvas.widgetlock.release(self.lasso)
 #        #del self.lasso
         self.ind = ind
+        print "self.ind", self.ind
+        if self.releaseOK:
+            self.onrelease()
+        self.releaseOK = False
 
     def onpress(self, event):
         if self.canvas.widgetlock.locked(): return
         if event.inaxes is None: return
-        self.lasso = Lasso(event.inaxes, (event.xdata, event.ydata), self.callback, color = '#FF4500', alpha = 0.8)
+        self.lasso = Lasso(event.inaxes, (event.xdata, event.ydata), self.callback, color = 'red', alpha = 0.8)
         # acquire a lock on the widget drawing
         self.canvas.widgetlock(self.lasso)
         # establish boolean that can be used to release the widgetlock
         self.lassoLock = True
 
-    def onrelease(self, event):
+    def onrelease(self, event = None):
         'on release we reset the press data'
         print 'release'
+        self.releaseOK = True
         # test whether the widgetlock was initiated by the lasso
         if self.lassoLock:
             self.canvas.widgetlock.release(self.lasso)
             self.lassoLock = False
 
         if self.ind != None:
-            if len(self.ind) == 1:
-                print "self.ind, self.data ",self.ind, self.data[self.ind[0]]
-            else:
-                print "self.ind ", self.ind
+#            if len(self.ind) == 1:
+#                print "self.ind, self.data ",self.ind, self.data[self.ind[0]]
+#            else:
+#                print "self.ind ", self.ind
             selectPoints = self.data[self.ind]
     #        print selectPoint
             try:
@@ -105,7 +114,7 @@ class LassoManager:
             except:
                 print "No selection to remove."
                 pass
-            self.selected, = self.ax.plot(selectPoints[:,0], selectPoints[:,1], 'bo')
+            self.selected, = self.ax.plot(selectPoints[:,0], selectPoints[:,1], 'bo', alpha = 0.5)
 
     def setActive(self, boolState):
         if boolState:

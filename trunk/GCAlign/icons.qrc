@@ -2,5 +2,8 @@
     <qresource prefix="/new/prefix1" >
         <file>Chain Chomp_32.png</file>
         <file>Retro Mario World_32.png</file>
+        <file>icons/exitsmall.png</file>
+        <file>icons/fileopen.png</file>
+        <file>icons/filesave2.png</file>
     </qresource>
 </RCC>
