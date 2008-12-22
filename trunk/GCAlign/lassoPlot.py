@@ -117,15 +117,23 @@ class LassoManager:
 
 
 if __name__ == '__main__':
+    from PyQt4 import QtGui, QtCore
+    from mpl_pyqt4_widget import MPL_Widget
+    import sys
     import numpy as N
+    app = QtGui.QApplication(sys.argv)
+    w = MPL_Widget()
+    w.canvas.setupSub(1)
+    ax = w.canvas.axDict['ax1']
+
+
+
 #    data = [Datum(*xy) for xy in rand(100, 2)]
     data = S.rand(100,2)
 
-#    data = N.array([data[:,0],data[:,1]])
-#    print data.shape
-    fig = figure()
-    ax = fig.add_subplot(111, xlim=(0,1), ylim=(0,1), autoscale_on=False)
+#    ax = fig.add_subplot(111, xlim=(0,1), ylim=(0,1), autoscale_on=False)
     ax.plot(data[:,0],data[:,1], 'ro')
     lman = LassoManager(ax, data)
 
-    show()
+    w.show()
+    sys.exit(app.exec_())
