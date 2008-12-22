@@ -1235,7 +1235,7 @@ class RectangleSelector:
         return self.active
 
 class Lasso(Widget):
-    def __init__(self, ax, xy, callback=None, useblit=True):
+    def __init__(self, ax, xy, callback=None, useblit=True, color = 'black'):
         self.axes = ax
         self.figure = ax.figure
         self.canvas = self.figure.canvas
@@ -1245,7 +1245,7 @@ class Lasso(Widget):
 
         x, y = xy
         self.verts = [(x,y)]
-        self.line = Line2D([x], [y], linestyle='-', color='black', lw=2)
+        self.line = Line2D([x], [y], linestyle='-', color=color, lw=2)
         self.axes.add_line(self.line)
         self.callback = callback
         self.cids = []

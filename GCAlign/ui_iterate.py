@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Documents and Settings\d3p483\workspace\GCAlign\iterate.ui'
 #
-# Created: Sat Dec 20 14:23:35 2008
+# Created: Mon Dec 22 13:18:30 2008
 #      by: PyQt4 UI code generator 4.3.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -12,9 +12,10 @@ from PyQt4 import QtCore, QtGui
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(QtCore.QSize(QtCore.QRect(0,0,793,674).size()).expandedTo(MainWindow.minimumSizeHint()))
+        MainWindow.resize(QtCore.QSize(QtCore.QRect(0,0,796,725).size()).expandedTo(MainWindow.minimumSizeHint()))
         MainWindow.setWindowIcon(QtGui.QIcon(":/new/prefix1/Retro Mario World_32.png"))
         MainWindow.setLayoutDirection(QtCore.Qt.LeftToRight)
+        MainWindow.setIconSize(QtCore.QSize(32,32))
 
         self.centralwidget = QtGui.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
@@ -359,6 +360,7 @@ class Ui_MainWindow(object):
         self.gridlayout3.setObjectName("gridlayout3")
 
         self.plotPkListCB = QtGui.QCheckBox(self.optionsTab)
+        self.plotPkListCB.setEnabled(False)
         self.plotPkListCB.setObjectName("plotPkListCB")
         self.gridlayout3.addWidget(self.plotPkListCB,0,0,1,1)
 
@@ -370,11 +372,13 @@ class Ui_MainWindow(object):
         self.gridlayout5.setObjectName("gridlayout5")
 
         self.label_3 = QtGui.QLabel(self.optionsTab)
+        self.label_3.setEnabled(False)
         self.label_3.setMaximumSize(QtCore.QSize(50,16777215))
         self.label_3.setObjectName("label_3")
         self.gridlayout5.addWidget(self.label_3,0,0,1,1)
 
         self.sicMZSB = QtGui.QSpinBox(self.optionsTab)
+        self.sicMZSB.setEnabled(False)
         self.sicMZSB.setMaximumSize(QtCore.QSize(75,16777215))
         self.sicMZSB.setMinimum(1)
         self.sicMZSB.setMaximum(400)
@@ -383,30 +387,36 @@ class Ui_MainWindow(object):
         self.gridlayout4.addLayout(self.gridlayout5,0,0,1,1)
 
         self.pltSICBtn = QtGui.QPushButton(self.optionsTab)
+        self.pltSICBtn.setEnabled(False)
         self.pltSICBtn.setMaximumSize(QtCore.QSize(75,16777215))
         self.pltSICBtn.setObjectName("pltSICBtn")
         self.gridlayout4.addWidget(self.pltSICBtn,1,0,1,1)
 
         self.plotTICBtn = QtGui.QPushButton(self.optionsTab)
+        self.plotTICBtn.setEnabled(False)
         self.plotTICBtn.setMaximumSize(QtCore.QSize(75,16777215))
         self.plotTICBtn.setObjectName("plotTICBtn")
         self.gridlayout4.addWidget(self.plotTICBtn,2,0,1,1)
 
         self.plotBPCBtn = QtGui.QPushButton(self.optionsTab)
+        self.plotBPCBtn.setEnabled(False)
         self.plotBPCBtn.setMaximumSize(QtCore.QSize(75,16777215))
         self.plotBPCBtn.setObjectName("plotBPCBtn")
         self.gridlayout4.addWidget(self.plotBPCBtn,3,0,1,1)
         self.gridlayout3.addLayout(self.gridlayout4,0,2,2,1)
 
         self.dendroCB = QtGui.QCheckBox(self.optionsTab)
+        self.dendroCB.setEnabled(False)
         self.dendroCB.setObjectName("dendroCB")
         self.gridlayout3.addWidget(self.dendroCB,1,0,1,2)
 
         self.topHatCB = QtGui.QCheckBox(self.optionsTab)
+        self.topHatCB.setEnabled(False)
         self.topHatCB.setObjectName("topHatCB")
         self.gridlayout3.addWidget(self.topHatCB,2,0,1,1)
 
         self.plotLegendCB = QtGui.QCheckBox(self.optionsTab)
+        self.plotLegendCB.setEnabled(False)
         self.plotLegendCB.setChecked(True)
         self.plotLegendCB.setObjectName("plotLegendCB")
         self.gridlayout3.addWidget(self.plotLegendCB,2,1,1,2)
@@ -426,6 +436,7 @@ class Ui_MainWindow(object):
         self.gridlayout2.addLayout(self.gridlayout3,0,0,1,2)
 
         self.loadDirBtn = QtGui.QPushButton(self.optionsTab)
+        self.loadDirBtn.setEnabled(False)
         self.loadDirBtn.setObjectName("loadDirBtn")
         self.gridlayout2.addWidget(self.loadDirBtn,0,2,1,1)
 
@@ -664,15 +675,37 @@ class Ui_MainWindow(object):
         self.hboxlayout18 = QtGui.QHBoxLayout(self.pkListTab)
         self.hboxlayout18.setObjectName("hboxlayout18")
 
-        self.tabPeakTable = CustomTable(self.pkListTab)
+        self.tabWidget_2 = QtGui.QTabWidget(self.pkListTab)
+        self.tabWidget_2.setObjectName("tabWidget_2")
+
+        self.tab = QtGui.QWidget()
+        self.tab.setObjectName("tab")
+
+        self.hboxlayout19 = QtGui.QHBoxLayout(self.tab)
+        self.hboxlayout19.setObjectName("hboxlayout19")
+
+        self.tabPeakTable = CustomTable(self.tab)
         self.tabPeakTable.setObjectName("tabPeakTable")
-        self.hboxlayout18.addWidget(self.tabPeakTable)
+        self.hboxlayout19.addWidget(self.tabPeakTable)
+        self.tabWidget_2.addTab(self.tab,"")
+
+        self.tab_2 = QtGui.QWidget()
+        self.tab_2.setObjectName("tab_2")
+
+        self.hboxlayout20 = QtGui.QHBoxLayout(self.tab_2)
+        self.hboxlayout20.setObjectName("hboxlayout20")
+
+        self.tabPeakTable_2 = CustomTable(self.tab_2)
+        self.tabPeakTable_2.setObjectName("tabPeakTable_2")
+        self.hboxlayout20.addWidget(self.tabPeakTable_2)
+        self.tabWidget_2.addTab(self.tab_2,"")
+        self.hboxlayout18.addWidget(self.tabWidget_2)
         self.tabWidget.addTab(self.pkListTab,"")
         self.hboxlayout.addWidget(self.tabWidget)
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.menubar = QtGui.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0,0,793,21))
+        self.menubar.setGeometry(QtCore.QRect(0,0,796,21))
         self.menubar.setObjectName("menubar")
 
         self.menuTools = QtGui.QMenu(self.menubar)
@@ -683,13 +716,26 @@ class Ui_MainWindow(object):
 
         self.menu_Peak_Tools = QtGui.QMenu(self.menubar)
         self.menu_Peak_Tools.setObjectName("menu_Peak_Tools")
+
+        self.menuC_luster = QtGui.QMenu(self.menubar)
+        self.menuC_luster.setObjectName("menuC_luster")
+
+        self.menuCluster_Peaks = QtGui.QMenu(self.menuC_luster)
+        self.menuCluster_Peaks.setObjectName("menuCluster_Peaks")
         MainWindow.setMenuBar(self.menubar)
 
         self.statusbar = QtGui.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
 
+        self.toolBar = QtGui.QToolBar(MainWindow)
+        self.toolBar.setEnabled(True)
+        self.toolBar.setObjectName("toolBar")
+        MainWindow.addToolBar(QtCore.Qt.TopToolBarArea,self.toolBar)
+        MainWindow.insertToolBarBreak(self.toolBar)
+
         self.action_Open = QtGui.QAction(MainWindow)
+        self.action_Open.setIcon(QtGui.QIcon(":/new/prefix1/icons/fileopen.png"))
         self.action_Open.setObjectName("action_Open")
 
         self.actionCursor_A = QtGui.QAction(MainWindow)
@@ -714,10 +760,24 @@ class Ui_MainWindow(object):
         self.actionSave_Peaks_to_CSV.setObjectName("actionSave_Peaks_to_CSV")
 
         self.actionSave_Peaks_to_Data_File = QtGui.QAction(MainWindow)
+        self.actionSave_Peaks_to_Data_File.setIcon(QtGui.QIcon(":/new/prefix1/icons/filesave2.png"))
         self.actionSave_Peaks_to_Data_File.setObjectName("actionSave_Peaks_to_Data_File")
 
-        self.actionSave_Raw_Peaks_to_CSV = QtGui.QAction(MainWindow)
-        self.actionSave_Raw_Peaks_to_CSV.setObjectName("actionSave_Raw_Peaks_to_CSV")
+        self.actionSave_2D_Peaks_to_CSV = QtGui.QAction(MainWindow)
+        self.actionSave_2D_Peaks_to_CSV.setObjectName("actionSave_2D_Peaks_to_CSV")
+
+        self.actionToggle_Peak_Cross_Hairs = QtGui.QAction(MainWindow)
+        self.actionToggle_Peak_Cross_Hairs.setObjectName("actionToggle_Peak_Cross_Hairs")
+
+        self.actionDensity_Based_Clustering = QtGui.QAction(MainWindow)
+        self.actionDensity_Based_Clustering.setObjectName("actionDensity_Based_Clustering")
+
+        self.actionHierarchical_Method = QtGui.QAction(MainWindow)
+        self.actionHierarchical_Method.setObjectName("actionHierarchical_Method")
+
+        self.actionExit = QtGui.QAction(MainWindow)
+        self.actionExit.setIcon(QtGui.QIcon(":/new/prefix1/icons/exitsmall.png"))
+        self.actionExit.setObjectName("actionExit")
         self.menuTools.addAction(self.actionCursor_A)
         self.menuTools.addAction(self.actionCursor_B)
         self.menuTools.addAction(self.actionClear_Cursors)
@@ -726,16 +786,25 @@ class Ui_MainWindow(object):
         self.menuTools.addSeparator()
         self.menuTools.addAction(self.actionCopy_to_Clipboard)
         self.menu_File.addAction(self.action_Open)
+        self.menu_File.addAction(self.actionExit)
         self.menu_Peak_Tools.addAction(self.action_Find_Peaks)
         self.menu_Peak_Tools.addAction(self.actionSave_Peaks_to_CSV)
         self.menu_Peak_Tools.addAction(self.actionSave_Peaks_to_Data_File)
-        self.menu_Peak_Tools.addAction(self.actionSave_Raw_Peaks_to_CSV)
+        self.menu_Peak_Tools.addAction(self.actionSave_2D_Peaks_to_CSV)
+        self.menu_Peak_Tools.addAction(self.actionToggle_Peak_Cross_Hairs)
+        self.menuCluster_Peaks.addAction(self.actionDensity_Based_Clustering)
+        self.menuCluster_Peaks.addAction(self.actionHierarchical_Method)
+        self.menuC_luster.addAction(self.menuCluster_Peaks.menuAction())
         self.menubar.addAction(self.menu_File.menuAction())
         self.menubar.addAction(self.menuTools.menuAction())
         self.menubar.addAction(self.menu_Peak_Tools.menuAction())
+        self.menubar.addAction(self.menuC_luster.menuAction())
+        self.toolBar.addAction(self.action_Open)
+        self.toolBar.addAction(self.actionSave_Peaks_to_Data_File)
 
         self.retranslateUi(MainWindow)
         self.tabWidget.setCurrentIndex(0)
+        self.tabWidget_2.setCurrentIndex(0)
         QtCore.QObject.connect(self.indexHSlider,QtCore.SIGNAL("valueChanged(int)"),self.indexSpinBox.setValue)
         QtCore.QObject.connect(self.indexSpinBox,QtCore.SIGNAL("valueChanged(int)"),self.indexHSlider.setValue)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -799,10 +868,18 @@ class Ui_MainWindow(object):
         self.tabPeakTable.clear()
         self.tabPeakTable.setColumnCount(0)
         self.tabPeakTable.setRowCount(0)
+        self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.tab), QtGui.QApplication.translate("MainWindow", "Raw Peak List", None, QtGui.QApplication.UnicodeUTF8))
+        self.tabPeakTable_2.clear()
+        self.tabPeakTable_2.setColumnCount(0)
+        self.tabPeakTable_2.setRowCount(0)
+        self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.tab_2), QtGui.QApplication.translate("MainWindow", "Clustered Peak List", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.pkListTab), QtGui.QApplication.translate("MainWindow", "Peak List", None, QtGui.QApplication.UnicodeUTF8))
         self.menuTools.setTitle(QtGui.QApplication.translate("MainWindow", "&ChromTools", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_File.setTitle(QtGui.QApplication.translate("MainWindow", "&File", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_Peak_Tools.setTitle(QtGui.QApplication.translate("MainWindow", "&Peak Tools", None, QtGui.QApplication.UnicodeUTF8))
+        self.menuC_luster.setTitle(QtGui.QApplication.translate("MainWindow", "C&luster", None, QtGui.QApplication.UnicodeUTF8))
+        self.menuCluster_Peaks.setTitle(QtGui.QApplication.translate("MainWindow", "Cluster Peaks", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolBar.setWindowTitle(QtGui.QApplication.translate("MainWindow", "toolBar", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Open.setText(QtGui.QApplication.translate("MainWindow", "&Open", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Open.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+O", None, QtGui.QApplication.UnicodeUTF8))
         self.actionCursor_A.setText(QtGui.QApplication.translate("MainWindow", "Cursor A", None, QtGui.QApplication.UnicodeUTF8))
@@ -814,7 +891,11 @@ class Ui_MainWindow(object):
         self.action_Find_Peaks.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+F", None, QtGui.QApplication.UnicodeUTF8))
         self.actionSave_Peaks_to_CSV.setText(QtGui.QApplication.translate("MainWindow", "Save Peaks to CSV", None, QtGui.QApplication.UnicodeUTF8))
         self.actionSave_Peaks_to_Data_File.setText(QtGui.QApplication.translate("MainWindow", "Save Peaks to Data File", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionSave_Raw_Peaks_to_CSV.setText(QtGui.QApplication.translate("MainWindow", "Save Raw Peaks to CSV", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionSave_2D_Peaks_to_CSV.setText(QtGui.QApplication.translate("MainWindow", "Save 2D Peaks to CSV", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionToggle_Peak_Cross_Hairs.setText(QtGui.QApplication.translate("MainWindow", "Toggle Peak Cross Hairs", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionDensity_Based_Clustering.setText(QtGui.QApplication.translate("MainWindow", "Density Based Method", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionHierarchical_Method.setText(QtGui.QApplication.translate("MainWindow", "Hierarchical Method", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionExit.setText(QtGui.QApplication.translate("MainWindow", "Exit", None, QtGui.QApplication.UnicodeUTF8))
 
 from mpl_chrom_widget import MPL_Chrom_Widget
 from mpl_image_widget import MPL_Image_Widget
