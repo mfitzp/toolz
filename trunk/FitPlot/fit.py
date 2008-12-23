@@ -576,7 +576,7 @@ def initcoeffs(self):
 	if id == 11: # GaussAmp
 		a = ymax-ymin
 		w = -(x[npt-1]-x[0])/6
-		x0=x[npt/2]
+		x0 = x[npt/2]
 		y0 = y[0]
 		p =  str(a)+ ', '+ str(x0) + ', '+str(w) +', '+str(y0)
 #		a0 = ymax*.8
