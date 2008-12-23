@@ -1,5 +1,9 @@
 import numpy as N
 import numpy.fft.fftpack as F
+'''
+
+Next how to calculate area?
+'''
 
 def expGauss(x, pos, wid, tConst, expMod = 0.5, amp = 1):
 	'''
