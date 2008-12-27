@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 
 '''
-Make it so that the BPC is stored when the file is created....11/24/2008 BHC
+Make it so that the BPC is stored when the file is created....11/24/2008 BHC--Done
+Remember to use writearray2file to append a certain array to hdf5.
+
 '''
 
 

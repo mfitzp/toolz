@@ -146,6 +146,9 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         QtCore.QObject.connect(self.dbScanCB,QtCore.SIGNAL("stateChanged(int)"),self.toggleClusterType)
         QtCore.QObject.connect(self.dbAutoCalcCB,QtCore.SIGNAL("stateChanged(int)"),self.toggleDBDist)
 
+#        print self.imLasso, type(self.imLasso)
+#        QtCore.QObject.connect(self.imLasso,QtCore.SIGNAL("LassoUpdate(PyQt_PyObject)"),self.lassoHandler)
+
     def plotTypeChanged(self, plotTypeQString):
         self.tabWidget.setCurrentIndex(0)#return to plot tab
         self.plotType = str(plotTypeQString)
@@ -224,6 +227,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         self.usrLasso = False
 
         self.imLasso = None
+        self.cur2DPeakLoc = None #used to pass to the lasso manager to allow selection while zooming.
 
     def setupGUI(self):
 
@@ -804,17 +808,20 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         elif self.plotType == 'BPC':
             self.curIm = self.curData.bpcLayer
 
+        self.cur2DPeakLoc = self.peakLoc2D
         self.curImPlot = self.imageAxis.imshow(self.mainIm, alpha = 1,  aspect = 'auto',\
                                                origin = 'lower',  cmap = my_cmap, label = 'R')
 
         if self.showPickedPeaksCB.isChecked():
             if self.peakInfo != None:
                 self.peakPickPlot1D, = self.chromAxis.plot(self.peakInfo['peakLoc'],self.peakInfo['peakInt'], 'ro', ms = 3, alpha = 0.4, picker = 5)
-                self.peakPickPlot2D, = self.imageAxis.plot(self.peakLoc2D[0],self.peakLoc2D[1],'yo', ms = 3, alpha = 0.4, picker = 5)
+                self.peakPickPlot2D, = self.imageAxis.plot(self.cur2DPeakLoc[0],self.cur2DPeakLoc[1],'yo', ms = 3, alpha = 0.4, picker = 5)
                 if self.clustLoc2D != None:
                     self.clustPlot, = self.imageAxis.plot(self.clustLoc2D[:,0],self.clustLoc2D[:,1],'rs', ms = 4, alpha = 0.7, picker = 5)
 
-                #self.plotDBSCAN()
+#                if self.usrLasso:
+#                    X = N.column_stack((self.peakLoc2D[0], self.peakLoc2D[1]))
+#                    self.imLasso.update(X, self.imageAxis)
 
                 #remember the image is transposed, so we need to swap the length of the axes
                 self._setImScale_()
@@ -892,10 +899,24 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
                     tempPeaks = self.peakInfo['peakLoc']
                     rangeCrit = (tempPeaks >= x1) & (tempPeaks <= x2) #criterion for selection
                     tempPeakInd = N.where(rangeCrit) #peak indicies
-                    tempPeakLoc2D = self.get2DPeakLoc(self.peakInfo['peakLoc'][tempPeakInd], self.curData.rowPoints, self.curData.colPoints)
-                    self.imageAxis.plot(tempPeakLoc2D[0]-xLim[0]-self.prevImLimits[0],\
-                                        tempPeakLoc2D[1]-yLim[0]-self.prevImLimits[1],\
+                    self.cur2DPeakLoc = self.get2DPeakLoc(self.peakInfo['peakLoc'][tempPeakInd], self.curData.rowPoints, self.curData.colPoints)
+                    self.cur2DPeakLoc[0] -= xLim[0]
+                    self.cur2DPeakLoc[0] -= self.prevImLimits[0]
+                    self.cur2DPeakLoc[1] -= yLim[0]
+                    self.cur2DPeakLoc[1] -= self.prevImLimits[1]
+
+                    self.imageAxis.plot(self.cur2DPeakLoc[0],\
+                                        self.cur2DPeakLoc[1],\
                                         'yo', ms = 3, alpha = 0.6, picker = 5)
+
+#                    self.imageAxis.plot(tempPeakLoc2D[0]-xLim[0]-self.prevImLimits[0],\
+#                                        tempPeakLoc2D[1]-yLim[0]-self.prevImLimits[1],\
+#                                        'yo', ms = 3, alpha = 0.6, picker = 5)
+
+                    #lasso handler:
+#                    if self.usrLasso:
+#                    X = N.column_stack((self.cur2DPeakLoc[0], self.cur2DPeakLoc[1]))
+#                    self.imLasso.update(X, self.imageAxis)
 
                     self._setImScale_()
 
@@ -965,6 +986,82 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
             self.setupTable()
         else:
             return QtGui.QMessageBox.warning(self, "Peak Find Thread Error",  "The thread did not finish or return a value properly--contact Clowers...")
+
+
+
+    def lassoHandler(self, selectPoints):
+        print selectPoints
+        try:
+            self.lassoSelected.remove()
+        except:
+            print "No selection to remove."
+            pass
+        self.lassoSelected, = self.imageAxis.plot(selectPoints[:,0], selectPoints[:,1], 'bo', alpha = 0.5)
+        self._setImScale_()
+
+    def lassoToggle(self):
+        if self.usrLasso:
+            self.usrLasso = False
+            self.imLasso.setActive(False)
+            QtCore.QObject.disconnect(self.imLasso,QtCore.SIGNAL("LassoUpdate(PyQt_PyObject)"),self.lassoHandler)
+            self.imLasso = None
+#            print "Turned lasso off"
+        else:
+            if self.usrZoom:
+                'need to turn the zooming off'
+                self.zoomToggle()
+            if self.peakLoc2D != None:
+                X = N.column_stack((self.cur2DPeakLoc[0], self.cur2DPeakLoc[1]))
+                self.imLasso = LM(X, self.imageAxis)
+                QtCore.QObject.connect(self.imLasso,QtCore.SIGNAL("LassoUpdate(PyQt_PyObject)"),self.lassoHandler)
+            self.usrLasso = True
+
+#            print "Turned lasso on"
+
+    def zoomToggle(self):
+        #self.toolbar.zoom() #this implements the classic zoom
+
+        if self.usrZoom:
+            self.usrZoom = False
+#            self.RS.visible = False
+            self.RS.set_active(False)
+        else:
+            if self.usrLasso:
+                self.lassoToggle()
+            self.usrZoom = True
+#            self.RS.visible = True
+            self.RS.set_active(True)
+
+    def get2DPeakLoc(self, peakLoc, rows, cols, peakIntensity = None):
+        x = N.empty(len(peakLoc), dtype = int)
+        y = N.empty(len(peakLoc), dtype = int)
+        if peakIntensity != None:
+            z = N.empty(len(peakLoc), dtype = int)
+            for i,loc in enumerate(peakLoc):
+                x[i] = int(loc/cols)
+                y[i] = loc%cols
+                z[i] = peakIntensity[i]
+            return [x,y,z]
+        else:
+            for i,loc in enumerate(peakLoc):
+                x[i] = int(loc/cols)
+                y[i] = loc%cols
+            return [x,y]
+
+    def getMZSlice(self, fileName, index):
+        f = T.openFile(fileName, 'r')
+        mz = f.root.dataCube
+        self.maxRows = mz.shape[0]
+        if self.startIndex+self.specIncrement*index >= self.maxRows:
+            mzSlice = N.zeros(1)
+            getState = False
+        else:
+            mzSlice = SF.normArray(mz[self.startIndex+self.specIncrement*(index-1):self.startIndex+self.specIncrement*index])
+            getState = True
+
+        f.close()
+
+        return mzSlice, getState
 
 ###########Cursor Controls####################
     def cursAClear(self):
@@ -1159,69 +1256,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
 
 ###############################################
 ##########END CURSOR CONTROLS##################
-
-    def lassoToggle(self):
-        if self.usrLasso:
-            self.usrLasso = False
-            self.imLasso.setActive(False)
-            self.imLasso = None
-#            print "Turned lasso off"
-        else:
-            if self.usrZoom:
-                'need to turn the zooming off'
-                self.zoomToggle()
-            if self.peakLoc2D != None:
-                X = N.column_stack((self.peakLoc2D[0], self.peakLoc2D[1]))
-                self.imLasso = LM(self.imageAxis, X)
-            self.usrLasso = True
-
-#            print "Turned lasso on"
-
-    def zoomToggle(self):
-        #self.toolbar.zoom() #this implements the classic zoom
-
-        if self.usrZoom:
-            self.usrZoom = False
-#            self.RS.visible = False
-            self.RS.set_active(False)
-        else:
-            if self.usrLasso:
-                self.lassoToggle()
-            self.usrZoom = True
-#            self.RS.visible = True
-            self.RS.set_active(True)
-
-    def get2DPeakLoc(self, peakLoc, rows, cols, peakIntensity = None):
-        x = N.empty(len(peakLoc), dtype = int)
-        y = N.empty(len(peakLoc), dtype = int)
-        if peakIntensity != None:
-            z = N.empty(len(peakLoc), dtype = int)
-            for i,loc in enumerate(peakLoc):
-                x[i] = int(loc/cols)
-                y[i] = loc%cols
-                z[i] = peakIntensity[i]
-            return [x,y,z]
-        else:
-            for i,loc in enumerate(peakLoc):
-                x[i] = int(loc/cols)
-                y[i] = loc%cols
-            return [x,y]
-
-    def getMZSlice(self, fileName, index):
-        f = T.openFile(fileName, 'r')
-        mz = f.root.dataCube
-        self.maxRows = mz.shape[0]
-        if self.startIndex+self.specIncrement*index >= self.maxRows:
-            mzSlice = N.zeros(1)
-            getState = False
-        else:
-            mzSlice = SF.normArray(mz[self.startIndex+self.specIncrement*(index-1):self.startIndex+self.specIncrement*index])
-            getState = True
-
-        f.close()
-
-        return mzSlice, getState
-
 
 ##########Begin Ashoka Progress Bar Code....
     def LayoutStatusBar(self):

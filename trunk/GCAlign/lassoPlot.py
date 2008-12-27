@@ -17,6 +17,8 @@ from matplotlib.pyplot import figure, show
 from numpy import nonzero
 from numpy.random import rand
 
+from PyQt4 import QtCore, QtGui
+
 import hcluster as H
 import scipy as S
 
@@ -30,35 +32,57 @@ class Datum:
         else: self.color = self.colorout
 
 
-class LassoManager:
-    def __init__(self, ax, data):
+class LassoManager(QtCore.QObject):#the QObject subclass is used so you can emit a signal
+#    def __init__(self):
+    def __init__(self, data, ax = None, main = None, parent = None):
+        QtCore.QObject.__init__(self, parent)
+        self.ind = None
+        self.selectPoints = None
+        self.setupOk = False
+
+
+
+#    def setup(self, ax, data):
         self.ax = ax
         self.canvas = self.ax.figure.canvas
         self.data = data
         #the lasso lock boolean is used to tell whether another
         #widget event has priority
         self.lassoLock = False
-#        self.ax.plot(data[:,0],data[:,1], 'ro')
+
 
         self.releaseOK = False
         self.Nxy = data.shape[0]
-#
-#        facecolors = [d.color for d in data]
+
         self.xys = [(d[0], d[1]) for d in data]
-#        print self.xys
-#        fig = ax.figure
-#        self.collection = RegularPolyCollection(
-#            fig.dpi, 6, sizes=(100,),
-#            facecolors=facecolors,
-#            offsets = self.xys,
-#            transOffset = ax.transData)
-#
-#        ax.add_collection(self.collection)
 
         self.cid = self.canvas.mpl_connect('button_press_event', self.onpress)
         self.cidRelease = self.canvas.mpl_connect('button_release_event', self.onrelease)
 
-        self.ind = None
+        self.setupOk = True
+
+    def update(self, data, ax):
+        print "update"
+        try:
+            self.canvas.mpl_disconnect(self.cid)#
+            self.canvas.mpl_disconnect(self.cidRelease)#'button_release_event', self.onrelease)
+        except:
+            print "error removing axis connect"
+        self.ax = ax
+        self.canvas = self.ax.figure.canvas
+        self.data = data
+        #the lasso lock boolean is used to tell whether another
+        #widget event has priority
+        self.lassoLock = False
+
+
+        self.releaseOK = False
+        self.Nxy = data.shape[0]
+
+        self.xys = [(d[0], d[1]) for d in data]
+
+        self.cid = self.canvas.mpl_connect('button_press_event', self.onpress)
+        self.cidRelease = self.canvas.mpl_connect('button_release_event', self.onrelease)
 
     def callback(self, verts):
         '''
@@ -95,7 +119,7 @@ class LassoManager:
 
     def onrelease(self, event = None):
         'on release we reset the press data'
-        print 'release'
+#        print 'release'
         self.releaseOK = True
         # test whether the widgetlock was initiated by the lasso
         if self.lassoLock:
@@ -107,14 +131,15 @@ class LassoManager:
 #                print "self.ind, self.data ",self.ind, self.data[self.ind[0]]
 #            else:
 #                print "self.ind ", self.ind
-            selectPoints = self.data[self.ind]
+            self.selectPoints = self.data[self.ind]
+            self.emit(QtCore.SIGNAL("LassoUpdate(PyQt_PyObject)"),self.selectPoints)
     #        print selectPoint
-            try:
-                self.selected.remove()
-            except:
-                print "No selection to remove."
-                pass
-            self.selected, = self.ax.plot(selectPoints[:,0], selectPoints[:,1], 'bo', alpha = 0.5)
+#            try:
+#                self.selected.remove()
+#            except:
+#                print "No selection to remove."
+#                pass
+#            self.selected, = self.ax.plot(self.selectPoints[:,0], self.selectPoints[:,1], 'bo', alpha = 0.5)
 
     def setActive(self, boolState):
         if boolState:
@@ -126,7 +151,6 @@ class LassoManager:
 
 
 if __name__ == '__main__':
-    from PyQt4 import QtGui, QtCore
     from mpl_pyqt4_widget import MPL_Widget
     import sys
     import numpy as N
@@ -142,7 +166,7 @@ if __name__ == '__main__':
 
 #    ax = fig.add_subplot(111, xlim=(0,1), ylim=(0,1), autoscale_on=False)
     ax.plot(data[:,0],data[:,1], 'ro')
-    lman = LassoManager(ax, data)
+    lman = LassoManager(data, ax)
 
     w.show()
     sys.exit(app.exec_())

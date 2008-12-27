@@ -37,14 +37,20 @@ class MyMplCanvas(FigureCanvas):
         FigureCanvas.updateGeometry(self)
         self.setupSub(1)
 
-    def setupSub(self, numSubRows, numSubCols = 1):
+    def setupSub(self, numSubRows, numSubCols = 1, sharex = False, sharey = False):
         self.fig.clf()
         for m in range(1,numSubRows+1):
             for n in range(1,numSubCols+1):
                 axName = 'ax%s'%m
                 axLoc = 100*numSubRows+10*n+m
                 #print axLoc
-                self.axDict[axName] = self.fig.add_subplot(axLoc)#, sharex = self.sharex, sharey = self.sharey)
+                if sharex:
+                    if m>1:
+                        self.axDict[axName] = self.fig.add_subplot(axLoc, sharex = self.axDict['ax%s'%(m-1)])
+                    else:
+                        self.axDict[axName] = self.fig.add_subplot(axLoc)#, sharex = self.sharex, sharey = self.sharey)
+                else:
+                    self.axDict[axName] = self.fig.add_subplot(axLoc)#, sharex = self.sharex, sharey = self.sharey)
 
         self.figInit = True
 
