@@ -391,24 +391,25 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         based upon the intensity too?
         Also, how best to select the 2nd round of the EPS filter?
         '''
+        self.clustType = []
         XY = Z[:,0:2]
         if self.dbAutoCalcCB.isChecked():
             self.densityCluster, self.Type, self.Eps, self.dbScanOK = dbscan(XY, 1,\
                                                                              distMethod = PCT.distTypeDist[str(self.distMethodCB.currentText())])
+            print "1st Round",self.Eps#, self.clustLoc2D.shape
 
             singlesIndex = N.where(self.Type == -1)[0]#these are the indices that have 1 member per cluster
             self.clustNum = 0#i = 0
             self.clustDict = {}
             for point in singlesIndex:
+                self.clustType.append(self.clustNum)
                 self.clustDict['%s'%self.clustNum] = [XY[point],XY[point]]
                 self.clustNum += 1
 
-#            self.clustLoc2D = XY[singlesIndex]
-            print "1st Round",self.Eps#, self.clustLoc2D.shape
-#            singles = X[singlesIndex]
+
             filtered = N.zeros((1,3))
             i = self.densityCluster.max()
-            for m in xrange(int(i)+1):#double check that adding one is ok?
+            for m in xrange(0,int(i)+1):#double check that adding one is ok?
                 ind = N.where(m == self.densityCluster)[0]
 #                temp = XY[ind]
                 temp = Z[ind]#this includes the intensity
@@ -426,7 +427,13 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
             self.densityCluster, self.Type, self.Eps, self.dbScanOK = dbscan(filtered[:,0:2], 1, Eps = N.sqrt(self.Eps)*2,\
                                                                              distMethod = PCT.distTypeDist[str(self.distMethodCB.currentText())])
             print "2nd Round",self.Eps#, self.clustLoc2D.shape
-#            self.clustLoc2D = N.zeros((1,2))
+
+            singlesIndex = N.where(self.Type == -1)[0]#these are the indices that have 1 member per cluster
+            for point in singlesIndex:
+                self.clustType.append(self.clustNum)
+                self.clustDict['%s'%self.clustNum] = [XY[point],XY[point]]
+                self.clustNum += 1
+
             for m in xrange(int(i)+1):
 #                if self.colorIndex%len(COLORS) == 0:
 #                    self.colorIndex = 0
@@ -439,12 +446,12 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
                     centroid.shape = (1,2)
     #                print centroid, centroid.shape
 #                    self.clustLoc2D = N.append(self.clustLoc2D,centroid, axis = 0)
+                    tempType = N.arange(len(temp))
+                    tempType.fill(self.clustNum)
+                    self.clustType.append(tempType)
                     self.clustDict['%s'%self.clustNum] = [centroid[0],temp]
                     self.clustNum += 1
-#                        self.imageAxis.plot(temp[:,0],temp[:,1],'s', alpha = 0.6, ms = 4, color = curColor)
-#            print len(self.clustDict), len(self.clustLoc2D)
-#            for loc in self.clustDict.itervalues():
-#                print loc
+
             self.clustLoc2D = N.zeros((1,2))
             for loc in self.clustDict.itervalues():
                 x = loc[0]
@@ -452,6 +459,8 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
                 self.clustLoc2D = N.append(self.clustLoc2D,x, axis = 0)
 
 #            print self.clustDict.values()[:,0]
+            self.clustType = N.array(SF.flattenX(self.clustType))
+            print len(self.clustType), len(self.peakLoc2D[0])
 
 
         else:
@@ -464,16 +473,10 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
                                                           distMethod = PCT.distTypeDist[str(self.distMethodCB.currentText())])
         singlesIndex = N.where(tempType == -1)[0]#these are the indices that have 1 member per cluster
         for point in singlesIndex:
+            self.clustType.append(self.clustNum)
             self.clustDict['%s'%self.clustNum] = [XY[point],XY[point]]
             self.clustNum += 1
 
-#        singles = XY[singlesIndex]
-#        print "singles",singles.shape, " Z", Z.shape
-#        if self.clustLoc2D != None:
-#            self.clustLoc2D = N.append(self.clustLoc2D, singles, axis = 0)
-#        else:
-#            self.clustLoc2D = N.zeros((1,2))
-#        singles = X[singlesIndex]
         i = tempCluster.max()
         for m in xrange(int(i)+1):#double check that adding one is ok?
             ind = N.where(m == tempCluster)[0]
@@ -489,6 +492,9 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
                 centroid.shape = (1,2)
 #                print centroid.shape, self.clustLoc2D.shape
 #                self.clustLoc2D = N.append(self.clustLoc2D, centroid, axis = 0)
+                tempType = N.arange(len(temp))
+                tempType.fill(self.clustNum)
+                self.clustType.append(tempType)
                 self.clustDict['%s'%self.clustNum] = [centroid[0],temp]#j is the place keeper from the loop above
                 self.clustNum += 1
 
