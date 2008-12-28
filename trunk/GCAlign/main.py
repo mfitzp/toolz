@@ -375,52 +375,43 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
             self.clustLoc2D = self.PCT.peakCentroids
             self.autoscale_plot()
 
-    def iterDBSCAN(self, X):
-        tempCluster, tempType, typeEps, tempBool = dbscan(X, 1,\
-                                                          distMethod = PCT.distTypeDist[str(self.distMethodCB.currentText())])
-        singlesIndex = N.where(tempType == -1)[0]#these are the indices that have 1 member per cluster
-        singles = X[singlesIndex]
-        print "singles",singles.shape, " X", X.shape
-        if self.clustLoc2D != None:
-            self.clustLoc2D = N.append(self.clustLoc2D, singles, axis = 0)
-        else:
-            self.clustLoc2D = N.zeros((1,2))
-#        singles = X[singlesIndex]
-        i = tempCluster.max()
-        for m in xrange(int(i)+1):#double check that adding one is ok?
-            ind = N.where(m == tempCluster)[0]
-            temp = X[ind]
-            '''
-            if the length of the cluster is bigger than
-            the user defined threshold then the clustering
-            will be done again in order to separate
-            the clusters into finer pieces.
-            '''
-            if len(temp) > 0:
-                centroid = temp.mean(axis = 0)
-                centroid.shape = (1,2)
-                print centroid.shape, self.clustLoc2D.shape
-                self.clustLoc2D = N.append(self.clustLoc2D,centroid, axis = 0)
-
-    def clusterDBSCAN(self, X):
+    def clusterDBSCAN(self, Z):
         '''
+        self.clustNum
+        self.clustDict
+
+        This function actually accepts an array with 3 columns: x,y,z
+        The DBSCAN function can work in 3D, however, the intensity of
+        chromatographic peaks skews the clustering, hence, only the x,y points are
+        used for clustering.  The peak centers, however, are calculated using
+        the intensity values.  This is why the intensity values are passed and
+        not just the x,y values.
+
         Is there a good way to calc the center
         based upon the intensity too?
         Also, how best to select the 2nd round of the EPS filter?
         '''
+        XY = Z[:,0:2]
         if self.dbAutoCalcCB.isChecked():
-            self.densityCluster, self.Type, self.Eps, self.dbScanOK = dbscan(X, 1,\
+            self.densityCluster, self.Type, self.Eps, self.dbScanOK = dbscan(XY, 1,\
                                                                              distMethod = PCT.distTypeDist[str(self.distMethodCB.currentText())])
 
             singlesIndex = N.where(self.Type == -1)[0]#these are the indices that have 1 member per cluster
-            self.clustLoc2D = X[singlesIndex]
-            print "1st Round",self.Eps, self.clustLoc2D.shape
+            self.clustNum = 0#i = 0
+            self.clustDict = {}
+            for point in singlesIndex:
+                self.clustDict['%s'%self.clustNum] = [XY[point],XY[point]]
+                self.clustNum += 1
+
+#            self.clustLoc2D = XY[singlesIndex]
+            print "1st Round",self.Eps#, self.clustLoc2D.shape
 #            singles = X[singlesIndex]
-            filtered = N.zeros((1,2))
+            filtered = N.zeros((1,3))
             i = self.densityCluster.max()
             for m in xrange(int(i)+1):#double check that adding one is ok?
                 ind = N.where(m == self.densityCluster)[0]
-                temp = X[ind]
+#                temp = XY[ind]
+                temp = Z[ind]#this includes the intensity
                 '''
                 if the length of the cluster is bigger than
                 the user defined threshold then the clustering
@@ -432,9 +423,9 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
                 else:
                     self.iterDBSCAN(temp)#tempCluster, tempType, typeEps, tempBool = dbscan(temp)
 
-            self.densityCluster, self.Type, self.Eps, self.dbScanOK = dbscan(filtered, 1, Eps = N.sqrt(self.Eps)*2,\
+            self.densityCluster, self.Type, self.Eps, self.dbScanOK = dbscan(filtered[:,0:2], 1, Eps = N.sqrt(self.Eps)*2,\
                                                                              distMethod = PCT.distTypeDist[str(self.distMethodCB.currentText())])
-            print "2nd Round",self.Eps, self.clustLoc2D.shape
+            print "2nd Round",self.Eps#, self.clustLoc2D.shape
 #            self.clustLoc2D = N.zeros((1,2))
             for m in xrange(int(i)+1):
 #                if self.colorIndex%len(COLORS) == 0:
@@ -442,23 +433,72 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
 #                curColor = COLORS[self.colorIndex]
 #                self.colorIndex +=1
                 ind = N.where(m == self.densityCluster)[0]
-                temp = filtered[ind]
+                temp = filtered[:,0:2][ind]
                 if len(temp)>0:
                     centroid = temp.mean(axis = 0)
                     centroid.shape = (1,2)
     #                print centroid, centroid.shape
-                    self.clustLoc2D = N.append(self.clustLoc2D,centroid, axis = 0)
+#                    self.clustLoc2D = N.append(self.clustLoc2D,centroid, axis = 0)
+                    self.clustDict['%s'%self.clustNum] = [centroid[0],temp]
+                    self.clustNum += 1
 #                        self.imageAxis.plot(temp[:,0],temp[:,1],'s', alpha = 0.6, ms = 4, color = curColor)
+#            print len(self.clustDict), len(self.clustLoc2D)
+#            for loc in self.clustDict.itervalues():
+#                print loc
+            self.clustLoc2D = N.zeros((1,2))
+            for loc in self.clustDict.itervalues():
+                x = loc[0]
+                x.shape = (1,2)
+                self.clustLoc2D = N.append(self.clustLoc2D,x, axis = 0)
+
+#            print self.clustDict.values()[:,0]
+
 
         else:
-            self.densityCluster, self.Type, self.Eps, self.dbScanOK = dbscan(X, 1, Eps = self.densityDistThreshSB.value(),\
+            self.densityCluster, self.Type, self.Eps, self.dbScanOK = dbscan(Z[:,0:2], 1, Eps = self.densityDistThreshSB.value(),\
                                                                              distMethod = PCT.distTypeDist[str(self.distMethodCB.currentText())])
+
+    def iterDBSCAN(self, Z):
+        XY = Z[:,0:2]
+        tempCluster, tempType, typeEps, tempBool = dbscan(XY, 1,\
+                                                          distMethod = PCT.distTypeDist[str(self.distMethodCB.currentText())])
+        singlesIndex = N.where(tempType == -1)[0]#these are the indices that have 1 member per cluster
+        for point in singlesIndex:
+            self.clustDict['%s'%self.clustNum] = [XY[point],XY[point]]
+            self.clustNum += 1
+
+#        singles = XY[singlesIndex]
+#        print "singles",singles.shape, " Z", Z.shape
+#        if self.clustLoc2D != None:
+#            self.clustLoc2D = N.append(self.clustLoc2D, singles, axis = 0)
+#        else:
+#            self.clustLoc2D = N.zeros((1,2))
+#        singles = X[singlesIndex]
+        i = tempCluster.max()
+        for m in xrange(int(i)+1):#double check that adding one is ok?
+            ind = N.where(m == tempCluster)[0]
+            temp = XY[ind]
+            '''
+            if the length of the cluster is bigger than
+            the user defined threshold then the clustering
+            will be done again in order to separate
+            the clusters into finer pieces.
+            '''
+            if len(temp) > 0:
+                centroid = temp.mean(axis = 0)
+                centroid.shape = (1,2)
+#                print centroid.shape, self.clustLoc2D.shape
+#                self.clustLoc2D = N.append(self.clustLoc2D, centroid, axis = 0)
+                self.clustDict['%s'%self.clustNum] = [centroid[0],temp]#j is the place keeper from the loop above
+                self.clustNum += 1
+
 
     def clusterPeaks(self):
         if self.peakInfo != None:
             self.peakLoc2D = self.get2DPeakLoc(self.peakInfo['peakLoc'], self.curData.rowPoints,\
                                    self.curData.colPoints, peakIntensity = self.peakInfo['peakInt'])
-            X = N.column_stack((self.peakLoc2D[0], self.peakLoc2D[1]))
+            #we are passing the intensity along so we can calculate the intensity weighted centroid of each cluster
+            X = N.column_stack((self.peakLoc2D[0], self.peakLoc2D[1], self.peakLoc2D[2]))
             self.tabWidget.setCurrentIndex(0)#return to plot tab
             if self.dbScanCB.isChecked():
                 self.clusterDBSCAN(X)
@@ -819,9 +859,9 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
                 if self.clustLoc2D != None:
                     self.clustPlot, = self.imageAxis.plot(self.clustLoc2D[:,0],self.clustLoc2D[:,1],'rs', ms = 4, alpha = 0.7, picker = 5)
 
-#                if self.usrLasso:
-#                    X = N.column_stack((self.peakLoc2D[0], self.peakLoc2D[1]))
-#                    self.imLasso.update(X, self.imageAxis)
+                if self.usrLasso:
+                    X = N.column_stack((self.cur2DPeakLoc[0], self.cur2DPeakLoc[1]))
+                    self.imLasso.update(X, self.imageAxis)
 
                 #remember the image is transposed, so we need to swap the length of the axes
                 self._setImScale_()
@@ -999,6 +1039,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         self.lassoSelected, = self.imageAxis.plot(selectPoints[:,0], selectPoints[:,1], 'bo', alpha = 0.5)
         self._setImScale_()
 
+
     def lassoToggle(self):
         if self.usrLasso:
             self.usrLasso = False
@@ -1010,7 +1051,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
             if self.usrZoom:
                 'need to turn the zooming off'
                 self.zoomToggle()
-            if self.peakLoc2D != None:
+            if self.cur2DPeakLoc != None:
                 X = N.column_stack((self.cur2DPeakLoc[0], self.cur2DPeakLoc[1]))
                 self.imLasso = LM(X, self.imageAxis)
                 QtCore.QObject.connect(self.imLasso,QtCore.SIGNAL("LassoUpdate(PyQt_PyObject)"),self.lassoHandler)
