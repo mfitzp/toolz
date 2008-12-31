@@ -440,10 +440,18 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
 #                curColor = COLORS[self.colorIndex]
 #                self.colorIndex +=1
                 ind = N.where(m == self.densityCluster)[0]
-                temp = filtered[:,0:2][ind]
+#                temp = filtered[:,0:2][ind]
+                temp = filtered[ind]
                 if len(temp)>0:
-                    centroid = temp.mean(axis = 0)
-                    centroid.shape = (1,2)
+
+                    xTemp = temp[:,0]*temp[:,2]
+                    yTemp = temp[:,1]*temp[:,2]
+                    x = xTemp.sum()/(temp[:,2].sum())
+                    y = yTemp.sum()/(temp[:,2].sum())
+
+                    centroid = N.array([[x,y]])
+#                    print centroid, centroid.shape
+#                    centroid.shape = (1,2)
     #                print centroid, centroid.shape
 #                    self.clustLoc2D = N.append(self.clustLoc2D,centroid, axis = 0)
                     tempType = N.arange(len(temp))
@@ -455,6 +463,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
             self.clustLoc2D = N.zeros((1,2))
             for loc in self.clustDict.itervalues():
                 x = loc[0]
+#                print x
                 x.shape = (1,2)
                 self.clustLoc2D = N.append(self.clustLoc2D,x, axis = 0)
 
@@ -480,7 +489,8 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         i = tempCluster.max()
         for m in xrange(int(i)+1):#double check that adding one is ok?
             ind = N.where(m == tempCluster)[0]
-            temp = XY[ind]
+#            temp = XY[ind]
+            temp = Z[ind]
             '''
             if the length of the cluster is bigger than
             the user defined threshold then the clustering
@@ -488,8 +498,17 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
             the clusters into finer pieces.
             '''
             if len(temp) > 0:
-                centroid = temp.mean(axis = 0)
-                centroid.shape = (1,2)
+                xTemp = temp[:,0]*temp[:,2]
+                yTemp = temp[:,1]*temp[:,2]
+#                xTemp /=temp[:,2].sum()
+#                yTemp /=temp[:,2].sum()
+#                    centroid = temp[:,0:2].mean(axis=0)
+#                    centroid *= intTemp
+#                    centroid = temp.mean(axis = 0)
+                x = xTemp.sum()/(temp[:,2].sum())
+                y = yTemp.sum()/(temp[:,2].sum())
+                centroid = N.array([[x,y]])
+#                centroid.shape = (1,2)
 #                print centroid.shape, self.clustLoc2D.shape
 #                self.clustLoc2D = N.append(self.clustLoc2D, centroid, axis = 0)
                 tempType = N.arange(len(temp))
