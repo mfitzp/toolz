@@ -809,7 +809,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
                         if self.clustPicker != None:
                             x = xdata[event.ind[0]]
                             y = ydata[event.ind[0]]
-                            tempKey = '%s'%event.ind[0]
+                            tempKey = '%s'%(event.ind[0]-1)
                             if self.clustDict.has_key(tempKey):
                                 clustMembers = self.clustDict[tempKey][1]
                                 print len(clustMembers), type(clustMembers), type(clustMembers[0]), clustMembers.shape
@@ -823,7 +823,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
                                 self.memPlot, = self.imageAxis.plot(clustMembers[:,0], clustMembers[:,1], 'go', ms = 8, alpha = 0.5)
                                 self._setImScale_()
                             else:
-                                print event.ind[0], " is not a key"
+                                print event.ind[0]-1, " is not a key"
 #                            print x,y
 #                            print x+self.prevImLimits[0], y+self.prevImLimits[1], ' x',self.xLim, ' y',self.yLim#+self.prevImLimits[1]
 #                            print x+self.prevImLimits[0], y+self.prevImLimits[1]
