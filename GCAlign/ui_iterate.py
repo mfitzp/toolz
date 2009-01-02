@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Documents and Settings\d3p483\workspace\GCAlign\iterate.ui'
 #
-# Created: Mon Dec 22 13:18:30 2008
+# Created: Fri Jan 02 09:41:13 2009
 #      by: PyQt4 UI code generator 4.3.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -617,6 +617,7 @@ class Ui_MainWindow(object):
         self.hboxlayout15.setObjectName("hboxlayout15")
 
         self.dbScanCB = QtGui.QCheckBox(self.optionsTab)
+        self.dbScanCB.setChecked(True)
         self.dbScanCB.setObjectName("dbScanCB")
         self.hboxlayout15.addWidget(self.dbScanCB)
 
@@ -732,7 +733,6 @@ class Ui_MainWindow(object):
         self.toolBar.setEnabled(True)
         self.toolBar.setObjectName("toolBar")
         MainWindow.addToolBar(QtCore.Qt.TopToolBarArea,self.toolBar)
-        MainWindow.insertToolBarBreak(self.toolBar)
 
         self.action_Open = QtGui.QAction(MainWindow)
         self.action_Open.setIcon(QtGui.QIcon(":/new/prefix1/icons/fileopen.png"))
@@ -864,7 +864,7 @@ class Ui_MainWindow(object):
         self.denGrpNumThresh.setToolTip(QtGui.QApplication.translate("MainWindow", "Sets the minimum number of peaks in a group \n"
         "for the first pass of clustering.", None, QtGui.QApplication.UnicodeUTF8))
         self.clusterBtn.setText(QtGui.QApplication.translate("MainWindow", "Cluster Peaks", None, QtGui.QApplication.UnicodeUTF8))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.optionsTab), QtGui.QApplication.translate("MainWindow", "Options", None, QtGui.QApplication.UnicodeUTF8))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.optionsTab), QtGui.QApplication.translate("MainWindow", "&Options", None, QtGui.QApplication.UnicodeUTF8))
         self.tabPeakTable.clear()
         self.tabPeakTable.setColumnCount(0)
         self.tabPeakTable.setRowCount(0)

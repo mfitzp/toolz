@@ -584,7 +584,7 @@
       </widget>
       <widget class="QWidget" name="optionsTab" >
        <attribute name="title" >
-        <string>Options</string>
+        <string>&amp;Options</string>
        </attribute>
        <layout class="QGridLayout" >
         <item row="0" column="0" colspan="2" >
@@ -1046,6 +1046,9 @@
               <property name="text" >
                <string>Use DBSCAN Clustering</string>
               </property>
+              <property name="checked" >
+               <bool>true</bool>
+              </property>
              </widget>
             </item>
             <item>
@@ -1250,7 +1253,7 @@ for the first pass of clustering.</string>
     <enum>TopToolBarArea</enum>
    </attribute>
    <attribute name="toolBarBreak" >
-    <bool>true</bool>
+    <bool>false</bool>
    </attribute>
    <addaction name="action_Open" />
    <addaction name="actionSave_Peaks_to_Data_File" />
