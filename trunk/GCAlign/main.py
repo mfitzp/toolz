@@ -115,6 +115,10 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         QtCore.QObject.connect(self.actionSave_2D_Peaks_to_CSV,QtCore.SIGNAL("triggered()"),self.saveRaw2DPeaks2CSV)
         QtCore.QObject.connect(self.actionToggle_Peak_Cross_Hairs,QtCore.SIGNAL("triggered()"),self.toggleImPickers)
 
+        QtCore.QObject.connect(self.actionHierarchical_Method,QtCore.SIGNAL("triggered()"),self.hClusterPeaks)
+        QtCore.QObject.connect(self.actionDensity_Based_Clustering,QtCore.SIGNAL("triggered()"),self.dbClusterPeaks)
+
+
         QtCore.QObject.connect(self.handleActionA, QtCore.SIGNAL("triggered()"),self.toggleCA)#SelectPointsA)
         QtCore.QObject.connect(self.handleActionB, QtCore.SIGNAL("triggered()"),self.toggleCB)#SelectPointsB)
         QtCore.QObject.connect(self.cursorClearAction, QtCore.SIGNAL("triggered()"),self.cursorClear)
@@ -157,8 +161,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
     def setupVars(self):
 
         self.numSpec = 25
-#        self.startIndex = 55000
-#        self.specIncrement = 400
 
         self._curDir = os.getcwd()
 
@@ -192,6 +194,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         self.clustLoc2D = None
         self.peakParams = {} #dictionary of peak parameters
         self.peakArrayNames = ['peakLoc', 'peakInt', 'peakWidth']
+
         ##############################
         self.txtColor = None
         self.colorIndex = 0
@@ -202,6 +205,8 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         ###############################
 
         self.showImPickers = False
+        self.clustPicker = None#these two variables are used for the picker radius
+        self.peakPicker = 5
 
         self.cAPicker = None
         self.cBPicker = None
@@ -228,6 +233,14 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
 
         self.imLasso = None
         self.cur2DPeakLoc = None #used to pass to the lasso manager to allow selection while zooming.
+
+        self.resetRefLimits()
+
+    def resetRefLimits(self):
+        self.xLim = [0,0]
+        self.yLim = [0,0]
+        self.chromLimits = [0,0]
+        self.prevImLimits = [0,0]
 
     def setupGUI(self):
 
@@ -403,7 +416,8 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
             self.clustDict = {}
             for point in singlesIndex:
                 self.clustType.append(self.clustNum)
-                self.clustDict['%s'%self.clustNum] = [XY[point],XY[point]]
+#                self.clustDict['%s%s'%(XY[point][0],XY[point])] = [XY[point],XY[point]]
+                self.clustDict['%s'%self.clustNum] = [XY[point],N.array([XY[point]])]
                 self.clustNum += 1
 
 
@@ -431,7 +445,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
             singlesIndex = N.where(self.Type == -1)[0]#these are the indices that have 1 member per cluster
             for point in singlesIndex:
                 self.clustType.append(self.clustNum)
-                self.clustDict['%s'%self.clustNum] = [XY[point],XY[point]]
+                self.clustDict['%s'%self.clustNum] = [XY[point],N.array([XY[point]])]
                 self.clustNum += 1
 
             for m in xrange(int(i)+1):
@@ -458,18 +472,26 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
                     tempType.fill(self.clustNum)
                     self.clustType.append(tempType)
                     self.clustDict['%s'%self.clustNum] = [centroid[0],temp]
+#                    self.clustDict['%s%s'%(centroid[0][0],centroid[0][1])] = [centroid[0],temp]
                     self.clustNum += 1
 
             self.clustLoc2D = N.zeros((1,2))
-            for loc in self.clustDict.itervalues():
+            self.clustKeys = []
+            for key,loc in self.clustDict.iteritems():
                 x = loc[0]
 #                print x
                 x.shape = (1,2)
                 self.clustLoc2D = N.append(self.clustLoc2D,x, axis = 0)
+                self.clustKeys.append(key)
 
 #            print self.clustDict.values()[:,0]
             self.clustType = N.array(SF.flattenX(self.clustType))
-            print len(self.clustType), len(self.peakLoc2D[0])
+#            print len(self.clustType), len(self.peakLoc2D[0])
+
+#            print len(self.clustKeys), self.clustNum-1
+
+#            for loc in self.clustDict.iteritems():
+#                print loc
 
 
         else:
@@ -483,7 +505,8 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         singlesIndex = N.where(tempType == -1)[0]#these are the indices that have 1 member per cluster
         for point in singlesIndex:
             self.clustType.append(self.clustNum)
-            self.clustDict['%s'%self.clustNum] = [XY[point],XY[point]]
+#            self.clustDict['%s%s'%(XY[point],XY[point])] = [XY[point],XY[point]]
+            self.clustDict['%s'%self.clustNum] = [XY[point],N.array([XY[point]])]
             self.clustNum += 1
 
         i = tempCluster.max()
@@ -514,29 +537,43 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
                 tempType = N.arange(len(temp))
                 tempType.fill(self.clustNum)
                 self.clustType.append(tempType)
+#                self.clustDict['%s%s'%(centroid[0][0],centroid[0][1])] = [centroid[0],temp]
                 self.clustDict['%s'%self.clustNum] = [centroid[0],temp]#j is the place keeper from the loop above
                 self.clustNum += 1
 
+    def dbClusterPeaks(self):
+        if self.dbScanCB.isChecked():
+            self.clusterPeaks()
+        else:
+            self.dbScanCB.nextCheckState()
+            self.clusterPeaks()
+
+    def hClusterPeaks(self):
+        if self.dbScanCB.isChecked():
+            self.dbScanCB.nextCheckState()
+            self.clusterPeaks()
+        else:
+            self.clusterPeaks()
 
     def clusterPeaks(self):
         if self.peakInfo != None:
             self.peakLoc2D = self.get2DPeakLoc(self.peakInfo['peakLoc'], self.curData.rowPoints,\
                                    self.curData.colPoints, peakIntensity = self.peakInfo['peakInt'])
             #we are passing the intensity along so we can calculate the intensity weighted centroid of each cluster
-            X = N.column_stack((self.peakLoc2D[0], self.peakLoc2D[1], self.peakLoc2D[2]))
+            Z = N.column_stack((self.peakLoc2D[0], self.peakLoc2D[1], self.peakLoc2D[2]))
             self.tabWidget.setCurrentIndex(0)#return to plot tab
             if self.dbScanCB.isChecked():
-                self.clusterDBSCAN(X)
+                self.clusterDBSCAN(Z)
 
 
                 self.autoscale_plot()
 
             else:
                 if self.calcThreshCB.isChecked():
-                    self.PCT.initClusterThread(X, plotLinkage = self.showDendroCB.isChecked(), name = self.curData.name,\
+                    self.PCT.initClusterThread(Z[:,0:2], plotLinkage = self.showDendroCB.isChecked(), name = self.curData.name,\
                                                threshType = 'inconsistent', distMethod = PCT.distTypeDist[str(self.distMethodCB.currentText())])
                 else:
-                    self.PCT.initClusterThread(X, plotLinkage = self.showDendroCB.isChecked(), name = self.curData.name,\
+                    self.PCT.initClusterThread(Z[:,0:2], plotLinkage = self.showDendroCB.isChecked(), name = self.curData.name,\
                                                distThresh = self.maxDistThreshSB.value(), threshType = 'distance',\
                                                distMethod = PCT.distTypeDist[str(self.distMethodCB.currentText())])
 
@@ -719,6 +756,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
 
     def addChromPickers(self, minX = 0):
         '''
+        Pickers for the Chromatogram
         minX is provided so that the plot will scale correctly when a data trace is initiated
         Pickers for the 2D image
         '''
@@ -727,15 +765,14 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         self.selectHandleB,  = self.chromAxis.plot([minX], [0], 's',\
                                         ms=8, alpha=.4, color='green', visible=False,  label = '_nolegend_')
     def addImPickers(self, minX = 0):
-        '''Pickers for the Chromatogram'''
+        '''Pickers for the 2D Chromatogram'''
         self.selectCursA,  = self.imageAxis.plot([minX], [0], 'o',\
                                         ms=5, alpha=.7, color='red', visible=self.showImPickers,  label = '_nolegend_')
         self.xLine = self.imageAxis.axvline(x=0, ls = ':', color = 'y', alpha = 0.6, visible = self.showImPickers)
         self.yLine = self.imageAxis.axhline(y=0, ls = ':', color = 'y', alpha = 0.6, visible = self.showImPickers)
-
 #        self.cursText = self.imageAxis.text(0, 0, '0rigin',  fontsize=9)
 
-        self.peakPicker = self.plotWidget.canvas.mpl_connect('pick_event', self.imageClick)
+        self.imPicker = self.plotWidget.canvas.mpl_connect('pick_event', self.imageClick)
 
     def toggleImPickers(self):
         '''we want to toggle the visibility of these items in a group
@@ -769,11 +806,32 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
     #                    self.selectCursA.set_data([event.mouseevent.xdata], [event.mouseevent.ydata])
                         xPnt, yPnt =  int(N.round(event.mouseevent.xdata)), event.mouseevent.ydata
         #                print xPnt, yPnt
+                        if self.clustPicker != None:
+                            x = xdata[event.ind[0]]
+                            y = ydata[event.ind[0]]
+                            tempKey = '%s'%event.ind[0]
+                            if self.clustDict.has_key(tempKey):
+                                clustMembers = self.clustDict[tempKey][1]
+                                print len(clustMembers), type(clustMembers), type(clustMembers[0]), clustMembers.shape
+                                try:
+                                    self.memPlot.remove()
+                                except:
+                                    print "no self.memPlot to remove"
+                                    pass
 
-                        if self.peakInfo != None:
-                            print event.ind[0]
-                            for info in self.peakInfo.itervalues():
-                                print info[event.ind[0]]
+                                clustMembers = clustMembers[:,0:2]
+                                self.memPlot, = self.imageAxis.plot(clustMembers[:,0], clustMembers[:,1], 'go', ms = 8, alpha = 0.5)
+                                self._setImScale_()
+                            else:
+                                print event.ind[0], " is not a key"
+#                            print x,y
+#                            print x+self.prevImLimits[0], y+self.prevImLimits[1], ' x',self.xLim, ' y',self.yLim#+self.prevImLimits[1]
+#                            print x+self.prevImLimits[0], y+self.prevImLimits[1]
+                        else:
+                            if self.peakInfo != None:
+                                print event.ind[0]
+                                for info in self.peakInfo.itervalues():
+                                    print info[event.ind[0]]
 
                         self.xLine.set_xdata([xPnt])
                         self.yLine.set_ydata([yPnt])
@@ -867,6 +925,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         '''
         self.imageAxis.cla()
         self.addImPickers()
+        self.resetRefLimits()
         self.tabWidget.setCurrentIndex(0)
         if self.plotType == 'TIC':
             self.curIm = self.curData.ticLayer
@@ -877,12 +936,20 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         self.curImPlot = self.imageAxis.imshow(self.mainIm, alpha = 1,  aspect = 'auto',\
                                                origin = 'lower',  cmap = my_cmap, label = 'R')
 
+        #the idea here is to make it so only the clustered peaks get picked if present
+        if self.clustLoc2D != None:
+            self.clustPicker = 5
+            self.peakPicker = None
+        else:
+            self.clustPicker = None
+            self.peakPicker = 5
+
         if self.showPickedPeaksCB.isChecked():
             if self.peakInfo != None:
-                self.peakPickPlot1D, = self.chromAxis.plot(self.peakInfo['peakLoc'],self.peakInfo['peakInt'], 'ro', ms = 3, alpha = 0.4, picker = 5)
-                self.peakPickPlot2D, = self.imageAxis.plot(self.cur2DPeakLoc[0],self.cur2DPeakLoc[1],'yo', ms = 3, alpha = 0.4, picker = 5)
+                self.peakPickPlot1D, = self.chromAxis.plot(self.peakInfo['peakLoc'],self.peakInfo['peakInt'], 'ro', ms = 3, alpha = 0.4, picker = self.peakPicker)
+                self.peakPickPlot2D, = self.imageAxis.plot(self.cur2DPeakLoc[0],self.cur2DPeakLoc[1],'yo', ms = 3, alpha = 0.4, picker = self.peakPicker)
                 if self.clustLoc2D != None:
-                    self.clustPlot, = self.imageAxis.plot(self.clustLoc2D[:,0],self.clustLoc2D[:,1],'rs', ms = 4, alpha = 0.7, picker = 5)
+                    self.clustPlot, = self.imageAxis.plot(self.clustLoc2D[:,0],self.clustLoc2D[:,1],'rs', ms = 4, alpha = 0.7, picker = self.clustPicker)
 
                 if self.usrLasso:
                     X = N.column_stack((self.cur2DPeakLoc[0], self.cur2DPeakLoc[1]))
@@ -917,7 +984,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         '''
         This function is perhaps overly complicated but I don't know of a more elegant way to do this.  In essence
         this function takes the limits supplied by the RectangleSelector and replots the data after taking the appropriate
-        subset.  The xLim, yLim, and prevChrom/prevImLimits are used to keep track of the scaling and fancy indexing is used
+        subset.  The xLim, self.yLim, and prevChrom/prevImLimits are used to keep track of the scaling and fancy indexing is used
         to make it appear to the user that they are actually zooming when in fact a new image is plotted each time.
         '''
 #        print event1, event2
@@ -931,19 +998,20 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
                                N.abs(self.prevChromLimits+(dataCoord[1][0]*cols+dataCoord[1][1]))]
                 dataCoord = N.array(dataCoord)
                 chromLimits = N.array(chromLimits)
-                xLim = dataCoord[:,0]
-                yLim = dataCoord[:,1]
-                xLim.sort()
-                yLim.sort()
-                chromLimits.sort()
+                self.xLim = dataCoord[:,0]
+                self.yLim = dataCoord[:,1]
+                self.xLim.sort()
+                self.yLim.sort()
+                self.chromLimits.sort()
+
 
                 #indexing is done as below because the image is transposed.
-                self.curIm = self.curIm[yLim[0]:yLim[1],xLim[0]:xLim[1]]
+                self.curIm = self.curIm[self.yLim[0]:self.yLim[1],self.xLim[0]:self.xLim[1]]
 
                 self.imageAxis.cla()
                 self.addImPickers()
-                self.imageAxis.imshow(self.curIm, alpha = 1,  aspect = 'auto', \
-                                      origin = 'lower',  cmap = my_cmap, label = 'R')
+                self.curImPlot = self.imageAxis.imshow(self.curIm, alpha = 1,  aspect = 'auto', \
+                                                       origin = 'lower',  cmap = my_cmap, label = 'R')
                 x1 = chromLimits[0]
                 x2 = chromLimits[1]
                 self.chromAxis.set_xlim(x1,x2)
@@ -954,29 +1022,25 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
 
                 #####2D Peak Locations#####
                 if self.clustLoc2D != None:
-                    self.imageAxis.plot(self.clustLoc2D[:,0]-xLim[0]-self.prevImLimits[0],\
-                                        self.clustLoc2D[:,1]-yLim[0]-self.prevImLimits[1],\
-                                        'rs', ms = 4, alpha = 0.6, picker = 5)
+                    self.clustPlot, =self.imageAxis.plot(self.clustLoc2D[:,0]-self.xLim[0]-self.prevImLimits[0],\
+                                                         self.clustLoc2D[:,1]-self.yLim[0]-self.prevImLimits[1],\
+                                                         'rs', ms = 4, alpha = 0.6, picker = self.clustPicker)
 
-                #self.plotDBSCAN((-xLim[0]-self.prevImLimits[0]), (-yLim[0]-self.prevImLimits[1]), ms = 5)
+                #self.plotDBSCAN((-self.xLim[0]-self.prevImLimits[0]), (-self.yLim[0]-self.prevImLimits[1]), ms = 5)
 
                 if self.peakInfo != None:
                     tempPeaks = self.peakInfo['peakLoc']
                     rangeCrit = (tempPeaks >= x1) & (tempPeaks <= x2) #criterion for selection
                     tempPeakInd = N.where(rangeCrit) #peak indicies
                     self.cur2DPeakLoc = self.get2DPeakLoc(self.peakInfo['peakLoc'][tempPeakInd], self.curData.rowPoints, self.curData.colPoints)
-                    self.cur2DPeakLoc[0] -= xLim[0]
+                    self.cur2DPeakLoc[0] -= self.xLim[0]
                     self.cur2DPeakLoc[0] -= self.prevImLimits[0]
-                    self.cur2DPeakLoc[1] -= yLim[0]
+                    self.cur2DPeakLoc[1] -= self.yLim[0]
                     self.cur2DPeakLoc[1] -= self.prevImLimits[1]
 
-                    self.imageAxis.plot(self.cur2DPeakLoc[0],\
-                                        self.cur2DPeakLoc[1],\
-                                        'yo', ms = 3, alpha = 0.6, picker = 5)
-
-#                    self.imageAxis.plot(tempPeakLoc2D[0]-xLim[0]-self.prevImLimits[0],\
-#                                        tempPeakLoc2D[1]-yLim[0]-self.prevImLimits[1],\
-#                                        'yo', ms = 3, alpha = 0.6, picker = 5)
+                    self.peakPickPlot2D, = self.imageAxis.plot(self.cur2DPeakLoc[0],\
+                                                               self.cur2DPeakLoc[1],\
+                                                               'yo', ms = 3, alpha = 0.6, picker = self.peakPicker)
 
                     #lasso handler:
 #                    if self.usrLasso:
@@ -988,13 +1052,15 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
 
                 xLen = len(self.imageAxis.get_xticklabels())
                 yLen = len(self.imageAxis.get_yticklabels())
-                x = N.arange(xLim[0]+self.prevImLimits[0], xLim[1]+self.prevImLimits[0], int(((xLim[1]-xLim[0])/xLen)))
-                y = N.arange(yLim[0]+self.prevImLimits[1], yLim[1]+self.prevImLimits[1], int(((yLim[1]-yLim[0])/yLen)))
+                xIncr = (self.xLim[1]-self.xLim[0])/(xLen-1)
+                yIncr = (self.yLim[1]-self.yLim[0])/(yLen-2)
+                x = N.arange(self.xLim[0]+self.prevImLimits[0], self.xLim[1]+self.prevImLimits[0]+xIncr, xIncr)
+                y = N.arange(self.yLim[0]+self.prevImLimits[1], self.yLim[1]+self.prevImLimits[1]+yIncr, yIncr)
                 self.imageAxis.set_xticklabels(x)
                 self.imageAxis.set_yticklabels(y)
 
                 #used for the next zooming event
-                self.prevImLimits = [xLim[0]+self.prevImLimits[0],yLim[0]+self.prevImLimits[1]]
+                self.prevImLimits = [self.xLim[0]+self.prevImLimits[0],self.yLim[0]+self.prevImLimits[1]]
 
                 self._drawCanvases_()
     #            else:
@@ -1006,6 +1072,9 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
 ##########Peak Finding Routines######################
 
     def findChromPeaks(self):
+
+        self.autoscale_plot()
+
         self.peakParams['numSegs'] = self.numSegsSB.value() #should be an integer
         self.peakParams['minSNR'] = self.minSNRSB.value() #should be an integer
         self.peakParams['smthKern'] = self.smthKernSB.value() #should be an integer
@@ -1039,7 +1108,10 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
             if self.peakPickPlot1D != None:
                 self.peakPickPlot1D.remove()
             if self.clustPlot != None:
-                self.clustPlot.remove()
+                try:
+                    self.clustPlot.remove()
+                except:
+                    print "No clustPlot to remove:"
             if self.showPickedPeaksCB.isChecked():
                 self.peakLoc2D = self.get2DPeakLoc(self.peakInfo['peakLoc'], self.curData.rowPoints, self.curData.colPoints)
 
@@ -1051,8 +1123,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
             self.setupTable()
         else:
             return QtGui.QMessageBox.warning(self, "Peak Find Thread Error",  "The thread did not finish or return a value properly--contact Clowers...")
-
-
 
     def lassoHandler(self, selectPoints):
         print selectPoints

@@ -78,43 +78,45 @@ class CustomTable(QTableWidget):
         tw_menu.exec_(self.mapToGlobal(point))
 
     def addData(self, data, startrow=None,  startcol = None):
+        if data != None:
+            if (len(data[0])) >= self.columnCount():
+                self.setColumnCount(len(data[0]))
+            if (len(data)) >= self.rowCount():
+                self.setRowCount(len(data))
 
-        if (len(data[0])) >= self.columnCount():
-            self.setColumnCount(len(data[0]))
-        if (len(data)) >= self.rowCount():
-            self.setRowCount(len(data))
+            if startcol:
+                sc = startcol#start column
+            else:
+                sc = 0 # n is for columns
+            if startrow:
+                sr = startrow
+            else:
+                sr = 0
 
-        if startcol:
-            sc = startcol#start column
+            m = sr
+            #print "Row, Col Commit:", sr, n
+            if type(data) is N.ndarray:
+                for row in data:
+                    n = sc
+                    for item in row:
+                        #print repr(str(item))
+                        newitem = QTableWidgetItem(0)#'%.3f'%item)
+                        newitem.setData(0,QVariant(item))
+                        self.setItem(m,  n,  newitem)
+                        n+=1
+                    m+=1
+    #            print type(item)
+            else:
+                for row in data:
+                    n = sc
+                    for item in row:
+                        #print repr(str(item))
+                        newitem = QTableWidgetItem(item)
+                        self.setItem(m,  n,  newitem)
+                        n+=1
+                    m+=1
         else:
-            sc = 0 # n is for columns
-        if startrow:
-            sr = startrow
-        else:
-            sr = 0
-
-        m = sr
-        #print "Row, Col Commit:", sr, n
-        if type(data) is N.ndarray:
-            for row in data:
-                n = sc
-                for item in row:
-                    #print repr(str(item))
-                    newitem = QTableWidgetItem(0)#'%.3f'%item)
-                    newitem.setData(0,QVariant(item))
-                    self.setItem(m,  n,  newitem)
-                    n+=1
-                m+=1
-#            print type(item)
-        else:
-            for row in data:
-                n = sc
-                for item in row:
-                    #print repr(str(item))
-                    newitem = QTableWidgetItem(item)
-                    self.setItem(m,  n,  newitem)
-                    n+=1
-                m+=1
+            print "Error adding entry to table, there is no data!!!"
 
 
 
