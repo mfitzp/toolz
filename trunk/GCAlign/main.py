@@ -412,7 +412,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
             print "1st Round",self.Eps#, self.clustLoc2D.shape
 
             singlesIndex = N.where(self.Type == -1)[0]#these are the indices that have 1 member per cluster
-            self.clustNum = 0#i = 0
+            self.clustNum = 1#i = 0
             self.clustDict = {}
             for point in singlesIndex:
                 self.clustType.append(self.clustNum)
@@ -476,8 +476,10 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
                     self.clustNum += 1
 
             self.clustLoc2D = N.zeros((1,2))
-            self.clustKeys = []
-            for key,loc in self.clustDict.iteritems():
+            self.clustKeys = ['0']
+            for item in self.clustDict.iteritems():
+                key = item[0]
+                loc = item[1]
                 x = loc[0]
 #                print x
                 x.shape = (1,2)
@@ -809,10 +811,21 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
                         if self.clustPicker != None:
                             x = xdata[event.ind[0]]
                             y = ydata[event.ind[0]]
-                            tempKey = '%s'%(event.ind[0]-1)
+                            tempKey = self.clustKeys[event.ind[0]]
                             if self.clustDict.has_key(tempKey):
-                                clustMembers = self.clustDict[tempKey][1]
-                                print len(clustMembers), type(clustMembers), type(clustMembers[0]), clustMembers.shape
+                                item = self.clustDict[tempKey]
+                                clustMembers = item[1]#self.clustDict[tempKey][1]
+#                                center = item[0]
+##                                print center, clustMembers[0]
+#                                i = 0
+#                                for elem in self.clustDict.iteritems():
+#                                    key = elem[0]
+#                                    val = elem[1]
+#                                    print 'intKey ',xdata[int(key)], ydata[int(key)], 'ind[0] ', x,y, key, event.ind[0], val[0]
+#                                    i+=1
+#                                    if x == val[1][0][0]:
+#                                        print "Match: ",key, event.ind[0]
+#                                print len(clustMembers), type(clustMembers), type(clustMembers[0]), clustMembers.shape
                                 try:
                                     self.memPlot.remove()
                                 except:
@@ -823,7 +836,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
                                 self.memPlot, = self.imageAxis.plot(clustMembers[:,0], clustMembers[:,1], 'go', ms = 8, alpha = 0.5)
                                 self._setImScale_()
                             else:
-                                print event.ind[0]-1, " is not a key"
+                                print event.ind[0], " is not a key"
 #                            print x,y
 #                            print x+self.prevImLimits[0], y+self.prevImLimits[1], ' x',self.xLim, ' y',self.yLim#+self.prevImLimits[1]
 #                            print x+self.prevImLimits[0], y+self.prevImLimits[1]
