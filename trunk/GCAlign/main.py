@@ -276,6 +276,54 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         self.addImPickers()
 #        self.setupTable()
 
+    def setupTable2(self):
+        self.tabPeakTable_2.clear()
+        #need to disable sorting as it corrupts data addition
+        self.tabPeakTable_2.setSortingEnabled(False)
+        header = ['Index', 'Centroid', '# Peaks','Members']
+#        simpleIndex = N.arange(len(self.peakInfo['peakLoc']))
+        i = 0
+        keys=[]
+        centroid = []
+        numPeaks = []
+        peakVals = []
+        for item in self.clustDict.iteritems():
+            entry = []
+            entry.append(int(item[0]))
+            entry.append(str(item[1][0][0]))
+            nums = len(item[1][1][:,0])
+#            print item[0]
+#            print nums, type(item[1]), type(item[1][0]), type(item[1][1]), item[1]
+            entry.append(nums)
+            entry.append(str(item[1][1].tolist()))
+            peakVals.append(entry)
+#            keys.append(item[0])
+#            centroid.append(str(item[1][0][0]))
+#            numPeaks.append(len(item[1][1:]))
+            i+=1
+
+#            if i == 0:
+#
+#                peakVals = item[1]
+#            else:
+#                peakVals = N.column_stack((peakVals,item[1]))
+#            i+=1
+##        peakVals = self.peakInfo.values()
+#        peakVals = N.array(peakVals)
+#        peakVals.transpose()
+#        peakVals = []
+#        peakVals.append(keys)
+#        peakVals.append(centroid)
+#        peakVals.append(numPeaks)
+        self.tabPeakTable_2.addData(peakVals)
+#        tm = MyTableModel(peakVals, header, self)
+#        self.tabPeakTable.setModel(tm)
+#        self.tabPeakTable.resizeColumnsToContents()
+#        self.tabPeakTable.verticalHeader()
+##        vh.setVisible(False)
+        self.tabPeakTable_2.setHorizontalHeaderLabels(header)
+        self.tabPeakTable_2.setSortingEnabled(True)
+
 
     def setupTable(self):
         self.tabPeakTable.clear()
@@ -418,13 +466,14 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
                 self.clustType.append(self.clustNum)
 #                self.clustDict['%s%s'%(XY[point][0],XY[point])] = [XY[point],XY[point]]
                 self.clustDict['%s'%self.clustNum] = [XY[point],N.array([XY[point]])]
+#                print self.clustNum, XY[point]
                 self.clustNum += 1
 
 
-            filtered = N.zeros((1,3))
+#            filtered = N.zeros((1,3))
             i = self.densityCluster.max()
-            for m in xrange(0,int(i)+1):#double check that adding one is ok?
-                ind = N.where(m == self.densityCluster)[0]
+            for m in xrange(1,int(i)+1):#double check that adding one is ok?
+                ind = N.where(m == self.densityCluster)[0]#zero is used because a list is returned
 #                temp = XY[ind]
                 temp = Z[ind]#this includes the intensity
                 '''
@@ -434,21 +483,28 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
                 the clusters into finer pieces.
                 '''
                 if len(temp)<self.denGrpNumThresh.value():#need to add value from GUI
-                    filtered = N.append(filtered,temp, axis = 0)
+                    if m == 1:
+                        filtered = temp
+                    else:
+                        filtered = N.append(filtered,temp, axis = 0)
                 else:
                     self.iterDBSCAN(temp)#tempCluster, tempType, typeEps, tempBool = dbscan(temp)
 
-            self.densityCluster, self.Type, self.Eps, self.dbScanOK = dbscan(filtered[:,0:2], 1, Eps = N.sqrt(self.Eps)*2,\
+            fXY = filtered[:,0:2]
+            self.densityCluster, self.Type, self.Eps, self.dbScanOK = dbscan(fXY, 1, Eps = N.sqrt(self.Eps)*2,\
                                                                              distMethod = PCT.distTypeDist[str(self.distMethodCB.currentText())])
             print "2nd Round",self.Eps#, self.clustLoc2D.shape
 
             singlesIndex = N.where(self.Type == -1)[0]#these are the indices that have 1 member per cluster
+
             for point in singlesIndex:
                 self.clustType.append(self.clustNum)
-                self.clustDict['%s'%self.clustNum] = [XY[point],N.array([XY[point]])]
+#                self.clustDict['%s'%self.clustNum] = [XY[point],N.array([XY[point]])]
+                self.clustDict['%s'%self.clustNum] = [fXY[point],N.array([fXY[point]])]
+#                print self.clustNum, XY[point]
                 self.clustNum += 1
 
-            for m in xrange(int(i)+1):
+            for m in xrange(1,int(i)+1):
 #                if self.colorIndex%len(COLORS) == 0:
 #                    self.colorIndex = 0
 #                curColor = COLORS[self.colorIndex]
@@ -472,6 +528,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
                     tempType.fill(self.clustNum)
                     self.clustType.append(tempType)
                     self.clustDict['%s'%self.clustNum] = [centroid[0],temp]
+#                    print self.clustNum, temp
 #                    self.clustDict['%s%s'%(centroid[0][0],centroid[0][1])] = [centroid[0],temp]
                     self.clustNum += 1
 
@@ -488,6 +545,15 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
 
 #            print self.clustDict.values()[:,0]
             self.clustType = N.array(SF.flattenX(self.clustType))
+
+            print len(self.clustDict.keys()), len(self.peakLoc2D[0]), len(self.clustType)
+            i = 0
+#            for point in XY:
+#                print point, self.clustType[i]
+#                i+=1
+
+            if len(self.clustDict) > 0:
+                self.setupTable2()
 #            print len(self.clustType), len(self.peakLoc2D[0])
 
 #            print len(self.clustKeys), self.clustNum-1
@@ -509,10 +575,11 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
             self.clustType.append(self.clustNum)
 #            self.clustDict['%s%s'%(XY[point],XY[point])] = [XY[point],XY[point]]
             self.clustDict['%s'%self.clustNum] = [XY[point],N.array([XY[point]])]
+#            print self.clustNum, XY[point]
             self.clustNum += 1
 
         i = tempCluster.max()
-        for m in xrange(int(i)+1):#double check that adding one is ok?
+        for m in xrange(1,int(i)+1):#double check that adding one is ok?
             ind = N.where(m == tempCluster)[0]
 #            temp = XY[ind]
             temp = Z[ind]
@@ -541,6 +608,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
                 self.clustType.append(tempType)
 #                self.clustDict['%s%s'%(centroid[0][0],centroid[0][1])] = [centroid[0],temp]
                 self.clustDict['%s'%self.clustNum] = [centroid[0],temp]#j is the place keeper from the loop above
+#                print self.clustNum, temp
                 self.clustNum += 1
 
     def dbClusterPeaks(self):
@@ -829,7 +897,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
                                 try:
                                     self.memPlot.remove()
                                 except:
-                                    print "no self.memPlot to remove"
+#                                    print "no self.memPlot to remove"
                                     pass
 
                                 clustMembers = clustMembers[:,0:2]
@@ -842,7 +910,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
 #                            print x+self.prevImLimits[0], y+self.prevImLimits[1]
                         else:
                             if self.peakInfo != None:
-                                print event.ind[0]
+                                print event.ind[0], xdata[event.ind[0]], ydata[event.ind[0]]
                                 for info in self.peakInfo.itervalues():
                                     print info[event.ind[0]]
 
