@@ -111,10 +111,19 @@ class CustomTable(QTableWidget):
                     n = sc
                     for item in row:
                         #print repr(str(item))
-                        newitem = QTableWidgetItem(item)
+                        newitem = QTableWidgetItem(0)#'%.3f'%item)
+                        newitem.setData(0,QVariant(item))
                         self.setItem(m,  n,  newitem)
                         n+=1
                     m+=1
+#                for row in data:
+#                    n = sc
+#                    for item in row:
+#                        #print repr(str(item))
+#                        newitem = QTableWidgetItem(item)
+#                        self.setItem(m,  n,  newitem)
+#                        n+=1
+#                    m+=1
         else:
             print "Error adding entry to table, there is no data!!!"
 
