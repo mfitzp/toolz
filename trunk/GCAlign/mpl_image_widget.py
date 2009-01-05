@@ -1,6 +1,8 @@
 #!/usr/bin/env python
+import sys
+import os
 from PyQt4 import QtCore,  QtGui
-#from PyQt4.QtGui import *
+
 
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt4 import NavigationToolbar2QT as NavigationToolbar
@@ -89,7 +91,7 @@ class MyMplCanvas(FigureCanvas):
 
 
 class MyNavigationToolbar(NavigationToolbar) :
-    def __init__(self , parent , canvas , direction = 'h' ) :
+    def __init__(self , parent, canvas ,direction = 'h') :
         #NavigationToolbar.__init__(self,parent,canvas)
         #self.layout = QVBoxLayout( self )
 
@@ -132,8 +134,18 @@ class MPL_Image_Widget(QtGui.QWidget):
 #
 
 
-#        ############### Add Actions ################
-#
+        ############### Add Actions ################
+        ###########SAVING FIGURE TO CLIPBOARD##########
+        self.cb = None #will be used for the clipboard
+        self.tempPath = getHomeDir()
+        self.tempPath = os.path.join(self.tempPath,'tempMPL.png')
+
+        self.mpl2ClipAction = QtGui.QAction("Save to Clipboard",  self)
+        self.mpl2ClipAction.setShortcut("Ctrl+Shift+C")
+        self.addAction(self.mpl2ClipAction)
+        QtCore.QObject.connect(self.mpl2ClipAction,QtCore.SIGNAL("triggered()"), self.mpl2Clip)
+
+
 
 #
 #        self.actionAutoScale = QtGui.QAction("AutoScale",  self)#self.MainWindow)
@@ -178,14 +190,58 @@ class MPL_Image_Widget(QtGui.QWidget):
 #        if self.hZoom:
 #            self.canvas.ax.set_ylim(ymax = self.localYMax)
 #            self.canvas.ax.set_xlim(xmin,  xmax)
+    def mpl2Clip(self):
+        try:
+            self.canvas.fig.savefig(self.tempPath)
+            tempImg = QtGui.QImage(self.tempPath)
+            self.cb = QtGui.QApplication.clipboard()
+            self.cb.setImage(tempImg)
+        except:
+            print 'Error copying figure to clipboard'
+            errorMsg = "Sorry: %s\n\n:%s\n"%(sys.exc_type, sys.exc_value)
+            print errorMsg
+#        savefig(fname, dpi=None, facecolor='w', edgecolor='w',
+#        orientation='portrait', papertype=None, format=None,
+#        transparent=False):
+
+####USED TO GET THE USERS HOME DIRECTORY FOR USE OF A TEMP FILE
+
+def valid(path):
+    if path and os.path.isdir(path):
+        return True
+    return False
+
+def env(name):
+    return os.environ.get( name, '' )
+
+def getHomeDir():
+    if sys.platform != 'win32':
+        return os.path.expanduser( '~' )
+
+    homeDir = env( 'USERPROFILE' )
+    if not valid(homeDir):
+        homeDir = env( 'HOME' )
+        if not valid(homeDir) :
+            homeDir = '%s%s' % (env('HOMEDRIVE'),env('HOMEPATH'))
+            if not valid(homeDir) :
+                homeDir = env( 'SYSTEMDRIVE' )
+                if homeDir and (not homeDir.endswith('\\')) :
+                    homeDir += '\\'
+                if not valid(homeDir) :
+                    homeDir = 'C:\\'
+    return homeDir
+
+
 
 def main():
     import sys
     app = QtGui.QApplication(sys.argv)
-    w = MPL_Widget()
+    w = MPL_Image_Widget()
+    w.canvas.setupSub(1)
+    ax1 = w.canvas.axDict['ax1']
     x = N.arange(0, 20)
     y = N.sin(x)
-    w.canvas.ax.plot(x, y)
+    ax1.plot(x, y)
     w.show()
     sys.exit(app.exec_())
 
