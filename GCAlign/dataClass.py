@@ -142,9 +142,33 @@ class GC_GC_MS_CLASS(QtCore.QObject):
         if self.bpcOK:
 #            print "BPC returned"
             return self.BPC#, self.BPCmz
+
     def getBPCmz(self):
         if self.bpcOK:
             return self.BPCmz
+
+    def getMZvalues(self, mzList):
+        self.getHandle()
+#        self.mz = self.handle.root.mzCube
+        mz = self.handle.root.dataCube[mzList[0]]
+        if len(mzList)>1:
+            for val in mzList[1:]:
+                mz+=self.handle.root.dataCube[val]
+
+        self.closeHandle()
+        return mz
+
+    def getMZlist(self, mzInd):
+        self.getHandle()
+#        self.mz = self.handle.root.mzCube
+        mzList = []
+        mzList.append(self.handle.root.dataCube[mzInd[0]])
+        if len(mzInd)>1:
+            for val in mzInd[1:]:
+                mzList.append(self.handle.root.dataCube[val])
+
+        self.closeHandle()
+        return mzList
 
     def _setEIC_(self, mzVals):
         self.ReadThread.setType('EIC')
@@ -392,25 +416,38 @@ if __name__ == "__main__":
     import time
     app = QtGui.QApplication(sys.argv)
 
-    file = '/home/clowers/Desktop/Acetone_Klean.h5'
+    file = 'Acetone_Klean.h5'
     data = GC_GC_MS_CLASS(file)
-    tic = data.getTIC()
+#    mz = data.getMZvalues([3000,3010,3020])
+    mzList = data.getMZlist([3000,3010,3020,3030,3040])
+
+#    print mz
+#    tic = data.getTIC()
 
     w = MPL_Widget()
-    w.canvas.setupSub(2)
+#    w.canvas.setupSub(1)
     ax1 = w.canvas.axDict['ax1']
-    ax2 = w.canvas.axDict['ax2']
+#    ax1.vlines(N.arange(len(mz)),0,mz)
+    i = 0
+    col = ['r','b','g','k','y']
+    for mz in mzList:
+        ax1.vlines(N.arange(len(mz)),0,mz, color = col[i])
+        print i
+        i+=1
+
+
+#    ax2 = w.canvas.axDict['ax2']
 
 #    t1 = time.clock()
 #    data._setEIC_([53])
 #    time.sleep(6)
-    bpc = data.getBPC()
+#    bpc = data.getBPC()
 #    print 'EIC Generation: ', time.clock()-t1
 
 
 #    t1 = time.clock()
-    ticLayer = data.ticLayer
-    bpcLayer = data.bpcLayer
+#    ticLayer = data.ticLayer
+#    bpcLayer = data.bpcLayer
 #    print 'TIC Layer Generation: ', time.clock()-t1
 #
 #    t1 = time.clock()
@@ -419,16 +456,16 @@ if __name__ == "__main__":
 
 #    bpc, bpcMZ = data.getBPC()
 
-    imAspect = data.rowPoints/(data.colPoints*1.0)
-
-    cdict ={
-    'blue': ((0.0, 0.01, 0.01), (0.01, 0.25, 1), (0.65000000000000002, 1, 1), (0.75000000000000002, 0, 0), (1, 0, 0)),
-    'green': ((0.0, 0, 0), (0.05, 0.75, 0.75), (0.25, 1, 1), (0.64000000000000001, 1, 1), (0.91000000000000003, 0, 0), (1, 0, 0)),
-    'red': ((0.0, 0, 0), (0.15, 0.25, 0.25), (0.56000000000000003, 1, 1), (0.89000000000000001, 1, 1), (1, 0.75, 0.75))
-    }
-
-    my_cmap = C.LinearSegmentedColormap('mycmap', cdict, 512)
-    ax1.imshow(bpcLayer, origin = 'lower', aspect = 'auto', cmap = my_cmap)
+#    imAspect = data.rowPoints/(data.colPoints*1.0)
+#
+#    cdict ={
+#    'blue': ((0.0, 0.01, 0.01), (0.01, 0.25, 1), (0.65000000000000002, 1, 1), (0.75000000000000002, 0, 0), (1, 0, 0)),
+#    'green': ((0.0, 0, 0), (0.05, 0.75, 0.75), (0.25, 1, 1), (0.64000000000000001, 1, 1), (0.91000000000000003, 0, 0), (1, 0, 0)),
+#    'red': ((0.0, 0, 0), (0.15, 0.25, 0.25), (0.56000000000000003, 1, 1), (0.89000000000000001, 1, 1), (1, 0.75, 0.75))
+#    }
+#
+#    my_cmap = C.LinearSegmentedColormap('mycmap', cdict, 512)
+#    ax1.imshow(bpcLayer, origin = 'lower', aspect = 'auto', cmap = my_cmap)
     #ax2.imshow(N.transpose(ticLayer), origin = 'lower', aspect = 'auto')
 #    ax1.set_xlim(0, data.rowPoints)
 #    ax1.set_ylim(0, data.colPoints)
@@ -445,7 +482,7 @@ if __name__ == "__main__":
 #    gc2x = N.arange(1,len(eic), data.colPoints)
 #    gc2y = eic[::data.colPoints]
 #
-    ax2.plot(bpc)
+#    ax2.plot(bpc)
 #    N.savetxt("TICSam.txt", eic, delimiter = ',')
 #    ax2.plot(gc2x, gc2y, 'or', alpha = 0.6)
 #    ax2.plot(bpc, 'r')

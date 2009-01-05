@@ -139,12 +139,12 @@ class MPL_Widget(QtGui.QWidget):
         ###############ZOOM CONTROLS ################
 
         self.ZoomChrom = QtGui.QAction("Zoom Chrom",  self)
-        self.ZoomChrom.setShortcut("Ctrl+Shift+Z")
+        self.ZoomChrom.setShortcut("Ctrl+Z")
         self.addAction(self.ZoomChrom)
         QtCore.QObject.connect(self.ZoomChrom,QtCore.SIGNAL("triggered()"), self.ZoomToggle)
 
-        self.actionAutoScaleChrom = QtGui.QAction("AutoScale Chrom",  self)#self.MainWindow)
-        self.actionAutoScaleChrom.setShortcut("Ctrl+Shift+A")
+        self.actionAutoScaleChrom = QtGui.QAction("AutoScale",  self)#self.MainWindow)
+        self.actionAutoScaleChrom.setShortcut("Ctrl+A")
         self.addAction(self.actionAutoScaleChrom)
         QtCore.QObject.connect(self.actionAutoScaleChrom,QtCore.SIGNAL("triggered()"), self.autoscale_plot)
 
@@ -162,7 +162,7 @@ class MPL_Widget(QtGui.QWidget):
         self.tempPath = os.path.join(self.tempPath,'tempMPL.png')
 
         self.mpl2ClipAction = QtGui.QAction("Save to Clipboard",  self)
-        self.mpl2ClipAction.setShortcut("Ctrl+Shift+C")
+        self.mpl2ClipAction.setShortcut("Ctrl+C")
         self.addAction(self.mpl2ClipAction)
         QtCore.QObject.connect(self.mpl2ClipAction,QtCore.SIGNAL("triggered()"), self.mpl2Clip)
 
@@ -185,6 +185,7 @@ class MPL_Widget(QtGui.QWidget):
             self.span.visible = True
 
     def autoscale_plot(self):
+        print "autoscale"
         #self.toolbar.home() #implements the classic return to home
         self.ax1.autoscale_view(tight = False, scalex=True, scaley=True)
         self.canvas.draw()
@@ -286,7 +287,7 @@ def main():
     import sys
     app = QtGui.QApplication(sys.argv)
     w = MPL_Widget()
-    w.canvas.setupSub(2)
+#    w.canvas.setupSub(1)
     ax1 = w.canvas.axDict['ax1']
     x = N.arange(0, 20)
     y = N.sin(x)

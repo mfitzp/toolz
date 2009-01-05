@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Documents and Settings\d3p483\workspace\GCAlign\iterate.ui'
 #
-# Created: Fri Jan 02 09:41:13 2009
+# Created: Mon Jan 05 14:33:33 2009
 #      by: PyQt4 UI code generator 4.3.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -639,7 +639,7 @@ class Ui_MainWindow(object):
         self.densityDistThreshSB = QtGui.QDoubleSpinBox(self.optionsTab)
         self.densityDistThreshSB.setEnabled(False)
         self.densityDistThreshSB.setMinimum(0.01)
-        self.densityDistThreshSB.setProperty("value",QtCore.QVariant(10.0))
+        self.densityDistThreshSB.setProperty("value",QtCore.QVariant(15.0))
         self.densityDistThreshSB.setObjectName("densityDistThreshSB")
         self.hboxlayout16.addWidget(self.densityDistThreshSB)
         self.hboxlayout15.addLayout(self.hboxlayout16)
@@ -659,7 +659,7 @@ class Ui_MainWindow(object):
         self.denGrpNumThresh.setDecimals(0)
         self.denGrpNumThresh.setMinimum(1.0)
         self.denGrpNumThresh.setMaximum(20000.0)
-        self.denGrpNumThresh.setProperty("value",QtCore.QVariant(20.0))
+        self.denGrpNumThresh.setProperty("value",QtCore.QVariant(15.0))
         self.denGrpNumThresh.setObjectName("denGrpNumThresh")
         self.hboxlayout17.addWidget(self.denGrpNumThresh)
         self.gridlayout7.addLayout(self.hboxlayout17,6,0,1,1)
@@ -894,7 +894,9 @@ class Ui_MainWindow(object):
         self.actionSave_2D_Peaks_to_CSV.setText(QtGui.QApplication.translate("MainWindow", "Save 2D Peaks to CSV", None, QtGui.QApplication.UnicodeUTF8))
         self.actionToggle_Peak_Cross_Hairs.setText(QtGui.QApplication.translate("MainWindow", "Toggle Peak Cross Hairs", None, QtGui.QApplication.UnicodeUTF8))
         self.actionDensity_Based_Clustering.setText(QtGui.QApplication.translate("MainWindow", "Density Based Method", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionDensity_Based_Clustering.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+D", None, QtGui.QApplication.UnicodeUTF8))
         self.actionHierarchical_Method.setText(QtGui.QApplication.translate("MainWindow", "Hierarchical Method", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionHierarchical_Method.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+H, Ctrl+S", None, QtGui.QApplication.UnicodeUTF8))
         self.actionExit.setText(QtGui.QApplication.translate("MainWindow", "Exit", None, QtGui.QApplication.UnicodeUTF8))
 
 from mpl_chrom_widget import MPL_Chrom_Widget
