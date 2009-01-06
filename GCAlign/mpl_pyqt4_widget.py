@@ -185,7 +185,7 @@ class MPL_Widget(QtGui.QWidget):
             self.span.visible = True
 
     def autoscale_plot(self):
-        print "autoscale"
+#        print "autoscale"
         #self.toolbar.home() #implements the classic return to home
         self.ax1.autoscale_view(tight = False, scalex=True, scaley=True)
         self.canvas.draw()
