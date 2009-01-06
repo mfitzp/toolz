@@ -63,159 +63,16 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         super(Plot_Widget,  self).__init__(parent)
         self.ui = self.setupUi(self)
 
-        self.setupVars()
-        self.setupGUI()
+        self._setupVars_()
         self._setThreads_()
         self._setConnections_()
+        self._setupGUI_()
         self._setMessages_()
         self._setContext_()
-        self.LayoutStatusBar()
-
-    def _setThreads_(self):
-        self.PFT = PFT()
-        self.PCT = PCT.PeakClusterThread()
-
-    def _setConnections_(self):
-
-#        QtCore.QObject.connect(self.indexSpinBox, QtCore.SIGNAL("valueChanged (int)"), self.updatePlot)
-
-        self.zoomAction = QtGui.QAction("Zoom", self)
-        self.zoomAction.setShortcut("Ctrl+Z")
-        self.plotWidget.addAction(self.zoomAction)
-        QtCore.QObject.connect(self.zoomAction,QtCore.SIGNAL("triggered()"), self.zoomToggle)
-
-        self.actionAutoScale = QtGui.QAction("AutoScale", self)#self.MainWindow)
-        self.actionAutoScale.setShortcut("Ctrl+A")
-        self.plotWidget.addAction(self.actionAutoScale)
-        QtCore.QObject.connect(self.actionAutoScale,QtCore.SIGNAL("triggered()"), self.autoscale_plot)
-
-        self.actionLasso = QtGui.QAction("Lasso", self)#self.MainWindow)
-        self.actionLasso.setShortcut("Ctrl+L")
-        self.plotWidget.addAction(self.actionLasso)
-        QtCore.QObject.connect(self.actionLasso,QtCore.SIGNAL("triggered()"), self.lassoToggle)
-
-        self.handleActionA = QtGui.QAction("Cursor A", self)
-        self.plotWidget2.addAction(self.handleActionA)
-
-        self.handleActionB = QtGui.QAction("Cursor B", self)
-        self.plotWidget2.addAction(self.handleActionB)
-
-        self.cursorClearAction = QtGui.QAction("Clear Cursors", self)
-        self.plotWidget2.addAction(self.cursorClearAction)
-
-        self.labelAction = QtGui.QAction("Label Peak", self)
-        self.plotWidget2.addAction(self.labelAction)
-
-        self.chromClipAction = QtGui.QAction("Save to Clipboard", self)
-        self.plotWidget2.addAction(self.chromClipAction)
-
-        self.imageClipAction = QtGui.QAction("Save to Clipboard", self)
-        self.plotWidget.addAction(self.imageClipAction)
-
-        self.clustMZAction = QtGui.QAction("Show Cluster MS", self)
-        self.plotWidget.addAction(self.clustMZAction)
-
-        QtCore.QObject.connect(self.clustMZAction,QtCore.SIGNAL("triggered()"), self.showClusterMZ)
-
-        QtCore.QObject.connect(self.action_Open,QtCore.SIGNAL("triggered()"),self._getDataFile_)
-        QtCore.QObject.connect(self.addFileBtn,QtCore.SIGNAL("clicked()"),self._getDataFile_)
-        QtCore.QObject.connect(self.fndPeaksBtn,QtCore.SIGNAL("clicked()"),self.findChromPeaks)
-        QtCore.QObject.connect(self.action_Find_Peaks,QtCore.SIGNAL("triggered()"),self.findChromPeaks)
-        QtCore.QObject.connect(self.actionSave_Peaks_to_CSV,QtCore.SIGNAL("triggered()"),self.savePeaks2CSV)
-        QtCore.QObject.connect(self.actionSave_2D_Peaks_to_CSV,QtCore.SIGNAL("triggered()"),self.saveRaw2DPeaks2CSV)
-        QtCore.QObject.connect(self.actionToggle_Peak_Cross_Hairs,QtCore.SIGNAL("triggered()"),self.toggleImPickers)
-
-        QtCore.QObject.connect(self.actionHierarchical_Method,QtCore.SIGNAL("triggered()"),self.hClusterPeaks)
-        QtCore.QObject.connect(self.actionDensity_Based_Clustering,QtCore.SIGNAL("triggered()"),self.dbClusterPeaks)
+        self.layoutStatusBar()
 
 
-        QtCore.QObject.connect(self.handleActionA, QtCore.SIGNAL("triggered()"),self.toggleCA)#SelectPointsA)
-        QtCore.QObject.connect(self.handleActionB, QtCore.SIGNAL("triggered()"),self.toggleCB)#SelectPointsB)
-        QtCore.QObject.connect(self.cursorClearAction, QtCore.SIGNAL("triggered()"),self.cursorClear)
-        QtCore.QObject.connect(self.labelAction, QtCore.SIGNAL("triggered()"),self.labelPeak)
-
-        QtCore.QObject.connect(self.chromClipAction,QtCore.SIGNAL("triggered()"),self.chrom2Clip)
-        QtCore.QObject.connect(self.imageClipAction,QtCore.SIGNAL("triggered()"),self.image2Clip)
-
-        QtCore.QObject.connect(self.actionLabel_Peak,QtCore.SIGNAL("triggered()"),self.labelPeak)
-        QtCore.QObject.connect(self.actionCursor_A,QtCore.SIGNAL("triggered()"),self.toggleCA)#SelectPointsA)
-        QtCore.QObject.connect(self.actionCursor_B,QtCore.SIGNAL("triggered()"),self.toggleCB)#SelectPointsB)
-        QtCore.QObject.connect(self.actionClear_Cursors,QtCore.SIGNAL("triggered()"),self.cursorClear)
-        QtCore.QObject.connect(self.cursACB,QtCore.SIGNAL("stateChanged (int)"),self.toggleCA)
-        QtCore.QObject.connect(self.cursBCB,QtCore.SIGNAL("stateChanged (int)"),self.toggleCB)
-
-        QtCore.QObject.connect(self.PFT, QtCore.SIGNAL("finished(bool)"), self.plotPickedPeaks)
-        QtCore.QObject.connect(self.PFT, QtCore.SIGNAL("progress(int)"), self.threadProgress)
-
-        QtCore.QObject.connect(self.PCT, QtCore.SIGNAL("finished(bool)"), self.plotLinkage)
-        QtCore.QObject.connect(self.PCT, QtCore.SIGNAL("clusterThreadUpdate(PyQt_PyObject)"), self.PCTProgress)
-
-        QtCore.QObject.connect(self.listWidget, QtCore.SIGNAL("itemClicked (QListWidgetItem *)"), self.specListSelect)
-        QtCore.QObject.connect(self.chromStyleCB, QtCore.SIGNAL("currentIndexChanged(QString)"), self.plotTypeChanged)
-
-        QtCore.QObject.connect(self.savePickedPeakBtn,QtCore.SIGNAL("clicked()"),self.savePeaks2HDF)
-        QtCore.QObject.connect(self.actionSave_Peaks_to_Data_File, QtCore.SIGNAL("triggered()"),self.savePeaks2HDF)
-        QtCore.QObject.connect(self.clusterBtn,QtCore.SIGNAL("clicked()"),self.clusterPeaks)
-
-        QtCore.QObject.connect(self.calcThreshCB,QtCore.SIGNAL("stateChanged(int)"),self.toggleDistance)
-        QtCore.QObject.connect(self.dbScanCB,QtCore.SIGNAL("stateChanged(int)"),self.toggleClusterType)
-        QtCore.QObject.connect(self.dbAutoCalcCB,QtCore.SIGNAL("stateChanged(int)"),self.toggleDBDist)
-
-#        print self.imLasso, type(self.imLasso)
-#        QtCore.QObject.connect(self.imLasso,QtCore.SIGNAL("LassoUpdate(PyQt_PyObject)"),self.lassoHandler)
-
-    def showClusterMZ(self):
-        if self.clustMembers != None:
-            peakInd = []
-            cols = self.curData.colPoints
-            for peak in self.clustMembers:
-                chromLoc = peak[0]*cols+peak[1]+self.prevChromLimits #this is wrong for very close zooms...
-                peakInd.append(chromLoc)
-
-            print "Cluster indices: ", peakInd
-            mzList = self.curData.getMZlist(peakInd)
-
-            if isinstance(self.mzPlot, MPL_Widget):
-                try:
-                    self.mzPlot.close()
-                except:
-                    pass
-
-                self.mzPlot = None
-
-            self.mzPlot = MPL_Widget()
-            self.mzPlot.setWindowTitle(('Clustered Peak Mass Spectrum from %s'%self.curData.name))
-#            self.mzPlot.canvas.setupSub(1)
-            ax1 = self.mzPlot.canvas.axDict['ax1']
-
-            for i,mz in enumerate(mzList):
-                if self.colorIndex%len(COLORS) == 0:
-                    self.colorIndex = 0
-                curColor = COLORS[self.colorIndex]
-                self.colorIndex +=1
-                ax1.vlines(N.arange(len(mz)),0,mz, color = curColor)#, label = '%s'%peakInd[i])
-
-#            ax1.legend()
-            self.mzPlot.show()
-
-#            dataCoord = [[int(N.round(event1.xdata)), int(N.round(event1.ydata))],[int(N.round(event2.xdata)), int(N.round(event2.ydata))]]
-#
-#            chromLimits = [dataCoord[0][0]*cols+dataCoord[0][1]+self.prevChromLimits,\
-#                           N.abs(self.prevChromLimits+(dataCoord[1][0]*cols+dataCoord[1][1]))]
-#            dataCoord = N.array(dataCoord)
-#            chromLimits = N.array(chromLimits)
-#            self.xLim = dataCoord[:,0]
-#            self.yLim = dataCoord[:,1]
-#            self.xLim.sort()
-#            self.yLim.sort()
-#            self.chromLimits.sort()
-
-    def plotTypeChanged(self, plotTypeQString):
-        self.tabWidget.setCurrentIndex(0)#return to plot tab
-        self.plotType = str(plotTypeQString)
-        self.specListSelect()
-
-    def setupVars(self):
+    def _setupVars_(self):
 
         self.numSpec = 25
 
@@ -291,17 +148,105 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
 
         self.imLasso = None
         self.cur2DPeakLoc = None #used to pass to the lasso manager to allow selection while zooming.
+
+        self.clustNum = 1
+        self.clustDict = {}
         self.clustMembers = None
 
         self.resetRefLimits()
 
-    def resetRefLimits(self):
-        self.xLim = [0,0]
-        self.yLim = [0,0]
-        self.chromLimits = [0,0]
-        self.prevImLimits = [0,0]
+    def _setThreads_(self):
+        self.PFT = PFT()
+        self.PCT = PCT.PeakClusterThread()
 
-    def setupGUI(self):
+    def _setConnections_(self):
+
+#        QtCore.QObject.connect(self.indexSpinBox, QtCore.SIGNAL("valueChanged (int)"), self.updatePlot)
+        self.zoomAction = QtGui.QAction("Zoom", self)
+        self.zoomAction.setShortcut("Ctrl+Z")
+        self.plotWidget.addAction(self.zoomAction)
+        QtCore.QObject.connect(self.zoomAction,QtCore.SIGNAL("triggered()"), self.zoomToggle)
+
+        self.actionAutoScale = QtGui.QAction("AutoScale", self)#self.MainWindow)
+        self.actionAutoScale.setShortcut("Ctrl+A")
+        self.plotWidget.addAction(self.actionAutoScale)
+        QtCore.QObject.connect(self.actionAutoScale,QtCore.SIGNAL("triggered()"), self.autoscale_plot)
+
+        self.actionLasso = QtGui.QAction("Lasso", self)#self.MainWindow)
+        self.actionLasso.setShortcut("Ctrl+L")
+        self.plotWidget.addAction(self.actionLasso)
+        QtCore.QObject.connect(self.actionLasso,QtCore.SIGNAL("triggered()"), self.lassoToggle)
+
+        self.handleActionA = QtGui.QAction("Cursor A", self)
+        self.plotWidget2.addAction(self.handleActionA)
+
+        self.handleActionB = QtGui.QAction("Cursor B", self)
+        self.plotWidget2.addAction(self.handleActionB)
+
+        self.cursorClearAction = QtGui.QAction("Clear Cursors", self)
+        self.plotWidget2.addAction(self.cursorClearAction)
+
+        self.labelAction = QtGui.QAction("Label Peak", self)
+        self.plotWidget2.addAction(self.labelAction)
+
+        self.chromClipAction = QtGui.QAction("Save to Clipboard", self)
+        self.plotWidget2.addAction(self.chromClipAction)
+
+        self.imageClipAction = QtGui.QAction("Save to Clipboard", self)
+        self.plotWidget.addAction(self.imageClipAction)
+
+        self.clustMZAction = QtGui.QAction("Show Cluster MS", self)
+        self.plotWidget.addAction(self.clustMZAction)
+
+        QtCore.QObject.connect(self.clustMZAction,QtCore.SIGNAL("triggered()"), self.showClusterMZ)
+
+        QtCore.QObject.connect(self.action_Open,QtCore.SIGNAL("triggered()"),self._getDataFile_)
+        QtCore.QObject.connect(self.addFileBtn,QtCore.SIGNAL("clicked()"),self._getDataFile_)
+        QtCore.QObject.connect(self.fndPeaksBtn,QtCore.SIGNAL("clicked()"),self.findChromPeaks)
+        QtCore.QObject.connect(self.action_Find_Peaks,QtCore.SIGNAL("triggered()"),self.findChromPeaks)
+        QtCore.QObject.connect(self.actionSave_Peaks_to_CSV,QtCore.SIGNAL("triggered()"),self.savePeaks2CSV)
+        QtCore.QObject.connect(self.actionSave_2D_Peaks_to_CSV,QtCore.SIGNAL("triggered()"),self.saveRaw2DPeaks2CSV)
+        QtCore.QObject.connect(self.actionToggle_Peak_Cross_Hairs,QtCore.SIGNAL("triggered()"),self.toggleImPickers)
+
+        QtCore.QObject.connect(self.actionHierarchical_Method,QtCore.SIGNAL("triggered()"),self.hClusterPeaks)
+        QtCore.QObject.connect(self.actionDensity_Based_Clustering,QtCore.SIGNAL("triggered()"),self.dbClusterPeaks)
+
+        QtCore.QObject.connect(self.handleActionA, QtCore.SIGNAL("triggered()"),self.toggleCA)#SelectPointsA)
+        QtCore.QObject.connect(self.handleActionB, QtCore.SIGNAL("triggered()"),self.toggleCB)#SelectPointsB)
+        QtCore.QObject.connect(self.cursorClearAction, QtCore.SIGNAL("triggered()"),self.cursorClear)
+        QtCore.QObject.connect(self.labelAction, QtCore.SIGNAL("triggered()"),self.labelPeak)
+
+        QtCore.QObject.connect(self.chromClipAction,QtCore.SIGNAL("triggered()"),self.chrom2Clip)
+        QtCore.QObject.connect(self.imageClipAction,QtCore.SIGNAL("triggered()"),self.image2Clip)
+
+        QtCore.QObject.connect(self.actionLabel_Peak,QtCore.SIGNAL("triggered()"),self.labelPeak)
+        QtCore.QObject.connect(self.actionCursor_A,QtCore.SIGNAL("triggered()"),self.toggleCA)#SelectPointsA)
+        QtCore.QObject.connect(self.actionCursor_B,QtCore.SIGNAL("triggered()"),self.toggleCB)#SelectPointsB)
+        QtCore.QObject.connect(self.actionClear_Cursors,QtCore.SIGNAL("triggered()"),self.cursorClear)
+        QtCore.QObject.connect(self.cursACB,QtCore.SIGNAL("stateChanged (int)"),self.toggleCA)
+        QtCore.QObject.connect(self.cursBCB,QtCore.SIGNAL("stateChanged (int)"),self.toggleCB)
+
+        QtCore.QObject.connect(self.PFT, QtCore.SIGNAL("finished(bool)"), self.plotPickedPeaks)
+        QtCore.QObject.connect(self.PFT, QtCore.SIGNAL("progress(int)"), self.threadProgress)
+
+        QtCore.QObject.connect(self.PCT, QtCore.SIGNAL("finished(bool)"), self.plotLinkage)
+        QtCore.QObject.connect(self.PCT, QtCore.SIGNAL("clusterThreadUpdate(PyQt_PyObject)"), self.PCTProgress)
+
+        QtCore.QObject.connect(self.listWidget, QtCore.SIGNAL("itemClicked (QListWidgetItem *)"), self.specListSelect)
+        QtCore.QObject.connect(self.chromStyleCB, QtCore.SIGNAL("currentIndexChanged(QString)"), self.plotTypeChanged)
+
+        QtCore.QObject.connect(self.savePickedPeakBtn,QtCore.SIGNAL("clicked()"),self.savePeaks2HDF)
+        QtCore.QObject.connect(self.actionSave_Peaks_to_Data_File, QtCore.SIGNAL("triggered()"),self.savePeaks2HDF)
+        QtCore.QObject.connect(self.clusterBtn,QtCore.SIGNAL("clicked()"),self.clusterPeaks)
+
+        QtCore.QObject.connect(self.calcThreshCB,QtCore.SIGNAL("stateChanged(int)"),self.toggleDistance)
+        QtCore.QObject.connect(self.dbScanCB,QtCore.SIGNAL("stateChanged(int)"),self.toggleClusterType)
+        QtCore.QObject.connect(self.dbAutoCalcCB,QtCore.SIGNAL("stateChanged(int)"),self.toggleDBDist)
+
+#        print self.imLasso, type(self.imLasso)
+#        QtCore.QObject.connect(self.imLasso,QtCore.SIGNAL("LassoUpdate(PyQt_PyObject)"),self.lassoHandler)
+
+    def _setupGUI_(self):
 
         self.plotWidget.canvas.setupSub(1)
 
@@ -331,69 +276,65 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         self.indexHSlider.setMaximum(self.numSpec)
         self.indexSpinBox.setMaximum(self.numSpec)
 
+        #changes state for DBSCAN parameters
+        self.dbScanCB.nextCheckState()
+        self.dbAutoCalcCB.nextCheckState()
+
         self.addChromPickers()
         self.addImPickers()
+        self.zoomToggle()#this is called because there is some confusion on the PyQt4 backend regarding the plotting of the picked peaks
 #        self.setupTable()
 
-    def setupTable2(self):
-        self.tabPeakTable_2.clear()
-        #need to disable sorting as it corrupts data addition
-        self.tabPeakTable_2.setSortingEnabled(False)
-        header = ['Index', 'Centroid', '# Peaks','Members']
-#        simpleIndex = N.arange(len(self.peakInfo['peakLoc']))
-        i = 0
-        keys=[]
-        centroid = []
-        numPeaks = []
-        peakVals = []
-        for item in self.clustDict.iteritems():
-            entry = []
-            entry.append(int(item[0]))
-            entry.append(str(item[1][0][0]))
-            nums = len(item[1][1][:,0])
+    def _setContext_(self):
+        self.plotWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.plotWidget.connect(self.plotWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self._imageContext_)
+        self.plotWidget2.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.plotWidget2.connect(self.plotWidget2, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self._chromContext_)
+#        self.specListWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+#        self.specListWidget.connect(self.specListWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self.__listContext__)
 
-            entry.append(nums)
-            entry.append(str(item[1][1].tolist()))
-            peakVals.append(entry)
+    def _imageContext_(self, point):
+        ct_menu = QtGui.QMenu("Image Menu", self.plotWidget)
+        ct_menu.addAction(self.zoomAction)
+        ct_menu.addAction(self.actionAutoScale)
+        ct_menu.addAction(self.actionLasso)
+        ct_menu.addSeparator()
+        ct_menu.addAction(self.clustMZAction)
+        ct_menu.addAction(self.imageClipAction)
+        ct_menu.exec_(self.plotWidget.mapToGlobal(point))
 
-            i+=1
+    def _chromContext_(self, point):
+        '''Create a menu for the chromatogram widget'''
+        ct_menu = QtGui.QMenu("Plot Menu", self.plotWidget2)
+#        ct_menu.addAction(self.ui.actionZoom)
+#        ct_menu.addAction(self.ui.actionAutoScale)
+#        ct_menu.addSeparator()
+#        ct_menu.addAction(self.ui.actionPlotOptions)
+#        ct_menu.addSeparator()
+#        ct_menu.addAction(self.ui.actionClear)
+#        ct_menu.addSeparator()
+        ct_menu.addAction(self.handleActionA)
+        ct_menu.addAction(self.handleActionB)
+        ct_menu.addAction(self.cursorClearAction)
+        ct_menu.addSeparator()
+        ct_menu.addAction(self.labelAction)
+        ct_menu.addSeparator()
+        ct_menu.addAction(self.chromClipAction)
+        ct_menu.exec_(self.plotWidget2.mapToGlobal(point))
 
-        self.tabPeakTable_2.addData(peakVals)
-#        tm = MyTableModel(peakVals, header, self)
-#        self.tabPeakTable.setModel(tm)
-#        self.tabPeakTable.resizeColumnsToContents()
-#        self.tabPeakTable.verticalHeader()
-##        vh.setVisible(False)
-        self.tabPeakTable_2.setHorizontalHeaderLabels(header)
-        self.tabPeakTable_2.setSortingEnabled(True)
+    def _setMessages_(self):
+        '''This function is obvious'''
+        self.ClearTableText = "Are you sure you want to erase\nthe entire table content?"
+        self.ClearAllDataText = "Are you sure you want to erase\nthe entire data set?"
+        self.NotEditableText = "Sorry, this data format is not table-editable."
+        self.OpenScriptText = "Choose a python script to launch:"
+        self.SaveDataText = "Choose a name for the data file to save:"
+        self.ScratchSavePrompt = "Choose file name to save the scratch pad:"
+        self.OpenDataText = "Choose a data file to open:"
+        self.ResetAllDataText = "This operation will reset all your data.\nWould you like to continue?"
+        self.EmptyArrayText = "There is no data in the array selected.  Perhaps the search criteria are too stringent.  Check ppm and e-Value cutoff values\n"
 
 
-    def setupTable(self):
-        self.tabPeakTable.clear()
-        #need to disable sorting as it corrupts data addition
-        self.tabPeakTable.setSortingEnabled(False)
-        header = []#'Index', 'Locations', 'Intensity','Width', 'Area']
-#        simpleIndex = N.arange(len(self.peakInfo['peakLoc']))
-        i = 0
-        for item in self.peakInfo.iteritems():
-            if i == 0:
-                header.append(item[0])
-                peakVals = item[1]
-            else:
-                header.append(item[0])
-                peakVals = N.column_stack((peakVals,item[1]))
-            i+=1
-##        peakVals = self.peakInfo.values()
-#        peakVals = N.array(peakVals)
-#        peakVals.transpose()
-        self.tabPeakTable.addData(peakVals)
-#        tm = MyTableModel(peakVals, header, self)
-#        self.tabPeakTable.setModel(tm)
-#        self.tabPeakTable.resizeColumnsToContents()
-#        self.tabPeakTable.verticalHeader()
-##        vh.setVisible(False)
-        self.tabPeakTable.setHorizontalHeaderLabels(header)
-        self.tabPeakTable.setSortingEnabled(True)
 
     def _getDataFile_(self):
         dataFileName = QtGui.QFileDialog.getOpenFileName(self,\
@@ -402,88 +343,42 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         if dataFileName:
             self._initDataFile_(str(dataFileName))
 
-    def toggleDistance(self, intState):
-#        print intState
-        if intState == 0:
-            self.maxDistThreshSB.setEnabled(True)
-            self.distanceLabel.setEnabled(True)
+    def _initDataFile_(self, dataFileName):
+        print dataFileName
+        if self.dataDict.has_key(dataFileName):
+            pass
+        else:
+            #####Text Color Handler
+            if self.colorIndex%len(COLORS) == 0:
+                self.colorIndex = 0
+                self.txtColor = COLORS[self.colorIndex]
+                self.colorIndex +=1
+            else:
+                self.txtColor = COLORS[self.colorIndex]
+                self.colorIndex +=1
+            #sets up a new GCDATA File instance and adds it to a dictionary
+            #the key to that dictionary is the full file path, not simply the name
+            self.dataDict[dataFileName] = GCDATA(dataFileName)
+            self.dataList.append(dataFileName)
+            tempData = self.dataDict[dataFileName]
+            tempItem = QtGui.QListWidgetItem(tempData.name)
+            tempColor = QtGui.QColor(self.txtColor)
+            tempItem.setTextColor(tempColor)
+            tempItem.setToolTip(tempData.filePath)
+            self.listWidget.addItem(tempItem)
 
-        elif intState == 2:
-            self.maxDistThreshSB.setEnabled(False)
-            self.distanceLabel.setEnabled(False)
+            self.updatePlot(len(self.dataList)-1)
 
-    def toggleClusterType(self, intState):
-#        print intState
-        if intState == 0:
-            self.dbAutoCalcCB.setEnabled(False)
-            self.denGrpNumThresh.setEnabled(False)
-            self.denGrpNum.setEnabled(False)
-            ##################################
-            self.showDendroCB.setEnabled(True)
-            self.clustTypeLbl.setEnabled(True)
-            self.clusterTypeCB.setEnabled(True)
-#            self.distCalMethLbl.setEnabled(True)
-#            self.distMethodCB.setEnabled(True)
-            self.calcThreshCB.setEnabled(True)
-            if not self.distanceLabel.isEnabled():
-                self.toggleDistance(self.calcThreshCB.checkState())
-        elif intState == 2:
-            self.dbAutoCalcCB.setEnabled(True)
-            self.denGrpNumThresh.setEnabled(True)
-            self.denGrpNum.setEnabled(True)
-            ##################################
-            self.showDendroCB.setEnabled(False)
-            self.clustTypeLbl.setEnabled(False)
-            self.clusterTypeCB.setEnabled(False)
-#            self.distCalMethLbl.setEnabled(False)
-#            self.distMethodCB.setEnabled(False)
-            self.calcThreshCB.setEnabled(False)
-            if self.distanceLabel.isEnabled():
-                self.distanceLabel.setEnabled(False)
-                self.maxDistThreshSB.setEnabled(False)
-
-    def toggleDBDist(self, intState):
-        '''
-        Controls visibility of DBSCAN related GUI items.
-        '''
-        if intState == 0:
-            self.densityDistThreshSB.setEnabled(True)
-            self.denDistLbl.setEnabled(True)
-
-        elif intState == 2:
-            self.densityDistThreshSB.setEnabled(False)
-            self.denDistLbl.setEnabled(False)
-            self.denGrpNumThresh.setEnabled(False)
-            self.denGrpNum.setEnabled(False)
-
-    def plotLinkage(self, finishedBool):
-        if finishedBool:
-            if self.showDendroCB.isChecked():
-                if isinstance(self.linkagePlot, MPL_Widget):
-                    self.linkagePlot.close()
-                    self.linkagePlot = None
-                self.linkagePlot = MPL_Widget()
-                self.linkagePlot.setWindowTitle(('Clustered Peaks for %s'%self.curData.name))
-                self.linkagePlot.canvas.setupSub(1)
-                ax1 = self.linkagePlot.canvas.axDict['ax1']
-#                print len(self.PCT.tempMIHist[0]), len(self.PCT.tempMIHist[1])
-#
-#                ax1.plot(self.PCT.tempMIHist[1][1:], self.PCT.tempMIHist[0])
-#                ax1.plot(self.PCT.tempMDHist[1][1:], self.PCT.tempMDHist[0])
-                if self.PCT.maxDist != None:
-                    print "Maximum Distance Allowed: ",self.PCT.maxDist
-                    H.dendrogram(self.PCT.linkageResult, colorthreshold=self.PCT.maxDist, customMPL = ax1)
-#                else:
-#                    H.dendrogram(self.PCT.linkageResult, colorthreshold= 10, customMPL = ax1)
-                self.linkagePlot.show()
-            self.clustLoc2D = self.PCT.peakCentroids
-            self.autoscale_plot()
+    def _getDir_(self):
+        directory = QtGui.QFileDialog.getExistingDirectory(self, '', self.curDir)
+        directory = str(directory)
+        if directory != None:
+            self.curDir = directory
+        else:
+            self.curDir = os.getcwd()
 
     def clusterDBSCAN(self, Z):
         '''
-        self.clustNum
-        self.clustDict
-
         This function actually accepts an array with 3 columns: x,y,z
         The DBSCAN function can work in 3D, however, the intensity of
         chromatographic peaks skews the clustering, hence, only the x,y points are
@@ -491,10 +386,18 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         the intensity values.  This is why the intensity values are passed and
         not just the x,y values.
 
-        Is there a good way to calc the center
-        based upon the intensity too?
+
+        Important arrays created:
+
+        self.clustDict -- a complete listing of all the clustered
+        self.clustKeys -- a simple list of keys that are in order
+        self.clustLoc2D -- a stacked numpy array of the x,y coordinates of the cluster centroids
+        self.clustType -- tells you which group each of the clustLoc2D points belong to.
+
+
         Also, how best to select the 2nd round of the EPS filter?
         '''
+        filtered = None
         self.clustType = []
         XY = Z[:,0:2]
         if self.dbAutoCalcCB.isChecked():
@@ -517,7 +420,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
             self.clustNum += 1
 
 
-#            filtered = N.zeros((1,3))
         i = self.densityCluster.max()
         for m in xrange(1,int(i)+1):#double check that adding one is ok?
             ind = N.where(m == self.densityCluster)[0]#zero is used because a list is returned
@@ -530,7 +432,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
             the clusters into finer pieces.
             '''
             if len(temp)<self.denGrpNumThresh.value():#need to add value from GUI
-                if m == 1:
+                if filtered == None:
                     filtered = temp
                 else:
                     filtered = N.append(filtered,temp, axis = 0)
@@ -595,9 +497,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
 
         print len(self.clustDict.keys()), len(self.peakLoc2D[0]), len(self.clustType)
         i = 0
-#            for point in XY:
-#                print point, self.clustType[i]
-#                i+=1
 
         if len(self.clustDict) > 0:
             self.setupTable2()
@@ -607,8 +506,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
 
 #            for loc in self.clustDict.iteritems():
 #                print loc
-
-
 
 
     def iterDBSCAN(self, Z):
@@ -692,311 +589,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
                 self.PCT.start()
 
 
-    def closeEvent(self,  event = None):
-        try:
-            self.linkagePlot.close()
-        except:
-            pass
-#        if self.okToExit():
-#            pass
-#        else:
-#            event.ignore()
-
-    def savePeaks2HDF(self):
-        if self.curData != None:
-            if self.curData.peakPickOk:
-                self.curData.savePeakInfo()
-        else:
-            return QtGui.QMessageBox.warning(self, "No Data to Save",  'Load a Data File!')
-
-    def SFDialog(self):
-        fileName = QtGui.QFileDialog.getSaveFileName(self,
-                                         "Select File to Save",
-                                         "",
-                                         "csv Files (*.csv)")
-        if not fileName.isEmpty():
-            print fileName
-            return fileName
-        else:
-            return None
-
-    def saveRaw2DPeaks2CSV(self):
-        '''
-        Saves 2D peak locations to a CSV file
-        Note: these are just the raw locations--not the clustered peaks.
-        '''
-        path = self.SFDialog()
-        if path != None:
-            try:
-                if self.peakLoc2D != None:
-                    self.peakLoc2D = self.get2DPeakLoc(self.peakInfo['peakLoc'], self.curData.rowPoints,\
-                                                       self.curData.colPoints, peakIntensity = self.peakInfo['peakInt'])
-                    data2write = N.column_stack((self.peakLoc2D[0],self.peakLoc2D[1], self.peakLoc2D[2]))
-                    N.savetxt(str(path), data2write, delimiter = ',', fmt='%.4f')
-
-                else:
-                    raise 'No Peak List Exists to Save'
-
-                print "Raw Peaks written to: %s"%str(path)
-
-            except:
-                errorMsg ='Error saving figure data to csv\n\n'
-                errorMsg += "Sorry: %s\n\n%s\n"%(sys.exc_type, sys.exc_value)
-                print errorMsg
-                return QtGui.QMessageBox.warning(self, "Save Error",  errorMsg)
-
-    def savePeaks2CSV(self):
-        '''
-        Saves the raw 1D peaks in the full chromatogram to a file
-        '''
-        path = self.SFDialog()
-        if path != None:
-            try:
-                if self.peakInfo != None:
-                    header = []#'Index', 'Locations', 'Intensity','Width', 'Area']
-            #        simpleIndex = N.arange(len(self.peakInfo['peakLoc']))
-                    i = 0
-                    for item in self.peakInfo.iteritems():
-                        if i == 0:
-                            header.append(item[0])
-                            data2write = item[1]
-                        else:
-                            header.append(item[0])
-                            data2write = N.column_stack((data2write,item[1]))
-                        i+=1
-
-                    N.savetxt(str(path), data2write, delimiter = ',', fmt='%.4f')
-                else:
-                    raise 'No Peak List Exists to Save'
-
-            except:
-                errorMsg ='Error saving figure data to csv\n\n'
-                errorMsg += "Sorry: %s\n\n%s\n"%(sys.exc_type, sys.exc_value)
-                print errorMsg
-                return QtGui.QMessageBox.warning(self, "Save Error",  errorMsg)
-
-    def _initDataFile_(self, dataFileName):
-        print dataFileName
-        if self.dataDict.has_key(dataFileName):
-            pass
-        else:
-            #####Text Color Handler
-            if self.colorIndex%len(COLORS) == 0:
-                self.colorIndex = 0
-                self.txtColor = COLORS[self.colorIndex]
-                self.colorIndex +=1
-            else:
-                self.txtColor = COLORS[self.colorIndex]
-                self.colorIndex +=1
-            #sets up a new GCDATA File instance and adds it to a dictionary
-            #the key to that dictionary is the full file path, not simply the name
-            self.dataDict[dataFileName] = GCDATA(dataFileName)
-            self.dataList.append(dataFileName)
-            tempData = self.dataDict[dataFileName]
-            tempItem = QtGui.QListWidgetItem(tempData.name)
-            tempColor = QtGui.QColor(self.txtColor)
-            tempItem.setTextColor(tempColor)
-            tempItem.setToolTip(tempData.filePath)
-            self.listWidget.addItem(tempItem)
-
-            self.updatePlot(len(self.dataList)-1)
-
-    def _getDir_(self):
-        directory = QtGui.QFileDialog.getExistingDirectory(self, '', self.curDir)
-        directory = str(directory)
-        if directory != None:
-            self.curDir = directory
-        else:
-            self.curDir = os.getcwd()
-
-    def format2ndAxis(self, axis):
-        labels_x = axis.get_xticklabels()
-        labels_y = axis.get_yticklabels()
-#        axis.set_yticklabels([''])
-
-        for xlabel in labels_x:
-            xlabel.set_fontsize(8)
-        for ylabel in labels_y:
-            ylabel.set_fontsize(8)
-            ylabel.set_color('b')
-
-    def _setContext_(self):
-        self.plotWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
-        self.plotWidget.connect(self.plotWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self._imageContext_)
-        self.plotWidget2.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
-        self.plotWidget2.connect(self.plotWidget2, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self._chromContext_)
-#        self.specListWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
-#        self.specListWidget.connect(self.specListWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self.__listContext__)
-
-    def _imageContext_(self, point):
-        ct_menu = QtGui.QMenu("Image Menu", self.plotWidget)
-        ct_menu.addAction(self.zoomAction)
-        ct_menu.addAction(self.actionAutoScale)
-        ct_menu.addAction(self.actionLasso)
-        ct_menu.addSeparator()
-        ct_menu.addAction(self.clustMZAction)
-        ct_menu.addAction(self.imageClipAction)
-        ct_menu.exec_(self.plotWidget.mapToGlobal(point))
-
-    def _chromContext_(self, point):
-        '''Create a menu for the chromatogram widget'''
-        ct_menu = QtGui.QMenu("Plot Menu", self.plotWidget2)
-#        ct_menu.addAction(self.ui.actionZoom)
-#        ct_menu.addAction(self.ui.actionAutoScale)
-#        ct_menu.addSeparator()
-#        ct_menu.addAction(self.ui.actionPlotOptions)
-#        ct_menu.addSeparator()
-#        ct_menu.addAction(self.ui.actionClear)
-#        ct_menu.addSeparator()
-        ct_menu.addAction(self.handleActionA)
-        ct_menu.addAction(self.handleActionB)
-        ct_menu.addAction(self.cursorClearAction)
-        ct_menu.addSeparator()
-        ct_menu.addAction(self.labelAction)
-        ct_menu.addSeparator()
-        ct_menu.addAction(self.chromClipAction)
-        ct_menu.exec_(self.plotWidget2.mapToGlobal(point))
-
-    def _setMessages_(self):
-        '''This function is obvious'''
-        self.ClearTableText = "Are you sure you want to erase\nthe entire table content?"
-        self.ClearAllDataText = "Are you sure you want to erase\nthe entire data set?"
-        self.NotEditableText = "Sorry, this data format is not table-editable."
-        self.OpenScriptText = "Choose a python script to launch:"
-        self.SaveDataText = "Choose a name for the data file to save:"
-        self.ScratchSavePrompt = "Choose file name to save the scratch pad:"
-        self.OpenDataText = "Choose a data file to open:"
-        self.ResetAllDataText = "This operation will reset all your data.\nWould you like to continue?"
-        self.EmptyArrayText = "There is no data in the array selected.  Perhaps the search criteria are too stringent.  Check ppm and e-Value cutoff values\n"
-
-    def addChromPickers(self, minX = 0):
-        '''
-        Pickers for the Chromatogram
-        minX is provided so that the plot will scale correctly when a data trace is initiated
-        Pickers for the 2D image
-        '''
-        self.selectHandleA,  = self.chromAxis.plot([minX], [0], 'o',\
-                                        ms=8, alpha=.4, color='yellow', visible=False,  label = '_nolegend_')
-        self.selectHandleB,  = self.chromAxis.plot([minX], [0], 's',\
-                                        ms=8, alpha=.4, color='green', visible=False,  label = '_nolegend_')
-    def addImPickers(self, minX = 0):
-        '''Pickers for the 2D Chromatogram'''
-        self.selectCursA,  = self.imageAxis.plot([minX], [0], 'o',\
-                                        ms=5, alpha=.7, color='red', visible=self.showImPickers,  label = '_nolegend_')
-        self.xLine = self.imageAxis.axvline(x=0, ls = ':', color = 'y', alpha = 0.6, visible = self.showImPickers)
-        self.yLine = self.imageAxis.axhline(y=0, ls = ':', color = 'y', alpha = 0.6, visible = self.showImPickers)
-#        self.cursText = self.imageAxis.text(0, 0, '0rigin',  fontsize=9)
-
-        self.imPicker = self.plotWidget.canvas.mpl_connect('pick_event', self.imageClick)
-
-    def toggleImPickers(self):
-        '''we want to toggle the visibility of these items in a group
-        so a test for one is sufficient for all of them'''
-        if self.showImPickers:
-            self.showImPickers = False
-            self.selectCursA.set_visible(False)
-            self.xLine.set_visible(False)
-            self.yLine.set_visible(False)
-        else:
-            self.showImPickers = True
-            self.selectCursA.set_visible(True)
-            self.xLine.set_visible(True)
-            self.yLine.set_visible(True)
-
-
-
-    def imageClick(self, event):
-        '''Sets cross hairs for picked peaks after selection'''
-#        print event
-        #print event.button
-#        if event.mouseevent.button == 1:
-        if self.showImPickers:
-            if event.mouseevent.xdata != None and event.mouseevent.ydata != None:
-                if event.mouseevent.button == 1:
-                    if isinstance(event.artist, Line2D):
-                        thisline = event.artist
-                        xdata = thisline.get_xdata()
-                        ydata = thisline.get_ydata()
-                        self.selectCursA.set_data(xdata[event.ind[0]], ydata[event.ind[0]])
-    #                    self.selectCursA.set_data([event.mouseevent.xdata], [event.mouseevent.ydata])
-                        xPnt, yPnt =  int(N.round(event.mouseevent.xdata)), event.mouseevent.ydata
-        #                print xPnt, yPnt
-                        if self.clustPicker != None:
-                            x = xdata[event.ind[0]]
-                            y = ydata[event.ind[0]]
-                            tempKey = self.clustKeys[event.ind[0]]
-                            if self.clustDict.has_key(tempKey):
-                                item = self.clustDict[tempKey]
-                                clustMembers = item[1]#self.clustDict[tempKey][1]
-#                                center = item[0]
-##                                print center, clustMembers[0]
-#                                i = 0
-#                                for elem in self.clustDict.iteritems():
-#                                    key = elem[0]
-#                                    val = elem[1]
-#                                    print 'intKey ',xdata[int(key)], ydata[int(key)], 'ind[0] ', x,y, key, event.ind[0], val[0]
-#                                    i+=1
-#                                    if x == val[1][0][0]:
-#                                        print "Match: ",key, event.ind[0]
-#                                print len(clustMembers), type(clustMembers), type(clustMembers[0]), clustMembers.shape
-                                try:
-                                    self.memPlot.remove()
-                                except:
-#                                    print "no self.memPlot to remove"
-                                    pass
-
-                                self.clustMembers = clustMembers#[:,0:2]
-                                self.memPlot, = self.imageAxis.plot(self.clustMembers[:,0]-self.prevImLimits[0],\
-                                                                    self.clustMembers[:,1]-self.prevImLimits[1],\
-                                                                    'go', ms = 8, alpha = 0.5, label = 'clustMembers')
-#                                self.memPlot, = self.imageAxis.plot(self.clustMembers[:,0],\
-#                                                                    self.clustMembers[:,1], 'go', ms = 8,\
-#                                                                    alpha = 0.5, label = 'clustMembers')
-                                self._setImScale_()
-                            else:
-                                print event.ind[0], " is not a key"
-#                            print x,y
-#                            print x+self.prevImLimits[0], y+self.prevImLimits[1], ' x',self.xLim, ' y',self.yLim#+self.prevImLimits[1]
-#                            print x+self.prevImLimits[0], y+self.prevImLimits[1]
-                        else:
-                            if self.peakInfo != None:
-                                print event.ind[0], xdata[event.ind[0]], ydata[event.ind[0]]
-                                for info in self.peakInfo.itervalues():
-                                    print info[event.ind[0]]
-
-                        self.xLine.set_xdata([xPnt])
-                        self.yLine.set_ydata([yPnt])
-
-                        self.imageAxis.draw_artist(self.selectCursA)
-                        self.imageAxis.draw_artist(self.xLine)
-                        self.imageAxis.draw_artist(self.yLine)
-                        self.plotWidget.canvas.blit(self.imageAxis.bbox)
-#                        self.plotWidget.canvas.draw()
-
-    #                self.plotWidget2.canvas.format_labels()
-    #                self.plotWidget2.canvas.draw()
-    #                self.plotWidget2.setFocus()
-                else:
-    #                event.ignore()
-    #                print "Not button 1"
-                    return True
-
-
-    def colorScale(self, dataMtx):
-        dataMtx = N.where(dataMtx<= 0, dataMtx,10)
-        lev_exp = N.arange(0, N.log2(dataMtx.max())+1)
-        levs = N.power(2, lev_exp)
-        return levs
-
-    def updateChromGUI(self):
-        self.specLengthSB.setValue(len(self.curChrom))
-        self.numSegsSB.setValue(self.curData.rowPoints)
-
-    def specListSelect(self, widgetItem=None):
-        selectItems = self.listWidget.selectedItems()
-        if len(selectItems) > 0:
-            self.updatePlot(self.listWidget.indexFromItem(selectItems[0]).row())
-
     def updatePlot(self, plotIndex):#, plotType = 'TIC'):
         self.peakInfo = None
         self.peakLoc2D = None
@@ -1068,7 +660,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         self.cur2DPeakLoc = self.peakLoc2D
         self.curImPlot = self.imageAxis.imshow(self.mainIm, alpha = 1,  aspect = 'auto',\
                                                origin = 'lower',  cmap = my_cmap, label = 'R')
-
         #the idea here is to make it so only the clustered peaks get picked if present
         if self.clustLoc2D != None:
             self.clustPicker = 5
@@ -1102,22 +693,12 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         self.prevChromLimits = 0
         self.prevImLimits = [0,0]
         self.plotWidget2.autoscale_plot()
+        self.chromAxis.set_xlim(0, len(self.curChrom))
 
         self._drawCanvases_()
 ################Original
 #        self.imageAxis.autoscale_view(tight = False, scalex=True, scaley=True)
 #        self.plotWidget.canvas.draw()
-
-    def _setImScale_(self):
-        self.imageAxis.set_xlim(0, self.curIm.shape[1]-1)
-        self.imageAxis.set_ylim(0, self.curIm.shape[0])
-
-    def _drawCanvases_(self):
-        self.plotWidget2.canvas.format_labels()
-        self.plotWidget2.canvas.draw()
-
-        self.plotWidget.canvas.format_labels()
-        self.plotWidget.canvas.draw()
 
     def imageZoom(self, event1 = None, event2 = None):
         '''
@@ -1211,6 +792,397 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
     #                print event1.button, event2.button
     #                return True
 
+    def imageClick(self, event):
+        '''Sets cross hairs for picked peaks after selection'''
+#        print event
+        #print event.button
+#        if event.mouseevent.button == 1:
+        if self.showImPickers:
+            if event.mouseevent.xdata != None and event.mouseevent.ydata != None:
+                if event.mouseevent.button == 1:
+                    if isinstance(event.artist, Line2D):
+                        thisline = event.artist
+                        xdata = thisline.get_xdata()
+                        ydata = thisline.get_ydata()
+                        self.selectCursA.set_data(xdata[event.ind[0]], ydata[event.ind[0]])
+                        xPnt, yPnt =  int(N.round(event.mouseevent.xdata)), event.mouseevent.ydata
+        #                print xPnt, yPnt
+                        if self.clustPicker != None:
+                            x = xdata[event.ind[0]]
+                            y = ydata[event.ind[0]]
+                            tempKey = self.clustKeys[event.ind[0]]
+                            if self.clustDict.has_key(tempKey):
+                                item = self.clustDict[tempKey]
+                                clustMembers = item[1]#self.clustDict[tempKey][1]
+#                                center = item[0]
+##                                print center, clustMembers[0]
+#                                i = 0
+#                                for elem in self.clustDict.iteritems():
+#                                    key = elem[0]
+#                                    val = elem[1]
+#                                    print 'intKey ',xdata[int(key)], ydata[int(key)], 'ind[0] ', x,y, key, event.ind[0], val[0]
+#                                    i+=1
+#                                    if x == val[1][0][0]:
+#                                        print "Match: ",key, event.ind[0]
+#                                print len(clustMembers), type(clustMembers), type(clustMembers[0]), clustMembers.shape
+                                try:
+                                    self.memPlot.remove()
+                                except:
+#                                    print "no self.memPlot to remove"
+                                    pass
+
+                                self.clustMembers = clustMembers#[:,0:2]
+                                self.memPlot, = self.imageAxis.plot(self.clustMembers[:,0]-self.prevImLimits[0],\
+                                                                    self.clustMembers[:,1]-self.prevImLimits[1],\
+                                                                    'go', ms = 8, alpha = 0.5, label = 'clustMembers')
+#                                self.memPlot, = self.imageAxis.plot(self.clustMembers[:,0],\
+#                                                                    self.clustMembers[:,1], 'go', ms = 8,\
+#                                                                    alpha = 0.5, label = 'clustMembers')
+                                self._setImScale_()
+                            else:
+                                print event.ind[0], " is not a key"
+#                            print x,y
+#                            print x+self.prevImLimits[0], y+self.prevImLimits[1], ' x',self.xLim, ' y',self.yLim#+self.prevImLimits[1]
+#                            print x+self.prevImLimits[0], y+self.prevImLimits[1]
+                        else:
+                            if self.peakInfo != None:
+                                print event.ind[0], xdata[event.ind[0]], ydata[event.ind[0]]
+                                for info in self.peakInfo.itervalues():
+                                    print info[event.ind[0]]
+
+                        self.xLine.set_xdata([xPnt])
+                        self.yLine.set_ydata([yPnt])
+
+                        self.imageAxis.draw_artist(self.selectCursA)
+                        self.imageAxis.draw_artist(self.xLine)
+                        self.imageAxis.draw_artist(self.yLine)
+                        self.plotWidget.canvas.blit(self.imageAxis.bbox)
+#                        self.plotWidget.canvas.draw()
+
+    #                self.plotWidget2.canvas.format_labels()
+    #                self.plotWidget2.canvas.draw()
+    #                self.plotWidget2.setFocus()
+                else:
+    #                event.ignore()
+    #                print "Not button 1"
+                    #return True
+                    pass
+
+
+
+
+    def _setImScale_(self):
+        self.imageAxis.set_xlim(0, self.curIm.shape[1]-1)
+        self.imageAxis.set_ylim(0, self.curIm.shape[0])
+
+    def _drawCanvases_(self):
+        self.plotWidget2.canvas.format_labels()
+        self.plotWidget2.canvas.draw()
+
+        self.plotWidget.canvas.format_labels()
+        self.plotWidget.canvas.draw()
+
+    def setupTable(self):
+        self.tabPeakTable.clear()
+        #need to disable sorting as it corrupts data addition
+        self.tabPeakTable.setSortingEnabled(False)
+        header = []#'Index', 'Locations', 'Intensity','Width', 'Area']
+#        simpleIndex = N.arange(len(self.peakInfo['peakLoc']))
+        i = 0
+        for item in self.peakInfo.iteritems():
+            if i == 0:
+                header.append(item[0])
+                peakVals = item[1]
+            else:
+                header.append(item[0])
+                peakVals = N.column_stack((peakVals,item[1]))
+            i+=1
+##        peakVals = self.peakInfo.values()
+#        peakVals = N.array(peakVals)
+#        peakVals.transpose()
+        self.tabPeakTable.addData(peakVals)
+#        tm = MyTableModel(peakVals, header, self)
+#        self.tabPeakTable.setModel(tm)
+#        self.tabPeakTable.resizeColumnsToContents()
+#        self.tabPeakTable.verticalHeader()
+##        vh.setVisible(False)
+        self.tabPeakTable.setHorizontalHeaderLabels(header)
+        self.tabPeakTable.setSortingEnabled(True)
+
+
+    def setupTable2(self):
+        self.tabPeakTable_2.clear()
+        #need to disable sorting as it corrupts data addition
+        self.tabPeakTable_2.setSortingEnabled(False)
+        header = ['Index', 'Centroid', '# Peaks','Members']
+#        simpleIndex = N.arange(len(self.peakInfo['peakLoc']))
+        i = 0
+        keys=[]
+        centroid = []
+        numPeaks = []
+        peakVals = []
+        for item in self.clustDict.iteritems():
+            entry = []
+            entry.append(int(item[0]))
+            entry.append(str(item[1][0][0]))
+            nums = len(item[1][1][:,0])
+
+            entry.append(nums)
+            entry.append(str(item[1][1].tolist()))
+            peakVals.append(entry)
+
+            i+=1
+
+        self.tabPeakTable_2.addData(peakVals)
+#        tm = MyTableModel(peakVals, header, self)
+#        self.tabPeakTable.setModel(tm)
+#        self.tabPeakTable.resizeColumnsToContents()
+#        self.tabPeakTable.verticalHeader()
+##        vh.setVisible(False)
+        self.tabPeakTable_2.setHorizontalHeaderLabels(header)
+        self.tabPeakTable_2.setSortingEnabled(True)
+
+
+    def showClusterMZ(self):
+        if self.clustMembers != None:
+            peakInd = []
+            cols = self.curData.colPoints
+            rows = self.curData.rowPoints
+            for peak in self.clustMembers:
+                chromLoc = peak[0]*cols+peak[1]#+self.prevChromLimits #this is wrong for very close zooms...
+                peakInd.append(chromLoc)
+
+            print "Cluster indices: ", peakInd
+#            print 'peak[0], peak[1], self.xLim, self.yLim, self.prevChromLimits, self.prevImLimits, rows, cols'
+#            print peak[0], peak[1], self.xLim, self.yLim, self.prevChromLimits, self.prevImLimits, rows, cols
+            mzList = self.curData.getMZlist(peakInd)
+
+            if isinstance(self.mzPlot, MPL_Widget):
+                try:
+                    self.mzPlot.close()
+                except:
+                    pass
+
+                self.mzPlot = None
+
+            self.mzPlot = MPL_Widget()
+            self.mzPlot.setWindowTitle(('Clustered Peak Mass Spectrum from %s'%self.curData.name))
+#            self.mzPlot.canvas.setupSub(1)
+            ax1 = self.mzPlot.canvas.axDict['ax1']
+            MZ = mzList[0]
+            if len(mzList)>1:
+                plotTitle = 'Clustered Peaks from %s - %s'%(peakInd[0], peakInd[-1])
+                for i,mz in enumerate(mzList[1:]):
+    #                if self.colorIndex%len(COLORS) == 0:
+    #                    self.colorIndex = 0
+    #                curColor = COLORS[self.colorIndex]
+    #                self.colorIndex +=1
+                    MZ+=mz
+            else:
+                plotTitle = 'Peaks at %s'%(peakInd[0])
+            ax1.set_title(plotTitle)
+            ax1.title.set_fontsize(10)
+            ax1.set_xlabel('m/z', fontstyle = 'italic')
+            ax1.set_ylabel('Intensity')
+            ax1.vlines(N.arange(len(MZ)),0,MZ, color = 'k')#curColor)#, label = '%s'%peakInd[i])
+#            self.mzPlot.canvas.format_labels()
+
+#            ax1.legend()
+            self.mzPlot.show()
+
+#            dataCoord = [[int(N.round(event1.xdata)), int(N.round(event1.ydata))],[int(N.round(event2.xdata)), int(N.round(event2.ydata))]]
+#
+#            chromLimits = [dataCoord[0][0]*cols+dataCoord[0][1]+self.prevChromLimits,\
+#                           N.abs(self.prevChromLimits+(dataCoord[1][0]*cols+dataCoord[1][1]))]
+#            dataCoord = N.array(dataCoord)
+#            chromLimits = N.array(chromLimits)
+#            self.xLim = dataCoord[:,0]
+#            self.yLim = dataCoord[:,1]
+#            self.xLim.sort()
+#            self.yLim.sort()
+#            self.chromLimits.sort()
+
+    def plotTypeChanged(self, plotTypeQString):
+        self.tabWidget.setCurrentIndex(0)#return to plot tab
+        self.plotType = str(plotTypeQString)
+        self.specListSelect()
+
+    def resetRefLimits(self):
+        self.xLim = [0,0]
+        self.yLim = [0,0]
+        self.chromLimits = [0,0]
+        self.prevImLimits = [0,0]
+
+    def plotLinkage(self, finishedBool):
+        if finishedBool:
+            if self.showDendroCB.isChecked():
+                if isinstance(self.linkagePlot, MPL_Widget):
+                    self.linkagePlot.close()
+                    self.linkagePlot = None
+                self.linkagePlot = MPL_Widget()
+                self.linkagePlot.setWindowTitle(('Clustered Peaks for %s'%self.curData.name))
+                self.linkagePlot.canvas.setupSub(1)
+                ax1 = self.linkagePlot.canvas.axDict['ax1']
+#                print len(self.PCT.tempMIHist[0]), len(self.PCT.tempMIHist[1])
+#
+#                ax1.plot(self.PCT.tempMIHist[1][1:], self.PCT.tempMIHist[0])
+#                ax1.plot(self.PCT.tempMDHist[1][1:], self.PCT.tempMDHist[0])
+                if self.PCT.maxDist != None:
+                    print "Maximum Distance Allowed: ",self.PCT.maxDist
+                    H.dendrogram(self.PCT.linkageResult, colorthreshold=self.PCT.maxDist, customMPL = ax1)
+#                else:
+#                    H.dendrogram(self.PCT.linkageResult, colorthreshold= 10, customMPL = ax1)
+                self.linkagePlot.show()
+            self.clustLoc2D = self.PCT.peakCentroids
+            self.autoscale_plot()
+
+
+
+
+    def closeEvent(self,  event = None):
+        try:
+            self.linkagePlot.close()
+        except:
+            pass
+#        if self.okToExit():
+#            pass
+#        else:
+#            event.ignore()
+
+    def savePeaks2HDF(self):
+        if self.curData != None:
+            if self.curData.peakPickOk:
+                self.curData.savePeakInfo()
+        else:
+            return QtGui.QMessageBox.warning(self, "No Data to Save",  'Load a Data File!')
+
+    def SFDialog(self):
+        fileName = QtGui.QFileDialog.getSaveFileName(self,
+                                         "Select File to Save",
+                                         "",
+                                         "csv Files (*.csv)")
+        if not fileName.isEmpty():
+            print fileName
+            return fileName
+        else:
+            return None
+
+    def saveRaw2DPeaks2CSV(self):
+        '''
+        Saves 2D peak locations to a CSV file
+        Note: these are just the raw locations--not the clustered peaks.
+        '''
+        path = self.SFDialog()
+        if path != None:
+            try:
+                if self.peakLoc2D != None:
+                    self.peakLoc2D = self.get2DPeakLoc(self.peakInfo['peakLoc'], self.curData.rowPoints,\
+                                                       self.curData.colPoints, peakIntensity = self.peakInfo['peakInt'])
+                    data2write = N.column_stack((self.peakLoc2D[0],self.peakLoc2D[1], self.peakLoc2D[2]))
+                    N.savetxt(str(path), data2write, delimiter = ',', fmt='%.4f')
+
+                else:
+                    raise 'No Peak List Exists to Save'
+
+                print "Raw Peaks written to: %s"%str(path)
+
+            except:
+                errorMsg ='Error saving figure data to csv\n\n'
+                errorMsg += "Sorry: %s\n\n%s\n"%(sys.exc_type, sys.exc_value)
+                print errorMsg
+                return QtGui.QMessageBox.warning(self, "Save Error",  errorMsg)
+
+    def savePeaks2CSV(self):
+        '''
+        Saves the raw 1D peaks in the full chromatogram to a file
+        '''
+        path = self.SFDialog()
+        if path != None:
+            try:
+                if self.peakInfo != None:
+                    header = []#'Index', 'Locations', 'Intensity','Width', 'Area']
+            #        simpleIndex = N.arange(len(self.peakInfo['peakLoc']))
+                    i = 0
+                    for item in self.peakInfo.iteritems():
+                        if i == 0:
+                            header.append(item[0])
+                            data2write = item[1]
+                        else:
+                            header.append(item[0])
+                            data2write = N.column_stack((data2write,item[1]))
+                        i+=1
+
+                    N.savetxt(str(path), data2write, delimiter = ',', fmt='%.4f')
+                else:
+                    raise 'No Peak List Exists to Save'
+
+            except:
+                errorMsg ='Error saving figure data to csv\n\n'
+                errorMsg += "Sorry: %s\n\n%s\n"%(sys.exc_type, sys.exc_value)
+                print errorMsg
+                return QtGui.QMessageBox.warning(self, "Save Error",  errorMsg)
+
+    def format2ndAxis(self, axis):
+        labels_x = axis.get_xticklabels()
+        labels_y = axis.get_yticklabels()
+#        axis.set_yticklabels([''])
+
+        for xlabel in labels_x:
+            xlabel.set_fontsize(8)
+        for ylabel in labels_y:
+            ylabel.set_fontsize(8)
+            ylabel.set_color('b')
+
+    def addChromPickers(self, minX = 0):
+        '''
+        Pickers for the Chromatogram
+        minX is provided so that the plot will scale correctly when a data trace is initiated
+        Pickers for the 2D image
+        '''
+        self.selectHandleA,  = self.chromAxis.plot([minX], [0], 'o',\
+                                        ms=8, alpha=.4, color='yellow', visible=False,  label = '_nolegend_')
+        self.selectHandleB,  = self.chromAxis.plot([minX], [0], 's',\
+                                        ms=8, alpha=.4, color='green', visible=False,  label = '_nolegend_')
+    def addImPickers(self, minX = 0):
+        '''Pickers for the 2D Chromatogram'''
+        self.selectCursA,  = self.imageAxis.plot([minX], [0], 'o',\
+                                        ms=5, alpha=.7, color='red', visible=self.showImPickers,  label = '_nolegend_')
+        self.xLine = self.imageAxis.axvline(x=0, ls = ':', color = 'y', alpha = 0.6, visible = self.showImPickers)
+        self.yLine = self.imageAxis.axhline(y=0, ls = ':', color = 'y', alpha = 0.6, visible = self.showImPickers)
+#        self.cursText = self.imageAxis.text(0, 0, '0rigin',  fontsize=9)
+
+        self.imPicker = self.plotWidget.canvas.mpl_connect('pick_event', self.imageClick)
+
+    def toggleImPickers(self):
+        '''we want to toggle the visibility of these items in a group
+        so a test for one is sufficient for all of them'''
+        if self.showImPickers:
+            self.showImPickers = False
+            self.selectCursA.set_visible(False)
+            self.xLine.set_visible(False)
+            self.yLine.set_visible(False)
+        else:
+            self.showImPickers = True
+            self.selectCursA.set_visible(True)
+            self.xLine.set_visible(True)
+            self.yLine.set_visible(True)
+
+    def colorScale(self, dataMtx):
+        dataMtx = N.where(dataMtx<= 0, dataMtx,10)
+        lev_exp = N.arange(0, N.log2(dataMtx.max())+1)
+        levs = N.power(2, lev_exp)
+        return levs
+
+    def updateChromGUI(self):
+        self.specLengthSB.setValue(len(self.curChrom))
+        self.numSegsSB.setValue(self.curData.rowPoints)
+
+    def specListSelect(self, widgetItem=None):
+        selectItems = self.listWidget.selectedItems()
+        if len(selectItems) > 0:
+            self.updatePlot(self.listWidget.indexFromItem(selectItems[0]).row())
+
+
 
 ##########Peak Finding Routines######################
 
@@ -1229,7 +1201,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
                 if len(self.curChrom) > 0:
                     self.PFT.initSpectrum(self.curChrom, minSNR = self.peakParams['minSNR'], numSegs = self.peakParams['numSegs'],\
                                           smthKern = self.peakParams['smthKern'], peakWidth = self.peakParams['peakWidth'])
-                    self.ToggleProgressBar(True)
+                    self.toggleProgressBar(True)
                     self.progressMax = N.float(self.peakParams['numSegs'])
                     self.PFT.start()
                     self.tabWidget.setCurrentIndex(0)
@@ -1270,7 +1242,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
 
                 self.autoscale_plot()#this is the function that actually plots the peaks in 1 and 2D
 
-            self.SetStatusLabel("Peak Fitting Completed, %d Peaks Found" % len(self.peakInfo['peakLoc']))
+            self.setStatusLabel("Peak Fitting Completed, %d Peaks Found" % len(self.peakInfo['peakLoc']))
 
             self.resetProgressBar()
             self.setupTable()
@@ -1279,6 +1251,8 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
 
     def lassoHandler(self, selectPoints):
         print selectPoints
+
+
         try:
             self.lassoSelected.remove()
         except:
@@ -1286,6 +1260,17 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
             pass
         self.lassoSelected, = self.imageAxis.plot(selectPoints[:,0], selectPoints[:,1], 'bo', alpha = 0.5)
         self._setImScale_()
+
+        scaledPoints = selectPoints
+#        scaledPoints[:,0] += self.xLim[0]
+        scaledPoints[:,0] +=self.prevImLimits[0]
+#        scaledPoints[:,1] +=self.yLim[0]
+        scaledPoints[:,1] +=self.prevImLimits[1]
+
+        print scaledPoints
+#        self.memPlot, = self.imageAxis.plot(self.clustMembers[:,0]-self.xLim[0]-self.prevImLimits[0],\
+#                                    self.clustMembers[:,1]-self.yLim[0]-self.prevImLimits[1],\
+#                                    'go', ms = 8, alpha = 0.5, label = 'clustMembers')
 
 
     def lassoToggle(self):
@@ -1320,6 +1305,62 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
             self.usrZoom = True
 #            self.RS.visible = True
             self.RS.set_active(True)
+
+    def toggleDistance(self, intState):
+#        print intState
+        if intState == 0:
+            self.maxDistThreshSB.setEnabled(True)
+            self.distanceLabel.setEnabled(True)
+
+        elif intState == 2:
+            self.maxDistThreshSB.setEnabled(False)
+            self.distanceLabel.setEnabled(False)
+
+    def toggleClusterType(self, intState):
+#        print intState
+        if intState == 0:
+            self.dbAutoCalcCB.setEnabled(False)
+            self.denGrpNumThresh.setEnabled(False)
+            self.denGrpNum.setEnabled(False)
+            ##################################
+            self.showDendroCB.setEnabled(True)
+            self.clustTypeLbl.setEnabled(True)
+            self.clusterTypeCB.setEnabled(True)
+#            self.distCalMethLbl.setEnabled(True)
+#            self.distMethodCB.setEnabled(True)
+            self.calcThreshCB.setEnabled(True)
+            if not self.distanceLabel.isEnabled():
+                self.toggleDistance(self.calcThreshCB.checkState())
+
+        elif intState == 2:
+            self.dbAutoCalcCB.setEnabled(True)
+            self.denGrpNumThresh.setEnabled(True)
+            self.denGrpNum.setEnabled(True)
+            ##################################
+            self.showDendroCB.setEnabled(False)
+            self.clustTypeLbl.setEnabled(False)
+            self.clusterTypeCB.setEnabled(False)
+#            self.distCalMethLbl.setEnabled(False)
+#            self.distMethodCB.setEnabled(False)
+            self.calcThreshCB.setEnabled(False)
+            if self.distanceLabel.isEnabled():
+                self.distanceLabel.setEnabled(False)
+                self.maxDistThreshSB.setEnabled(False)
+
+    def toggleDBDist(self, intState):
+        '''
+        Controls visibility of DBSCAN related GUI items.
+        '''
+        if intState == 0:
+            self.densityDistThreshSB.setEnabled(True)
+            self.denDistLbl.setEnabled(True)
+
+        elif intState == 2:
+            self.densityDistThreshSB.setEnabled(False)
+            self.denDistLbl.setEnabled(False)
+            self.denGrpNumThresh.setEnabled(False)
+            self.denGrpNum.setEnabled(False)
+
 
     def get2DPeakLoc(self, peakLoc, rows, cols, peakIntensity = None):
         x = N.empty(len(peakLoc), dtype = int)
@@ -1554,7 +1595,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
 ##########END CURSOR CONTROLS##################
 
 ##########Begin Ashoka Progress Bar Code....
-    def LayoutStatusBar(self):
+    def layoutStatusBar(self):
         self.progressBar = QtGui.QProgressBar()
         self.statusLabel = QtGui.QLabel("Ready")
 #        self.statusLabel.setMinimumSize(self.statusLabel.sizeHint())
@@ -1566,34 +1607,34 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         self.progressBar.setValue(0)
         self.progressBar.setFixedHeight(15)
         self.progressBar.setFixedWidth(100)
-        self.ToggleProgressBar(False)
+        self.toggleProgressBar(False)
         self.statusbar.addWidget(self.progressBar)
 
     def resetProgressBar(self):
-        self.SetProgressValue(0)
-        self.ToggleProgressBar(False)
+        self.setProgressValue(0)
+        self.toggleProgressBar(False)
 
-    def SetStatusLabel(self, text):
+    def setStatusLabel(self, text):
         self.statusLabel.setText(text)
 
-    def ShowStatusMessage(self, text, stime):
+    def showStatusMessage(self, text, stime):
         self.statusBar().showMessage(text, stime)
 
-    def SetProgressValue(self, val):
+    def setProgressValue(self, val):
         self.progressBar.setValue(val)
 
-    def ToggleProgressBar(self, toggle):
+    def toggleProgressBar(self, toggle):
         self.progressBar.setVisible(toggle)
 
     def threadProgress(self, progVal):
-        self.SetStatusLabel("Fitting Peaks, %d segments completed." % progVal)
+        self.setStatusLabel("Fitting Peaks, %d segments completed." % progVal)
         newVal = int(100*(progVal/self.progressMax))
-        self.SetProgressValue(newVal)
+        self.setProgressValue(newVal)
 #        self.AddMessage2Tab("  %d Iterations Done." % progVal)
 #        print progVal, newVal, self.progressMax
 
     def PCTProgress(self, updateString):
-        self.SetStatusLabel(updateString)
+        self.setStatusLabel(updateString)
 
 
 if __name__ == "__main__":
