@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Documents and Settings\d3p483\workspace\GCAlign\iterate.ui'
 #
-# Created: Mon Jan 05 14:33:33 2009
+# Created: Tue Jan 06 09:49:37 2009
 #      by: PyQt4 UI code generator 4.3.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -617,7 +617,7 @@ class Ui_MainWindow(object):
         self.hboxlayout15.setObjectName("hboxlayout15")
 
         self.dbScanCB = QtGui.QCheckBox(self.optionsTab)
-        self.dbScanCB.setChecked(True)
+        self.dbScanCB.setChecked(False)
         self.dbScanCB.setObjectName("dbScanCB")
         self.hboxlayout15.addWidget(self.dbScanCB)
 
