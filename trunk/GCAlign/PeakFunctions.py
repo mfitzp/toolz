@@ -5,9 +5,11 @@ import os
 from SG_Filter import savitzky_golay
 from scipy import optimize
 import numpy as N
-from pylab import *
+import pylab as P
 from matplotlib.widgets import SpanSelector, Button
 import CARSMath as CM
+
+from baseline2 import SplitNSmooth
 
 #######################
 '''Function to locate the positive peaks in a noisy x-y data
@@ -59,9 +61,12 @@ def findPeaks(data_array, peakWidth, minSNR = 3, slopeThresh = None, ampThresh =
     y_stdev = N.std(data_array)
     y_len = len(data_array)
     if ampThresh == None:
-        AmpThreshold=crudeNoiseEstimate(data_array, minSNR)#, sigmaThresh)y_stdev*2+N.mean(data_array)# first estimation of noise
+        gblThreshold=crudeNoiseEstimate(data_array, minSNR)#, sigmaThresh)y_stdev*2+N.mean(data_array)# first estimation of noise
+        AmpThreshold, minNoise = SplitNSmooth(data_array, len(data_array)/10, minSNR)
     else:
-        AmpThreshold = ampThresh
+        gblThreshold=crudeNoiseEstimate(data_array, minSNR)#, sigmaThresh)y_stdev*2+N.mean(data_array)# first estimation of noise
+        AmpThreshold,minNoise = SplitNSmooth(data_array, len(data_array)/10, minSNR)
+#        AmpThreshold = ampThresh
 #    print 'Threshold', AmpThreshold
     if smthKern == None:
         smthKern = 15#=peakWidth/2 #SmoothWidth should be roughly equal to 1/2 the peak width (in points)
@@ -86,6 +91,11 @@ def findPeaks(data_array, peakWidth, minSNR = 3, slopeThresh = None, ampThresh =
     smoothed_data=savitzky_golay(data_array, kernel = smthKern, order = 4)
     #d=savitzky_golay(first_derivative(smoothed_data), kernel = 11, order = 4)
     d = derivative(smoothed_data)
+    smthAmpThresh = savitzky_golay(N.clip(AmpThreshold, 0, AmpThreshold.max()), kernel = smthKern, order = 4)
+    smthAmpThresh = N.clip(smthAmpThresh,0,smthAmpThresh.max())
+    #the gblThreshold2 is a rough estimate of the baseline estimate of the noise
+    #it allows the lower abundance peaks to be identified with a greater degree of reliability.
+    gblThreshold2=crudeNoiseEstimate(smthAmpThresh, minSNR/5)
 #    second_d = derivative(d)
 
     n=round(peakgroup/2)
@@ -99,8 +109,8 @@ def findPeaks(data_array, peakWidth, minSNR = 3, slopeThresh = None, ampThresh =
     peak_area = []
 
 
-    for j in range(len(d)-1): #d is the smoothed first derivative
-        if sign(d[j]) > sign (d[j+1]): # Detects zero-crossing
+    for j in xrange(len(d)-1): #d is the smoothed first derivative
+        if N.sign(d[j]) > N.sign (d[j+1]): # Detects zero-crossing
             #print j
             if d[j]-d[j+1] > SlopeThreshold*data_array[j]: # if slope of derivative is larger than SlopeThreshold
                 #setting up SNR screening which looks before and after the peak to get an idea of the local noise
@@ -139,8 +149,9 @@ def findPeaks(data_array, peakWidth, minSNR = 3, slopeThresh = None, ampThresh =
 
                 local_max = (local_max_prev + local_max_after)/2
 
-                if data_array[j] > AmpThreshold:#3*local_max: # if height of peak is larger than AmpThreshold
-                    #print j
+                #if data_array[j] > AmpThreshold[j]:#3*local_max: # if height of peak is larger than AmpThreshold
+                if data_array[j] > gblThreshold2:#3*local_max: # if height of peak is larger than AmpThreshold
+#                    print j, data_array[j], AmpThreshold[j]
                     xx=[]
                     yy=[]
                     noise_range=[]
@@ -175,13 +186,33 @@ def findPeaks(data_array, peakWidth, minSNR = 3, slopeThresh = None, ampThresh =
                     ##print "Peak Location:", p[1]
                     ##print "Width: ", p[2]
                     ##print ""
+#                elif data_array[j] > gblThreshold2:#used to screen very low noise peaks.
+##                    print j, data_array[j], AmpThreshold[j]
+#                    xx=[]
+#                    yy=[]
+#                    noise_range=[]
+#                    for k in range(int(peakgroup)): # Create sub-group of points near peak
+#                        groupindex=j+k-n+1
+#                        if groupindex<1:
+#                            groupindex=1
+#                        if groupindex >= vectorlength:
+#                            groupindex = vectorlength-1
+#                        xx.append(groupindex)
+#                        yy.append(data_array[groupindex])
+#
+#                    p = CM.fit_gaussian(xx, yy)
+#                    peak_intensity.append(p[0])
+#                    peak_loc.append(abs(p[1]))
+#                    peak_width.append(p[2])
+#                    peak_area.append(N.trapz(yy, xx))
+
 
     file_info={}
-    file_info['peak_location'] = peak_loc
-    file_info['peak_intensity'] = peak_intensity
-    file_info['peak_width'] = peak_width
-    file_info['peak_area'] = peak_area
-#    file_info['smoothed_data'] = smoothed_data
+    file_info['peak_location'] = N.array(peak_loc)
+    file_info['peak_intensity'] = N.array(peak_intensity)
+    file_info['peak_width'] = N.array(peak_width)
+    file_info['peak_area'] = N.array(peak_area)
+#    file_info['smoothed_data'] = N.array(smoothed_data)
 #    file_info['smoothed_deriv'] = d
 #    file_info['second_deriv'] = second_d
 
@@ -190,7 +221,7 @@ def findPeaks(data_array, peakWidth, minSNR = 3, slopeThresh = None, ampThresh =
 ###################
 
 def get_ascii_data(filename):
-    data_spectrum=load(filename, skiprows = 0, delimiter = ',' )##remember to change this depending on file format
+    data_spectrum=P.load(filename, skiprows = 0, delimiter = ',' )##remember to change this depending on file format
     print "File Loaded: ", filename
     return data_spectrum
 
@@ -208,29 +239,48 @@ def derivative(y_data):
 ############################
 def plot_results(raw_data_x, raw_data_y, peak_result_dict):
 
-    fig = figure(figsize=(8,6))
-    ax = fig.add_subplot(211, axisbg='#FFFFFF')
+    fig = P.figure(figsize=(8,6))
+    ax = fig.add_subplot(111, axisbg='#FFFFFF')
     x=raw_data_x
     y=raw_data_y
     ax.plot(x,y, 'b')
-    ax.plot(x, peak_result_dict.get('smoothed_data'), 'r')
+#    sdata = peak_result_dict['smoothed_data']
+
+#    ax.plot(x, peak_result_dict.get('smoothed_data'), 'r')
     ax.plot(peak_result_dict.get('peak_location'), peak_result_dict.get('peak_intensity'), 'go')
+    noise,minNoise = SplitNSmooth(y, len(y)/10, 10)
+    print len(y)
+    smthNoise = savitzky_golay(N.clip(noise,0,noise.max()), kernel = 15, order = 4)
+    smthNoiseZero = N.clip(smthNoise, 0, smthNoise.max())
+    gblThreshold2=crudeNoiseEstimate(smthNoiseZero, 10/5)
+#    smthAmpThresh = savitzky_golay(N.clip(AmpThreshold, 0, AmpThreshold.max()), kernel = smthKern, order = 4)
+    ax.plot(smthNoise, '-g', alpha = 0.5)
+#    ax.plot(smthNoiseZero, '-k', alpha = 0.5)
+    ax.plot(noise, '-r', alpha = 0.5)
+    ax.hlines(crudeNoiseEstimate(y, 10), 0, len(y))
+    ax.hlines(gblThreshold2, 0, len(y), 'b')
 
-    ax.set_title('Widget')
+#    ax.set_title('Widget')
+#
+#    ax2 = fig.add_subplot(212, axisbg='#FFFFFF', sharex=ax)
+#    line2, = ax2.plot(peak_result_dict.get('smoothed_deriv'))
 
-    ax2 = fig.add_subplot(212, axisbg='#FFFFFF', sharex=ax)
-    line2, = ax2.plot(peak_result_dict.get('smoothed_deriv'))
-
-    show()
+    P.show()
 
 
 
 
 if __name__ == '__main__':
-    data_array = get_ascii_data(File_Dialog())
-    #data_array = get_ascii_data('/home/clowers/Desktop/IMS-TOF Noise Project/Noisy_IMS_XY.csv')
-    peak_info=Find_Peaks(data_array[:,1])
-    plot_results(data_array[:,0], data_array[:,1], peak_info)
+#    data_array = get_ascii_data(File_Dialog())
+    data_array = get_ascii_data('chrom1D.csv')
+#    data_array = data_array[0:500]
+#    P.plot(data_array)
+    x = N.arange(len(data_array))
+    y = data_array
+#    P.plot(x,y)
+    peak_info=findPeaks(data_array, 10, minSNR = 10)
+    plot_results(x, y, peak_info)
+#    P.show()
 
 
 
