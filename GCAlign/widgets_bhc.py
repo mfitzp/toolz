@@ -1015,6 +1015,11 @@ class RectangleSelector:
                  primaryBtn = None):
 
         """
+        ###########
+        Added primaryBtn by BHC to allow only a specific button to access
+        the range selector functionality
+        ###########
+
         Create a selector in ax.  When a selection is made, clear
         the span and call onselect with
 
@@ -1235,6 +1240,9 @@ class RectangleSelector:
         return self.active
 
 class Lasso(Widget):
+    '''
+    added color keyword
+    '''
     def __init__(self, ax, xy, callback=None, useblit=True, color = 'black'):
         self.axes = ax
         self.figure = ax.figure
