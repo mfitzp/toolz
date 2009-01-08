@@ -58,9 +58,16 @@ class GC_GC_MS_CLASS(QtCore.QObject):
         self.setupThreads()
         self.setTIC()
         self.ticLayer = self.make2DLayer(self.TIC, self.colPoints)
-        self.setBPC()
-        self.bpcLayer = self.make2DLayer(self.BPC, self.colPoints)
-        self.readPeakInfo()
+        try:
+            self.setBPC()
+            self.bpcLayer = self.make2DLayer(self.BPC, self.colPoints)
+        except:
+            print "BPC does not exist--file was most likely processed with an old version of LECO2HDF5"
+
+        try:
+            self.readPeakInfo()
+        except:
+            print "No peaks are stored in the file."
 
     def setPeakInfo(self, peakInfoDict):
         if type(peakInfoDict) is dict:
@@ -121,6 +128,11 @@ class GC_GC_MS_CLASS(QtCore.QObject):
             hdf.close()
 
     def savePeakInfo(self):
+        try:
+            self.closeHandle()
+        except:
+            pass
+
         if self.peakPickOk:
             for item in self.peakInfo1D.iteritems():
                 self.writeArray2File(item[0], item[1])
@@ -214,15 +226,23 @@ class GC_GC_MS_CLASS(QtCore.QObject):
     def setBPC(self):
         self.getHandle()
         if self.fileOpen:
-            bpc = self.handle.root.BPC.read()
-            bpcMZ = self.handle.root.BPC.read()
+            try:
+                bpc = self.handle.root.BPC.read()
+                bpcMZ = self.handle.root.BPC.read()
+
+                if len(bpc)>0:
+                    self.bpcOK = True
+                    self.BPC = bpc
+                    self.BPCmz = bpcMZ
+                else:
+                    print "Error opening HDF5 data file, no BPC found"
+            except:
+                print "No BPC in HDF5 File."
+
             self.closeHandle()
-            if len(bpc)>0:
-                self.bpcOK = True
-                self.BPC = bpc
-                self.BPCmz = bpcMZ
-            else:
-                print "Error opening HDF5 data file, no TIC found"
+        else:
+            self.closeHandle()
+
 
     def getTIC(self):
         if self.ticOK:
