@@ -152,6 +152,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         self.clustNum = 1
         self.clustDict = {}
         self.clustMembers = None
+        self.memPlot = None
 
         self.resetRefLimits()
 
@@ -439,47 +440,48 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
             else:
                 self.iterDBSCAN(temp)#tempCluster, tempType, typeEps, tempBool = dbscan(temp)
 
-        fXY = filtered[:,0:2]
-        self.densityCluster, self.Type, self.Eps, self.dbScanOK = dbscan(filtered, 1, Eps = N.sqrt(self.Eps)*2,\
-                                                                         distMethod = PCT.distTypeDist[str(self.distMethodCB.currentText())])
-        print "2nd Round",self.Eps#, self.clustLoc2D.shape
+        if filtered != None:
+            fXY = filtered[:,0:2]
+            self.densityCluster, self.Type, self.Eps, self.dbScanOK = dbscan(filtered, 1, Eps = N.sqrt(self.Eps)*2,\
+                                                                             distMethod = PCT.distTypeDist[str(self.distMethodCB.currentText())])
+            print "2nd Round",self.Eps#, self.clustLoc2D.shape
 
-        singlesIndex = N.where(self.Type == -1)[0]#these are the indices that have 1 member per cluster
+            singlesIndex = N.where(self.Type == -1)[0]#these are the indices that have 1 member per cluster
 
-        for point in singlesIndex:
-            self.clustType.append(self.clustNum)
-#                self.clustDict['%s'%self.clustNum] = [XY[point],N.array([XY[point]])]
-            self.clustDict['%s'%self.clustNum] = [fXY[point],N.array([fXY[point]])]
-#                print self.clustNum, XY[point]
-            self.clustNum += 1
-
-        for m in xrange(1,int(i)+1):
-#                if self.colorIndex%len(COLORS) == 0:
-#                    self.colorIndex = 0
-#                curColor = COLORS[self.colorIndex]
-#                self.colorIndex +=1
-            ind = N.where(m == self.densityCluster)[0]
-#                temp = filtered[:,0:2][ind]
-            temp = filtered[ind]
-            if len(temp)>0:
-
-                xTemp = temp[:,0]*temp[:,2]
-                yTemp = temp[:,1]*temp[:,2]
-                x = xTemp.sum()/(temp[:,2].sum())
-                y = yTemp.sum()/(temp[:,2].sum())
-
-                centroid = N.array([[x,y]])
-#                    print centroid, centroid.shape
-#                    centroid.shape = (1,2)
-#                print centroid, centroid.shape
-#                    self.clustLoc2D = N.append(self.clustLoc2D,centroid, axis = 0)
-                tempType = N.arange(len(temp))
-                tempType.fill(self.clustNum)
-                self.clustType.append(tempType)
-                self.clustDict['%s'%self.clustNum] = [centroid[0],temp]
-#                    print self.clustNum, temp
-#                    self.clustDict['%s%s'%(centroid[0][0],centroid[0][1])] = [centroid[0],temp]
+            for point in singlesIndex:
+                self.clustType.append(self.clustNum)
+    #                self.clustDict['%s'%self.clustNum] = [XY[point],N.array([XY[point]])]
+                self.clustDict['%s'%self.clustNum] = [fXY[point],N.array([fXY[point]])]
+    #                print self.clustNum, XY[point]
                 self.clustNum += 1
+
+            for m in xrange(1,int(i)+1):
+    #                if self.colorIndex%len(COLORS) == 0:
+    #                    self.colorIndex = 0
+    #                curColor = COLORS[self.colorIndex]
+    #                self.colorIndex +=1
+                ind = N.where(m == self.densityCluster)[0]
+    #                temp = filtered[:,0:2][ind]
+                temp = filtered[ind]
+                if len(temp)>0:
+
+                    xTemp = temp[:,0]*temp[:,2]
+                    yTemp = temp[:,1]*temp[:,2]
+                    x = xTemp.sum()/(temp[:,2].sum())
+                    y = yTemp.sum()/(temp[:,2].sum())
+
+                    centroid = N.array([[x,y]])
+    #                    print centroid, centroid.shape
+    #                    centroid.shape = (1,2)
+    #                print centroid, centroid.shape
+    #                    self.clustLoc2D = N.append(self.clustLoc2D,centroid, axis = 0)
+                    tempType = N.arange(len(temp))
+                    tempType.fill(self.clustNum)
+                    self.clustType.append(tempType)
+                    self.clustDict['%s'%self.clustNum] = [centroid[0],temp]
+    #                    print self.clustNum, temp
+    #                    self.clustDict['%s%s'%(centroid[0][0],centroid[0][1])] = [centroid[0],temp]
+                    self.clustNum += 1
 
         self.clustLoc2D = N.zeros((1,2))
         self.clustKeys = ['0']
@@ -599,8 +601,13 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         self.imageAxis.cla()
         self.chromAxis.cla()
         self.addChromPickers()
-        curDataName = self.dataList[plotIndex]
-        self.curData = self.dataDict[curDataName]
+        self.curDataName = self.dataList[plotIndex]
+        self.curData = self.dataDict[self.curDataName]
+#        print type(self.curData.name), self.curData.name
+#        test = self.listWidget.findItems(self.curData.name,QtCore.Qt.MatchExactly)[0]
+#        print self.listWidget.indexFromItem(test).row()
+
+#        print test
         self.specNameEdit.setText(self.curData.filePath)#use dataList to get the name
         if self.plotType == 'TIC':
             self.mainIm = self.curData.ticLayer
@@ -1214,6 +1221,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
 
     def plotPickedPeaks(self, finishedBool):#this function is called when the peak finding thread is finished
         if finishedBool:
+            self.peakInfo = None
             self.peakInfo = self.PFT.getPeakInfo()
             self.curData.setPeakInfo(self.peakInfo)
             self.PFT.wait()#as per Ashoka's code...
@@ -1239,13 +1247,15 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
 
             if self.showPickedPeaksCB.isChecked():
                 self.peakLoc2D = self.get2DPeakLoc(self.peakInfo['peakLoc'], self.curData.rowPoints, self.curData.colPoints)
-
-                self.autoscale_plot()#this is the function that actually plots the peaks in 1 and 2D
+                curItem = self.listWidget.findItems(self.curData.name,QtCore.Qt.MatchExactly)[0]
+                curRow = self.listWidget.indexFromItem(curItem).row()
+                self.updatePlot(curRow)
+#                self.autoscale_plot()#this is the function that actually plots the peaks in 1 and 2D
 
             self.setStatusLabel("Peak Fitting Completed, %d Peaks Found" % len(self.peakInfo['peakLoc']))
 
             self.resetProgressBar()
-            self.setupTable()
+            self.setupTable()##!!This needs a qualifier because if no peaks are found it fails.
         else:
             return QtGui.QMessageBox.warning(self, "Peak Find Thread Error",  "The thread did not finish or return a value properly--contact Clowers...")
 
