@@ -76,14 +76,17 @@ print massE
 
 #H378 C254 N65 O75 S6
 ATOMS = ['H','C','N','O','S',None]
-FLOOREDMASSES = []
+ISOTOPES = []
 for atom in ATOMS:
     if ELEMENTS.hasKey(atom):
-        FLOOREDMASSES.append(N.floor(ELEMENTS[atom].mass))
+        ISOTOPES.append(ELEMENTS[atom].isotopes)
     else:
-        FLOOREDMASSES.append(0)
+        ISOTOPES.append(0)
 
-print 'Floored Masses: ',FLOOREDMASSES
+for i,isotope in enumerate(ISOTOPES):
+    print ATOMS[i], isotope
+
+
 M=N.array([378+numProtons,254,65,75,6,0]) #% empiric formula, e.g. bovine insulin
 #M=N.array([7.7583+numProtons,4.9384,1.3577,1.4773,0.0417,0]) #% empiric formula, e.g. averagine
 #M=N.array([7.7583+numProtons,4.9384,1.3577,1.4773,0.0417,0]) #% empiric formula, e.g. averagine
