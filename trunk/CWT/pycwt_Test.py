@@ -56,18 +56,20 @@ def roundLen(data):
 #    print newdl,dl
     return data[0:newdl]
 
-def cwtMS(X, scales, sampleScale = 1.0, wavelet = 'DOG', maxClip = 1000.):
+def cwtMS(X, scales, sampleScale = 1.0, wlet = 'DOG', maxClip = 1000.):
     '''
     X is the INTERPOLATED intensity array from a mass spectrum.
     interpolation IS necessary especially for TOF data as the m/z domain is non-linear.
     '''
-    ans = W.cwt_a(X, scales, sampling_scale = sampleScale, wavelet = wavelet)
+    ans = W.cwt_a(X, scales, sampling_scale = sampleScale)#, wavelet = wlet)
     scaledCWT=N.clip(N.fabs(ans.real), 0., maxClip)#N.fabs get the element-wise absolute values
     return scaledCWT
 
 
-def getCWTPeaks(scaledCWT, minRow = 3, minClust = 4, EPS = None):
+def getCWTPeaks(scaledCWT, Y, noiseEst, minSNR = 3, minRow = 3, minClust = 4, EPS = None):
     '''
+    returns: N.array(peakLoc), cwtPeakLoc, cClass, boolean
+
     scaledCWT is the continuous wavelet transform provided by cwtMS function
     minRow is the first row of the cwt to pick peaks from--if this is too small you'll get
     too many peaks and the algorithm will choke.  Keep in mind that the first few rows of
@@ -97,7 +99,7 @@ def getCWTPeaks(scaledCWT, minRow = 3, minClust = 4, EPS = None):
 
     cwtPeakLoc = N.array(cwtPeakLoc)
 #    ax2.plot(cwtPeakLoc[:,0], cwtPeakLoc[:,1], 'oy', alpha = 0.4)
-    print 'Peak Finding: ', time.clock() - t2
+#    print 'Peak Finding: ', time.clock() - t2
 
     peakLoc = []
 
@@ -140,15 +142,14 @@ def getCWTPeaks(scaledCWT, minRow = 3, minClust = 4, EPS = None):
                 if i >= rowThresh:
                     maxInd = temp[:,1].argmin()
                     xVal = temp[maxInd][0]
-    #                if ms[xVal] >= noiseEst[xVal]:#*1.1:#minNoise:
 
-    #                print "Found Peak ", i, xVal, tempDiffY, '\n'
-            #                ax.vlines(temp[:,0].min(), 0, 100, 'r', linestyle = 'dashed', alpha = 0.5)
-#                    ax.vlines(x[xVal], 0, 100, 'r', linestyle = 'dashed', alpha = 0.5)
-                    peakLoc.append(x[xVal])
-                    print x[xVal]
+                    #this screening assumes there is a low value to the first
+                    #scale value e.g. 1 or 2
+                    if Y[xVal]>=scaledCWT[0][xVal]*minSNR/2 and Y[xVal] >= noiseEst[xVal]*minSNR/2:
+                        peakLoc.append(x[xVal])
+#                    print x[xVal]
 
-    return N.array(peakLoc), cwtPeakLoc, True
+    return N.array(peakLoc), cwtPeakLoc, cClass, True
 
 
 if __name__ == "__main__":
@@ -160,6 +161,7 @@ if __name__ == "__main__":
     if loadA:
     #    ms = P.load('N3_Norm.txt')
         ms = P.load('exampleMS.txt')
+        x = N.arange(len(ms))
         ms = normalize(ms)
         ms = topHat(ms, 0.01)
     #    ms = ms[8000:8500]
@@ -169,12 +171,14 @@ if __name__ == "__main__":
         'BSA_XY_Full.csv'
         'J15.csv'
         'Tryptone.csv'
-        ms = P.load('Tryptone2.csv', delimiter = ',')
+        ms = P.load('Tryptone.csv', delimiter = ',')
         x, ms = interpolate_spectrum(ms)
         ms = normalize(topHat(ms, 0.01))
         ms = roundLen(ms)
-        ms = ms[0:len(ms)*.75]
-        x = x[0:len(ms)]
+        start = 0#40000
+        stop = int(len(ms)*.75)##79000#len(ms)*.75
+        ms = ms[start:stop]
+        x = x[start:stop]
 
     print len(ms)
 
@@ -186,6 +190,7 @@ if __name__ == "__main__":
     #s2 = N.arange(12,48,4)
     print len(s1), len(s2)
     s = N.append(s1, s2)
+#    print type(s), s
 
     cwt = cwtMS(ms, s)
 
@@ -197,17 +202,17 @@ if __name__ == "__main__":
     ax = fig1.add_subplot(211)
     ax2 = fig1.add_subplot(212)#,sharex=ax)
     print "CWT Max", cwt.max(axis=0).max()
-    intMax = cwt.max(axis=0).max()*0.05
+    intMax = cwt.max(axis=0).max()*0.01
     im=ax2.imshow(cwt,vmax = intMax, cmap=P.cm.jet,aspect='auto')
     #ax2.plot(plotcwt[1], alpha = 0.7, label = '1')
     #ax.plot(plotcwt[0], alpha = 0.7, label = '0')
     minSNR = 5
-    numSegs = len(ms)/100
+    numSegs = len(ms)/10
     #numSegs = len(ms)/10#int(len(plotcwt[0])*0.0015)
-    #if numSegs < 1000 and len(ms) > 1000:
-    #    numSegs = 1000
-    #else:
-    #    numSegs = len(ms)/2
+#    if numSegs < 1000 and len(ms) > 1000:
+#        numSegs = 1000
+#    else:
+#        numSegs = len(ms)/5
     print "Length of ms, numSegs: ", len(ms), numSegs
     if normOk:
     #    ax.plot(normalize(plotcwt[0]),'b', label = '0')
@@ -238,6 +243,18 @@ if __name__ == "__main__":
         stdNoise = cwt[0].std()
         mNoise = 3*stdNoise+mNoise
 
+    peakLoc, cwtPeakLoc, cClass, boolAns = getCWTPeaks(cwt, ms, noiseEst, minRow = 3, minClust = 4, EPS = 10)
+    if boolAns:
+        ax2.plot(cwtPeakLoc[:,0], cwtPeakLoc[:,1], 'oy', ms = 3, alpha = 0.4)
+
+#        i = cClass.max()
+#        for m in xrange(int(i)+1):
+#            ind = N.where(m == cClass)
+#            temp = cwtPeakLoc[ind]
+#            ax2.plot(temp[:,0],temp[:,1],'-s', alpha = 0.7, ms = 3)
+
+        ax.vlines(peakLoc, 0, 100, 'r', linestyle = 'dashed', alpha = 0.5)
+        ax.plot(x, cwt[0], 'b', alpha = 0.7)
     #ax.hlines(mNoise, 0,len(plotcwt[0]), linestyles = 'dashed', label = 'mNoise')
     #
 #    critSum = N.zeros(1)
