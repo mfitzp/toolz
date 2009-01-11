@@ -15,9 +15,16 @@
 % Contact Magnus Palmblad at magnus.palmblad@gmail.com if you should
 % have any questions or comments.
 %
+
+Converted to Python 1/10/08 by
+Brian H. Clowers bhclowers@gmail.com
 '''
 import numpy as N
 import numpy.fft.fftpack as F
+
+from elements import ELEMENTS #A DICTIONARY OF ALL ELEMENTS
+#USAGE: ELEMENTS['C'].isotopes returns as tuple containing the info for each isotope
+
 import time
 import pylab as P
 
@@ -25,10 +32,18 @@ import pylab as P
 def next2pow(x):
     return 2**int(N.ceil(N.log(float(x))/N.log(2.0)))
 
+def getAveragineComp(peakMZ,charges):
+    mwAvgine = 111.1254#average MW
+    #C4.9384 H7.7583 N1.3577 O1.4773 S0.0417 Averagine, MWav = 111.1254 Da
+    # of averagine units
+    peakMZ*=charges
+    numUnits = peakMZ/mwAvgine
+    atoms = ['H','C','N','O','S',None]
+    comp = N.array([7.7583,4.9384,1.3577,1.4773,0.0417,0]) #% empiric formula, e.g. averagine
+    comp*=numUnits
+    comp = N.round(comp)
+    return atoms, comp
 
-MAX_ELEMENTS=5+1  # add 1 due to mass correction 'element'
-MAX_ISOTOPES=4    # maxiumum # of isotopes for one element
-CUTOFF=1e-8       # relative intensity cutoff for plotting
 
 WINDOW_SIZE = 1000
 #WINDOW_SIZE=input('Window size (in Da) ---> ');
@@ -50,9 +65,45 @@ if WINDOW_SIZE < N.round(496708*R)+1:
 
 print 'Vector size: 1x%d'%WINDOW_SIZE
 
-M=N.array([378,254,65,75,6,0]) #% empiric formula, e.g. bovine insulin
+MAX_ELEMENTS=5+1  # add 1 due to mass correction 'element'
+MAX_ISOTOPES=4    # maxiumum # of isotopes for one element
+CUTOFF=1e-4       # relative intensity cutoff for plotting
+
+massE = 5.4858E-4
+numCharges = 1
+numProtons = 1
+print massE
+
+#H378 C254 N65 O75 S6
+ATOMS = ['H','C','N','O','S',None]
+FLOOREDMASSES = []
+for atom in ATOMS:
+    if ELEMENTS.hasKey(atom):
+        FLOOREDMASSES.append(N.floor(ELEMENTS[atom].mass))
+    else:
+        FLOOREDMASSES.append(0)
+
+print 'Floored Masses: ',FLOOREDMASSES
+M=N.array([378+numProtons,254,65,75,6,0]) #% empiric formula, e.g. bovine insulin
+#M=N.array([7.7583+numProtons,4.9384,1.3577,1.4773,0.0417,0]) #% empiric formula, e.g. averagine
+#M=N.array([7.7583+numProtons,4.9384,1.3577,1.4773,0.0417,0]) #% empiric formula, e.g. averagine
+
+#C4.9384 H7.7583 N1.3577 O1.4773 S0.0417 Averagine, MWav = 111.1254 Da
+
+ATOMS, M = getAveragineComp(2000, 1)
+#print atoms
+#print comp
 
 # isotopic abundances stored in matrix A (one row for each element)
+'''
+So here's the reasoning behind the units used:
+The two STABLE isotopes of carbon are:
+#Neutrons    Mass            Relative abundance
+ 12          12.0            0.98929999999999996)
+ 13          13.0033548378   0.010699999999999999)
+
+'''
+
 A=N.zeros((MAX_ELEMENTS,MAX_ISOTOPES,2));
 
 A[0][0,:] = [100783,0.9998443]#                 % 1H
@@ -61,22 +112,22 @@ A[1][0,:] = [100000,0.98889]#                   % 12C
 A[1][1,:] = [200336,0.01111]#                   % 13C
 A[2][0,:] = [100307,0.99634]#                   % 14N
 A[2][1,:] = [200011,0.00366]#                   % 15N
-A[3][0,:] = [99492,0.997628]#                  % 16O
+A[3][0,:] = [99492,0.997628]#                   % 16O
 A[3][1,:] = [199913,0.000372]#                  % 17O
 A[3][2,:] = [299916,0.002000]#                  % 18O
-A[4][0,:] = [97207,0.95018]#                   % 32S
+A[4][0,:] = [97207,0.95018]#                    % 32S
 A[4][1,:] = [197146,0.00750]#                   % 33S
 A[4][2,:] = [296787,0.04215]#                   % 34S
 A[4][2,:] = [496708,0.00017]#                   % 36S
 A[5][0,:] = [100000,1.00000]#                   % for shifting mass so that Mmi is
-#                                             % near left limit of window
+#                                               % near left limit of window
 
 Mmi=N.array([N.round(100783*R), N.round(100000*R),\
              N.round(100307*R), N.round(99492*R), N.round(97207*R), 0])*M#  % (Virtual) monoisotopic mass in new units
 Mmi = Mmi.sum()
 #% mass shift so Mmi is in left limit of window:
 print "Mmi",Mmi
-print "Window", WINDOW_SIZE
+#print "Window", WINDOW_SIZE
 FOLDED=N.floor(Mmi/(WINDOW_SIZE-1))+1#  % folded FOLDED times (always one folding due to shift below)
 
 #% shift distribution to 1 Da from lower window limit:
@@ -93,7 +144,7 @@ for i in xrange(MAX_ELEMENTS):
     tA=N.zeros(WINDOW_SIZE)
     for j in xrange(MAX_ISOTOPES):
         if A[i][j,0] != 0:
-            #removed +1 after R)+1
+            #removed +1 after R)+1 --we're using python
             tA[N.round(A[i][j,0]*R)]=A[i][j,1]#;  % put isotopic distribution in tA
 
     print 'Calculate FFT...'
@@ -125,25 +176,31 @@ t0=time.clock()
 
 start = (FOLDED*(WINDOW_SIZE-1)+1)*RESOLUTION+MASS_REMOVED,(FOLDED+1)*(WINDOW_SIZE-1)*RESOLUTION+MASS_REMOVED
 stop = WINDOW_SIZE - 1
-#print type(start), start
-#print '\n'
-#print stop
+
 MA=N.linspace((FOLDED*(WINDOW_SIZE-1)+1)*RESOLUTION+MASS_REMOVED,(FOLDED+1)*(WINDOW_SIZE-1)*RESOLUTION+MASS_REMOVED, WINDOW_SIZE-1)
-#MA = N.arange()
-#axis([MA(1) MA(WINDOW_SIZE-1) 0 1]);
 
 ind=N.where(ptA>CUTOFF)[0]
-#P=[MA[ind],ptA(ind)];
+
 x = MA[ind]
 y = ptA[ind]
 
-#H=bar(P(:,1),P(:,2),0);
-P.bar(x,y)
-#P.plot(ptA)
-#set(H,'FaceColor','k');
-#grid
-#zoom on;
+if N.sign(numCharges) == -1:
+    #add electrons when a negative ion
+    x += N.abs(numCharges)*massE
+else:
+    #subtract electrons when a positive ion
+    x -= N.abs(numCharges)*massE
 
+x /= N.abs(numCharges)
+
+print "Envelope Length: ",len(y)
+#P.plot(ptA)
+P.vlines(x,0,y, label = 'Isotope Pattern')
+P.vlines(x[0], 0, y[0], color = 'r', linestyle = 'dotted', lw = 2, label = 'Monoisotopic Mass')
+maxYInd = y.argmax()
+P.vlines(x[maxYInd], 0, y[maxYInd], color = 'b', linestyle = 'dotted', lw = 2, label = 'Maximum Mass')
+#ax = P.gca()
+#ax.legend()
 'Time for plotting: %4.2f s'%(time.clock() - t0)
 P.show()
 
