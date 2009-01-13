@@ -64,6 +64,13 @@ Examples
 >>> for ele in ELEMENTS:
 ...     _ = ele.export('python')
 
+Modified by Brian H. Clowers 1/10/09
+bhclowers@gmail.com
+Modifications:
+
+--added a function under _Elements to test whether an element exists
+    --this function is called hasKey and implements dict.has_key()
+
 """
 
 __docformat__ = "restructuredtext en"

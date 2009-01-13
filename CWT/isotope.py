@@ -18,7 +18,22 @@
 
 Converted to Python 1/10/08 by
 Brian H. Clowers bhclowers@gmail.com
+Required Modules:
+numpy for the numerical calculations
+matplotlib enables the plotting functions
+
+-Keep in mind that the resolution will determine how finely
+the isotopic calculation will be performed.
+    --if it is too fine (i.e. < 0.00001)
+      then the calculation will fail.
+    --Besides, the ability to resolve differences of 0.00001 Da
+      would allow differentiation of electronic states--a feat
+      beyond even some of the best mass spectrometers (as of 2009).
+--Also if the window size is huge and resolution small
+  again this will create a huge array beyond the memory of simple desktop PC.
+
 '''
+import sys
 import numpy as N
 import numpy.fft.fftpack as F
 
@@ -31,6 +46,24 @@ import pylab as P
 
 def next2pow(x):
     return 2**int(N.ceil(N.log(float(x))/N.log(2.0)))
+
+def getWindowSize():
+    try:
+        WINDOW_SIZE = int(raw_input("Window size (in Da) ---> "))
+    except:
+        print "Please enter an integer next time....defaulting to 10"
+        WINDOW_SIZE = 10
+    return WINDOW_SIZE
+
+def getResolution():
+    try:
+        RESOLUTION = float(raw_input("Resolution (in Da) ----> "))
+    except:
+        print "Please enter an float next time....defaulting to 0.001"
+        RESOLUTION = 0.001
+    return RESOLUTION
+
+#RESOLUTION=input('Resolution (in Da) ----> ');  % mass unit used in vectors
 
 def getAveragineComp(peakMZ,charges):
     mwAvgine = 111.1254#average MW
@@ -45,11 +78,15 @@ def getAveragineComp(peakMZ,charges):
     return atoms, comp
 
 
-WINDOW_SIZE = 1000
-#WINDOW_SIZE=input('Window size (in Da) ---> ');
 
-#RESOLUTION=input('Resolution (in Da) ----> ');  % mass unit used in vectors
-RESOLUTION = 0.5
+
+
+WINDOW_SIZE = getWindowSize()
+#WINDOW_SIZE = 10
+
+RESOLUTION = getResolution()
+#RESOLUTION = 0.001
+
 if RESOLUTION < 0.00001:#  % minimal mass step allowed
   RESOLUTION = 0.00001
 elif RESOLUTION > 0.5:  # maximal mass step allowed
@@ -69,10 +106,9 @@ MAX_ELEMENTS=5+1  # add 1 due to mass correction 'element'
 MAX_ISOTOPES=4    # maxiumum # of isotopes for one element
 CUTOFF=1e-4       # relative intensity cutoff for plotting
 
-massE = 5.4858E-4
-numCharges = 1
-numProtons = 1
-print massE
+massE = 5.4858E-4 #mass in Da
+numCharges = 0
+numProtons = 0
 
 #H378 C254 N65 O75 S6
 ATOMS = ['H','C','N','O','S',None]
@@ -88,12 +124,11 @@ for i,isotope in enumerate(ISOTOPES):
 
 
 M=N.array([378+numProtons,254,65,75,6,0]) #% empiric formula, e.g. bovine insulin
-#M=N.array([7.7583+numProtons,4.9384,1.3577,1.4773,0.0417,0]) #% empiric formula, e.g. averagine
-#M=N.array([7.7583+numProtons,4.9384,1.3577,1.4773,0.0417,0]) #% empiric formula, e.g. averagine
+print M
 
 #C4.9384 H7.7583 N1.3577 O1.4773 S0.0417 Averagine, MWav = 111.1254 Da
 
-ATOMS, M = getAveragineComp(2000, 1)
+#ATOMS, M = getAveragineComp(2000, 1)
 #print atoms
 #print comp
 
@@ -130,12 +165,13 @@ Mmi=N.array([N.round(100783*R), N.round(100000*R),\
 Mmi = Mmi.sum()
 #% mass shift so Mmi is in left limit of window:
 print "Mmi",Mmi
-#print "Window", WINDOW_SIZE
+
 FOLDED=N.floor(Mmi/(WINDOW_SIZE-1))+1#  % folded FOLDED times (always one folding due to shift below)
 
 #% shift distribution to 1 Da from lower window limit:
 M[MAX_ELEMENTS-1]=N.ceil(((WINDOW_SIZE-1)-N.mod(Mmi,WINDOW_SIZE-1)+N.round(100000*R))*RESOLUTION)
 MASS_REMOVED=N.array([0,11,13,15,31,-1])*M#';  % correction for 'virtual' elements and mass shift
+#MASS_REMOVED=N.array([1,12,14,16,32,0])*M#';  % correction for 'virtual' elements and mass shift
 MASS_REMOVED = MASS_REMOVED.sum()
 
 ptA=N.ones(WINDOW_SIZE);
@@ -147,7 +183,7 @@ for i in xrange(MAX_ELEMENTS):
     tA=N.zeros(WINDOW_SIZE)
     for j in xrange(MAX_ISOTOPES):
         if A[i][j,0] != 0:
-            #removed +1 after R)+1 --we're using python
+            #removed +1 after R)+1 --we're using python which counts from 0
             tA[N.round(A[i][j,0]*R)]=A[i][j,1]#;  % put isotopic distribution in tA
 
     print 'Calculate FFT...'
@@ -187,23 +223,30 @@ ind=N.where(ptA>CUTOFF)[0]
 x = MA[ind]
 y = ptA[ind]
 
-if N.sign(numCharges) == -1:
-    #add electrons when a negative ion
-    x += N.abs(numCharges)*massE
-else:
-    #subtract electrons when a positive ion
-    x -= N.abs(numCharges)*massE
+if numCharges > 0:
+    if N.sign(numCharges) == -1:
+        #add electrons when a negative ion
+        x += N.abs(numCharges)*massE
+    else:
+        #subtract electrons when a positive ion
+        x -= N.abs(numCharges)*massE
 
-x /= N.abs(numCharges)
+    x /= N.abs(numCharges)
 
-print "Envelope Length: ",len(y)
+#scale Intensity Values
+yMax = y.max()
+y /=yMax
+y *= 100
+
 #P.plot(ptA)
 P.vlines(x,0,y, label = 'Isotope Pattern')
 P.vlines(x[0], 0, y[0], color = 'r', linestyle = 'dotted', lw = 2, label = 'Monoisotopic Mass')
 maxYInd = y.argmax()
 P.vlines(x[maxYInd], 0, y[maxYInd], color = 'b', linestyle = 'dotted', lw = 2, label = 'Maximum Mass')
-#ax = P.gca()
-#ax.legend()
+
 'Time for plotting: %4.2f s'%(time.clock() - t0)
+#for i,pnt in enumerate(x):
+#    print pnt, y[i]
+
 P.show()
 
