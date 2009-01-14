@@ -28,7 +28,7 @@ class PeakFindThread(QtCore.QThread):
         self.spectrum = None
 
 
-        self.peakFindOK = False
+        self.peakFitOK = False
         self.peakInfo = None
 
         self.peakWidth = None
@@ -288,23 +288,25 @@ if __name__ == "__main__":
 #    refSpec = dataDict.get('Acetone_Klean.h5')
 #    testSpec = dataDict.get('')
 
-    refSpec = P.load('TICRef.txt')
+    refSpec = P.load('chrom1D.csv')
 #    testSpec = P.load('TICSam.txt')
 #    refSpec = refSpec[100000:110000]
-    numSegs = 500
-    SNR = 2
+    numSegs = 50
+    SNR = 10
     fig = P.figure()
     ax = fig.add_subplot(111,  title = 'Picked')
 
-#    peakLoc, peakInt, peakWidth = SplitNFind(refSpec, numSegs, 25, minSNR = SNR)
+
     peakThread = PeakFindThread()
-    peakThread.initSpectrum(refSpec, minSNR = 3, numSegs = 500, smthKern = 15, peakWidth = 25)
+    peakThread.initSpectrum(refSpec, minSNR = SNR, numSegs = numSegs, smthKern = 15, peakWidth = 25)
     peakThread.start()
-    time.sleep(13)
+    time.sleep(6)
     peakInfo = peakThread.getPeakInfo()
     ax.plot(refSpec)
     ax.plot(peakInfo['peakLoc'],peakInfo['peakInt'], 'ro', alpha = 0.4)
 
+    data2Write = N.column_stack((peakInfo['peakLoc'],peakInfo['peakInt'],peakInfo['peakWidth'],peakInfo['peakArea']))
+    N.savetxt('chrom1DPeaks.csv', data2Write, delimiter = ',')
 #    ax2 = fig.add_subplot(212,  title = 'Histo')
 #    ax2.hist(peakInt, log = True, bins = 1000)
 
