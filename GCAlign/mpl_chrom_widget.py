@@ -182,7 +182,7 @@ class MPL_Chrom_Widget(QtGui.QWidget):
                 for line in lines:
                     data2write.append(line.get_data()[0])
                     data2write.append(line.get_data()[1])
-                print data2write
+#                print data2write
                 data2write = N.array(data2write)
                 data2write.dtype = N.float32
                 N.savetxt(str(path), N.transpose(data2write), delimiter = ',', fmt='%.4f')
