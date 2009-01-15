@@ -114,7 +114,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         self.colorIndex = 0
         ###############################
         self.linkagePlot = None
-        self.mzPlot = None
+        self.mzPlots = []
         ###############################
         self.chromStyles = ['BPC','TIC']#,'SIC']
         ###############################
@@ -242,7 +242,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
 
         QtCore.QObject.connect(self.calcThreshCB,QtCore.SIGNAL("stateChanged(int)"),self.toggleDistance)
         QtCore.QObject.connect(self.dbScanCB,QtCore.SIGNAL("stateChanged(int)"),self.toggleClusterType)
-        QtCore.QObject.connect(self.dbAutoCalcCB,QtCore.SIGNAL("stateChanged(int)"),self.toggleDBDist)
+        QtCore.QObject.connect(self.dbAutoCalcCB,QtCore.SIGNAL("stateChanged(int)"),self.toggleAutoDBDist)
 
 #        print self.imLasso, type(self.imLasso)
 #        QtCore.QObject.connect(self.imLasso,QtCore.SIGNAL("LassoUpdate(PyQt_PyObject)"),self.lassoHandler)
@@ -964,18 +964,18 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
 #            print peak[0], peak[1], self.xLim, self.yLim, self.prevChromLimits, self.prevImLimits, rows, cols
             mzList = self.curData.getMZlist(peakInd)
 
-            if isinstance(self.mzPlot, MPL_Widget):
-                try:
-                    self.mzPlot.close()
-                except:
-                    pass
+#            if isinstance(self.mzPlot, MPL_Widget):
+#                try:
+#                    self.mzPlot.close()
+#                except:
+#                    pass
+#
+#                self.mzPlot = None
 
-                self.mzPlot = None
+            mzPlot = MPL_Widget()
+            mzPlot.setWindowTitle(('Clustered Peak Mass Spectrum from %s'%self.curData.name))
 
-            self.mzPlot = MPL_Widget()
-            self.mzPlot.setWindowTitle(('Clustered Peak Mass Spectrum from %s'%self.curData.name))
-#            self.mzPlot.canvas.setupSub(1)
-            ax1 = self.mzPlot.canvas.axDict['ax1']
+            ax1 = mzPlot.canvas.axDict['ax1']
             MZ = mzList[0]
             if len(mzList)>1:
                 plotTitle = 'Clustered Peaks from %s - %s'%(peakInd[0], peakInd[-1])
@@ -995,19 +995,46 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
 #            self.mzPlot.canvas.format_labels()
 
 #            ax1.legend()
-            self.mzPlot.show()
+            mzPlot.show()
+            self.mzPlots.append(mzPlot)
 
-#            dataCoord = [[int(N.round(event1.xdata)), int(N.round(event1.ydata))],[int(N.round(event2.xdata)), int(N.round(event2.ydata))]]
+
+#            self.mzPlot = MPL_Widget()
+#            self.mzPlot.setWindowTitle(('Clustered Peak Mass Spectrum from %s'%self.curData.name))
+##            self.mzPlot.canvas.setupSub(1)
+#            ax1 = self.mzPlot.canvas.axDict['ax1']
+#            MZ = mzList[0]
+#            if len(mzList)>1:
+#                plotTitle = 'Clustered Peaks from %s - %s'%(peakInd[0], peakInd[-1])
+#                for i,mz in enumerate(mzList[1:]):
+#    #                if self.colorIndex%len(COLORS) == 0:
+#    #                    self.colorIndex = 0
+#    #                curColor = COLORS[self.colorIndex]
+#    #                self.colorIndex +=1
+#                    MZ+=mz
+#            else:
+#                plotTitle = 'Peaks at %s'%(peakInd[0])
+#            ax1.set_title(plotTitle)
+#            ax1.title.set_fontsize(10)
+#            ax1.set_xlabel('m/z', fontstyle = 'italic')
+#            ax1.set_ylabel('Intensity')
+#            ax1.vlines(N.arange(len(MZ)),0,MZ, color = 'k')#curColor)#, label = '%s'%peakInd[i])
+##            self.mzPlot.canvas.format_labels()
 #
-#            chromLimits = [dataCoord[0][0]*cols+dataCoord[0][1]+self.prevChromLimits,\
-#                           N.abs(self.prevChromLimits+(dataCoord[1][0]*cols+dataCoord[1][1]))]
-#            dataCoord = N.array(dataCoord)
-#            chromLimits = N.array(chromLimits)
-#            self.xLim = dataCoord[:,0]
-#            self.yLim = dataCoord[:,1]
-#            self.xLim.sort()
-#            self.yLim.sort()
-#            self.chromLimits.sort()
+##            ax1.legend()
+#            self.mzPlot.show()
+#
+##            dataCoord = [[int(N.round(event1.xdata)), int(N.round(event1.ydata))],[int(N.round(event2.xdata)), int(N.round(event2.ydata))]]
+##
+##            chromLimits = [dataCoord[0][0]*cols+dataCoord[0][1]+self.prevChromLimits,\
+##                           N.abs(self.prevChromLimits+(dataCoord[1][0]*cols+dataCoord[1][1]))]
+##            dataCoord = N.array(dataCoord)
+##            chromLimits = N.array(chromLimits)
+##            self.xLim = dataCoord[:,0]
+##            self.yLim = dataCoord[:,1]
+##            self.xLim.sort()
+##            self.yLim.sort()
+##            self.chromLimits.sort()
 
     def plotTypeChanged(self, plotTypeQString):
         self.tabWidget.setCurrentIndex(0)#return to plot tab
@@ -1051,6 +1078,14 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
             self.linkagePlot.close()
         except:
             pass
+
+        if len(self.mzPlots) > 0:
+            for plot in self.mzPlots:
+                if isinstance(plot, MPL_Widget):
+                    try:
+                        plot.close()
+                    except:
+                        pass
 #        if self.okToExit():
 #            pass
 #        else:
@@ -1332,10 +1367,13 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
             self.dbAutoCalcCB.setEnabled(False)
             self.denGrpNumThresh.setEnabled(False)
             self.denGrpNum.setEnabled(False)
+            self.denDistLbl.setEnabled(False)
+            self.densityDistThreshSB.setEnabled(False)
             ##################################
             self.showDendroCB.setEnabled(True)
             self.clustTypeLbl.setEnabled(True)
             self.clusterTypeCB.setEnabled(True)
+
 #            self.distCalMethLbl.setEnabled(True)
 #            self.distMethodCB.setEnabled(True)
             self.calcThreshCB.setEnabled(True)
@@ -1346,6 +1384,8 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
             self.dbAutoCalcCB.setEnabled(True)
             self.denGrpNumThresh.setEnabled(True)
             self.denGrpNum.setEnabled(True)
+            self.toggleAutoDBDist(self.dbAutoCalcCB.checkState())
+
             ##################################
             self.showDendroCB.setEnabled(False)
             self.clustTypeLbl.setEnabled(False)
@@ -1357,19 +1397,21 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
                 self.distanceLabel.setEnabled(False)
                 self.maxDistThreshSB.setEnabled(False)
 
-    def toggleDBDist(self, intState):
+    def toggleAutoDBDist(self, intState):
         '''
         Controls visibility of DBSCAN related GUI items.
         '''
         if intState == 0:
             self.densityDistThreshSB.setEnabled(True)
             self.denDistLbl.setEnabled(True)
+#            self.denGrpNumThresh.setEnabled(True)
+#            self.denGrpNum.setEnabled(True)
 
         elif intState == 2:
             self.densityDistThreshSB.setEnabled(False)
             self.denDistLbl.setEnabled(False)
-            self.denGrpNumThresh.setEnabled(False)
-            self.denGrpNum.setEnabled(False)
+#            self.denGrpNumThresh.setEnabled(False)
+#            self.denGrpNum.setEnabled(False)
 
 
     def get2DPeakLoc(self, peakLoc, rows, cols, peakIntensity = None):
