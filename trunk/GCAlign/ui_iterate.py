@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Documents and Settings\d3p483\workspace\GCAlign\iterate.ui'
 #
-# Created: Tue Jan 06 09:49:37 2009
+# Created: Thu Jan 15 15:07:40 2009
 #      by: PyQt4 UI code generator 4.3.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -24,6 +24,7 @@ class Ui_MainWindow(object):
         self.hboxlayout.setObjectName("hboxlayout")
 
         self.tabWidget = QtGui.QTabWidget(self.centralwidget)
+        self.tabWidget.setMinimumSize(QtCore.QSize(32,32))
         self.tabWidget.setObjectName("tabWidget")
 
         self.plotTab = QtGui.QWidget()
@@ -664,17 +665,24 @@ class Ui_MainWindow(object):
         self.hboxlayout17.addWidget(self.denGrpNumThresh)
         self.gridlayout7.addLayout(self.hboxlayout17,6,0,1,1)
 
+        self.hboxlayout18 = QtGui.QHBoxLayout()
+        self.hboxlayout18.setObjectName("hboxlayout18")
+
         self.clusterBtn = QtGui.QPushButton(self.optionsTab)
         self.clusterBtn.setObjectName("clusterBtn")
-        self.gridlayout7.addWidget(self.clusterBtn,7,0,1,1)
+        self.hboxlayout18.addWidget(self.clusterBtn)
+
+        spacerItem = QtGui.QSpacerItem(40,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
+        self.hboxlayout18.addItem(spacerItem)
+        self.gridlayout7.addLayout(self.hboxlayout18,7,0,1,1)
         self.gridlayout2.addLayout(self.gridlayout7,1,1,1,2)
         self.tabWidget.addTab(self.optionsTab,"")
 
         self.pkListTab = QtGui.QWidget()
         self.pkListTab.setObjectName("pkListTab")
 
-        self.hboxlayout18 = QtGui.QHBoxLayout(self.pkListTab)
-        self.hboxlayout18.setObjectName("hboxlayout18")
+        self.hboxlayout19 = QtGui.QHBoxLayout(self.pkListTab)
+        self.hboxlayout19.setObjectName("hboxlayout19")
 
         self.tabWidget_2 = QtGui.QTabWidget(self.pkListTab)
         self.tabWidget_2.setObjectName("tabWidget_2")
@@ -682,26 +690,141 @@ class Ui_MainWindow(object):
         self.tab = QtGui.QWidget()
         self.tab.setObjectName("tab")
 
-        self.hboxlayout19 = QtGui.QHBoxLayout(self.tab)
-        self.hboxlayout19.setObjectName("hboxlayout19")
+        self.hboxlayout20 = QtGui.QHBoxLayout(self.tab)
+        self.hboxlayout20.setObjectName("hboxlayout20")
 
         self.tabPeakTable = CustomTable(self.tab)
         self.tabPeakTable.setObjectName("tabPeakTable")
-        self.hboxlayout19.addWidget(self.tabPeakTable)
+        self.hboxlayout20.addWidget(self.tabPeakTable)
         self.tabWidget_2.addTab(self.tab,"")
 
         self.tab_2 = QtGui.QWidget()
         self.tab_2.setObjectName("tab_2")
 
-        self.hboxlayout20 = QtGui.QHBoxLayout(self.tab_2)
-        self.hboxlayout20.setObjectName("hboxlayout20")
+        self.hboxlayout21 = QtGui.QHBoxLayout(self.tab_2)
+        self.hboxlayout21.setObjectName("hboxlayout21")
 
         self.tabPeakTable_2 = CustomTable(self.tab_2)
         self.tabPeakTable_2.setObjectName("tabPeakTable_2")
-        self.hboxlayout20.addWidget(self.tabPeakTable_2)
+        self.hboxlayout21.addWidget(self.tabPeakTable_2)
         self.tabWidget_2.addTab(self.tab_2,"")
-        self.hboxlayout18.addWidget(self.tabWidget_2)
+        self.hboxlayout19.addWidget(self.tabWidget_2)
         self.tabWidget.addTab(self.pkListTab,"")
+
+        self.tab_3 = QtGui.QWidget()
+        self.tab_3.setObjectName("tab_3")
+
+        self.hboxlayout22 = QtGui.QHBoxLayout(self.tab_3)
+        self.hboxlayout22.setObjectName("hboxlayout22")
+
+        self.gridlayout8 = QtGui.QGridLayout()
+        self.gridlayout8.setObjectName("gridlayout8")
+
+        self.vboxlayout1 = QtGui.QVBoxLayout()
+        self.vboxlayout1.setObjectName("vboxlayout1")
+
+        self.hboxlayout23 = QtGui.QHBoxLayout()
+        self.hboxlayout23.setObjectName("hboxlayout23")
+
+        self.label_25 = QtGui.QLabel(self.tab_3)
+        self.label_25.setObjectName("label_25")
+        self.hboxlayout23.addWidget(self.label_25)
+
+        self.lineEdit = QtGui.QLineEdit(self.tab_3)
+        self.lineEdit.setObjectName("lineEdit")
+        self.hboxlayout23.addWidget(self.lineEdit)
+        self.vboxlayout1.addLayout(self.hboxlayout23)
+
+        self.label_21 = QtGui.QLabel(self.tab_3)
+        self.label_21.setObjectName("label_21")
+        self.vboxlayout1.addWidget(self.label_21)
+
+        self.listWidget_2 = QtGui.QListWidget(self.tab_3)
+        self.listWidget_2.setObjectName("listWidget_2")
+        self.vboxlayout1.addWidget(self.listWidget_2)
+        self.gridlayout8.addLayout(self.vboxlayout1,1,0,1,1)
+
+        self.vboxlayout2 = QtGui.QVBoxLayout()
+        self.vboxlayout2.setObjectName("vboxlayout2")
+
+        self.hboxlayout24 = QtGui.QHBoxLayout()
+        self.hboxlayout24.setObjectName("hboxlayout24")
+
+        self.label_24 = QtGui.QLabel(self.tab_3)
+        self.label_24.setObjectName("label_24")
+        self.hboxlayout24.addWidget(self.label_24)
+
+        self.comboBox = QtGui.QComboBox(self.tab_3)
+
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.comboBox.sizePolicy().hasHeightForWidth())
+        self.comboBox.setSizePolicy(sizePolicy)
+        self.comboBox.setObjectName("comboBox")
+        self.hboxlayout24.addWidget(self.comboBox)
+        self.vboxlayout2.addLayout(self.hboxlayout24)
+
+        self.label_22 = QtGui.QLabel(self.tab_3)
+        self.label_22.setObjectName("label_22")
+        self.vboxlayout2.addWidget(self.label_22)
+
+        self.listWidget_3 = QtGui.QListWidget(self.tab_3)
+        self.listWidget_3.setObjectName("listWidget_3")
+        self.vboxlayout2.addWidget(self.listWidget_3)
+        self.gridlayout8.addLayout(self.vboxlayout2,1,2,1,1)
+
+        self.vboxlayout3 = QtGui.QVBoxLayout()
+        self.vboxlayout3.setObjectName("vboxlayout3")
+
+        spacerItem1 = QtGui.QSpacerItem(20,50,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
+        self.vboxlayout3.addItem(spacerItem1)
+
+        self.toolButton = QtGui.QToolButton(self.tab_3)
+        self.toolButton.setMinimumSize(QtCore.QSize(32,32))
+        self.toolButton.setMaximumSize(QtCore.QSize(32,32))
+        self.toolButton.setIcon(QtGui.QIcon(":/new/prefix1/icons/forward.png"))
+        self.toolButton.setIconSize(QtCore.QSize(32,32))
+        self.toolButton.setObjectName("toolButton")
+        self.vboxlayout3.addWidget(self.toolButton)
+
+        self.toolButton_2 = QtGui.QToolButton(self.tab_3)
+        self.toolButton_2.setMinimumSize(QtCore.QSize(32,32))
+        self.toolButton_2.setMaximumSize(QtCore.QSize(32,32))
+        self.toolButton_2.setIcon(QtGui.QIcon(":/new/prefix1/icons/back.png"))
+        self.toolButton_2.setIconSize(QtCore.QSize(32,32))
+        self.toolButton_2.setObjectName("toolButton_2")
+        self.vboxlayout3.addWidget(self.toolButton_2)
+
+        spacerItem2 = QtGui.QSpacerItem(20,40,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
+        self.vboxlayout3.addItem(spacerItem2)
+        self.gridlayout8.addLayout(self.vboxlayout3,1,1,1,1)
+
+        self.vboxlayout4 = QtGui.QVBoxLayout()
+        self.vboxlayout4.setObjectName("vboxlayout4")
+
+        self.label_16 = QtGui.QLabel(self.tab_3)
+        self.label_16.setObjectName("label_16")
+        self.vboxlayout4.addWidget(self.label_16)
+
+        self.textBrowser = QtGui.QTextBrowser(self.tab_3)
+        self.textBrowser.setObjectName("textBrowser")
+        self.vboxlayout4.addWidget(self.textBrowser)
+        self.gridlayout8.addLayout(self.vboxlayout4,2,0,1,1)
+
+        self.hboxlayout25 = QtGui.QHBoxLayout()
+        self.hboxlayout25.setObjectName("hboxlayout25")
+
+        self.pushButton_3 = QtGui.QPushButton(self.tab_3)
+        self.pushButton_3.setIcon(QtGui.QIcon(":/new/prefix1/icons/fileopen.png"))
+        self.pushButton_3.setObjectName("pushButton_3")
+        self.hboxlayout25.addWidget(self.pushButton_3)
+
+        spacerItem3 = QtGui.QSpacerItem(40,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
+        self.hboxlayout25.addItem(spacerItem3)
+        self.gridlayout8.addLayout(self.hboxlayout25,0,0,1,1)
+        self.hboxlayout22.addLayout(self.gridlayout8)
+        self.tabWidget.addTab(self.tab_3,"")
         self.hboxlayout.addWidget(self.tabWidget)
         MainWindow.setCentralWidget(self.centralwidget)
 
@@ -874,6 +997,17 @@ class Ui_MainWindow(object):
         self.tabPeakTable_2.setRowCount(0)
         self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.tab_2), QtGui.QApplication.translate("MainWindow", "Clustered Peak List", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.pkListTab), QtGui.QApplication.translate("MainWindow", "Peak List", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_25.setText(QtGui.QApplication.translate("MainWindow", "Data Folder:", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_21.setText(QtGui.QApplication.translate("MainWindow", "Files in Directory:", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_24.setText(QtGui.QApplication.translate("MainWindow", "Master File:", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_22.setText(QtGui.QApplication.translate("MainWindow", "Files to Align:", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolButton.setToolTip(QtGui.QApplication.translate("MainWindow", "Add File(s)", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolButton.setText(QtGui.QApplication.translate("MainWindow", "...", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolButton_2.setToolTip(QtGui.QApplication.translate("MainWindow", "Remove File(s)", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolButton_2.setText(QtGui.QApplication.translate("MainWindow", "...", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_16.setText(QtGui.QApplication.translate("MainWindow", "Alignment Information:", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_3.setText(QtGui.QApplication.translate("MainWindow", "Select Folder", None, QtGui.QApplication.UnicodeUTF8))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), QtGui.QApplication.translate("MainWindow", "Alignment", None, QtGui.QApplication.UnicodeUTF8))
         self.menuTools.setTitle(QtGui.QApplication.translate("MainWindow", "&ChromTools", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_File.setTitle(QtGui.QApplication.translate("MainWindow", "&File", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_Peak_Tools.setTitle(QtGui.QApplication.translate("MainWindow", "&Peak Tools", None, QtGui.QApplication.UnicodeUTF8))

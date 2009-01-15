@@ -10,7 +10,7 @@ my_array = [['00','01','02'],
             ['10','11','12'],
             ['20','21','22'],
             ['30','31','32']]
-my_data = L('Z.csv', delimiter = ',')
+#my_data = L('Z.csv', delimiter = ',')
 
 
 def main():
