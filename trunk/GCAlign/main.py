@@ -74,7 +74,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
 
     def _setupVars_(self):
 
-        self.numSpec = 25
+        self.numSpec = 0
 
         self._curDir = os.getcwd()
 
@@ -153,6 +153,8 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         self.clustDict = {}
         self.clustMembers = None
         self.memPlot = None
+
+        self.ignoreSignal = False
 
         self.resetRefLimits()
 
@@ -243,6 +245,9 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         QtCore.QObject.connect(self.calcThreshCB,QtCore.SIGNAL("stateChanged(int)"),self.toggleDistance)
         QtCore.QObject.connect(self.dbScanCB,QtCore.SIGNAL("stateChanged(int)"),self.toggleClusterType)
         QtCore.QObject.connect(self.dbAutoCalcCB,QtCore.SIGNAL("stateChanged(int)"),self.toggleAutoDBDist)
+
+        QtCore.QObject.connect(self.indexSpinBox, QtCore.SIGNAL("valueChanged (int)"), self.spinIndexChanged)
+#        self.updatePlot(
 
 #        print self.imLasso, type(self.imLasso)
 #        QtCore.QObject.connect(self.imLasso,QtCore.SIGNAL("LassoUpdate(PyQt_PyObject)"),self.lassoHandler)
@@ -367,6 +372,13 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
             tempItem.setTextColor(tempColor)
             tempItem.setToolTip(tempData.filePath)
             self.listWidget.addItem(tempItem)
+            self.numSpec+=1
+            if self.numSpec == 1:
+                self.indexSpinBox.setMinimum(1)
+                self.indexHSlider.setMinimum(1)
+            self.indexHSlider.setMaximum(self.numSpec)
+            self.indexSpinBox.setMaximum(self.numSpec)
+            self.indexSpinBox.setValue(self.numSpec)
 
             self.updatePlot(len(self.dataList)-1)
 
@@ -609,6 +621,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
 
 #        print test
         self.specNameEdit.setText(self.curData.filePath)#use dataList to get the name
+
         if self.plotType == 'TIC':
             self.mainIm = self.curData.ticLayer
             self.curIm = self.curData.ticLayer
@@ -1220,11 +1233,27 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         self.numSegsSB.setValue(self.curData.rowPoints)
 
     def specListSelect(self, widgetItem=None):
-        selectItems = self.listWidget.selectedItems()
-        if len(selectItems) > 0:
-            self.updatePlot(self.listWidget.indexFromItem(selectItems[0]).row())
+        if self.ignoreSignal:
+            return
+        else:
+            selectItems = self.listWidget.selectedItems()
+            if len(selectItems) > 0:
+                curRow = self.listWidget.indexFromItem(selectItems[0]).row()
+                self.updatePlot(curRow)
+                self.ignoreSignal = True
+                self.indexSpinBox.setValue(curRow+1)
+                self.ignoreSignal = False
 
-
+    def spinIndexChanged(self, spinBoxVal):
+        if self.ignoreSignal:
+            return
+        else:
+            print "Spin Index",spinBoxVal
+        #by changing the listWidget selection it triggers the signal/slot and
+        #causes a plot update
+            self.listWidget.setCurrentRow(spinBoxVal-1)
+            self.specListSelect()
+#        self.updatePlot(self.listWidget.indexFromItem(selectItems[0]).row())
 
 ##########Peak Finding Routines######################
 

@@ -111,7 +111,9 @@ class PeakFitThread:#(QtCore.QThread):
 #            evalFunc = self.getGaussian(N.arange(len(X)),fitP)
             self.ax.plot(X,evalFunc, '--r')
             chi2G = N.sum((evalFunc-Y)**2 / evalFunc)
-            areaG = N.trapz(evalFunc, X)
+            areaG = N.trapz(evalFunc, xVals)
+            areaG2 = N.trapz(Y, xVals)
+            print areaG, areaG2, (areaG/areaG2)*100, chi2G
             return chi2G, areaG
         else:
             return None, None
@@ -139,7 +141,7 @@ class PeakFitThread:#(QtCore.QThread):
         peakLoc = peakInfo['peakLoc']#:N.array(peakLoc),
         peakInt = peakInfo['peakInt']#'peakInt':N.array(peakInt),
         peakWidth = peakInfo['peakWidth']#'peakWidth':N.array(peakWidth),
-#        peakArea = peakInfo['peakArea']#'peakArea':N.array(peakArea)
+        peakAreaOld = peakInfo['peakArea']#'peakArea':N.array(peakArea)
         peakArea = N.zeros_like(peakWidth)
         numPeaks = len(peakLoc)
         specLen = len(self.chromY)
@@ -154,7 +156,7 @@ class PeakFitThread:#(QtCore.QThread):
             #full width = 4*sigma
             #width is in points
             sigma = width/2.35
-            gWidth = int(N.ceil(10*sigma))
+            gWidth = int(N.ceil(5*sigma))
             #initially to be safe let's double the gWidth
             expWidth = N.ceil(gWidth*1.5)
 
@@ -193,6 +195,8 @@ class PeakFitThread:#(QtCore.QThread):
                     peakArea[i] = areaG
                 else:
                     peakArea[i] = areaExpG
+
+#            print peakArea[i], peakAreaOld[i]
 
         return peakArea
 
