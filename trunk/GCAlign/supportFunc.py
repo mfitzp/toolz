@@ -29,6 +29,17 @@ from LECO_IO import ChromaTOF_Reader as CR
 from scipy import ndimage#used for tophat filter
 
 
+def first_derivative(y_data):
+    """\
+    calculates the derivative
+    """
+
+    y = (y_data[1:]-y_data[:-1])
+
+    dy = y/2#((x_data[1:]-x_data[:-1])/2)
+
+    return dy
+
 def flattenX(x):
     """flatten(sequence) -> list
 
