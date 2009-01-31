@@ -23,6 +23,32 @@ COLORS = ['#297AA3','#A3293D','#3B9DCE','#293DA3','#5229A3','#8F29A3','#A3297A',
 '#0080FF','#0000FF','#7ABDFF','#8000FF','#FF0080','#FF0000','#FF8000','#FFFF00','#A35229','#80FF00',
 '#00FF00','#00FF80','#00FFFF','#3D9EFF','#FF9E3D','#FFBD7A']
 
+def initRlibs(libList):
+    libDict = {}
+
+    for lib in libList:
+        try:
+            libDict[lib] = ro.r('library(%s)'%lib)
+        except:
+            errorMsg ='Error loading R library %s\nCheck Library Installation'%lib
+            errorMsg += "Sorry: %s\n\n:%s\n"%(sys.exc_type, sys.exc_value)
+            print errorMsg
+
+    return libDict
+
+def list2rpyFuntions(strList):
+    funcDict = {}
+    for entry in strList:
+        try:
+            funcDict[entry] = ro.r['%s'%entry]
+        except:
+            errorMsg ='Error creating function %s'%entry
+            errorMsg += "Sorry: %s\n\n:%s\n"%(sys.exc_type, sys.exc_value)
+            print errorMsg
+
+    return funcDict
+
+
 class pyXCMSWindow(QtGui.QMainWindow, ui_main.Ui_MainWindow):
     def __init__(self, parent = None):
         super(pyXCMSWindow, self).__init__(parent)
@@ -44,6 +70,10 @@ class pyXCMSWindow(QtGui.QMainWindow, ui_main.Ui_MainWindow):
         self.colorIndex = 0
         self.txtColor = None
         self.curDir = os.getcwd()
+        self.Rliblist = ['xcms']
+        self.Rlibs = initRlibs(self.Rliblist)
+        self.EICList = None
+        self.xcmsOK = False
 
         '''
         findPeaks.matchedFilter(object, fwhm = 30, sigma = fwhm/2.3548, max = 5,
@@ -71,6 +101,14 @@ class pyXCMSWindow(QtGui.QMainWindow, ui_main.Ui_MainWindow):
                                     'steps':2.,
                                     'mzdiff':0.1
                                     }
+        self.matchedFilterTypes = {'fwhm':float,
+                                   'sigma':float,
+                                   'max':float,
+                                   'snthresh':float,
+                                   'step':float,
+                                   'steps':float,
+                                   'mzdiff':float
+                                    }
         '''
         CentWave
 
@@ -79,7 +117,7 @@ class pyXCMSWindow(QtGui.QMainWindow, ui_main.Ui_MainWindow):
         snthresh=10, prefilter=c(3,100), integrate=1, mzdiff=-0.001,
         fitgauss=FALSE, scanrange= numeric(), sleep=0, verbose.columns=FALSE)
 
-        object     --xcmsSet object
+        object     --xcmsSet objectprint methodHelp
         ppm        --maxmial tolerated m/z deviation in consecutive scans, in ppm (parts per million)
         peakwidth  --Chromatographic peak width, given as range (min,max) in seconds
         snthresh   --signal to noise ratio cutoff, definition see below.
@@ -94,19 +132,40 @@ class pyXCMSWindow(QtGui.QMainWindow, ui_main.Ui_MainWindow):
         '''
         #this method is not working well yet for the ORBITRAP DATA ACQUIRED AT PNNL
         self.centWaveParams = {'ppm': 10.,
-                               'peakwidth': str([20,50]),
+                               'peakwidth': str([20,50]),#this needs to be fixed, the new version of PyQt4 handles this better
                                'snthresh':10.,
                                'prefilter':str([3,100]),
                                'mzdiff':-0.001,
                                }
+        self.centWaveTypes = {'ppm': float,
+                               'peakwidth': str,
+                               'snthresh':float,
+                               'prefilter':str,
+                               'mzdiff':float,
+                               }
         self.xcmsGroupDict = {'Matched Filter':self.matchedFilterParams,
                                'CentWave':self.centWaveParams}
+        self.xcmsTypeDict = {'Matched Filter':self.matchedFilterTypes,
+                               'CentWave':self.centWaveTypes}
+
 
     def __initConnections(self):
         QtCore.QObject.connect(self.getFolderBtn, QtCore.SIGNAL("clicked()"), self.initFileList)
         QtCore.QObject.connect(self.xcmsMethodCB, QtCore.SIGNAL("currentIndexChanged(QString)"), self.updateParamTable)
         QtCore.QObject.connect(self.paramTableWidget, QtCore.SIGNAL("itemDoubleClicked(QTableWidgetItem*)"), self.paramTableEntered)
         QtCore.QObject.connect(self.paramTableWidget, QtCore.SIGNAL("itemChanged(QTableWidgetItem*)"), self.paramTableChanged)
+        QtCore.QObject.connect(self.paramTableWidget, QtCore.SIGNAL("helpRequested(PyQt_PyObject)"), self.showParamHelp)
+
+    def showParamHelp(self, emitString):
+        curMethod = str(self.xcmsMethodCB.currentText())
+        xcmsSetHelp = ro.r.help("xcmsSet", htmlhelp = True)
+        print xcmsSetHelp
+        if curMethod == 'Matched Filter':
+            methodHelp = ro.r.help("findPeaks.matchedFilter", htmlhelp = True)
+            print methodHelp
+        elif curMethod == 'CentWave':
+            methodHelp = ro.r.help("findPeaks.centWave", htmlhelp = True)
+            print methodHelp
 
     def _getDir_(self):
         directory = QtGui.QFileDialog.getExistingDirectory(self, '', self.curDir)
@@ -134,7 +193,24 @@ class pyXCMSWindow(QtGui.QMainWindow, ui_main.Ui_MainWindow):
             pass
 
     def paramTableChanged(self, tableItem):
-        print tableItem.text()
+        if self.paramTableWidget.currentColumn() > 0:
+            curMethod = str(self.xcmsMethodCB.currentText())
+            curTypeDict = self.xcmsTypeDict[curMethod]
+            curParam = str(self.paramTableWidget.item(tableItem.row(), 0).text())
+            curType = curTypeDict[curParam]
+            try:
+                tempVal = curType(str(tableItem.text()))
+            except:
+                origVal = self.xcmsGroupDict[curMethod][curParam]
+                tableItem.setText(str(origVal))
+#            tempType = type()
+#            tempVal = curType(str(tableItem.text()))
+            print curMethod, curParam
+#        curParam = str(self.paramTableWidget.item(self.paramTableWidget.currentRow(), 0).text())
+#        curType = curTypeDict[curParam]
+#        tempVal = curType(tableItem.text())
+#        print tempVal, type(tempVal)
+#        print tableItem.text()
 #        self.item(self.currentRow(),0).text()
 
     def updateParamTable(self, selectText):
@@ -188,6 +264,49 @@ class pyXCMSWindow(QtGui.QMainWindow, ui_main.Ui_MainWindow):
             #self.specListWidget.addItem(loadedItem.name)
             self.dirListWidget.addItem(tempItem)
 
+
+
+##########Begin Ashoka Progress Bar Code....
+    def layoutStatusBar(self):
+        self.progressBar = QtGui.QProgressBar()
+        self.statusLabel = QtGui.QLabel("Ready")
+#        self.statusLabel.setMinimumSize(self.statusLabel.sizeHint())
+        self.statusLabel.setAlignment(QtCore.Qt.AlignLeft)
+        self.statusLabel.setText("Ready")
+        self.statusbar.addPermanentWidget(self.statusLabel)
+        self.progressBar.setTextVisible(False)
+        self.progressBar.setRange(0,100)
+        self.progressBar.setValue(0)
+        self.progressBar.setFixedHeight(15)
+        self.progressBar.setFixedWidth(100)
+        self.toggleProgressBar(False)
+        self.statusbar.addWidget(self.progressBar)
+
+    def resetProgressBar(self):
+        self.setProgressValue(0)
+        self.toggleProgressBar(False)
+
+    def setStatusLabel(self, text):
+        self.statusLabel.setText(text)
+
+    def showStatusMessage(self, text, stime):
+        self.statusBar().showMessage(text, stime)
+
+    def setProgressValue(self, val):
+        self.progressBar.setValue(val)
+
+    def toggleProgressBar(self, toggle):
+        self.progressBar.setVisible(toggle)
+
+    def threadProgress(self, progVal):
+        self.setStatusLabel("Fitting Peaks, %d segments completed." % progVal)
+        newVal = int(100*(progVal/self.progressMax))
+        self.setProgressValue(newVal)
+#        self.AddMessage2Tab("  %d Iterations Done." % progVal)
+#        print progVal, newVal, self.progressMax
+
+    def PCTProgress(self, updateString):
+        self.setStatusLabel(updateString)
 
 
 def run_main():

@@ -81,8 +81,9 @@ if __name__ == "__main__":
 
     libList = ['xcms']
     initRlibs(libList)
-    a = ro.r.help.search("xcms")
-    print type(a)
+    a = ro.r.help("findPeaks.centWave", htmlhelp = True)
+    #    print type(a)
+    print a
 #    print funcDict
 
 #    ro.r('data(exampleMS)')

@@ -131,11 +131,17 @@ class CustomTable(QTableWidget):
                     for item in row:
                         #print repr(str(item))
                         if n>0:
-                            newitem = QTableWidgetItem('%.4f'%item)
+                            if type(item) is float:
+                                newitem = QTableWidgetItem('%.4f'%item)
+                                self.setItem(m,  n,  newitem)
+                            else:
+                                newitem = QTableWidgetItem(0)
+                                newitem.setData(0,QVariant(item))
+                                self.setItem(m,  n,  newitem)
                         else:
                             newitem = QTableWidgetItem(0)
-                        newitem.setData(0,QVariant(item))
-                        self.setItem(m,  n,  newitem)
+                            newitem.setData(0,QVariant(item))
+                            self.setItem(m,  n,  newitem)
                         n+=1
                     m+=1
 #                for row in data:
@@ -177,6 +183,7 @@ class CustomTable(QTableWidget):
     def testFunc(self):
 #        print self.item(self.currentRow(),0).text()
         print "Help Requested"
+        self.emit(SIGNAL("helpRequested(PyQt_PyObject)"),'Help Requested')
 #        QTableWidget.currentRow()
 #        return
 
