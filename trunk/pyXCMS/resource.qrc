@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/new/prefix1" >
+        <file>icons/applications.png</file>
+        <file>icons/exitsmall.png</file>
+        <file>icons/freebsd.png</file>
+        <file>icons/games.png</file>
+    </qresource>
+</RCC>

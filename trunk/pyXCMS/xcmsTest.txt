@@ -1,0 +1,59 @@
+library(xcms)
+['cdfpath <- system.file("cdf", package = "faahKO")',
+'cdffiles <- list.files(cdfpath, recursive = TRUE, full.names = TRUE)',
+'xset <- xcmsSet(cdffiles)',
+'xset <- group(xset)',
+'xset2 <- retcor(xset, family = "symmetric", plottype = "mdevden")',
+'xset2 <- group(xset2, bw = 10)',
+'xset3 <- fillPeaks(xset2)',
+'gt <- groups(xset3)',
+'colnames(gt)',
+'groupidx1 <- which(gt[, "rtmed"] > 2600 & gt[, "rtmed"] < 2700 & gt[, "npeaks"] == 12)[1]',
+'groupidx2 <- which(gt[, "rtmed"] > 3600 & gt[, "rtmed"] < 3700 & gt[, "npeaks"] == 12)[1]',
+'eiccor <- getEIC(xset3, groupidx = c(groupidx1, groupidx2))',
+eicRaw = 'eicraw <- getEIC(xset3, groupidx = c(groupidx1, groupidx2), rt = "raw")']
+
+
+import rpy2.robjects as ro
+import rpy2.rinterface as ri
+import rpy2.robjects.numpy2ri
+
+r = ro.r
+def runXCMS():
+	r.library("xcms")
+	r('cdfpath = system.file("cdf", package = "faahKO")')
+	cdfpath = ri.globalEnv.get("cdfpath")
+	r('cdffiles = list.files(cdfpath, recursive = TRUE, full.names = TRUE)')
+	cdffiles = ri.globalEnv.get("cdffiles")
+	xset = r.xcmsSet(cdffiles)
+	ri.globalEnv["xset"] = xset
+	xset = r.group(xset)
+	xset2 = r.retcor(xset, family = "symmetric", plottype = "mdevden")
+	ri.globalEnv["xset2"] = xset2
+	xset2 = r.group(xset2, bw = 10)
+	xset3 = r.fillPeaks(xset2)
+	ri.globalEnv["xset3"] = xset3
+	gt = r.groups(xset3)
+	ri.globalEnv["gt"] = gt
+	r.colnames(gt)
+	r('groupidx1 = which(gt[, "rtmed"] > 2600 & gt[, "rtmed"] < 2700 & gt[, "npeaks"] == 12)[1]')
+	groupidx1 = ri.globalEnv.get("groupidx1")
+	r('groupidx2 = which(gt[, "rtmed"] > 3600 & gt[, "rtmed"] < 3700 & gt[, "npeaks"] == 12)[1]')
+	groupidx2 = ri.globalEnv.get("groupidx2")
+	eiccor = r.getEIC(xset3, groupidx = r.c(groupidx1, groupidx2))
+	eicRaw = r.getEIC(xset3, groupidx = r.c(groupidx1, groupidx2), rt = "raw")
+
+def plotXCMS(getEICInstance):
+	clf()
+	sampNames = r.sampnames(getEICInstance)
+	mzrange = r.mzrange(getEICInstance)
+	#print mzrange, len(mzrange)
+	eicData = getEICInstance.eic
+	for i, eic in enumerate(eicData):
+		eic = N.asarray(eic[0])
+		plot(eic[:,0], eic[:,1], label = sampNames[i])
+	legend()
+	title('EIC from %.2f to %.2f m/z'%(mzrange[1], mzrange[3]))
+	xlabel('Time (s)')
+	ylabel('Arbitrary Intensity')
+
