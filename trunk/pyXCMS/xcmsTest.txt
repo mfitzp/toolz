@@ -57,3 +57,33 @@ def plotXCMS(getEICInstance):
 	xlabel('Time (s)')
 	ylabel('Arbitrary Intensity')
 
+
+
+       # the verbose info when loading maptools/spgpc addons comes to /dev/null!
+       sys.stdout=open('/dev/null','w')
+       r("""
+       library(maptools)
+       library(spgpc)
+       shp2png <- function(shppath=None,pngpath=None) {
+           nc1 <- readShapePoly(shppath,proj4string = CRS("+init=epsg:4214"))
+           pl <- getSpPpolygonsSlot(nc1)
+           pl_new <- lapply(pl, checkPolygonsHoles)
+           nc2 <- as.SpatialPolygons.PolygonsList(pl_new, proj4string = CRS("+init=epsg:4214"))
+           identical(rownames(as(nc1, "data.frame")), getSpPPolygonsIDSlots(nc2))
+           ncSR <- SpatialPolygonsDataFrame(nc2, as(nc1, "data.frame"),match.ID = TRUE)
+           identical(rownames(as(nc1, "data.frame")), getSpPPolygonsIDSlots(ncSR))
+           getSpPPolygonsIDSlots(ncSR)[1:10]
+           lps <- getSpPPolygonsLabptSlots(nc2)
+           ID <- cut(lps[, 1], quantile(lps[, 1]), include.lowest = TRUE)
+           reg4 <- unionSpatialPolygons(nc2, ID)
+           getSpPPolygonsIDSlots(reg4)
+           png(filename = pngpath)
+           plot(nc2, border = "grey", axes = TRUE, las = 1)
+           plot(reg4, add = TRUE, lwd = 3)
+           points(lps, pch = as.integer(ID), cex = 0.7)
+           title("BEIJING LAND USE MAP")
+           dev.off()
+       }
+       """)
+       sys.stdout.close()
+       sys.stdout=sys.__stdout__
