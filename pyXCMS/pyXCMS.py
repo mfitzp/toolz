@@ -155,6 +155,44 @@ class pyXCMSWindow(QtGui.QMainWindow, ui_main.Ui_MainWindow):
         QtCore.QObject.connect(self.paramTableWidget, QtCore.SIGNAL("itemDoubleClicked(QTableWidgetItem*)"), self.paramTableEntered)
         QtCore.QObject.connect(self.paramTableWidget, QtCore.SIGNAL("itemChanged(QTableWidgetItem*)"), self.paramTableChanged)
         QtCore.QObject.connect(self.paramTableWidget, QtCore.SIGNAL("helpRequested(PyQt_PyObject)"), self.showParamHelp)
+        QtCore.QObject.connect(self.actionTest_XCMS, QtCore.SIGNAL("triggered()"), self.testXCMS)
+
+    def add2ROutput(self, rVector):
+        for item in rVector:
+            self.RoutputTE.append(item)
+        self.RoutputTE.append("\n")
+
+
+    def testXCMS(self):
+        try:
+            r = ro.r
+            a = r('cdfpath = system.file("cdf", package = "faahKO")')
+            cdfpath = ri.globalEnv.get("cdfpath")
+            r('cdffiles = list.files(cdfpath, recursive = TRUE, full.names = TRUE)')
+            r('cdffiles = cdffiles[1:2]')
+            cdffiles = ri.globalEnv.get("cdffiles")
+            if len(cdffiles) == 0:
+                rMsg = 'Open R and enter the following:\nsource("http://bioconductor.org/biocLite.R")\nbiocLite("faahKO")'
+                return QtGui.QMessageBox.warning(self, "Error with Test Data", rMsg )
+            self.add2ROutput(cdffiles)
+            xset = r.xcmsSet(cdffiles)
+            ri.globalEnv["xset"] = xset
+        except:
+            errorMsg = "Sorry: %s\n\n:%s\n"%(sys.exc_type, sys.exc_value)
+            print errorMsg
+            print "R data error"
+
+##        r.source("http://bioconductor.org/biocLite.R")
+##        r.biocLite("faahKO")
+##            print "a", a
+##            print "cdfpath", cdfpath[0]
+#            r('cdffiles = list.files(cdfpath, recursive = TRUE, full.names = TRUE)')
+#            cdffiles = ri.globalEnv.get("cdffiles")
+#            print cdffiles[0]
+#
+#        except:
+#            print "R Error"
+
 
     def showParamHelp(self, emitString):
         curMethod = str(self.xcmsMethodCB.currentText())

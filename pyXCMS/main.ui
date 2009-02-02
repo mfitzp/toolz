@@ -13,7 +13,8 @@
    <string>pyXCMS</string>
   </property>
   <property name="windowIcon" >
-   <iconset resource="resource.qrc" >:/new/prefix1/icons/games.png</iconset>
+   <iconset>
+    <normaloff>:/new/prefix1/icons/games.png</normaloff>:/new/prefix1/icons/games.png</iconset>
   </property>
   <property name="iconSize" >
    <size>
@@ -51,7 +52,7 @@
                 <property name="orientation" >
                  <enum>Qt::Horizontal</enum>
                 </property>
-                <property name="sizeHint" >
+                <property name="sizeHint" stdset="0" >
                  <size>
                   <width>40</width>
                   <height>20</height>
@@ -174,7 +175,7 @@ p, li { white-space: pre-wrap; }
               <property name="orientation" >
                <enum>Qt::Horizontal</enum>
               </property>
-              <property name="sizeHint" >
+              <property name="sizeHint" stdset="0" >
                <size>
                 <width>40</width>
                 <height>20</height>
@@ -194,7 +195,8 @@ p, li { white-space: pre-wrap; }
                <string>...</string>
               </property>
               <property name="icon" >
-               <iconset resource="resource.qrc" >:/new/prefix1/icons/applications.png</iconset>
+               <iconset>
+                <normaloff>:/new/prefix1/icons/applications.png</normaloff>:/new/prefix1/icons/applications.png</iconset>
               </property>
               <property name="iconSize" >
                <size>
@@ -375,7 +377,7 @@ p, li { white-space: pre-wrap; }
                 <property name="orientation" >
                  <enum>Qt::Vertical</enum>
                 </property>
-                <property name="sizeHint" >
+                <property name="sizeHint" stdset="0" >
                  <size>
                   <width>20</width>
                   <height>40</height>
@@ -401,7 +403,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>987</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File" >
@@ -415,6 +417,8 @@ p, li { white-space: pre-wrap; }
      <string>F&amp;unctions</string>
     </property>
     <addaction name="actionSave_Results_Table" />
+    <addaction name="separator" />
+    <addaction name="actionTest_XCMS" />
    </widget>
    <addaction name="menu_File" />
    <addaction name="menuF_unctions" />
@@ -428,6 +432,17 @@ p, li { white-space: pre-wrap; }
   <action name="actionSave_Results_Table" >
    <property name="text" >
     <string>Save Results Table</string>
+   </property>
+  </action>
+  <action name="actionTest_XCMS" >
+   <property name="text" >
+    <string>Test XCMS</string>
+   </property>
+   <property name="toolTip" >
+    <string>Needs faakho package</string>
+   </property>
+   <property name="whatsThis" >
+    <string>Needs faakho package</string>
    </property>
   </action>
  </widget>
