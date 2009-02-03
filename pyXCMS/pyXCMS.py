@@ -3,16 +3,27 @@ import os, os.path
 from PyQt4 import QtCore, QtGui
 
 #try:#this is done because sometimes there is an annoying message regard tk that come up
-import rpy2.robjects as ro
-import rpy2.rinterface as ri
+#import rpy2.robjects as ro
+#import rpy2.rinterface as ri
 #except:
 #    pass
 
+'''
+ToDo:
+pass file list to R
+save output table to csv
+correct graph saving errors
+Save file to HDF5
+load HDF5
+fetch EIC and add to dictionary
+pass parameters from dictionary to xcms
+'''
 
 
 import ui_main
 import FolderParse as FP
 from eicClass import EIC
+from rpy2Thread import XCMSThread
 
 import numpy as N
 from scipy import rand
@@ -31,7 +42,7 @@ def initRlibs(libList):
         try:
             libDict[lib] = ro.r('library(%s)'%lib)
         except:
-            errorMsg ='Error loading R library %s\nCheck Library Installation'%lib
+            errorMsg ='Error loading R library %s\nCheck Library Installation\n'%lib
             errorMsg += "Sorry: %s\n\n:%s\n"%(sys.exc_type, sys.exc_value)
             print errorMsg
 
@@ -73,8 +84,8 @@ class pyXCMSWindow(QtGui.QMainWindow, ui_main.Ui_MainWindow):
         self.curDir = os.getcwd()
         self.curParamDict = None
         self.curTypeDict = None
-        self.Rliblist = ['xcms']
-        self.Rlibs = initRlibs(self.Rliblist)
+#        self.Rliblist = ['xcms']
+#        self.Rlibs = initRlibs(self.Rliblist)
 
         self.xcmsOK = False
         self.eicPlot = self.plotWidget.canvas.axDict['ax1']
@@ -84,6 +95,10 @@ class pyXCMSWindow(QtGui.QMainWindow, ui_main.Ui_MainWindow):
         self.plotIndex = 0
         self.initIndex = 0
         self.ignoreSignal = False
+
+        self.rThread = XCMSThread()
+
+#        self.rProcess = QtCore.QProcess()
 
         '''
         findPeaks.matchedFilter(object, fwhm = 30, sigma = fwhm/2.3548, max = 5,
@@ -190,15 +205,28 @@ class pyXCMSWindow(QtGui.QMainWindow, ui_main.Ui_MainWindow):
         QtCore.QObject.connect(self.paramTableWidget, QtCore.SIGNAL("helpRequested(PyQt_PyObject)"), self.showParamHelp)
         QtCore.QObject.connect(self.actionTest_XCMS, QtCore.SIGNAL("triggered()"), self.testXCMS)
 
-        QtCore.QObject.connect(self.eicIndexSB, QtCore.SIGNAL("valueChanged (int)"), self.indexChanged)
+        QtCore.QObject.connect(self.eicIndexSB, QtCore.SIGNAL("valueChanged(int)"), self.indexChanged)
+
+#        QtCore.QObject.connect(self.rProcess, QtCore.SIGNAL("readyReadStdout()"), self.readOutput)
+#        QtCore.QObject.connect(self.rProcess, QtCore.SIGNAL("readyReadStderr()"), self.readErrors)
+#        QtCore.QObject.connect(self.rProcess, QtCore.SIGNAL("processExited()"), self.rProcessFinished)
+#        QtCore.QObject.connect(self.killRBtn, QtCore.SIGNAL("clicked()"), self.stopRProcess)
+
+        QtCore.QObject.connect(self.rThread, QtCore.SIGNAL("xcmsOutUpdate(PyQt_PyObject)"), self.updateROutput)
+        QtCore.QObject.connect(self.rThread, QtCore.SIGNAL("xcmsGetEIC(PyQt_PyObject)"), self.getThreadEIC)
+
+    def getThreadEIC(self, eicClass):
+        if eicClass != None:
+            self.eicClass = eicClass
+            self.updateGUI()
 
     def indexChanged(self, index):
         if self.ignoreSignal:
             return
         else:
             self.plotIndex = index
-            print self.plotIndex
-            QtCore.QTimer.singleShot(500,  self.plotByIndex)
+#            print self.plotIndex
+            QtCore.QTimer.singleShot(750,  self.plotByIndex)
 
     def add2ROutput(self, rVector):
         for item in rVector:
@@ -261,7 +289,12 @@ class pyXCMSWindow(QtGui.QMainWindow, ui_main.Ui_MainWindow):
         self.plotWidget.canvas.format_labels()
         self.tabWidget.setCurrentIndex(1)
 
-
+    def updateROutput(self, StrOutput):
+        if  len(StrOutput)>5:
+            self.RoutputTE.append(StrOutput)
+        else:
+            self.RoutputTE.insertPlainText(StrOutput)
+            self.RoutputTE.insertPlainText('\t')
 
 
     def updateGUI(self):
@@ -270,40 +303,70 @@ class pyXCMSWindow(QtGui.QMainWindow, ui_main.Ui_MainWindow):
         self.eicIndexSB.setMaximum(numEICs-1)
         self.eicIndexSB.setValue(0)
 
-    def testXCMS(self):
-#        try:
-        r = ro.r
-        a = r('cdfpath = system.file("cdf", package = "faahKO")')
-        cdfpath = ri.globalEnv.get("cdfpath")
-        r('cdffiles = list.files(cdfpath, recursive = TRUE, full.names = TRUE)')
-        #r('cdffiles = cdffiles[1:2]')
-        cdffiles = ri.globalEnv.get("cdffiles")
-        if len(cdffiles) == 0:
-            rMsg = 'Open R and enter the following:\nsource("http://bioconductor.org/biocLite.R")\nbiocLite("faahKO")'
-            return QtGui.QMessageBox.warning(self, "Error with Test Data", rMsg )
-        self.add2ROutput(cdffiles)
-        xset = r.xcmsSet(cdffiles)
-        ri.globalEnv["xset"] = xset
-        xset = r.group(xset)
-        self.RoutputTE.append('XSET')
-        self.RoutputTE.append(str(xset)+'\n')
-        xset2 = r.retcor(xset, family = "symmetric", plottype = "mdevden")
-        ri.globalEnv["xset2"] = xset2
-        self.RoutputTE.append('XSET2')
-        self.RoutputTE.append(str(xset2)+'\n')
-        xset2 = r.group(xset2, bw = 10)
-        xset3 = r.fillPeaks(xset2)
-        self.RoutputTE.append('XSET3')
-        self.RoutputTE.append(str(xset3)+'\n')
-        ri.globalEnv["xset3"] = xset3
-        gt = r.groups(xset3)
-        tsidx = r.groupnames(xset3)
-        ri.globalEnv["tsidx"] = tsidx
+#    def rProcessFinished(self):
+#        print "R Process finished"
+#
+#    def startRProcess(self, rpy2Command):
+#        QtCore.QProcess.se
+#        self.rProcess.setArguments(rpy2Command)
+#        self.rProcess.closeStdin()
+#        if not self.rProcess.start():
+#            self.RoutputTE.setText("Error executing R Command, check Parameters")
+#
+#    def stopRProcess(self):
+#        self.rProcess.tryTerminate()
+#        QtCore.QTimer.singleShot(5000, self.rProcess, QtCore.SLOT("kill()"))
+#
+#    def readOutput(self):
+#        self.RoutputTE.append(self.rProcess.readStdout())
+#
+#    def readErrors(self):
+#        self.RoutputTE.append("error: "+QtCore.QString(self.rProcess.readLineStderr()))
 
-        eicmax = r.length(tsidx)
-        eic = r.getEIC(xset3, rtrange = 150, groupidx = tsidx, rt = "corrected")
-        self.eicClass = EIC(eic)
-        self.updateGUI()
+
+
+    def testXCMS(self):
+        self.rThread.start()
+#        try:
+#            self.rThread.start()
+#            sys.stdout = StdOutFaker(self.RoutputTE)
+#            r = ro.r
+#            a = r('cdfpath = system.file("cdf", package = "faahKO")')
+#            cdfpath = ri.globalEnv.get("cdfpath")
+#            r('cdffiles = list.files(cdfpath, recursive = TRUE, full.names = TRUE)')
+#            r('cdffiles = cdffiles[1:2]')
+#            cdffiles = ri.globalEnv.get("cdffiles")
+#            if len(cdffiles) == 0:
+#                rMsg = 'Open R and enter the following:\nsource("http://bioconductor.org/biocLite.R")\nbiocLite("faahKO")'
+#                return QtGui.QMessageBox.warning(self, "Error with Test Data", rMsg )
+#            self.add2ROutput(cdffiles)
+#    #        self.startRProcess(r.xcmsSet(cdffiles))
+#            xset = r.xcmsSet(cdffiles)
+#
+#
+#            ri.globalEnv["xset"] = xset
+#            xset = r.group(xset)
+#            self.RoutputTE.append('XSET')
+#            self.RoutputTE.append(str(xset)+'\n')
+#            xset2 = r.retcor(xset, family = "symmetric", plottype = "mdevden")
+#            ri.globalEnv["xset2"] = xset2
+#            self.RoutputTE.append('XSET2')
+#            self.RoutputTE.append(str(xset2)+'\n')
+#            xset2 = r.group(xset2, bw = 10)
+
+#            xset3 = r.fillPeaks(xset2)
+#            self.RoutputTE.append('XSET3')
+#            self.RoutputTE.append(str(xset3)+'\n')
+#            ri.globalEnv["xset3"] = xset3
+#            gt = r.groups(xset3)
+#            tsidx = r.groupnames(xset3)
+#            ri.globalEnv["tsidx"] = tsidx
+#
+#            eicmax = r.length(tsidx)
+#            eic = r.getEIC(xset3, rtrange = 150, groupidx = tsidx, rt = "corrected")
+#            self.eicClass = EIC(eic)
+#            self.updateGUI()
+
 #        ri.globalEnv["gt"] = gt
 #        r.colnames(gt)
 #        r('groupidx1 = which(gt[, "rtmed"] > 2600 & gt[, "rtmed"] < 2700 & gt[, "npeaks"] == 12)[1]')
@@ -316,9 +379,12 @@ class pyXCMSWindow(QtGui.QMainWindow, ui_main.Ui_MainWindow):
 #        eiccor = r.getEIC(xset3, mzrange=mzRange)
 #        #eicRaw = r.getEIC(xset3, groupidx = r.c(groupidx1, groupidx2), rt = "raw")
 #        self.plotXCMS(eiccor)
-        print "Test OK"
 
+#            sys.stdout=sys.__stdout__
+#            print "Test OK"
+#
 #        except:
+#            sys.stdout=sys.__stdout__
 #            errorMsg = "Sorry: %s\n\n:%s\n"%(sys.exc_type, sys.exc_value)
 #            print errorMsg
 #            print "R data error"
@@ -488,178 +554,6 @@ class pyXCMSWindow(QtGui.QMainWindow, ui_main.Ui_MainWindow):
 
     def PCTProgress(self, updateString):
         self.setStatusLabel(updateString)
-
-class XCMSThread(QtCore.QThread):
-        def __init__(self, parent = None):
-            QtCore.QThread.__init__(self, parent)
-
-            self.finished = False
-            self.ready = False
-            self.numSteps = 0
-            '''
-        r = ro.r
-        a = r('cdfpath = system.file("cdf", package = "faahKO")')
-        cdfpath = ri.globalEnv.get("cdfpath")
-        r('cdffiles = list.files(cdfpath, recursive = TRUE, full.names = TRUE)')
-        r('cdffiles = cdffiles[1:2]')
-        cdffiles = ri.globalEnv.get("cdffiles")
-        if len(cdffiles) == 0:
-            rMsg = 'Open R and enter the following:\nsource("http://bioconductor.org/biocLite.R")\nbiocLite("faahKO")'
-            return QtGui.QMessageBox.warning(self, "Error with Test Data", rMsg )
-        self.add2ROutput(cdffiles)
-        xset = r.xcmsSet(cdffiles)
-        ri.globalEnv["xset"] = xset
-        xset = r.group(xset)
-        self.RoutputTE.append('XSET')
-        self.RoutputTE.append(str(xset)+'\n')
-        xset2 = r.retcor(xset, family = "symmetric", plottype = "mdevden")
-        ri.globalEnv["xset2"] = xset2
-        self.RoutputTE.append('XSET2')
-        self.RoutputTE.append(str(xset2)+'\n')
-        xset2 = r.group(xset2, bw = 10)
-        xset3 = r.fillPeaks(xset2)
-        self.RoutputTE.append('XSET3')
-        self.RoutputTE.append(str(xset3)+'\n')
-        ri.globalEnv["xset3"] = xset3
-        gt = r.groups(xset3)
-            '''
-            self.matchedFilterParams = {'fwhm':30.,
-                                    'sigma':30/2.3548,
-                                    'max': 5.,
-                                    'snthresh':10.,
-                                    'step':0.1,
-                                    'steps':2.,
-                                    'mzdiff':0.1,
-                                    }
-
-            self.matchedFilterTypes = {'fwhm':float,
-                                   'sigma':float,
-                                   'max':float,
-                                   'snthresh':float,
-                                   'step':float,
-                                   'steps':float,
-                                   'mzdiff':float
-                                    }
-
-
-            self.centWaveParams = {'ppm': 10.,
-                                   'peakwidth': str([20,50]),#this needs to be fixed, the new version of PyQt4 handles this better
-                                   'snthresh':10.,
-                                   'prefilter':str([3,100]),
-                                   'mzdiff':-0.001,
-                                   }
-            self.centWaveTypes = {'ppm': float,
-                                   'peakwidth': str,
-                                   'snthresh':float,
-                                   'prefilter':str,
-                                   'mzdiff':float,
-                               }
-            ################################
-
-            self.groupParams = {'bw':30.,
-                                'minfrac':0.1,
-                                'mzwid':0.1,
-                                'max':3
-                                }
-
-            self.groupTypes = {}
-            ##############################
-
-            self.retcorParams = {'extra':2,
-                                 'span':.5,
-                                 'f':'symmetric',
-                                 'plottype':"mdevden",
-                                 'missing':2,
-                                 }
-            self.retcorTypes = {}
-
-            #########################
-            self.xcmsParamDict = {'Matched Filter':self.matchedFilterParams,
-                                   'CentWave':self.centWaveParams}
-            self.xcmsTypeDict = {'Matched Filter':self.matchedFilterTypes,
-                                   'CentWave':self.centWaveTypes}
-
-
-        def updateParamDict(self, paramDict):
-            for subKey in paramDict.iterkeys():
-                parentDict = paramDict[subKey]
-                threadDict = self.xcmsParamDict[subKey]
-                for key in threadDict.iterkeys():
-                    threadDict[key] = paramDict[key]
-
-        def updateThread(self, fileList, paramDict):
-            self.fileList = fileList
-            self.updateParamDict(paramDict)
-            self.numSteps = 3
-            self.ready = True
-            return True
-
-        def emitUpdate(self, updateStr):
-            self.emit(QtCore.SIGNAL("xcmsOutUpdate(PyQt_PyObject)"),updateStr)
-            self.numSteps += -1
-            self.emit(QtCore.SIGNAL("xcmsProgress(PyQt_PyObject)"),self.numSteps)
-
-        def run(self):
-            if self.ready:
-                r.library("xcms")
-                r('cdfpath = system.file("cdf", package = "faahKO")')
-                cdfpath = ri.globalEnv.get("cdfpath")
-                r('cdffiles = list.files(cdfpath, recursive = TRUE, full.names = TRUE)')
-                cdffiles = ri.globalEnv.get("cdffiles")
-                xset = r.xcmsSet(cdffiles)
-                ri.globalEnv["xset"] = xset
-                self.emitUpdate('\n')
-                xset = r.group(xset)
-                self.emitUpdate(str(xset)+'\n')
-                xset2 = r.retcor(xset, family = "symmetric", plottype = "mdevden")
-                ri.globalEnv["xset2"] = xset2
-                xset2 = r.group(xset2, bw = self.groupParams['bw'])
-                self.emitUpdate(str(xset2)+'\n')
-                xset3 = r.fillPeaks(xset2)
-                self.emitUpdate(str(xset3)+'\n')
-                ri.globalEnv["xset3"] = xset3
-                gt = r.groups(xset3)
-                ri.globalEnv["gt"] = gt
-                r.colnames(gt)
-                r('groupidx1 = which(gt[, "rtmed"] > 2600 & gt[, "rtmed"] < 2700 & gt[, "npeaks"] == 12)[1]')
-                groupidx1 = ri.globalEnv.get("groupidx1")
-                r('groupidx2 = which(gt[, "rtmed"] > 3600 & gt[, "rtmed"] < 3700 & gt[, "npeaks"] == 12)[1]')
-                groupidx2 = ri.globalEnv.get("groupidx2")
-                eiccor = r.getEIC(xset3, groupidx = r.c(groupidx1, groupidx2))
-                eicRaw = r.getEIC(xset3, groupidx = r.c(groupidx1, groupidx2), rt = "raw")
-
-
-                if self.loadmzXML:
-                    while not self.finished and self.numItems > 0:
-                        for item in self.loadList:
-#                            print os.path.basename(item)
-                            tempmzXML =  mzXMLR(item)
-                            tempSpec = tempmzXML.data['spectrum']
-                            if len(tempSpec)>0:
-#                                print 'Spec OK', os.path.basename(item)
-                                data2plot = DataPlot(tempSpec[0],  tempSpec[1],  name = os.path.basename(item), path = item)
-                                data2plot.setPeakList(tempmzXML.data['peaklist'])
-                                #this following line is key to pass python object via the SIGNAL/SLOT mechanism of PyQt
-                                #note PyQt_PyObject
-                                self.emit(QtCore.SIGNAL("itemLoaded(PyQt_PyObject)"),data2plot)
-                            else:
-                                print 'Empty spectrum: ', item
-
-                            self.numItems -=1
-                else:
-                    while not self.finished and self.numItems > 0:
-                        for item in self.loadList:
-                            tempFlex = FR(item)
-                            tempSpec = tempFlex.data['spectrum']
-                            data2plot = DataPlot(tempSpec[:, 0],  tempSpec[:, 1], name = item.split(os.path.sep)[-4], path = item)#the -4 index is to handle the Bruker File Structure
-                            data2plot.setPeakList(tempFlex.data['peaklist'])
-                            #this following line is key to pass python object via the SIGNAL/SLOT mechanism of PyQt
-                            self.emit(QtCore.SIGNAL("itemLoaded(PyQt_PyObject)"),data2plot)#note PyQt_PyObject
-                            self.numItems -=1
-
-        def __del__(self):
-            self.exiting = True
-            self.wait()
 
 
 def run_main():

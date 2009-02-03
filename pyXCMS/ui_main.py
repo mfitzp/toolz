@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/clowers/workspace/pyXCMS/main.ui'
 #
-# Created: Sat Jan 31 19:22:05 2009
+# Created: Tue Feb  3 08:49:37 2009
 #      by: PyQt4 UI code generator 4.4.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -14,7 +14,7 @@ class Ui_MainWindow(object):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(987, 731)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(":/new/prefix1/icons/games.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap("../../../../:/new/prefix1/icons/games.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         MainWindow.setWindowIcon(icon)
         MainWindow.setIconSize(QtCore.QSize(30, 30))
         self.centralwidget = QtGui.QWidget(MainWindow)
@@ -104,7 +104,7 @@ class Ui_MainWindow(object):
         self.hboxlayout5.addItem(spacerItem1)
         self.runXCMSBtn = QtGui.QToolButton(self.tab)
         icon1 = QtGui.QIcon()
-        icon1.addPixmap(QtGui.QPixmap(":/new/prefix1/icons/applications.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon1.addPixmap(QtGui.QPixmap("../../../../:/new/prefix1/icons/applications.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.runXCMSBtn.setIcon(icon1)
         self.runXCMSBtn.setIconSize(QtCore.QSize(32, 32))
         self.runXCMSBtn.setObjectName("runXCMSBtn")
@@ -194,6 +194,25 @@ class Ui_MainWindow(object):
         self.mzStopSB.setObjectName("mzStopSB")
         self.hboxlayout12.addWidget(self.mzStopSB)
         self.vboxlayout7.addLayout(self.hboxlayout12)
+        self.hboxlayout13 = QtGui.QHBoxLayout()
+        self.hboxlayout13.setObjectName("hboxlayout13")
+        self.label_11 = QtGui.QLabel(self.tab_2)
+        self.label_11.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_11.setObjectName("label_11")
+        self.hboxlayout13.addWidget(self.label_11)
+        self.rtWidthSB = QtGui.QDoubleSpinBox(self.tab_2)
+        self.rtWidthSB.setDecimals(1)
+        self.rtWidthSB.setMinimum(1.0)
+        self.rtWidthSB.setMaximum(100000.0)
+        self.rtWidthSB.setSingleStep(1.0)
+        self.rtWidthSB.setProperty("value", QtCore.QVariant(200.0))
+        self.rtWidthSB.setObjectName("rtWidthSB")
+        self.hboxlayout13.addWidget(self.rtWidthSB)
+        self.vboxlayout7.addLayout(self.hboxlayout13)
+        self.checkBox = QtGui.QCheckBox(self.tab_2)
+        self.checkBox.setChecked(True)
+        self.checkBox.setObjectName("checkBox")
+        self.vboxlayout7.addWidget(self.checkBox)
         self.getEICBtn = QtGui.QPushButton(self.tab_2)
         self.getEICBtn.setObjectName("getEICBtn")
         self.vboxlayout7.addWidget(self.getEICBtn)
@@ -203,6 +222,12 @@ class Ui_MainWindow(object):
         self.hboxlayout7.addLayout(self.hboxlayout9)
         self.hboxlayout6.addLayout(self.hboxlayout7)
         self.tabWidget.addTab(self.tab_2, "")
+        self.tab_3 = QtGui.QWidget()
+        self.tab_3.setObjectName("tab_3")
+        self.killRBtn = QtGui.QPushButton(self.tab_3)
+        self.killRBtn.setGeometry(QtCore.QRect(60, 30, 121, 21))
+        self.killRBtn.setObjectName("killRBtn")
+        self.tabWidget.addTab(self.tab_3, "")
         self.hboxlayout.addWidget(self.tabWidget)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
@@ -260,19 +285,28 @@ class Ui_MainWindow(object):
         self.label_6.setText(QtGui.QApplication.translate("MainWindow", "EIC Index:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_7.setText(QtGui.QApplication.translate("MainWindow", "Current Folder:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_5.setText(QtGui.QApplication.translate("MainWindow", "m/z Start:", None, QtGui.QApplication.UnicodeUTF8))
+        self.mzStartSB.setToolTip(QtGui.QApplication.translate("MainWindow", "Upper bound of the EIC extraction range", None, QtGui.QApplication.UnicodeUTF8))
         self.label_4.setText(QtGui.QApplication.translate("MainWindow", "m/z Stop:", None, QtGui.QApplication.UnicodeUTF8))
+        self.mzStopSB.setToolTip(QtGui.QApplication.translate("MainWindow", "Low bound of the EIC extraction range", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_11.setText(QtGui.QApplication.translate("MainWindow", "RT Width:", None, QtGui.QApplication.UnicodeUTF8))
+        self.rtWidthSB.setToolTip(QtGui.QApplication.translate("MainWindow", "Retention time window of the EIC", None, QtGui.QApplication.UnicodeUTF8))
+        self.checkBox.setToolTip(QtGui.QApplication.translate("MainWindow", "Do you want the corrected EIC or the raw values?", None, QtGui.QApplication.UnicodeUTF8))
+        self.checkBox.setText(QtGui.QApplication.translate("MainWindow", "Retrieve Corrected EIC?", None, QtGui.QApplication.UnicodeUTF8))
         self.getEICBtn.setToolTip(QtGui.QApplication.translate("MainWindow", "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
 "</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:8.25pt; font-weight:400; font-style:normal;\">\n"
 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Do It!</p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
         self.getEICBtn.setText(QtGui.QApplication.translate("MainWindow", "Fetch EIC", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), QtGui.QApplication.translate("MainWindow", "EIC", None, QtGui.QApplication.UnicodeUTF8))
+        self.killRBtn.setText(QtGui.QApplication.translate("MainWindow", "Kill R Process", None, QtGui.QApplication.UnicodeUTF8))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), QtGui.QApplication.translate("MainWindow", "Options", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_File.setTitle(QtGui.QApplication.translate("MainWindow", "&File", None, QtGui.QApplication.UnicodeUTF8))
         self.menuF_unctions.setTitle(QtGui.QApplication.translate("MainWindow", "F&unctions", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Open.setText(QtGui.QApplication.translate("MainWindow", "&Open", None, QtGui.QApplication.UnicodeUTF8))
         self.actionSave_Results_Table.setText(QtGui.QApplication.translate("MainWindow", "Save Results Table", None, QtGui.QApplication.UnicodeUTF8))
         self.actionTest_XCMS.setText(QtGui.QApplication.translate("MainWindow", "Test XCMS", None, QtGui.QApplication.UnicodeUTF8))
         self.actionTest_XCMS.setToolTip(QtGui.QApplication.translate("MainWindow", "Needs faakho package", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionTest_XCMS.setWhatsThis(QtGui.QApplication.translate("MainWindow", "Needs faakho package", None, QtGui.QApplication.UnicodeUTF8))
 
 from customTable import CustomTable
 from mpl_pyqt4_widget import MPL_Widget
