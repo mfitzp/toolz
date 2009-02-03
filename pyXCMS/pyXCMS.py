@@ -266,8 +266,8 @@ class pyXCMSWindow(QtGui.QMainWindow, ui_main.Ui_MainWindow):
 
     def updateGUI(self):
         numEICs = self.eicClass.numEICs
-        self.eicIndexSlider.setMaximum(numEICs)
-        self.eicIndexSB.setMaximum(numEICs)
+        self.eicIndexSlider.setMaximum(numEICs-1)
+        self.eicIndexSB.setMaximum(numEICs-1)
         self.eicIndexSB.setValue(0)
 
     def testXCMS(self):
