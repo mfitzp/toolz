@@ -13,8 +13,7 @@
    <string>pyXCMS</string>
   </property>
   <property name="windowIcon" >
-   <iconset>
-    <normaloff>:/new/prefix1/icons/games.png</normaloff>:/new/prefix1/icons/games.png</iconset>
+   <iconset>../../../../:/new/prefix1/icons/games.png</iconset>
   </property>
   <property name="iconSize" >
    <size>
@@ -52,7 +51,7 @@
                 <property name="orientation" >
                  <enum>Qt::Horizontal</enum>
                 </property>
-                <property name="sizeHint" stdset="0" >
+                <property name="sizeHint" >
                  <size>
                   <width>40</width>
                   <height>20</height>
@@ -175,7 +174,7 @@ p, li { white-space: pre-wrap; }
               <property name="orientation" >
                <enum>Qt::Horizontal</enum>
               </property>
-              <property name="sizeHint" stdset="0" >
+              <property name="sizeHint" >
                <size>
                 <width>40</width>
                 <height>20</height>
@@ -195,8 +194,7 @@ p, li { white-space: pre-wrap; }
                <string>...</string>
               </property>
               <property name="icon" >
-               <iconset>
-                <normaloff>:/new/prefix1/icons/applications.png</normaloff>:/new/prefix1/icons/applications.png</iconset>
+               <iconset>../../../../:/new/prefix1/icons/applications.png</iconset>
               </property>
               <property name="iconSize" >
                <size>
@@ -313,6 +311,9 @@ p, li { white-space: pre-wrap; }
                 </item>
                 <item>
                  <widget class="QDoubleSpinBox" name="mzStartSB" >
+                  <property name="toolTip" >
+                   <string>Upper bound of the EIC extraction range</string>
+                  </property>
                   <property name="decimals" >
                    <number>4</number>
                   </property>
@@ -343,6 +344,9 @@ p, li { white-space: pre-wrap; }
                 </item>
                 <item>
                  <widget class="QDoubleSpinBox" name="mzStopSB" >
+                  <property name="toolTip" >
+                   <string>Low bound of the EIC extraction range</string>
+                  </property>
                   <property name="decimals" >
                    <number>4</number>
                   </property>
@@ -358,6 +362,55 @@ p, li { white-space: pre-wrap; }
                  </widget>
                 </item>
                </layout>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" >
+                <item>
+                 <widget class="QLabel" name="label_11" >
+                  <property name="text" >
+                   <string>RT Width:</string>
+                  </property>
+                  <property name="alignment" >
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QDoubleSpinBox" name="rtWidthSB" >
+                  <property name="toolTip" >
+                   <string>Retention time window of the EIC</string>
+                  </property>
+                  <property name="decimals" >
+                   <number>1</number>
+                  </property>
+                  <property name="minimum" >
+                   <double>1.000000000000000</double>
+                  </property>
+                  <property name="maximum" >
+                   <double>100000.000000000000000</double>
+                  </property>
+                  <property name="singleStep" >
+                   <double>1.000000000000000</double>
+                  </property>
+                  <property name="value" >
+                   <double>200.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="checkBox" >
+                <property name="toolTip" >
+                 <string>Do you want the corrected EIC or the raw values?</string>
+                </property>
+                <property name="text" >
+                 <string>Retrieve Corrected EIC?</string>
+                </property>
+                <property name="checked" >
+                 <bool>true</bool>
+                </property>
+               </widget>
               </item>
               <item>
                <widget class="QPushButton" name="getEICBtn" >
@@ -377,7 +430,7 @@ p, li { white-space: pre-wrap; }
                 <property name="orientation" >
                  <enum>Qt::Vertical</enum>
                 </property>
-                <property name="sizeHint" stdset="0" >
+                <property name="sizeHint" >
                  <size>
                   <width>20</width>
                   <height>40</height>
@@ -403,7 +456,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>987</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File" >

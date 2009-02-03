@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import os
-import sys
+import sys, traceback
 
 from PyQt4 import QtCore,  QtGui
 
@@ -12,6 +12,7 @@ from matplotlib.backends.backend_qt4 import NavigationToolbar2QT as NavigationTo
 from matplotlib.figure import Figure
 
 from matplotlib.widgets import SpanSelector
+from matplotlib import mlab
 #from matplotlib.pyplot import savefig
 
 import numpy as N
@@ -57,7 +58,7 @@ class MyMplCanvas(FigureCanvas):
         self.fig.subplots_adjust(left=0.1, bottom=0.1, right=0.9, top=0.9)
         self.xtitle=""
         self.ytitle=""
-        #self.PlotTitle = "Plot"
+#        self.plotTitle = "Plot Canvas"
         self.grid_status = True
         self.xaxis_style = 'linear'
         self.yaxis_style = 'linear'
@@ -168,10 +169,10 @@ class MPL_Widget(QtGui.QWidget):
 
 
         #######SAVING FIGURE DATA############################
-#        self.saveCSVAction = QtGui.QAction("Save to CSV",  self)
-#        self.saveCSVAction.setShortcut("Ctrl+Alt+S")
-#        self.addAction(self.saveCSVAction)
-#        QtCore.QObject.connect(self.saveCSVAction,QtCore.SIGNAL("triggered()"), self.save2CSV)
+        self.saveCSVAction = QtGui.QAction("Save to CSV",  self)
+        self.saveCSVAction.setShortcut("Ctrl+Alt+S")
+        self.addAction(self.saveCSVAction)
+        QtCore.QObject.connect(self.saveCSVAction,QtCore.SIGNAL("triggered()"), self.save2CSV)
 
         ########### HELPER FUNCTIONS #########################
 
@@ -210,21 +211,38 @@ class MPL_Widget(QtGui.QWidget):
             try:
                 lines = self.ax1.get_lines()
                 data2write = []
+                dataLabels = []
                 for line in lines:
-                    data2write.append(line.get_data()[0])
-                    data2write.append(line.get_data()[1])
-                print data2write
-                data2write = N.array(data2write)
-                data2write.dtype = N.float32
-                N.savetxt(str(path), N.transpose(data2write), delimiter = ',', fmt='%.4f')
+                    lineData = line.get_data()
+                    x = lineData[0]
+                    y = lineData[1]
+                    data2write.append(x)
+                    data2write.append(y)
+                    label = line.get_label()
+                    labelx = label+"_x"
+                    labely = label+"_y"
+    #                    dataLabels.append((labelx, x.dtype))
+    #                    dataLabels.append((labely, y.dtype))
+                    dataLabels.append(labelx)
+                    dataLabels.append(labely)
+
+                print dataLabels
+    #                data2write = N.array(data2write, dtype = dataLabels)
+                d2write = N.rec.fromarrays(data2write, names = dataLabels)
+                mlab.rec2csv(d2write, str(path))
+#                N.savetxt(str(path), N.transpose(data2write), delimiter = ',', fmt='%.4f')
             except:
                 try:
                     #this is for the case where the data may not be in float format?
                     N.savetxt(str(path), N.transpose(data2write), delimiter = ',')
                 except:
-                    print 'Error saving figure data'
-                    errorMsg = "Sorry: %s\n\n:%s\n"%(sys.exc_type, sys.exc_value)
+                    exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+                    traceback.print_exception(exceptionType, exceptionValue, exceptionTraceback, file=sys.stdout)
+#                    print 'Error saving figure data'
+                    errorMsg = "Sorry: %s\n\n:%s\n%s\n"%(exceptionType, exceptionValue, exceptionTraceback)
                     print errorMsg
+
+
 
 
     def SFDialog(self):
