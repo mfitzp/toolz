@@ -13,7 +13,8 @@
    <string>pyXCMS</string>
   </property>
   <property name="windowIcon" >
-   <iconset>../../../../:/new/prefix1/icons/games.png</iconset>
+   <iconset>
+    <normaloff>../../../../:/new/prefix1/icons/games.png</normaloff>../../../../:/new/prefix1/icons/games.png</iconset>
   </property>
   <property name="iconSize" >
    <size>
@@ -51,7 +52,7 @@
                 <property name="orientation" >
                  <enum>Qt::Horizontal</enum>
                 </property>
-                <property name="sizeHint" >
+                <property name="sizeHint" stdset="0" >
                  <size>
                   <width>40</width>
                   <height>20</height>
@@ -174,7 +175,7 @@ p, li { white-space: pre-wrap; }
               <property name="orientation" >
                <enum>Qt::Horizontal</enum>
               </property>
-              <property name="sizeHint" >
+              <property name="sizeHint" stdset="0" >
                <size>
                 <width>40</width>
                 <height>20</height>
@@ -194,7 +195,8 @@ p, li { white-space: pre-wrap; }
                <string>...</string>
               </property>
               <property name="icon" >
-               <iconset>../../../../:/new/prefix1/icons/applications.png</iconset>
+               <iconset>
+                <normaloff>../../../../:/new/prefix1/icons/applications.png</normaloff>../../../../:/new/prefix1/icons/applications.png</iconset>
               </property>
               <property name="iconSize" >
                <size>
@@ -430,7 +432,7 @@ p, li { white-space: pre-wrap; }
                 <property name="orientation" >
                  <enum>Qt::Vertical</enum>
                 </property>
-                <property name="sizeHint" >
+                <property name="sizeHint" stdset="0" >
                  <size>
                   <width>20</width>
                   <height>40</height>
@@ -446,6 +448,24 @@ p, li { white-space: pre-wrap; }
         </item>
        </layout>
       </widget>
+      <widget class="QWidget" name="tab_3" >
+       <attribute name="title" >
+        <string>Options</string>
+       </attribute>
+       <widget class="QPushButton" name="killRBtn" >
+        <property name="geometry" >
+         <rect>
+          <x>60</x>
+          <y>30</y>
+          <width>121</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="text" >
+         <string>Kill R Process</string>
+        </property>
+       </widget>
+      </widget>
      </widget>
     </item>
    </layout>
@@ -456,7 +476,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>987</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File" >
