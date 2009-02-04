@@ -5,6 +5,8 @@ import sys, traceback
 import csv
 from PyQt4 import QtCore,  QtGui
 
+from txtHandler import SimpleTable as ST
+
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt4 import NavigationToolbar2QT as NavigationToolbar
 #from matplotlib.backend_bases import NavigationToolbar2
@@ -254,7 +256,7 @@ class MPL_Widget(QtGui.QWidget):
 ###                d2write = N.column_stack(())
 ##                d2write = N.rec.fromarrays(data2write, names = dataLabels)
 ##                mlab.rec2csv(d2write, str(path))
-##    #                N.savetxt(str(path), N.transpose(data2write), delimiter = ',', fmt='%.4f')
+
 
 #######################################
                 finalArray = N.zeros((numRows, len(dataLabels)))
@@ -262,13 +264,19 @@ class MPL_Widget(QtGui.QWidget):
                     if i%2 == 0:#this makes it so there is not huge breaks in the x axis
                         finalArray[:,i]+=data.max()
                     finalArray[:,i][0:len(data)] = data
-
-                writer = csv.writer(open(str(path),'w'), delimiter=",")
-                writer.writerow(dataLabels)
-                print finalArray.shape
-                writer.writerows(finalArray)
-                print "%s written!"%str(path)
+#
+#                writer = csv.writer(open(str(path),'w'), delimiter=",")
+#                writer.writerow(dataLabels)
+#                print finalArray.shape
+#                writer.writerows(finalArray)
+#                print "%s written!"%str(path)
 #############################################
+#                tbl = ST(data2write,dataLabels)
+#                fh = open(str(path),'w')
+#                fh.write(tbl.as_csv())
+#                print tbl.as_csv()
+#                fh.close()
+                N.savetxt(str(path), finalArray, delimiter = ',', fmt='%.4f')
 
 
             except:
@@ -288,7 +296,7 @@ class MPL_Widget(QtGui.QWidget):
     def SFDialog(self):
         fileName = QtGui.QFileDialog.getSaveFileName(self,
                                          "Select File to Save",
-                                         "",
+                                         "EIC",
                                          "csv Files (*.csv)")
         if not fileName.isEmpty():
             print fileName

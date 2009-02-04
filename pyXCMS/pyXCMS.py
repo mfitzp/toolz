@@ -1,10 +1,11 @@
-import sys
+import sys, traceback
 import os
 import shutil
 import time
 from PyQt4 import QtCore, QtGui
 
 #try:#this is done because sometimes there is an annoying message regard tk that come up
+import rpy2
 import rpy2.robjects as ro
 import rpy2.rinterface as ri
 #except:
@@ -12,8 +13,7 @@ import rpy2.rinterface as ri
 
 '''
 ToDo:
-pass file list to R
-pass parameters from dictionary to xcms
+
 '''
 
 
@@ -188,7 +188,7 @@ class pyXCMSWindow(QtGui.QMainWindow, ui_main.Ui_MainWindow):
         self.retcorParams = {'extra':2,
                              'span':0.5,
                              'f':'symmetric',
-                             'plottype':'mdevden',
+                             'plottype':'none',
                              'missing':2
                              }
         self.retcorTypes = {'extra':int,
@@ -250,7 +250,15 @@ class pyXCMSWindow(QtGui.QMainWindow, ui_main.Ui_MainWindow):
     def setupR(self):
         peakTableName = 'tempPeakTable.csv'
         self.peakTableName = os.path.join(self.curDir, peakTableName)
-        ro.r.source('xcmsFuncs.R')
+        try:
+            ro.r('source("xcmsFuncs.R")')
+        except:
+            exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+            traceback.print_exception(exceptionType, exceptionValue, exceptionTraceback, file=sys.stdout)
+#                    print 'Error saving figure data'
+            errorMsg = "Sorry: %s\n\n:%s\n%s\n"%(exceptionType, exceptionValue, exceptionTraceback)
+            return QtGui.QMessageBox.warning(self, "R Source Error", errorMsg)
+            print errorMsg
         #print peakTableName
 
     def setXCMSGroup(self, xcmsSetObject):
@@ -392,7 +400,8 @@ class pyXCMSWindow(QtGui.QMainWindow, ui_main.Ui_MainWindow):
             xdata = eic['xdata']
             ydata = eic['ydata']
             self.eicPlot.plot(xdata, ydata, label = name)
-        self.eicPlot.legend(axespad = 0.03, pad=0.25)
+        if self.plotLegendCB.isChecked():
+            self.eicPlot.legend(axespad = 0.03, pad=0.25)
         self.eicPlot.set_title('EIC from %.2f to %.2f m/z'%(mzlo, mzhi))
         self.plotWidget.canvas.xtitle = 'Time (s)'
         self.plotWidget.canvas.ytitle ='Arbitrary Intensity'
@@ -551,6 +560,12 @@ class pyXCMSWindow(QtGui.QMainWindow, ui_main.Ui_MainWindow):
                                                    QtGui.QMessageBox.Yes,QtGui.QMessageBox.Cancel)
         if clickedButton == QtGui.QMessageBox.Yes: return True
         return False
+
+    def closeEvent(self,  event = None):
+        try:
+            ri.endr()
+        except:
+            pass
 
 ##########Begin Ashoka Progress Bar Code....
     def layoutStatusBar(self):
