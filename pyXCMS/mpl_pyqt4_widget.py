@@ -2,7 +2,7 @@
 
 import os
 import sys, traceback
-
+import csv
 from PyQt4 import QtCore,  QtGui
 
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
@@ -212,24 +212,49 @@ class MPL_Widget(QtGui.QWidget):
                 lines = self.ax1.get_lines()
                 data2write = []
                 dataLabels = []
+                numRows = 0
                 for line in lines:
                     lineData = line.get_data()
                     x = lineData[0]
                     y = lineData[1]
+                    if numRows < len(x):#only need to test once because Line2D instances have the same length
+                        numRows = len(x)
+
+#                    if i == 0:
+#                        data2write = N.column_stack((x,y))
+#                    else:
+#                        data2write = N.column_stack((data2write,x))
+#                        data2write = N.column_stack((data2write,y))
                     data2write.append(x)
                     data2write.append(y)
                     label = line.get_label()
                     labelx = label+"_x"
                     labely = label+"_y"
-    #                    dataLabels.append((labelx, x.dtype))
-    #                    dataLabels.append((labely, y.dtype))
                     dataLabels.append(labelx)
                     dataLabels.append(labely)
 
+
                 print dataLabels
-    #                data2write = N.array(data2write, dtype = dataLabels)
-                d2write = N.rec.fromarrays(data2write, names = dataLabels)
-                mlab.rec2csv(d2write, str(path))
+                finalArray = N.zeros((numRows, len(dataLabels)))
+                for i,data in enumerate(data2write):
+                    if i%2 == 0:#this makes it so there is not huge breaks in the x axis
+                        finalArray[:,i]+=data.max()
+                    finalArray[:,i][0:len(data)] = data
+#                data2write = N.array(data2write)
+#                data2write.dtype = N.float
+                writer = csv.writer(open(str(path),'w'), delimiter=",")
+                writer.writerow(dataLabels)
+                writer.writerows(finalArray)
+                print "%s written!"%str(path)
+#                for row in data2write:
+#                    writer.writerow()
+
+#                N.savetxt(str(path), N.transpose(data2write), delimiter = ',', fmt='%.4f')
+#    #                data2write = N.array(data2write, dtype = dataLabels)
+#
+#                d2write = N.column_stack(())
+#                d2write = N.rec.fromarrays(data2write, names = dataLabels)
+#                mlab.rec2csv(d2write, str(path))
     #                N.savetxt(str(path), N.transpose(data2write), delimiter = ',', fmt='%.4f')
             except:
 #                try:

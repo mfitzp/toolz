@@ -1,5 +1,6 @@
 import sys
-import os, os.path
+import os
+import shutil
 import time
 from PyQt4 import QtCore, QtGui
 
@@ -12,12 +13,8 @@ import rpy2.rinterface as ri
 '''
 ToDo:
 pass file list to R
-save output table to csv
-correct graph saving errors
-Save file to HDF5
-load HDF5
-fetch EIC and add to dictionary
 pass parameters from dictionary to xcms
+add context menu
 '''
 
 
@@ -73,6 +70,7 @@ class pyXCMSWindow(QtGui.QMainWindow, ui_main.Ui_MainWindow):
         self.__initVars()
         self.__initConnections()
         self.setupGUI()
+        self.setupR()
 
 #        self.paramTableWidget.addData(test_data)
 #        ro.r.library("xcms")
@@ -84,6 +82,7 @@ class pyXCMSWindow(QtGui.QMainWindow, ui_main.Ui_MainWindow):
         self.colorIndex = 0
         self.txtColor = None
         self.curDir = os.getcwd()
+        self.peakTableName = None
         self.curParamDict = None
         self.curTypeDict = None
 #        self.Rliblist = ['xcms']
@@ -94,6 +93,7 @@ class pyXCMSWindow(QtGui.QMainWindow, ui_main.Ui_MainWindow):
         self.eicList = []
         self.eicDict = None
         self.eicClass = None
+        self.curXSET = None
         self.plotIndex = 0
         self.initIndex = 0
         self.ignoreSignal = False
@@ -210,18 +210,78 @@ class pyXCMSWindow(QtGui.QMainWindow, ui_main.Ui_MainWindow):
         QtCore.QObject.connect(self.actionTest_XCMS, QtCore.SIGNAL("triggered()"), self.testXCMS)
         QtCore.QObject.connect(self.actionSave_HDF5, QtCore.SIGNAL("triggered()"), self.saveEICs2HDF5)
         QtCore.QObject.connect(self.actionLoad_HDF5, QtCore.SIGNAL("triggered()"), self.loadHDF52EICs)
-
-
-
+        QtCore.QObject.connect(self.actionSave_Results_Table, QtCore.SIGNAL("triggered()"), self.saveXCMSResultsCSV)
+        QtCore.QObject.connect(self.getEICBtn, QtCore.SIGNAL("clicked()"), self.fetchEIC)
 
         QtCore.QObject.connect(self.loadRPY2BatchBtn, QtCore.SIGNAL("clicked()"), self.loadRPY2Batch)
 
 
         QtCore.QObject.connect(self.eicIndexSB, QtCore.SIGNAL("valueChanged(int)"), self.indexChanged)
 
-
         QtCore.QObject.connect(self.rThread, QtCore.SIGNAL("xcmsOutUpdate(PyQt_PyObject)"), self.updateROutput)
         QtCore.QObject.connect(self.rThread, QtCore.SIGNAL("xcmsGetEIC(PyQt_PyObject)"), self.getThreadEIC)
+        QtCore.QObject.connect(self.rThread, QtCore.SIGNAL("xcmsSet(PyQt_PyObject)"), self.setXCMSGroup)
+
+
+    def setupR(self):
+        peakTableName = 'tempPeakTable.csv'
+        self.peakTableName = os.path.join(self.curDir, peakTableName)
+        ro.r.source('xcmsFuncs.R')
+        #print peakTableName
+
+    def setXCMSGroup(self, xcmsSetObject):
+        if xcmsSetObject != None:
+            self.curXSET = xcmsSetObject
+            ro.r.writePeakTable(self.curXSET, self.peakTableName)
+            if os.path.isfile(self.peakTableName):
+                self.RoutputTE.append('xcms peak table written to: %s'%self.peakTableName)
+
+    def saveXCMSResultsCSV(self):
+        if self.curXSET != None:
+            if os.path.isfile(self.peakTableName):
+                fileName = str(self.SaveCSVDialog())
+                if fileName != None:
+                    shutil.copy(self.peakTableName, fileName)
+                    if os.path.isfile(fileName):
+                        self.RoutputTE.append('xcms peak table written to: %s'%fileName)
+        else:
+            Msg = 'No XSET Exists\nTry Again!'
+            return QtGui.QMessageBox.warning(self, "There is no xset instance, hence no table!", Msg )
+
+    def fetchEIC(self):
+        if self.curXSET != None:
+            if self.rtTypeCB.isChecked():
+                rtType = "corrected"
+            else:
+                rtType = "raw"
+            mzlo = self.mzStartSB.value()
+            mzhi = self.mzStopSB.value()
+            if mzlo > mzhi:
+                Msg = 'm/z start must be lower than m/z stop!'
+                return QtGui.QMessageBox.warning(self, "Try Again Slick", Msg )
+            rtRange = self.rtWidthSB.value()
+            mzRange = ro.r.cbind(mzmin=mzlo,mzmax=mzhi)
+
+            eic = ro.r.getEIC(self.curXSET, mzRange, rtrange=rtRange,rt=rtType)
+            self.eicClass.appendEIC(eic)
+            self.updateGUI()
+            self.eicIndexSB.setValue(self.eicIndexSB.maximum())
+
+            #self.RoutputTE.append('xcms peak table written to: %s'%fileName)
+        else:
+            Msg = 'No XSET Exists\nTry Again!'
+            return QtGui.QMessageBox.warning(self, "No xset. No EIC.", Msg )
+
+
+
+    def SaveCSVDialog(self):
+        fileName = QtGui.QFileDialog.getSaveFileName(self, "Select File to Save", self.curDir,"csv (*.csv)")
+        if not fileName.isEmpty():
+            print fileName
+            return fileName
+        else:
+            return None
+
 
     def SFDialog(self):
         fileName = QtGui.QFileDialog.getSaveFileName(self, "Select File to Save", self.curDir,"HDF5 Files (*.h5)")

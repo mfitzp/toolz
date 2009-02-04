@@ -13,7 +13,8 @@
    <string>pyXCMS</string>
   </property>
   <property name="windowIcon" >
-   <iconset>../../../../:/new/prefix1/icons/games.png</iconset>
+   <iconset>
+    <normaloff>../../../../:/new/prefix1/icons/games.png</normaloff>../../../../:/new/prefix1/icons/games.png</iconset>
   </property>
   <property name="iconSize" >
    <size>
@@ -51,7 +52,7 @@
                 <property name="orientation" >
                  <enum>Qt::Horizontal</enum>
                 </property>
-                <property name="sizeHint" >
+                <property name="sizeHint" stdset="0" >
                  <size>
                   <width>40</width>
                   <height>20</height>
@@ -174,7 +175,7 @@ p, li { white-space: pre-wrap; }
               <property name="orientation" >
                <enum>Qt::Horizontal</enum>
               </property>
-              <property name="sizeHint" >
+              <property name="sizeHint" stdset="0" >
                <size>
                 <width>40</width>
                 <height>20</height>
@@ -194,7 +195,8 @@ p, li { white-space: pre-wrap; }
                <string>...</string>
               </property>
               <property name="icon" >
-               <iconset>../../../../:/new/prefix1/icons/applications.png</iconset>
+               <iconset>
+                <normaloff>../../../../:/new/prefix1/icons/applications.png</normaloff>../../../../:/new/prefix1/icons/applications.png</iconset>
               </property>
               <property name="iconSize" >
                <size>
@@ -324,7 +326,7 @@ p, li { white-space: pre-wrap; }
                    <double>0.050000000000000</double>
                   </property>
                   <property name="value" >
-                   <double>515.149999999999977</double>
+                   <double>215.150000000000006</double>
                   </property>
                  </widget>
                 </item>
@@ -357,7 +359,7 @@ p, li { white-space: pre-wrap; }
                    <double>0.050000000000000</double>
                   </property>
                   <property name="value" >
-                   <double>517.149999999999977</double>
+                   <double>227.150000000000006</double>
                   </property>
                  </widget>
                 </item>
@@ -400,7 +402,7 @@ p, li { white-space: pre-wrap; }
                </layout>
               </item>
               <item>
-               <widget class="QCheckBox" name="checkBox" >
+               <widget class="QCheckBox" name="rtTypeCB" >
                 <property name="toolTip" >
                  <string>Do you want the corrected EIC or the raw values?</string>
                 </property>
@@ -430,7 +432,7 @@ p, li { white-space: pre-wrap; }
                 <property name="orientation" >
                  <enum>Qt::Vertical</enum>
                 </property>
-                <property name="sizeHint" >
+                <property name="sizeHint" stdset="0" >
                  <size>
                   <width>20</width>
                   <height>40</height>
@@ -483,7 +485,7 @@ p, li { white-space: pre-wrap; }
             <property name="orientation" >
              <enum>Qt::Horizontal</enum>
             </property>
-            <property name="sizeHint" >
+            <property name="sizeHint" stdset="0" >
              <size>
               <width>40</width>
               <height>20</height>
@@ -503,7 +505,7 @@ p, li { white-space: pre-wrap; }
             <property name="orientation" >
              <enum>Qt::Horizontal</enum>
             </property>
-            <property name="sizeHint" >
+            <property name="sizeHint" stdset="0" >
              <size>
               <width>40</width>
               <height>20</height>
@@ -532,7 +534,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>987</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File" >
