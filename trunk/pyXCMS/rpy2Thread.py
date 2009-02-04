@@ -1,4 +1,5 @@
 import sys
+import rpy2
 import rpy2.robjects as ro
 import rpy2.rinterface as ri
 from eicClass import EIC
@@ -74,11 +75,11 @@ class XCMSThread(QtCore.QThread):
                             'max':int
                             }
         ##############################
-
+#        'mdevden'
         self.retcorParams = {'extra':2,
                              'span':0.5,
                              'f':'symmetric',
-                             'plottype':'mdevden',
+                             'plottype':'none',
                              'missing':2
                              }
         self.retcorTypes = {'extra':int,
@@ -131,6 +132,8 @@ class XCMSThread(QtCore.QThread):
     def run(self):
         if self.ready:
             try:
+#                self.Rliblist = ['xcms']
+#                self.Rlibs = self.initRlibs(self.Rliblist)
                 #sys.stdout = StdOutFaker(self)
                 r = ro.r
                 #a = r('cdfpath = system.file("cdf", package = "faahKO")')
@@ -182,6 +185,7 @@ class XCMSThread(QtCore.QThread):
                 self.emit(QtCore.SIGNAL("xcmsSet(PyQt_PyObject)"),xset3)
     #            self.updateGUI()
                 sys.stdout=sys.__stdout__
+#                ri.endr()
             except:
                 sys.stdout=sys.__stdout__
         else:
