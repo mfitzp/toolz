@@ -27,7 +27,7 @@ class XCMSThread(QtCore.QThread):
         self.numSteps = 0
         self.Rliblist = ['xcms']
         self.Rlibs = self.initRlibs(self.Rliblist)
-
+        self.rtWidth = 200
         self.matchedFilterParams = {'fwhm':30.,
                                     'sigma':30/2.3548,
                                     'max': 5.,
@@ -46,6 +46,8 @@ class XCMSThread(QtCore.QThread):
                                    'mzdiff':float
                                     }
 
+        ##########################
+        #this method is not working well yet for the ORBITRAP DATA ACQUIRED AT PNNL
         self.centWaveParams = {'ppm': 10.,
                                'peakwidth': str([20,50]),#this needs to be fixed, the new version of PyQt4 handles this better
                                'snthresh':10.,
@@ -53,11 +55,11 @@ class XCMSThread(QtCore.QThread):
                                'mzdiff':-0.001,
                                }
         self.centWaveTypes = {'ppm': float,
-                              'peakwidth': str,
-                              'snthresh':float,
-                              'prefilter':str,
-                              'mzdiff':float,
-                              }
+                               'peakwidth': str,
+                               'snthresh':float,
+                               'prefilter':str,
+                               'mzdiff':float,
+                               }
         ################################
 
         self.groupParams = {'bw':30.,
@@ -66,34 +68,51 @@ class XCMSThread(QtCore.QThread):
                             'max':3
                             }
 
-        self.groupTypes = {}
+        self.groupTypes = {'bw':float,
+                            'minfrac':float,
+                            'mzwid':float,
+                            'max':int
+                            }
         ##############################
 
         self.retcorParams = {'extra':2,
-                             'span':.5,
+                             'span':0.5,
                              'f':'symmetric',
-                             'plottype':"mdevden",
-                             'missing':2,
+                             'plottype':'mdevden',
+                             'missing':2
                              }
-        self.retcorTypes = {}
+        self.retcorTypes = {'extra':int,
+                            'span':float,
+                            'f':str,
+                            'plottype':str,
+                            'missing':str
+                            }
 
         #########################
         self.xcmsParamDict = {'Matched Filter':self.matchedFilterParams,
-                               'CentWave':self.centWaveParams}
+                              'Group Params':self.groupParams,
+                              'Retcor Params':self.retcorParams,
+                              'CentWave':self.centWaveParams}
+
         self.xcmsTypeDict = {'Matched Filter':self.matchedFilterTypes,
-                               'CentWave':self.centWaveTypes}
+                             'Group Params':self.groupTypes,
+                             'Retcor Params':self.retcorTypes,
+                             'CentWave':self.centWaveTypes}
 
 
     def updateParamDict(self, paramDict):
         for subKey in paramDict.iterkeys():
             parentDict = paramDict[subKey]
             threadDict = self.xcmsParamDict[subKey]
+#            print parentDict
+#            print threadDict
             for key in threadDict.iterkeys():
-                threadDict[key] = paramDict[key]
+                threadDict[key] = parentDict[key]
 
-    def updateThread(self, fileList, paramDict):
+    def updateThread(self, fileList, paramDict, rtWidth):
         self.fileList = fileList
         self.updateParamDict(paramDict)
+        self.rtWidth = rtWidth
         self.numSteps = 3
         self.ready = True
         return True
@@ -110,44 +129,63 @@ class XCMSThread(QtCore.QThread):
 #        self.emit(QtCore.SIGNAL("xcmsProgress(PyQt_PyObject)"),self.numSteps)
 
     def run(self):
-        try:
-            sys.stdout = StdOutFaker(self)
-            r = ro.r
-            a = r('cdfpath = system.file("cdf", package = "faahKO")')
-            cdfpath = ri.globalEnv.get("cdfpath")
-            r('cdffiles = list.files(cdfpath, recursive = TRUE, full.names = TRUE)')
-            r('cdffiles = cdffiles[1:3]')
-            cdffiles = ri.globalEnv.get("cdffiles")
-#                if len(cdffiles) == 0:
-#                    rMsg = 'Open R and enter the following:\nsource("http://bioconductor.org/biocLite.R")\nbiocLite("faahKO")'
-#                    return QtGui.QMessageBox.warning(self, "Error with Test Data", rMsg )
-            self.add2ROutput(cdffiles)
-            xset = r.xcmsSet(cdffiles)
-            ri.globalEnv["xset"] = xset
-            xset = r.group(xset)
-            self.emitUpdate('\n\nXSET')
-            self.emitUpdate(str(xset)+'\n')
-            xset2 = r.retcor(xset, family = "symmetric", plottype = "mdevden")
-            ri.globalEnv["xset2"] = xset2
-            self.emitUpdate('\n\nXSET2')
-            self.emitUpdate(str(xset2)+'\n')
-            xset2 = r.group(xset2, bw = 10)
-            xset3 = r.fillPeaks(xset2)
-            self.emitUpdate('\n\nXSET3')
-            self.emitUpdate(str(xset3)+'\n')
-            ri.globalEnv["xset3"] = xset3
-            gt = r.groups(xset3)
-            tsidx = r.groupnames(xset3)
-            ri.globalEnv["tsidx"] = tsidx
-            eicmax = r.length(tsidx)
-            eic = r.getEIC(xset3, rtrange = 150, groupidx = tsidx, rt = "corrected")
-            eicClass = EIC(eic)
-            self.emit(QtCore.SIGNAL("xcmsGetEIC(PyQt_PyObject)"),eicClass)
-            self.emit(QtCore.SIGNAL("xcmsSet(PyQt_PyObject)"),xset3)
-#            self.updateGUI()
-            sys.stdout=sys.__stdout__
-        except:
-            sys.stdout=sys.__stdout__
+        if self.ready:
+            try:
+                #sys.stdout = StdOutFaker(self)
+                r = ro.r
+                #a = r('cdfpath = system.file("cdf", package = "faahKO")')
+                #cdfpath = ri.globalEnv.get("cdfpath")
+                #r('cdffiles = list.files(cdfpath, recursive = TRUE, full.names = TRUE)')
+                #r('cdffiles = cdffiles[1:3]')
+                #cdffiles = ri.globalEnv.get("cdffiles")
+                self.add2ROutput(self.fileList)
+                rfileList = ri.StrSexpVector(self.fileList)
+                xset = r.xcmsSet(rfileList, step=self.matchedFilterParams['step'],
+                                 mzdiff=self.matchedFilterParams['mzdiff'],
+                                 snthresh=self.matchedFilterParams['snthresh'])
+                ri.globalEnv["xset"] = xset
+                xset = r.group(xset, bw=self.groupParams['bw'],
+                               mzwid=self.groupParams['mzwid'],
+                               minfrac=self.groupParams['minfrac'],
+                               max=self.groupParams['max'])
+
+                self.emitUpdate('\n\nXSET')
+                self.emitUpdate(str(xset)+'\n')
+                xset2 = r.retcor(xset,
+                                 family=self.retcorParams['f'],
+                                 plottype=self.retcorParams['plottype'],
+                                 missing=self.retcorParams['missing'],
+                                 extra=self.retcorParams['extra'],
+                                 span=self.retcorParams['span'])
+
+                ri.globalEnv["xset2"] = xset2
+                self.emitUpdate('\n\nXSET2')
+                self.emitUpdate(str(xset2)+'\n')
+                xset2 = r.group(xset2, bw=self.groupParams['bw'],
+                               mzwid=self.groupParams['mzwid'],
+                               minfrac=self.groupParams['minfrac'],
+                               max=self.groupParams['max'])
+                xset3 = r.fillPeaks(xset2)
+                self.emitUpdate('\n\nXSET3')
+                self.emitUpdate(str(xset3)+'\n')
+                ri.globalEnv["xset3"] = xset3
+                gt = r.group(xset3, bw=self.groupParams['bw'],
+                               mzwid=self.groupParams['mzwid'],
+                               minfrac=self.groupParams['minfrac'],
+                               max=self.groupParams['max'])
+                tsidx = r.groupnames(xset3)
+                ri.globalEnv["tsidx"] = tsidx
+                eicmax = r.length(tsidx)
+                eic = r.getEIC(xset3, rtrange = self.rtWidth, groupidx = tsidx, rt = "corrected")
+                eicClass = EIC(eic)
+                self.emit(QtCore.SIGNAL("xcmsGetEIC(PyQt_PyObject)"),eicClass)
+                self.emit(QtCore.SIGNAL("xcmsSet(PyQt_PyObject)"),xset3)
+    #            self.updateGUI()
+                sys.stdout=sys.__stdout__
+            except:
+                sys.stdout=sys.__stdout__
+        else:
+            print "Parameters not set or there is an error"
 
 
 

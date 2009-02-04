@@ -14,7 +14,6 @@ import rpy2.rinterface as ri
 ToDo:
 pass file list to R
 pass parameters from dictionary to xcms
-add context menu
 '''
 
 
@@ -64,17 +63,12 @@ class pyXCMSWindow(QtGui.QMainWindow, ui_main.Ui_MainWindow):
     def __init__(self, parent = None):
         super(pyXCMSWindow, self).__init__(parent)
         self.ui = self.setupUi(self)
-#        self.MainWindow = MainWindow
-#        ui_main.Ui_MainWindow.setupUi(self, MainWindow)
 
         self.__initVars()
         self.__initConnections()
+        self._setContext_()
         self.setupGUI()
         self.setupR()
-
-#        self.paramTableWidget.addData(test_data)
-#        ro.r.library("xcms")
-#        print ro.r.help("xcmsSet")
 
 
     def __initVars(self):
@@ -85,6 +79,7 @@ class pyXCMSWindow(QtGui.QMainWindow, ui_main.Ui_MainWindow):
         self.peakTableName = None
         self.curParamDict = None
         self.curTypeDict = None
+        self.fileList = None
 #        self.Rliblist = ['xcms']
 #        self.Rlibs = initRlibs(self.Rliblist)
 
@@ -183,22 +178,36 @@ class pyXCMSWindow(QtGui.QMainWindow, ui_main.Ui_MainWindow):
                             'max':3
                             }
 
-        self.groupTypes = {}
+        self.groupTypes = {'bw':float,
+                            'minfrac':float,
+                            'mzwid':float,
+                            'max':int
+                            }
         ##############################
 
         self.retcorParams = {'extra':2,
-                             'span':.5,
+                             'span':0.5,
                              'f':'symmetric',
-                             'plottype':"mdevden",
-                             'missing':2,
+                             'plottype':'mdevden',
+                             'missing':2
                              }
-        self.retcorTypes = {}
+        self.retcorTypes = {'extra':int,
+                            'span':float,
+                            'f':str,
+                            'plottype':str,
+                            'missing':str
+                            }
 
         #########################
         self.xcmsParamDict = {'Matched Filter':self.matchedFilterParams,
-                               'CentWave':self.centWaveParams}
+                              'Group Params':self.groupParams,
+                              'Retcor Params':self.retcorParams,
+                              'CentWave':self.centWaveParams}
+
         self.xcmsTypeDict = {'Matched Filter':self.matchedFilterTypes,
-                               'CentWave':self.centWaveTypes}
+                             'Group Params':self.groupTypes,
+                             'Retcor Params':self.retcorTypes,
+                             'CentWave':self.centWaveTypes}
 
 
     def __initConnections(self):
@@ -212,6 +221,7 @@ class pyXCMSWindow(QtGui.QMainWindow, ui_main.Ui_MainWindow):
         QtCore.QObject.connect(self.actionLoad_HDF5, QtCore.SIGNAL("triggered()"), self.loadHDF52EICs)
         QtCore.QObject.connect(self.actionSave_Results_Table, QtCore.SIGNAL("triggered()"), self.saveXCMSResultsCSV)
         QtCore.QObject.connect(self.getEICBtn, QtCore.SIGNAL("clicked()"), self.fetchEIC)
+        QtCore.QObject.connect(self.runXCMSBtn, QtCore.SIGNAL("clicked()"), self.startXCMSRun)
 
         QtCore.QObject.connect(self.loadRPY2BatchBtn, QtCore.SIGNAL("clicked()"), self.loadRPY2Batch)
 
@@ -221,6 +231,20 @@ class pyXCMSWindow(QtGui.QMainWindow, ui_main.Ui_MainWindow):
         QtCore.QObject.connect(self.rThread, QtCore.SIGNAL("xcmsOutUpdate(PyQt_PyObject)"), self.updateROutput)
         QtCore.QObject.connect(self.rThread, QtCore.SIGNAL("xcmsGetEIC(PyQt_PyObject)"), self.getThreadEIC)
         QtCore.QObject.connect(self.rThread, QtCore.SIGNAL("xcmsSet(PyQt_PyObject)"), self.setXCMSGroup)
+
+
+    def _setContext_(self):
+        self.plotWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.plotWidget.connect(self.plotWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self._plotContext_)
+
+    def _plotContext_(self, point):
+        ct_menu = QtGui.QMenu("Plot Menu", self.plotWidget)
+        ct_menu.addAction(self.plotWidget.zoomAction)
+        ct_menu.addAction(self.plotWidget.actionAutoScale)
+        ct_menu.addSeparator()
+        ct_menu.addAction(self.plotWidget.saveCSVAction)
+        ct_menu.addAction(self.plotWidget.mpl2ClipAction)
+        ct_menu.exec_(self.plotWidget.mapToGlobal(point))
 
 
     def setupR(self):
@@ -318,11 +342,14 @@ class pyXCMSWindow(QtGui.QMainWindow, ui_main.Ui_MainWindow):
     def saveEICs2HDF5(self):
         fileName = str(self.SFDialog())
         if fileName != None:
-            t1 = time.clock()
-            self.eicClass.save2HDF5(fileName)
-            t2 = time.clock()-t1
-            self.RoutputTE.append('HDF5 Write Time: %.4f seconds'%t2)
-
+            if self.eicClass != None:
+                t1 = time.clock()
+                self.eicClass.save2HDF5(fileName)
+                t2 = time.clock()-t1
+                self.RoutputTE.append('HDF5 Write Time: %.4f seconds'%t2)
+            else:
+                rMsg = 'No xcms Data Exists to Save'
+                return QtGui.QMessageBox.warning(self, "Run XCMS or Load a File!", rMsg )
 
     def loadRPY2Batch(self):
         print "Batch Button Load Clicked"
@@ -387,17 +414,32 @@ class pyXCMSWindow(QtGui.QMainWindow, ui_main.Ui_MainWindow):
         self.eicIndexSB.setMaximum(numEICs-1)
         self.eicIndexSB.setValue(0)
 
+    def startXCMSRun(self):
+        self.dirListWidget.selectAll()
+        fileList = self.dirListWidget.selectedItems()
+        if len(fileList)>0:
+            self.fileList = []
+            for entry in fileList:
+                self.fileList.append(str(entry.toolTip()))#we use the tooltip as it contains the full path
+            if self.rThread.updateThread(self.fileList, self.xcmsParamDict, self.rtWidthSB.value()):
+                self.rThread.start()
+#            print fileList
+        print 'Start XCMS'
+
     def testXCMS(self):
         r = ro.r
         a = r('cdfpath = system.file("cdf", package = "faahKO")')
         cdfpath = ri.globalEnv.get("cdfpath")
         r('cdffiles = list.files(cdfpath, recursive = TRUE, full.names = TRUE)')
-        r('cdffiles = cdffiles[1:2]')
+        r('cdffiles = cdffiles[1:3]')
         cdffiles = ri.globalEnv.get("cdffiles")
+        cdfList = list(cdffiles)
+
         if len(cdffiles) == 0:
             rMsg = 'Open R and enter the following:\nsource("http://bioconductor.org/biocLite.R")\nbiocLite("faahKO")'
             return QtGui.QMessageBox.warning(self, "Error with Test Data", rMsg )
-        self.rThread.start()
+        if self.rThread.updateThread(cdfList, self.xcmsParamDict, self.rtWidthSB.value()):
+            self.rThread.start()
 
     def showParamHelp(self, emitString):
         curMethod = str(self.xcmsMethodCB.currentText())
