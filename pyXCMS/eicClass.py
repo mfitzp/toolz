@@ -1,6 +1,10 @@
+import sys, traceback
+
 import numpy as N
 import rpy2.robjects as ro
 import rpy2.rinterface as ri
+import tables as T
+import numpy as N
 
 import time
 
@@ -22,6 +26,8 @@ class EIC:
 #        self.mzLo = mzLo
 #        self.mzHi = mzHi
         self.eicTraces = []
+        self.numEICs = 0
+        self.filePath = None
 #        self.eicGroups = {}
         t1 = time.clock()
 
@@ -47,7 +53,108 @@ class EIC:
                 curGroupDict[group] = [metaDict, dataDict]
                 self.eicTraces.append(curGroupDict)
             self.numEICs = len(self.eicTraces)
+            print "EIC Create Time: ", time.clock() - t1
 
+    def save2HDF5(self, fileName):
+        try:
+            hdf = T.openFile(fileName, mode = "w", title = 'XCMS EIC Data File')
+            filters = T.Filters(complevel=5, complib='zlib')
+            atom = T.FloatAtom()
+            for peakGroup in self.eicTraces:#self.eicTraces is a list
+                gName = peakGroup.keys()[0]
+                pGroup = hdf.createGroup("/", '%s'%gName, '%s Group'%gName)
+                gList = peakGroup.values()[0]
+                gMetaDict = gList[0]
+                gDataDict = gList[1]
+                pGroup._f_setAttr('mzlo',gMetaDict['mzlo'])
+                pGroup._f_setAttr('mzhi',gMetaDict['mzhi'])
+                pGroup._f_setAttr('rtlo',gMetaDict['rtlo'])
+                pGroup._f_setAttr('rthi',gMetaDict['rthi'])
+                for dataKey in gDataDict.iterkeys():
+                    xData = gDataDict[dataKey]['xdata']
+                    yData = gDataDict[dataKey]['ydata']
+                    d2Write = N.column_stack((xData,yData))
+                    shape = d2Write.shape
+                    ca = hdf.createCArray(pGroup, dataKey, atom, shape,  filters = filters)
+                    ca[0:shape[0]] = d2Write
+                    #ca.flush()
+
+                hdf.close()
+        except:
+            hdf.close()
+            exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+            traceback.print_exception(exceptionType, exceptionValue, exceptionTraceback, file=sys.stdout)
+#                    print 'Error saving figure data'
+            errorMsg = "Sorry XCMS Data Not Saved: %s\n\n:%s\n%s\n"%(exceptionType, exceptionValue, exceptionTraceback)
+            print errorMsg
+
+    def loadHDF5(self, fileName):
+        try:
+            eicTraces = []
+            mzList = []
+            hdf = T.openFile(fileName, mode = "r")
+            rt = hdf.root
+            groups = rt._v_groups
+            for gKey in groups.iterkeys():#self.eicTraces is a list
+    #            gName = groups[peakGrouppeakGroup.keys()[0]
+                pGroup = groups[gKey]
+                mzlo = pGroup._v_attrs.mzlo
+                mzhi = pGroup._v_attrs.mzhi
+                rtlo = pGroup._v_attrs.rtlo
+                rthi = pGroup._v_attrs.rthi
+                mzList.append(mzlo)#this is needed to sort the list appropriately
+                metaDict = {'mzlo': mzlo,'mzhi': mzhi,'rtlo': rtlo,'rthi':rthi}
+                eicDict = pGroup._v_children
+                dataDict = {}
+                for dkey in eicDict.iterkeys():
+                    numData = eicDict[dkey].read()
+                    dataDict[dkey] = {'xdata':numData[:,0],\
+                                      'ydata':numData[:,1]}
+                curGroupDict = {}
+                curGroupDict[gKey] = [metaDict, dataDict]
+                eicTraces.append(curGroupDict)
+            mzList = N.array(mzList)
+            mzOrder = mzList.argsort()
+            for o in mzOrder:
+                self.eicTraces.append(eicTraces[o])
+    #        self.eicTraces = self.eicTraces[mzOrder]
+            self.numEICs = len(groups)
+            hdf.close()
+        except:
+            hdf.close()
+            exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+            traceback.print_exception(exceptionType, exceptionValue, exceptionTraceback, file=sys.stdout)
+#                    print 'Error saving figure data'
+            errorMsg = "Sorry XCMS Data Not Loaded: %s\n\n:%s\n%s\n"%(exceptionType, exceptionValue, exceptionTraceback)
+            print errorMsg
+
+
+
+
+#        data = self.mzRanges
+#        shape = data.shape
+#        ca = hdf.createCArray(metaGroup, 'mzRanges', atom, shape, filters = filters)
+#        ca[0:shape[0]] = data
+#        ca.flush()
+#        print "mzRanges written"
+#
+#        data = self.rtRanges
+#        shape = data.shape
+#        ca = hdf.createCArray(metaGroup, 'rtRanges', atom, shape, filters = filters)
+#        ca[0:shape[0]] = data
+#        ca.flush()
+#        print "rtRanges written"
+
+
+#        data = self.rtRanges
+#        shape = data.shape
+#        ca = hdf.createCArray(metaGroup, 'rtRanges', atom, shape, filters = filters)
+#        ca[0:shape[0]] = data
+#        ca.flush()
+#        print "rtRanges written"
+
+#        varGroup = hdf.createGroup("/", 'EICs', 'EIC Arrays')
+#        if self.numEICs != 0:
 
 #            for i,gName in enumerate(self.groupNames):
 #                tempDict =
@@ -62,7 +169,7 @@ class EIC:
 #                    self.eicTraces[self.names[i]]= {'xdata':N.asarray(eic[:,0]),\
 #                                                   'ydata':N.asarray(eic[:,1])}
 
-        print "EIC Create Time: ", time.clock() - t1
+
 
     def getEIC(self):
         if len(self.eicTraces)>0:

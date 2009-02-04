@@ -13,8 +13,7 @@
    <string>pyXCMS</string>
   </property>
   <property name="windowIcon" >
-   <iconset>
-    <normaloff>../../../../:/new/prefix1/icons/games.png</normaloff>../../../../:/new/prefix1/icons/games.png</iconset>
+   <iconset>../../../../:/new/prefix1/icons/games.png</iconset>
   </property>
   <property name="iconSize" >
    <size>
@@ -52,7 +51,7 @@
                 <property name="orientation" >
                  <enum>Qt::Horizontal</enum>
                 </property>
-                <property name="sizeHint" stdset="0" >
+                <property name="sizeHint" >
                  <size>
                   <width>40</width>
                   <height>20</height>
@@ -175,7 +174,7 @@ p, li { white-space: pre-wrap; }
               <property name="orientation" >
                <enum>Qt::Horizontal</enum>
               </property>
-              <property name="sizeHint" stdset="0" >
+              <property name="sizeHint" >
                <size>
                 <width>40</width>
                 <height>20</height>
@@ -195,8 +194,7 @@ p, li { white-space: pre-wrap; }
                <string>...</string>
               </property>
               <property name="icon" >
-               <iconset>
-                <normaloff>../../../../:/new/prefix1/icons/applications.png</normaloff>../../../../:/new/prefix1/icons/applications.png</iconset>
+               <iconset>../../../../:/new/prefix1/icons/applications.png</iconset>
               </property>
               <property name="iconSize" >
                <size>
@@ -432,7 +430,7 @@ p, li { white-space: pre-wrap; }
                 <property name="orientation" >
                  <enum>Qt::Vertical</enum>
                 </property>
-                <property name="sizeHint" stdset="0" >
+                <property name="sizeHint" >
                  <size>
                   <width>20</width>
                   <height>40</height>
@@ -466,6 +464,64 @@ p, li { white-space: pre-wrap; }
         </property>
        </widget>
       </widget>
+      <widget class="QWidget" name="tab_4" >
+       <attribute name="title" >
+        <string>Batch Processing</string>
+       </attribute>
+       <layout class="QVBoxLayout" >
+        <item>
+         <layout class="QHBoxLayout" >
+          <item>
+           <widget class="QPushButton" name="loadRPY2BatchBtn" >
+            <property name="text" >
+             <string>Load rpy2 Batch Script</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer>
+            <property name="orientation" >
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" >
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QTextEdit" name="batchScriptTE" />
+        </item>
+        <item>
+         <layout class="QHBoxLayout" >
+          <item>
+           <spacer>
+            <property name="orientation" >
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" >
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QPushButton" name="runBatchBtn" >
+            <property name="text" >
+             <string>Do It!</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
      </widget>
     </item>
    </layout>
@@ -476,7 +532,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>987</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File" >
@@ -484,6 +540,8 @@ p, li { white-space: pre-wrap; }
      <string>&amp;File</string>
     </property>
     <addaction name="action_Open" />
+    <addaction name="actionSave_HDF5" />
+    <addaction name="actionLoad_HDF5" />
    </widget>
    <widget class="QMenu" name="menuF_unctions" >
     <property name="title" >
@@ -501,6 +559,9 @@ p, li { white-space: pre-wrap; }
    <property name="text" >
     <string>&amp;Open</string>
    </property>
+   <property name="shortcut" >
+    <string>Ctrl+O</string>
+   </property>
   </action>
   <action name="actionSave_Results_Table" >
    <property name="text" >
@@ -516,6 +577,22 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="whatsThis" >
     <string>Needs faakho package</string>
+   </property>
+  </action>
+  <action name="actionSave_HDF5" >
+   <property name="text" >
+    <string>Save HDF5</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionLoad_HDF5" >
+   <property name="text" >
+    <string>Load HDF5</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+L</string>
    </property>
   </action>
  </widget>

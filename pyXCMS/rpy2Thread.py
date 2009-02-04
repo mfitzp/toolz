@@ -12,8 +12,8 @@ class StdOutFaker:
     def write(self, string):
 #        print string
         if string != '\n' and string != ' ' and string != '':
-            pass
-#            self.P.emitUpdate(string)
+#            pass
+            self.P.emitUpdate(string)
 
 class XCMSThread(QtCore.QThread):
 
@@ -23,29 +23,28 @@ class XCMSThread(QtCore.QThread):
         self.finished = False
         self.stopped = False
         self.mutex = QtCore.QMutex()
-        self.ready = True
-        self.numSteps = 25
+        self.ready = False
+        self.numSteps = 0
         self.Rliblist = ['xcms']
         self.Rlibs = self.initRlibs(self.Rliblist)
 
         self.matchedFilterParams = {'fwhm':30.,
-                                'sigma':30/2.3548,
-                                'max': 5.,
-                                'snthresh':10.,
-                                'step':0.1,
-                                'steps':2.,
-                                'mzdiff':0.1,
-                                }
+                                    'sigma':30/2.3548,
+                                    'max': 5.,
+                                    'snthresh':10.,
+                                    'step':0.1,
+                                    'steps':2.,
+                                    'mzdiff':0.1,
+                                    }
 
         self.matchedFilterTypes = {'fwhm':float,
-                               'sigma':float,
-                               'max':float,
-                               'snthresh':float,
-                               'step':float,
-                               'steps':float,
-                               'mzdiff':float
-                                }
-
+                                   'sigma':float,
+                                   'max':float,
+                                   'snthresh':float,
+                                   'step':float,
+                                   'steps':float,
+                                   'mzdiff':float
+                                    }
 
         self.centWaveParams = {'ppm': 10.,
                                'peakwidth': str([20,50]),#this needs to be fixed, the new version of PyQt4 handles this better
@@ -54,11 +53,11 @@ class XCMSThread(QtCore.QThread):
                                'mzdiff':-0.001,
                                }
         self.centWaveTypes = {'ppm': float,
-                               'peakwidth': str,
-                               'snthresh':float,
-                               'prefilter':str,
-                               'mzdiff':float,
-                           }
+                              'peakwidth': str,
+                              'snthresh':float,
+                              'prefilter':str,
+                              'mzdiff':float,
+                              }
         ################################
 
         self.groupParams = {'bw':30.,
@@ -117,7 +116,7 @@ class XCMSThread(QtCore.QThread):
             a = r('cdfpath = system.file("cdf", package = "faahKO")')
             cdfpath = ri.globalEnv.get("cdfpath")
             r('cdffiles = list.files(cdfpath, recursive = TRUE, full.names = TRUE)')
-            r('cdffiles = cdffiles[1:2]')
+            #r('cdffiles = cdffiles[1:2]')
             cdffiles = ri.globalEnv.get("cdffiles")
 #                if len(cdffiles) == 0:
 #                    rMsg = 'Open R and enter the following:\nsource("http://bioconductor.org/biocLite.R")\nbiocLite("faahKO")'
@@ -128,8 +127,6 @@ class XCMSThread(QtCore.QThread):
             xset = r.group(xset)
             self.emitUpdate('\n\nXSET')
             self.emitUpdate(str(xset)+'\n')
-
-
             xset2 = r.retcor(xset, family = "symmetric", plottype = "mdevden")
             ri.globalEnv["xset2"] = xset2
             self.emitUpdate('\n\nXSET2')
