@@ -13,8 +13,7 @@
    <string>pyXCMS</string>
   </property>
   <property name="windowIcon" >
-   <iconset>
-    <normaloff>../../../../:/new/prefix1/icons/games.png</normaloff>../../../../:/new/prefix1/icons/games.png</iconset>
+   <iconset>../../../../:/new/prefix1/icons/games.png</iconset>
   </property>
   <property name="iconSize" >
    <size>
@@ -26,6 +25,9 @@
    <layout class="QHBoxLayout" >
     <item>
      <widget class="QTabWidget" name="tabWidget" >
+      <property name="enabled" >
+       <bool>true</bool>
+      </property>
       <property name="currentIndex" >
        <number>0</number>
       </property>
@@ -52,7 +54,7 @@
                 <property name="orientation" >
                  <enum>Qt::Horizontal</enum>
                 </property>
-                <property name="sizeHint" stdset="0" >
+                <property name="sizeHint" >
                  <size>
                   <width>40</width>
                   <height>20</height>
@@ -175,7 +177,7 @@ p, li { white-space: pre-wrap; }
               <property name="orientation" >
                <enum>Qt::Horizontal</enum>
               </property>
-              <property name="sizeHint" stdset="0" >
+              <property name="sizeHint" >
                <size>
                 <width>40</width>
                 <height>20</height>
@@ -195,13 +197,12 @@ p, li { white-space: pre-wrap; }
                <string>...</string>
               </property>
               <property name="icon" >
-               <iconset>
-                <normaloff>../../../../:/new/prefix1/icons/applications.png</normaloff>../../../../:/new/prefix1/icons/applications.png</iconset>
+               <iconset>../../../../:/new/prefix1/icons/applications.png</iconset>
               </property>
               <property name="iconSize" >
                <size>
-                <width>32</width>
-                <height>32</height>
+                <width>30</width>
+                <height>30</height>
                </size>
               </property>
              </widget>
@@ -415,6 +416,16 @@ p, li { white-space: pre-wrap; }
                </widget>
               </item>
               <item>
+               <widget class="QCheckBox" name="plotLegendCB" >
+                <property name="text" >
+                 <string>Plot Legend?</string>
+                </property>
+                <property name="checked" >
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
                <widget class="QPushButton" name="getEICBtn" >
                 <property name="toolTip" >
                  <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
@@ -432,7 +443,7 @@ p, li { white-space: pre-wrap; }
                 <property name="orientation" >
                  <enum>Qt::Vertical</enum>
                 </property>
-                <property name="sizeHint" stdset="0" >
+                <property name="sizeHint" >
                  <size>
                   <width>20</width>
                   <height>40</height>
@@ -448,24 +459,6 @@ p, li { white-space: pre-wrap; }
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="tab_3" >
-       <attribute name="title" >
-        <string>Options</string>
-       </attribute>
-       <widget class="QPushButton" name="killRBtn" >
-        <property name="geometry" >
-         <rect>
-          <x>60</x>
-          <y>30</y>
-          <width>121</width>
-          <height>21</height>
-         </rect>
-        </property>
-        <property name="text" >
-         <string>Kill R Process</string>
-        </property>
-       </widget>
-      </widget>
       <widget class="QWidget" name="tab_4" >
        <attribute name="title" >
         <string>Batch Processing</string>
@@ -475,6 +468,9 @@ p, li { white-space: pre-wrap; }
          <layout class="QHBoxLayout" >
           <item>
            <widget class="QPushButton" name="loadRPY2BatchBtn" >
+            <property name="enabled" >
+             <bool>false</bool>
+            </property>
             <property name="text" >
              <string>Load rpy2 Batch Script</string>
             </property>
@@ -485,7 +481,7 @@ p, li { white-space: pre-wrap; }
             <property name="orientation" >
              <enum>Qt::Horizontal</enum>
             </property>
-            <property name="sizeHint" stdset="0" >
+            <property name="sizeHint" >
              <size>
               <width>40</width>
               <height>20</height>
@@ -496,7 +492,11 @@ p, li { white-space: pre-wrap; }
          </layout>
         </item>
         <item>
-         <widget class="QTextEdit" name="batchScriptTE" />
+         <widget class="QTextEdit" name="batchScriptTE" >
+          <property name="enabled" >
+           <bool>false</bool>
+          </property>
+         </widget>
         </item>
         <item>
          <layout class="QHBoxLayout" >
@@ -505,7 +505,7 @@ p, li { white-space: pre-wrap; }
             <property name="orientation" >
              <enum>Qt::Horizontal</enum>
             </property>
-            <property name="sizeHint" stdset="0" >
+            <property name="sizeHint" >
              <size>
               <width>40</width>
               <height>20</height>
@@ -515,6 +515,9 @@ p, li { white-space: pre-wrap; }
           </item>
           <item>
            <widget class="QPushButton" name="runBatchBtn" >
+            <property name="enabled" >
+             <bool>false</bool>
+            </property>
             <property name="text" >
              <string>Do It!</string>
             </property>
@@ -523,6 +526,27 @@ p, li { white-space: pre-wrap; }
          </layout>
         </item>
        </layout>
+      </widget>
+      <widget class="QWidget" name="tab_3" >
+       <attribute name="title" >
+        <string>Options</string>
+       </attribute>
+       <widget class="QPushButton" name="killRBtn" >
+        <property name="enabled" >
+         <bool>false</bool>
+        </property>
+        <property name="geometry" >
+         <rect>
+          <x>20</x>
+          <y>10</y>
+          <width>121</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="text" >
+         <string>Kill R Process</string>
+        </property>
+       </widget>
       </widget>
      </widget>
     </item>
@@ -534,14 +558,13 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>987</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File" >
     <property name="title" >
      <string>&amp;File</string>
     </property>
-    <addaction name="action_Open" />
     <addaction name="actionSave_HDF5" />
     <addaction name="actionLoad_HDF5" />
    </widget>
@@ -550,6 +573,8 @@ p, li { white-space: pre-wrap; }
      <string>F&amp;unctions</string>
     </property>
     <addaction name="actionSave_Results_Table" />
+    <addaction name="separator" />
+    <addaction name="actionRun_XCMS" />
     <addaction name="separator" />
     <addaction name="actionTest_XCMS" />
    </widget>
@@ -595,6 +620,11 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="shortcut" >
     <string>Ctrl+L</string>
+   </property>
+  </action>
+  <action name="actionRun_XCMS" >
+   <property name="text" >
+    <string>Run XCMS</string>
    </property>
   </action>
  </widget>

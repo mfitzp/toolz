@@ -139,15 +139,15 @@ class MPL_Widget(QtGui.QWidget):
         self.ax1 = self.canvas.axDict['ax1']
         ###############ZOOM CONTROLS ################
 
-        self.ZoomChrom = QtGui.QAction("Zoom Chrom",  self)
-        self.ZoomChrom.setShortcut("Ctrl+Z")
-        self.addAction(self.ZoomChrom)
-        QtCore.QObject.connect(self.ZoomChrom,QtCore.SIGNAL("triggered()"), self.ZoomToggle)
+        self.zoomAction = QtGui.QAction("Zoom",  self)
+        self.zoomAction.setShortcut("Ctrl+Z")
+        self.addAction(self.zoomAction)
+        QtCore.QObject.connect(self.zoomAction,QtCore.SIGNAL("triggered()"), self.ZoomToggle)
 
-        self.actionAutoScaleChrom = QtGui.QAction("AutoScale",  self)#self.MainWindow)
-        self.actionAutoScaleChrom.setShortcut("Ctrl+A")
-        self.addAction(self.actionAutoScaleChrom)
-        QtCore.QObject.connect(self.actionAutoScaleChrom,QtCore.SIGNAL("triggered()"), self.autoscale_plot)
+        self.actionAutoScale = QtGui.QAction("AutoScale",  self)#self.MainWindow)
+        self.actionAutoScale.setShortcut("Ctrl+A")
+        self.addAction(self.actionAutoScale)
+        QtCore.QObject.connect(self.actionAutoScale,QtCore.SIGNAL("triggered()"), self.autoscale_plot)
 
         self.span = SpanSelector(self.ax1, self.onselect, 'horizontal', minspan =0.01,
                                  useblit=True, rectprops=dict(alpha=0.5, facecolor='#C6DEFF') )
@@ -225,6 +225,10 @@ class MPL_Widget(QtGui.QWidget):
 #                    else:
 #                        data2write = N.column_stack((data2write,x))
 #                        data2write = N.column_stack((data2write,y))
+                    if type(x) is N.ma.core.masked_array:
+                        x = x.data
+                    if type(y) is N.ma.core.masked_array:
+                        y = y.data
                     data2write.append(x)
                     data2write.append(y)
                     label = line.get_label()
@@ -235,27 +239,38 @@ class MPL_Widget(QtGui.QWidget):
 
 
                 print dataLabels
+
+##                for i,data in enumerate(data2write):
+##                    tempArray = N.zeros(numRows)
+##                    if i%2 == 0:#this makes it so there is not huge breaks in the x axis
+##                        tempArray+=data.max()
+##                    tempArray[0:len(data)] = data
+##                    data2write[i] = tempArray
+##
+###                N.savetxt(str(path), N.transpose(data2write), delimiter = ',', fmt='%.4f')
+###    #                data2write = N.array(data2write, dtype = dataLabels)
+###                data2write = N.array(data2write)
+###                data2write.dtype = N.float
+###                d2write = N.column_stack(())
+##                d2write = N.rec.fromarrays(data2write, names = dataLabels)
+##                mlab.rec2csv(d2write, str(path))
+##    #                N.savetxt(str(path), N.transpose(data2write), delimiter = ',', fmt='%.4f')
+
+#######################################
                 finalArray = N.zeros((numRows, len(dataLabels)))
                 for i,data in enumerate(data2write):
                     if i%2 == 0:#this makes it so there is not huge breaks in the x axis
                         finalArray[:,i]+=data.max()
                     finalArray[:,i][0:len(data)] = data
-#                data2write = N.array(data2write)
-#                data2write.dtype = N.float
+
                 writer = csv.writer(open(str(path),'w'), delimiter=",")
                 writer.writerow(dataLabels)
+                print finalArray.shape
                 writer.writerows(finalArray)
                 print "%s written!"%str(path)
-#                for row in data2write:
-#                    writer.writerow()
+#############################################
 
-#                N.savetxt(str(path), N.transpose(data2write), delimiter = ',', fmt='%.4f')
-#    #                data2write = N.array(data2write, dtype = dataLabels)
-#
-#                d2write = N.column_stack(())
-#                d2write = N.rec.fromarrays(data2write, names = dataLabels)
-#                mlab.rec2csv(d2write, str(path))
-    #                N.savetxt(str(path), N.transpose(data2write), delimiter = ',', fmt='%.4f')
+
             except:
 #                try:
 #                    #this is for the case where the data may not be in float format?
