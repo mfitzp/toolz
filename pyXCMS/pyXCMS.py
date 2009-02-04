@@ -121,9 +121,9 @@ class pyXCMSWindow(QtGui.QMainWindow, ui_main.Ui_MainWindow):
                                     'sigma':30/2.3548,
                                     'max': 5.,
                                     'snthresh':10.,
-                                    'step':0.1,
+                                    'step':0.01,
                                     'steps':2.,
-                                    'mzdiff':0.1,
+                                    'mzdiff':0.01,
                                     }
 
         self.matchedFilterTypes = {'fwhm':float,
