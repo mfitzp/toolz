@@ -1,10 +1,11 @@
 import sys
 import os, os.path
+import time
 from PyQt4 import QtCore, QtGui
 
 #try:#this is done because sometimes there is an annoying message regard tk that come up
-#import rpy2.robjects as ro
-#import rpy2.rinterface as ri
+import rpy2.robjects as ro
+import rpy2.rinterface as ri
 #except:
 #    pass
 
@@ -24,6 +25,7 @@ import ui_main
 import FolderParse as FP
 from eicClass import EIC
 from rpy2Thread import XCMSThread
+from Python_Highlighter import PythonHighlighter as PH
 
 import numpy as N
 from scipy import rand
@@ -95,6 +97,8 @@ class pyXCMSWindow(QtGui.QMainWindow, ui_main.Ui_MainWindow):
         self.plotIndex = 0
         self.initIndex = 0
         self.ignoreSignal = False
+        self.highlighter = PH(self.batchScriptTE.document())
+
 
         self.rThread = XCMSThread()
 
@@ -204,16 +208,64 @@ class pyXCMSWindow(QtGui.QMainWindow, ui_main.Ui_MainWindow):
         QtCore.QObject.connect(self.paramTableWidget, QtCore.SIGNAL("itemChanged(QTableWidgetItem*)"), self.paramTableChanged)
         QtCore.QObject.connect(self.paramTableWidget, QtCore.SIGNAL("helpRequested(PyQt_PyObject)"), self.showParamHelp)
         QtCore.QObject.connect(self.actionTest_XCMS, QtCore.SIGNAL("triggered()"), self.testXCMS)
+        QtCore.QObject.connect(self.actionSave_HDF5, QtCore.SIGNAL("triggered()"), self.saveEICs2HDF5)
+        QtCore.QObject.connect(self.actionLoad_HDF5, QtCore.SIGNAL("triggered()"), self.loadHDF52EICs)
+
+
+
+
+        QtCore.QObject.connect(self.loadRPY2BatchBtn, QtCore.SIGNAL("clicked()"), self.loadRPY2Batch)
+
 
         QtCore.QObject.connect(self.eicIndexSB, QtCore.SIGNAL("valueChanged(int)"), self.indexChanged)
 
-#        QtCore.QObject.connect(self.rProcess, QtCore.SIGNAL("readyReadStdout()"), self.readOutput)
-#        QtCore.QObject.connect(self.rProcess, QtCore.SIGNAL("readyReadStderr()"), self.readErrors)
-#        QtCore.QObject.connect(self.rProcess, QtCore.SIGNAL("processExited()"), self.rProcessFinished)
-#        QtCore.QObject.connect(self.killRBtn, QtCore.SIGNAL("clicked()"), self.stopRProcess)
 
         QtCore.QObject.connect(self.rThread, QtCore.SIGNAL("xcmsOutUpdate(PyQt_PyObject)"), self.updateROutput)
         QtCore.QObject.connect(self.rThread, QtCore.SIGNAL("xcmsGetEIC(PyQt_PyObject)"), self.getThreadEIC)
+
+    def SFDialog(self):
+        fileName = QtGui.QFileDialog.getSaveFileName(self, "Select File to Save", self.curDir,"HDF5 Files (*.h5)")
+        if not fileName.isEmpty():
+            print fileName
+            return fileName
+        else:
+            return None
+
+    def LFDialog(self):
+        fileName = QtGui.QFileDialog.getOpenFileName(self,\
+                                                    "Select File to Load",\
+                                                    self.curDir, 'HDF5 File (*.h5)')
+        if not fileName.isEmpty():
+            print fileName
+            return fileName
+        else:
+            return None
+
+    def loadHDF52EICs(self):
+        #need qualifier to wipe out old one....
+        msgTitle = 'Overwrite existing EIC set'
+        overWriteStr = 'Clear current EIC and load a new set?'
+        if self.__askConfirm__(msgTitle,overWriteStr):
+            fileName = str(self.LFDialog())
+            if fileName != None:
+                self.eicClass = EIC()
+                t1 = time.clock()
+                self.eicClass.loadHDF5(fileName)
+                t2 = time.clock()-t1
+                self.RoutputTE.append('HDF5 Read Time: %.4f seconds'%t2)
+                self.updateGUI()
+
+    def saveEICs2HDF5(self):
+        fileName = str(self.SFDialog())
+        if fileName != None:
+            t1 = time.clock()
+            self.eicClass.save2HDF5(fileName)
+            t2 = time.clock()-t1
+            self.RoutputTE.append('HDF5 Write Time: %.4f seconds'%t2)
+
+
+    def loadRPY2Batch(self):
+        print "Batch Button Load Clicked"
 
     def getThreadEIC(self, eicClass):
         if eicClass != None:
@@ -262,33 +314,6 @@ class pyXCMSWindow(QtGui.QMainWindow, ui_main.Ui_MainWindow):
         self.plotWidget.setFocus()
 
 
-#        metaDict = {'mzlo': curMZRange[0],'mzhi': curMZRange[1],
-#                    'rtlo': curRT[0],'rthi':curRT[1]}
-#        dataDict = {}
-#        for j,name in enumerate(self.names):
-#            curEic = self.eics[j]
-#            curEic = N.asarray(curEic[i])
-#            dataDict[name] =  {'xdata':curEic[:,0],\
-#                               'ydata':curEic[:,1]}
-#        curGroupDict[group] = [metaDict, dataDict]
-#        self.eicTraces.append(curGroupDict)
-
-    def plotXCMS(self, getEICInstance):
-        self.eicPlot.cla()
-        sampNames = ro.r.sampnames(getEICInstance)
-        mzrange = ro.r.mzrange(getEICInstance)
-#        print mzrange, len(mzrange)
-        eicData = getEICInstance.eic
-        for i, eic in enumerate(eicData):
-            eic = N.asarray(eic[0])
-            self.eicPlot.plot(eic[:,0], eic[:,1], label = sampNames[i])
-        self.eicPlot.legend()
-        self.eicPlot.set_title('EIC from %.2f to %.2f m/z'%(mzrange[0], mzrange[1]))
-        self.plotWidget.canvas.xtitle = 'Time (s)'
-        self.plotWidget.canvas.ytitle ='Arbitrary Intensity'
-        self.plotWidget.canvas.format_labels()
-        self.tabWidget.setCurrentIndex(1)
-
     def updateROutput(self, StrOutput):
         if  len(StrOutput)>5:
             self.RoutputTE.append(StrOutput)
@@ -296,110 +321,23 @@ class pyXCMSWindow(QtGui.QMainWindow, ui_main.Ui_MainWindow):
             self.RoutputTE.insertPlainText(StrOutput)
             self.RoutputTE.insertPlainText('\t')
 
-
     def updateGUI(self):
         numEICs = self.eicClass.numEICs
         self.eicIndexSlider.setMaximum(numEICs-1)
         self.eicIndexSB.setMaximum(numEICs-1)
         self.eicIndexSB.setValue(0)
 
-#    def rProcessFinished(self):
-#        print "R Process finished"
-#
-#    def startRProcess(self, rpy2Command):
-#        QtCore.QProcess.se
-#        self.rProcess.setArguments(rpy2Command)
-#        self.rProcess.closeStdin()
-#        if not self.rProcess.start():
-#            self.RoutputTE.setText("Error executing R Command, check Parameters")
-#
-#    def stopRProcess(self):
-#        self.rProcess.tryTerminate()
-#        QtCore.QTimer.singleShot(5000, self.rProcess, QtCore.SLOT("kill()"))
-#
-#    def readOutput(self):
-#        self.RoutputTE.append(self.rProcess.readStdout())
-#
-#    def readErrors(self):
-#        self.RoutputTE.append("error: "+QtCore.QString(self.rProcess.readLineStderr()))
-
-
-
     def testXCMS(self):
+        r = ro.r
+        a = r('cdfpath = system.file("cdf", package = "faahKO")')
+        cdfpath = ri.globalEnv.get("cdfpath")
+        r('cdffiles = list.files(cdfpath, recursive = TRUE, full.names = TRUE)')
+        r('cdffiles = cdffiles[1:2]')
+        cdffiles = ri.globalEnv.get("cdffiles")
+        if len(cdffiles) == 0:
+            rMsg = 'Open R and enter the following:\nsource("http://bioconductor.org/biocLite.R")\nbiocLite("faahKO")'
+            return QtGui.QMessageBox.warning(self, "Error with Test Data", rMsg )
         self.rThread.start()
-#        try:
-#            self.rThread.start()
-#            sys.stdout = StdOutFaker(self.RoutputTE)
-#            r = ro.r
-#            a = r('cdfpath = system.file("cdf", package = "faahKO")')
-#            cdfpath = ri.globalEnv.get("cdfpath")
-#            r('cdffiles = list.files(cdfpath, recursive = TRUE, full.names = TRUE)')
-#            r('cdffiles = cdffiles[1:2]')
-#            cdffiles = ri.globalEnv.get("cdffiles")
-#            if len(cdffiles) == 0:
-#                rMsg = 'Open R and enter the following:\nsource("http://bioconductor.org/biocLite.R")\nbiocLite("faahKO")'
-#                return QtGui.QMessageBox.warning(self, "Error with Test Data", rMsg )
-#            self.add2ROutput(cdffiles)
-#    #        self.startRProcess(r.xcmsSet(cdffiles))
-#            xset = r.xcmsSet(cdffiles)
-#
-#
-#            ri.globalEnv["xset"] = xset
-#            xset = r.group(xset)
-#            self.RoutputTE.append('XSET')
-#            self.RoutputTE.append(str(xset)+'\n')
-#            xset2 = r.retcor(xset, family = "symmetric", plottype = "mdevden")
-#            ri.globalEnv["xset2"] = xset2
-#            self.RoutputTE.append('XSET2')
-#            self.RoutputTE.append(str(xset2)+'\n')
-#            xset2 = r.group(xset2, bw = 10)
-
-#            xset3 = r.fillPeaks(xset2)
-#            self.RoutputTE.append('XSET3')
-#            self.RoutputTE.append(str(xset3)+'\n')
-#            ri.globalEnv["xset3"] = xset3
-#            gt = r.groups(xset3)
-#            tsidx = r.groupnames(xset3)
-#            ri.globalEnv["tsidx"] = tsidx
-#
-#            eicmax = r.length(tsidx)
-#            eic = r.getEIC(xset3, rtrange = 150, groupidx = tsidx, rt = "corrected")
-#            self.eicClass = EIC(eic)
-#            self.updateGUI()
-
-#        ri.globalEnv["gt"] = gt
-#        r.colnames(gt)
-#        r('groupidx1 = which(gt[, "rtmed"] > 2600 & gt[, "rtmed"] < 2700 & gt[, "npeaks"] == 12)[1]')
-#        groupidx1 = ri.globalEnv.get("groupidx1")
-#        r('groupidx2 = which(gt[, "rtmed"] > 3600 & gt[, "rtmed"] < 3700 & gt[, "npeaks"] == 12)[1]')
-#        groupidx2 = ri.globalEnv.get("groupidx2")
-#        r('eiccor = getEIC(xset3, groupidx = c(groupidx1, groupidx2))')
-#        eiccor = ri.globalEnv.get("eiccor")
-#        mzRange = r.cbind(mzmin=241.05, mzmax=242.05)
-#        eiccor = r.getEIC(xset3, mzrange=mzRange)
-#        #eicRaw = r.getEIC(xset3, groupidx = r.c(groupidx1, groupidx2), rt = "raw")
-#        self.plotXCMS(eiccor)
-
-#            sys.stdout=sys.__stdout__
-#            print "Test OK"
-#
-#        except:
-#            sys.stdout=sys.__stdout__
-#            errorMsg = "Sorry: %s\n\n:%s\n"%(sys.exc_type, sys.exc_value)
-#            print errorMsg
-#            print "R data error"
-
-##        r.source("http://bioconductor.org/biocLite.R")
-##        r.biocLite("faahKO")
-##            print "a", a
-##            print "cdfpath", cdfpath[0]
-#            r('cdffiles = list.files(cdfpath, recursive = TRUE, full.names = TRUE)')
-#            cdffiles = ri.globalEnv.get("cdffiles")
-#            print cdffiles[0]
-#
-#        except:
-#            print "R Error"
-
 
     def showParamHelp(self, emitString):
         curMethod = str(self.xcmsMethodCB.currentText())
@@ -430,10 +368,7 @@ class pyXCMSWindow(QtGui.QMainWindow, ui_main.Ui_MainWindow):
             QtGui.QTableWidget
             nextItem = self.paramTableWidget.item(self.paramTableWidget.currentRow(), 1)
             self.paramTableWidget.editItem(nextItem)
-#            self.paramTableWidget.releaseMouse()
-#            self.paramTableWidget.setCurrentCell(self.paramTableWidget.currentRow(), 1)
             return QtGui.QMessageBox.warning(self, "",  "Don't do that Dave.")
-#            self.dirListWidget.setFocus()
         else:
             pass
 
@@ -444,9 +379,6 @@ class pyXCMSWindow(QtGui.QMainWindow, ui_main.Ui_MainWindow):
         if not then return to the original value.
         '''
         if self.paramTableWidget.currentColumn() > 0:
-#            self.curTypeDict
-#            curMethod = str(self.xcmsMethodCB.currentText())
-#            curTypeDict = self.xcmsTypeDict[curMethod]
             curParam = str(self.paramTableWidget.item(tableItem.row(), 0).text())
             curType = self.curTypeDict[curParam]
             try:
@@ -457,7 +389,6 @@ class pyXCMSWindow(QtGui.QMainWindow, ui_main.Ui_MainWindow):
             tempVal = curType(str(tableItem.text()))
             self.curParamDict[curParam] = tempVal
             print self.curParamDict
-
 
     def updateParamTable(self, selectText):
         self.curParamDict = self.xcmsParamDict[str(selectText)]
@@ -512,6 +443,12 @@ class pyXCMSWindow(QtGui.QMainWindow, ui_main.Ui_MainWindow):
             #self.specListWidget.addItem(loadedItem.name)
             self.dirListWidget.addItem(tempItem)
 
+    def __askConfirm__(self,title,message):
+        clickedButton = QtGui.QMessageBox.question(self,\
+                                                   title,message,\
+                                                   QtGui.QMessageBox.Yes,QtGui.QMessageBox.Cancel)
+        if clickedButton == QtGui.QMessageBox.Yes: return True
+        return False
 
 ##########Begin Ashoka Progress Bar Code....
     def layoutStatusBar(self):

@@ -230,17 +230,17 @@ class MPL_Widget(QtGui.QWidget):
     #                data2write = N.array(data2write, dtype = dataLabels)
                 d2write = N.rec.fromarrays(data2write, names = dataLabels)
                 mlab.rec2csv(d2write, str(path))
-#                N.savetxt(str(path), N.transpose(data2write), delimiter = ',', fmt='%.4f')
+    #                N.savetxt(str(path), N.transpose(data2write), delimiter = ',', fmt='%.4f')
             except:
-                try:
-                    #this is for the case where the data may not be in float format?
-                    N.savetxt(str(path), N.transpose(data2write), delimiter = ',')
-                except:
-                    exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
-                    traceback.print_exception(exceptionType, exceptionValue, exceptionTraceback, file=sys.stdout)
+#                try:
+#                    #this is for the case where the data may not be in float format?
+#                    N.savetxt(str(path), N.transpose(data2write), delimiter = ',')
+#                except:
+                exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+                traceback.print_exception(exceptionType, exceptionValue, exceptionTraceback, file=sys.stdout)
 #                    print 'Error saving figure data'
-                    errorMsg = "Sorry: %s\n\n:%s\n%s\n"%(exceptionType, exceptionValue, exceptionTraceback)
-                    print errorMsg
+                errorMsg = "Sorry: %s\n\n:%s\n%s\n"%(exceptionType, exceptionValue, exceptionTraceback)
+                print errorMsg
 
 
 
@@ -308,10 +308,11 @@ def main():
 #    w.canvas.setupSub(1)
     ax1 = w.canvas.axDict['ax1']
     x = N.arange(0, 20)
+    x1 = x[0:15]
     y = N.sin(x)
-    y2 = N.cos(x)
+    y2 = N.cos(x1)
     ax1.plot(x, y)
-    ax1.plot(x, y2)
+    ax1.plot(x1, y2)
     w.show()
     sys.exit(app.exec_())
 
