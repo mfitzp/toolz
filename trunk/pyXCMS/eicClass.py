@@ -79,7 +79,7 @@ class EIC:
                     ca[0:shape[0]] = d2Write
                     #ca.flush()
 
-                hdf.close()
+            hdf.close()
         except:
             hdf.close()
             exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
@@ -128,6 +128,29 @@ class EIC:
             errorMsg = "Sorry XCMS Data Not Loaded: %s\n\n:%s\n%s\n"%(exceptionType, exceptionValue, exceptionTraceback)
             print errorMsg
 
+    def appendEIC(self, eicRInstance):
+        t1 = time.clock()
+        if eicRInstance != None:
+            mzRanges = N.asarray(ro.r.mzrange(eicRInstance))[0]
+            rtRanges = N.asarray(ro.r.rtrange(eicRInstance))[0]
+            group = "UserEIC_%.2f"%mzRanges[0]
+            names = ro.r.sampnames(eicRInstance)
+            eics = eicRInstance.eic
+            metaDict = {'mzlo': mzRanges[0],'mzhi': mzRanges[1],
+                        'rtlo': rtRanges[0],'rthi': rtRanges[1]}
+            dataDict = {}
+            for j,name in enumerate(names):
+                curEic = eics[j]
+                curEic = N.asarray(curEic[0])
+                dataDict[name] =  {'xdata':curEic[:,0],\
+                                   'ydata':curEic[:,1]}
+            curGroupDict = {}
+            curGroupDict[group] = [metaDict, dataDict]
+            self.eicTraces.append(curGroupDict)
+#            print self.numEICs
+            self.numEICs = len(self.eicTraces)
+#            print self.numEICs
+#            print "EIC Append Time: ", time.clock() - t1
 
 
 

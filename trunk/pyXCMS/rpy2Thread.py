@@ -116,7 +116,7 @@ class XCMSThread(QtCore.QThread):
             a = r('cdfpath = system.file("cdf", package = "faahKO")')
             cdfpath = ri.globalEnv.get("cdfpath")
             r('cdffiles = list.files(cdfpath, recursive = TRUE, full.names = TRUE)')
-            #r('cdffiles = cdffiles[1:2]')
+            r('cdffiles = cdffiles[1:3]')
             cdffiles = ri.globalEnv.get("cdffiles")
 #                if len(cdffiles) == 0:
 #                    rMsg = 'Open R and enter the following:\nsource("http://bioconductor.org/biocLite.R")\nbiocLite("faahKO")'
@@ -143,6 +143,7 @@ class XCMSThread(QtCore.QThread):
             eic = r.getEIC(xset3, rtrange = 150, groupidx = tsidx, rt = "corrected")
             eicClass = EIC(eic)
             self.emit(QtCore.SIGNAL("xcmsGetEIC(PyQt_PyObject)"),eicClass)
+            self.emit(QtCore.SIGNAL("xcmsSet(PyQt_PyObject)"),xset3)
 #            self.updateGUI()
             sys.stdout=sys.__stdout__
         except:
