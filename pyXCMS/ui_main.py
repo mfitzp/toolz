@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Documents and Settings\d3p483\workspace\pyXCMS\main.ui'
 #
-# Created: Wed Feb 04 13:47:20 2009
+# Created: Thu Feb 05 11:29:48 2009
 #      by: PyQt4 UI code generator 4.3.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -13,7 +13,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(QtCore.QSize(QtCore.QRect(0,0,987,731).size()).expandedTo(MainWindow.minimumSizeHint()))
-        MainWindow.setWindowIcon(QtGui.QIcon("icons/games.png"))
+        MainWindow.setWindowIcon(QtGui.QIcon("games.png"))
         MainWindow.setIconSize(QtCore.QSize(30,30))
 
         self.centralwidget = QtGui.QWidget(MainWindow)
@@ -127,7 +127,7 @@ class Ui_MainWindow(object):
         self.hboxlayout5.addItem(spacerItem1)
 
         self.runXCMSBtn = QtGui.QToolButton(self.tab)
-        self.runXCMSBtn.setIcon(QtGui.QIcon("icons/applications.png"))
+        self.runXCMSBtn.setIcon(QtGui.QIcon("applications.png"))
         self.runXCMSBtn.setIconSize(QtCore.QSize(30,30))
         self.runXCMSBtn.setObjectName("runXCMSBtn")
         self.hboxlayout5.addWidget(self.runXCMSBtn)
@@ -258,6 +258,24 @@ class Ui_MainWindow(object):
         self.hboxlayout13.addWidget(self.rtWidthSB)
         self.vboxlayout7.addLayout(self.hboxlayout13)
 
+        self.hboxlayout14 = QtGui.QHBoxLayout()
+        self.hboxlayout14.setObjectName("hboxlayout14")
+
+        self.label_12 = QtGui.QLabel(self.tab_2)
+        self.label_12.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_12.setObjectName("label_12")
+        self.hboxlayout14.addWidget(self.label_12)
+
+        self.rtWidthSB_Stop = QtGui.QDoubleSpinBox(self.tab_2)
+        self.rtWidthSB_Stop.setDecimals(1)
+        self.rtWidthSB_Stop.setMinimum(-1.0)
+        self.rtWidthSB_Stop.setMaximum(100000.0)
+        self.rtWidthSB_Stop.setSingleStep(1.0)
+        self.rtWidthSB_Stop.setProperty("value",QtCore.QVariant(-1.0))
+        self.rtWidthSB_Stop.setObjectName("rtWidthSB_Stop")
+        self.hboxlayout14.addWidget(self.rtWidthSB_Stop)
+        self.vboxlayout7.addLayout(self.hboxlayout14)
+
         self.rtTypeCB = QtGui.QCheckBox(self.tab_2)
         self.rtTypeCB.setChecked(True)
         self.rtTypeCB.setObjectName("rtTypeCB")
@@ -285,34 +303,34 @@ class Ui_MainWindow(object):
         self.vboxlayout8 = QtGui.QVBoxLayout(self.tab_4)
         self.vboxlayout8.setObjectName("vboxlayout8")
 
-        self.hboxlayout14 = QtGui.QHBoxLayout()
-        self.hboxlayout14.setObjectName("hboxlayout14")
+        self.hboxlayout15 = QtGui.QHBoxLayout()
+        self.hboxlayout15.setObjectName("hboxlayout15")
 
         self.loadRPY2BatchBtn = QtGui.QPushButton(self.tab_4)
         self.loadRPY2BatchBtn.setEnabled(False)
         self.loadRPY2BatchBtn.setObjectName("loadRPY2BatchBtn")
-        self.hboxlayout14.addWidget(self.loadRPY2BatchBtn)
+        self.hboxlayout15.addWidget(self.loadRPY2BatchBtn)
 
         spacerItem3 = QtGui.QSpacerItem(40,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
-        self.hboxlayout14.addItem(spacerItem3)
-        self.vboxlayout8.addLayout(self.hboxlayout14)
+        self.hboxlayout15.addItem(spacerItem3)
+        self.vboxlayout8.addLayout(self.hboxlayout15)
 
         self.batchScriptTE = QtGui.QTextEdit(self.tab_4)
         self.batchScriptTE.setEnabled(False)
         self.batchScriptTE.setObjectName("batchScriptTE")
         self.vboxlayout8.addWidget(self.batchScriptTE)
 
-        self.hboxlayout15 = QtGui.QHBoxLayout()
-        self.hboxlayout15.setObjectName("hboxlayout15")
+        self.hboxlayout16 = QtGui.QHBoxLayout()
+        self.hboxlayout16.setObjectName("hboxlayout16")
 
         spacerItem4 = QtGui.QSpacerItem(40,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
-        self.hboxlayout15.addItem(spacerItem4)
+        self.hboxlayout16.addItem(spacerItem4)
 
         self.runBatchBtn = QtGui.QPushButton(self.tab_4)
         self.runBatchBtn.setEnabled(False)
         self.runBatchBtn.setObjectName("runBatchBtn")
-        self.hboxlayout15.addWidget(self.runBatchBtn)
-        self.vboxlayout8.addLayout(self.hboxlayout15)
+        self.hboxlayout16.addWidget(self.runBatchBtn)
+        self.vboxlayout8.addLayout(self.hboxlayout16)
         self.tabWidget.addTab(self.tab_4,"")
 
         self.tab_3 = QtGui.QWidget()
@@ -407,8 +425,13 @@ class Ui_MainWindow(object):
         self.mzStartSB.setToolTip(QtGui.QApplication.translate("MainWindow", "Upper bound of the EIC extraction range", None, QtGui.QApplication.UnicodeUTF8))
         self.label_4.setText(QtGui.QApplication.translate("MainWindow", "m/z Stop:", None, QtGui.QApplication.UnicodeUTF8))
         self.mzStopSB.setToolTip(QtGui.QApplication.translate("MainWindow", "Low bound of the EIC extraction range", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_11.setText(QtGui.QApplication.translate("MainWindow", "RT Width:", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_11.setText(QtGui.QApplication.translate("MainWindow", "RT Start:", None, QtGui.QApplication.UnicodeUTF8))
         self.rtWidthSB.setToolTip(QtGui.QApplication.translate("MainWindow", "Retention time window of the EIC", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_12.setText(QtGui.QApplication.translate("MainWindow", "RT Stop:", None, QtGui.QApplication.UnicodeUTF8))
+        self.rtWidthSB_Stop.setToolTip(QtGui.QApplication.translate("MainWindow", "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+        "p, li { white-space: pre-wrap; }\n"
+        "</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:8.25pt; font-weight:400; font-style:normal;\">\n"
+        "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:8pt;\">Set to -1 for the entire spectrum</span></p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
         self.rtTypeCB.setToolTip(QtGui.QApplication.translate("MainWindow", "Do you want the corrected EIC or the raw values?", None, QtGui.QApplication.UnicodeUTF8))
         self.rtTypeCB.setText(QtGui.QApplication.translate("MainWindow", "Retrieve Corrected EIC?", None, QtGui.QApplication.UnicodeUTF8))
         self.plotLegendCB.setText(QtGui.QApplication.translate("MainWindow", "Plot Legend?", None, QtGui.QApplication.UnicodeUTF8))
