@@ -34,6 +34,7 @@ class EIC:
         if eicRInstance != None:
             self.eicRInstance = eicRInstance
             self.mzRanges = N.asarray(ro.r.mzrange(self.eicRInstance))
+#            print self.mzRanges
             self.rtRanges = N.asarray(ro.r.rtrange(self.eicRInstance))
             self.groupNames = ro.r.groupnames(self.eicRInstance)
             self.names = ro.r.sampnames(self.eicRInstance)
@@ -41,6 +42,7 @@ class EIC:
             for i,group in enumerate(self.groupNames):
                 curMZRange = self.mzRanges[i]
                 curRT = self.rtRanges[i]
+#                print curMZRange
                 metaDict = {'mzlo': curMZRange[0],'mzhi': curMZRange[1],
                             'rtlo': curRT[0],'rthi':curRT[1]}
                 dataDict = {}

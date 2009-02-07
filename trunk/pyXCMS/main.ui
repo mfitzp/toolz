@@ -371,7 +371,7 @@ p, li { white-space: pre-wrap; }
                 <item>
                  <widget class="QLabel" name="label_11" >
                   <property name="text" >
-                   <string>RT Width:</string>
+                   <string>RT Start:</string>
                   </property>
                   <property name="alignment" >
                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -397,6 +397,45 @@ p, li { white-space: pre-wrap; }
                   </property>
                   <property name="value" >
                    <double>200.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" >
+                <item>
+                 <widget class="QLabel" name="label_12" >
+                  <property name="text" >
+                   <string>RT Stop:</string>
+                  </property>
+                  <property name="alignment" >
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QDoubleSpinBox" name="rtWidthSB_Stop" >
+                  <property name="toolTip" >
+                   <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+p, li { white-space: pre-wrap; }
+&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
+&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">&lt;span style=" font-size:8pt;">Set to -1 for the entire spectrum&lt;/span>&lt;/p>&lt;/body>&lt;/html></string>
+                  </property>
+                  <property name="decimals" >
+                   <number>1</number>
+                  </property>
+                  <property name="minimum" >
+                   <double>-1.000000000000000</double>
+                  </property>
+                  <property name="maximum" >
+                   <double>100000.000000000000000</double>
+                  </property>
+                  <property name="singleStep" >
+                   <double>1.000000000000000</double>
+                  </property>
+                  <property name="value" >
+                   <double>-1.000000000000000</double>
                   </property>
                  </widget>
                 </item>

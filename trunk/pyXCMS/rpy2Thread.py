@@ -3,7 +3,7 @@ import rpy2
 import rpy2.robjects as ro
 import rpy2.rinterface as ri
 from eicClass import EIC
-
+import time
 from PyQt4 import QtCore, QtGui
 
 
@@ -29,6 +29,7 @@ class XCMSThread(QtCore.QThread):
         self.Rliblist = ['xcms']
         self.Rlibs = self.initRlibs(self.Rliblist)
         self.rtWidth = 200
+        self.corType = 'corrected'
         self.matchedFilterParams = {'fwhm':30.,
                                     'sigma':30/2.3548,
                                     'max': 5.,
@@ -110,12 +111,13 @@ class XCMSThread(QtCore.QThread):
             for key in threadDict.iterkeys():
                 threadDict[key] = parentDict[key]
 
-    def updateThread(self, fileList, paramDict, rtWidth):
+    def updateThread(self, fileList, paramDict, rtWidth, corType = 'corrected'):
         self.fileList = fileList
         self.updateParamDict(paramDict)
         self.rtWidth = rtWidth
         self.numSteps = 3
         self.ready = True
+        self.corType = corType
         return True
 
     def add2ROutput(self, rVector):
@@ -132,6 +134,7 @@ class XCMSThread(QtCore.QThread):
     def run(self):
         if self.ready:
             try:
+                t1 = time.clock()
 #                self.Rliblist = ['xcms']
 #                self.Rlibs = self.initRlibs(self.Rliblist)
                 #sys.stdout = StdOutFaker(self)
@@ -142,6 +145,7 @@ class XCMSThread(QtCore.QThread):
                 #r('cdffiles = cdffiles[1:3]')
                 #cdffiles = ri.globalEnv.get("cdffiles")
                 self.add2ROutput(self.fileList)
+                time.sleep(0.5)
                 rfileList = ri.StrSexpVector(self.fileList)
                 xset = r.xcmsSet(rfileList, step=self.matchedFilterParams['step'],
                                  mzdiff=self.matchedFilterParams['mzdiff'],
@@ -154,6 +158,7 @@ class XCMSThread(QtCore.QThread):
 
                 self.emitUpdate('\n\nXSET')
                 self.emitUpdate(str(xset)+'\n')
+                time.sleep(0.5)
                 xset2 = r.retcor(xset,
                                  family=self.retcorParams['f'],
                                  plottype=self.retcorParams['plottype'],
@@ -164,6 +169,7 @@ class XCMSThread(QtCore.QThread):
                 ri.globalEnv["xset2"] = xset2
                 self.emitUpdate('\n\nXSET2')
                 self.emitUpdate(str(xset2)+'\n')
+                time.sleep(0.5)
                 xset2 = r.group(xset2, bw=self.groupParams['bw'],
                                mzwid=self.groupParams['mzwid'],
                                minfrac=self.groupParams['minfrac'],
@@ -171,6 +177,7 @@ class XCMSThread(QtCore.QThread):
                 xset3 = r.fillPeaks(xset2)
                 self.emitUpdate('\n\nXSET3')
                 self.emitUpdate(str(xset3)+'\n')
+                time.sleep(0.5)
                 ri.globalEnv["xset3"] = xset3
                 gt = r.group(xset3, bw=self.groupParams['bw'],
                                mzwid=self.groupParams['mzwid'],
@@ -179,10 +186,12 @@ class XCMSThread(QtCore.QThread):
                 tsidx = r.groupnames(xset3)
                 ri.globalEnv["tsidx"] = tsidx
                 eicmax = r.length(tsidx)
-                eic = r.getEIC(xset3, rtrange = self.rtWidth, groupidx = tsidx, rt = "corrected")
+                eic = r.getEIC(xset3, rtrange = self.rtWidth, groupidx = tsidx, rt = self.corType)
                 eicClass = EIC(eic)
                 self.emit(QtCore.SIGNAL("xcmsGetEIC(PyQt_PyObject)"),eicClass)
                 self.emit(QtCore.SIGNAL("xcmsSet(PyQt_PyObject)"),xset3)
+                t2 = time.clock()
+                self.emitUpdate('\nProcessing Time: %s seconds'%t2)
     #            self.updateGUI()
                 sys.stdout=sys.__stdout__
 #                ri.endr()

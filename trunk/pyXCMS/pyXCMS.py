@@ -232,10 +232,30 @@ class pyXCMSWindow(QtGui.QMainWindow, ui_main.Ui_MainWindow):
         QtCore.QObject.connect(self.rThread, QtCore.SIGNAL("xcmsGetEIC(PyQt_PyObject)"), self.getThreadEIC)
         QtCore.QObject.connect(self.rThread, QtCore.SIGNAL("xcmsSet(PyQt_PyObject)"), self.setXCMSGroup)
 
+        self.removeFileAction = QtGui.QAction("Remove File", self)
+        self.dirListWidget.addAction(self.removeFileAction)
+        QtCore.QObject.connect(self.removeFileAction,QtCore.SIGNAL("triggered()"), self.removeFile)
+
+
+    def removeFile(self):
+        selItem = self.dirListWidget.selectedItems()[0]
+        curRow = self.dirListWidget.row(selItem)
+        print curRow
+        self.dirListWidget.takeItem(curRow)
+        self.dirList.pop(curRow)
+        print len(self.dirList)
+
 
     def _setContext_(self):
         self.plotWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.plotWidget.connect(self.plotWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self._plotContext_)
+        self.dirListWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.dirListWidget.connect(self.dirListWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self._dirListContext_)
+
+    def _dirListContext_(self, point):
+        ct_menu = QtGui.QMenu("File List Menu", self.dirListWidget)
+        ct_menu.addAction(self.removeFileAction)
+        ct_menu.exec_(self.dirListWidget.mapToGlobal(point))
 
     def _plotContext_(self, point):
         ct_menu = QtGui.QMenu("Plot Menu", self.plotWidget)
@@ -291,10 +311,12 @@ class pyXCMSWindow(QtGui.QMainWindow, ui_main.Ui_MainWindow):
             if mzlo > mzhi:
                 Msg = 'm/z start must be lower than m/z stop!'
                 return QtGui.QMessageBox.warning(self, "Try Again Slick", Msg )
-            rtRange = self.rtWidthSB.value()
             mzRange = ro.r.cbind(mzmin=mzlo,mzmax=mzhi)
-
-            eic = ro.r.getEIC(self.curXSET, mzRange, rtrange=rtRange,rt=rtType)
+            if self.rtWidthSB_Stop.value() == -1:
+                usrRTrange = self.rtWidthSB.value()
+            else:
+                usrRTrange = ro.r.cbind(self.rtWidthSB.value(),self.rtWidthSB_Stop.value())
+            eic = ro.r.getEIC(self.curXSET, mzRange, rtrange=usrRTrange,rt=rtType)
             self.eicClass.appendEIC(eic)
             self.updateGUI()
             self.eicIndexSB.setValue(self.eicIndexSB.maximum())
@@ -430,8 +452,12 @@ class pyXCMSWindow(QtGui.QMainWindow, ui_main.Ui_MainWindow):
             self.fileList = []
             for entry in fileList:
                 self.fileList.append(str(entry.toolTip()))#we use the tooltip as it contains the full path
-            if self.rThread.updateThread(self.fileList, self.xcmsParamDict, self.rtWidthSB.value()):
-                self.rThread.start()
+            if self.rtTypeCB.isChecked():
+                if self.rThread.updateThread(self.fileList, self.xcmsParamDict, self.rtWidthSB.value()):
+                    self.rThread.start()
+            else:
+                if self.rThread.updateThread(self.fileList, self.xcmsParamDict, self.rtWidthSB.value(), corType = 'raw'):
+                    self.rThread.start()
 #            print fileList
         print 'Start XCMS'
 
@@ -536,6 +562,7 @@ class pyXCMSWindow(QtGui.QMainWindow, ui_main.Ui_MainWindow):
             return QtGui.QMessageBox.warning(self, "No Data Found",  "Check selected folder, does it have any data?")
 
     def addFiles(self):
+        self.dirListWidget.clear()
         for item in self.dirList:
             #####Text Color Handler
             if self.colorIndex%len(COLORS) == 0:
