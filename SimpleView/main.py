@@ -29,6 +29,8 @@ from FolderParse import Load_mzXML_Folder as LmzXML
 from flexReader import brukerFlexDoc as FR
 from mzXML_reader import mzXMLDoc as mzXMLR
 
+from mpl_pyqt4_widget import MPL_Widget
+
 import supportFunc as SF
 
 import ui_main
@@ -103,6 +105,8 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         QtCore.QObject.connect(self.actionClear_Cursors,QtCore.SIGNAL("triggered()"),self.cursorClear)
         QtCore.QObject.connect(self.cursACB,QtCore.SIGNAL("stateChanged (int)"),self.toggleCA)
         QtCore.QObject.connect(self.cursBCB,QtCore.SIGNAL("stateChanged (int)"),self.toggleCB)
+
+        QtCore.QObject.connect(self.getEIC_Btn, QtCore.SIGNAL("clicked()"), self.fetchEIC)
 
 
     def SFDialog(self):
@@ -222,6 +226,35 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             self.initIndex = index
             QtCore.QTimer.singleShot(500,  self.plotByIndex)
 
+    def fetchEIC(self):
+        if len(self.dataList) == 0:
+            return QtGui.QMessageBox.warning(self, "No Data Are Loaded",  "Try Loading a Data Set Again!")
+        mzLo = self.mzLo_SB.value()
+        mzHi = self.mzHi_SB.value()
+        if mzHi != -1 and mzHi < mzLo:
+            return QtGui.QMessageBox.warning(self, "EIC Range Error",  "m/z Hi is larger than m/z Lo\nCheck the ranges!")
+        else:
+            self.curEIC = []
+            for curDataName in self.dataList:
+                tempData = self.dataDict[curDataName]
+                eicVal = tempData.getEICVal(mzLo, mzHi)
+                self.curEIC.append(eicVal)
+
+            if len(self.curEIC) != 0:
+                eicPlot = MPL_Widget()
+                eicPlot.setWindowTitle('Loaded Data EIC')
+
+                ax1 = eicPlot.canvas.ax
+                plotTitle = 'EIC from %.2f to %.2f'%(mzLo, mzHi)
+                ax1.set_title(plotTitle)
+                ax1.title.set_fontsize(10)
+                ax1.set_xlabel('Data Index', fontstyle = 'italic')
+                ax1.set_ylabel('Intensity')
+                ax1.plot(self.curEIC)
+
+                eicPlot.show()
+                self.eicPlots.append(eicPlot)
+
     def plotByIndex(self, plotIndex=None,  multiPlot = False):
         if self.loadOk:
             curAx = self.plotWidget.canvas.ax
@@ -289,6 +322,8 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.colorIndex = 0
         self.plotColor = None
         self.plotColorIndex = 0
+        self.curEIC = None
+        self.eicPlots = []
 
     def setupGUI(self):
         self.specNameEdit.clear()
@@ -401,6 +436,15 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         print "GO Clipboard"
 
         #########  Index Picker  ###############################
+
+    def closeEvent(self,  event = None):
+        if len(self.eicPlots) > 0:
+            for plot in self.eicPlots:
+                if isinstance(plot, MPL_Widget):
+                    try:
+                        plot.close()
+                    except:
+                        pass
 
     def setupPlot(self):
         self.cAPicker = None
@@ -695,6 +739,19 @@ class DataPlot(object):
         self.peakList = None
         self.mplAx = None
         self.plotModVal = 1
+
+    def getEICVal(self, mzLo, mzHi, type = 'sum'):#the other type is 'max'
+        if mzHi == -1:
+            crit = (self.x >= mzLo)
+        else:
+            crit = (self.x >= mzLo) & (self.x <= mzHi)
+        range = N.where(crit)[0]
+        if len(range) != 0:
+            if type == 'sum':
+                return self.y[range].sum()
+            elif type == 'max':
+                return self.y[range].max()
+
 
     def setAxis(self,  mplAxInstance):
         self.axSet = True
