@@ -203,12 +203,12 @@ if __name__ == "__main__":
     import scipy as S
     x1 = S.rand(30,2)*2
     x2 = (S.rand(40,2)*0.5+1)*4
-#    xy= N.concatenate((x1,x2))
-#    P.scatter(xy[:,0],xy[:,1], alpha =  0.5)
-#    xy = N.column_stack((xy[:,0],xy[:,1]))
-#    cClass, tType, Eps, boolAns = dbscan(xy, 5)
+    xy= N.concatenate((x1,x2))
+    P.scatter(xy[:,0],xy[:,1], alpha =  0.5)
+    xy = N.column_stack((xy[:,0],xy[:,1]))
+    cClass, tType, Eps, boolAns = dbscan(xy, 5)
 
-    xy = P.load('RawPeaks.csv', delimiter = ',')
+#    xy = P.load('RawPeaks.csv', delimiter = ',')
 #    xy = xy[0:500]
 #    distThresh = N.arange(1,20)
 #    cMax = []

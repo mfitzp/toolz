@@ -114,22 +114,29 @@ if __name__ == "__main__":
     x1 = S.rand(30,2)*2
     x2 = (S.rand(40,2)*0.5+1)*4
     xy= N.concatenate((x1,x2))
-
+    xy = P.load('peakLoc2D.csv', delimiter = ',')
+#    P.plot(xy[:,0],xy[:,1], 'ro')
     # Cluster them
-    N_CLUSTERS = 5
+    N_CLUSTERS = 20
 #    cent, clusters = k_means(N_CLUSTERS, P)
     cent, clusters = kmeans2(xy, N_CLUSTERS)
     print len(cent), cent
     print len(clusters), type(clusters),clusters
-    myColors = ['red', 'green', 'blue', 'yellow', 'brown', 'magenta', 'black', 'cyan']
-
+    myColors = ['red', 'green', 'blue', 'yellow', 'brown', 'magenta',\
+                'black', 'cyan', 'red', 'blue', 'green']
+    m = 0
     for i in xrange(len(cent)):#enumerate(cent):
 #        print i
         ind = N.where(clusters == i)[0]
         temp = xy[ind]
 #        print "%s"%i,temp
         if len(temp)>0:
-            P.scatter(temp[:,0],temp[:,1], c=myColors[i], alpha=0.8, label = '%s'%i)
+            if m == len(myColors)-1:
+                m = 0
+            else:
+                m+=1
+            col = myColors[m]
+            P.scatter(temp[:,0],temp[:,1], color = col, alpha=0.8, label = '%s'%i)
             centroid = cent[i]
             print "cent",centroid
             P.plot([cent[i][0]],[cent[i][1]], 'sb', ms = 8, label = '_nolegend_')
