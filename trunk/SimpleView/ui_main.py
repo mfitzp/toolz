@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Documents and Settings\d3p483\workspace\SimpleView\main.ui'
 #
-# Created: Tue Dec 09 14:55:41 2008
+# Created: Mon Feb 09 12:48:36 2009
 #      by: PyQt4 UI code generator 4.3.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -307,7 +307,7 @@ class Ui_MainWindow(object):
         self.optionsTab.setObjectName("optionsTab")
 
         self.layoutWidget1 = QtGui.QWidget(self.optionsTab)
-        self.layoutWidget1.setGeometry(QtCore.QRect(40,30,351,141))
+        self.layoutWidget1.setGeometry(QtCore.QRect(40,30,351,160))
         self.layoutWidget1.setObjectName("layoutWidget1")
 
         self.gridlayout1 = QtGui.QGridLayout(self.layoutWidget1)
@@ -339,6 +339,48 @@ class Ui_MainWindow(object):
         self.invertCompCB.setChecked(True)
         self.invertCompCB.setObjectName("invertCompCB")
         self.gridlayout1.addWidget(self.invertCompCB,2,1,1,1)
+
+        self.vboxlayout2 = QtGui.QVBoxLayout()
+        self.vboxlayout2.setObjectName("vboxlayout2")
+
+        self.hboxlayout3 = QtGui.QHBoxLayout()
+        self.hboxlayout3.setObjectName("hboxlayout3")
+
+        self.label_13 = QtGui.QLabel(self.layoutWidget1)
+        self.label_13.setObjectName("label_13")
+        self.hboxlayout3.addWidget(self.label_13)
+
+        self.mzLo_SB = QtGui.QDoubleSpinBox(self.layoutWidget1)
+        self.mzLo_SB.setDecimals(3)
+        self.mzLo_SB.setMinimum(1.0)
+        self.mzLo_SB.setMaximum(100000.0)
+        self.mzLo_SB.setSingleStep(0.05)
+        self.mzLo_SB.setProperty("value",QtCore.QVariant(1295.0))
+        self.mzLo_SB.setObjectName("mzLo_SB")
+        self.hboxlayout3.addWidget(self.mzLo_SB)
+        self.vboxlayout2.addLayout(self.hboxlayout3)
+
+        self.hboxlayout4 = QtGui.QHBoxLayout()
+        self.hboxlayout4.setObjectName("hboxlayout4")
+
+        self.label_14 = QtGui.QLabel(self.layoutWidget1)
+        self.label_14.setObjectName("label_14")
+        self.hboxlayout4.addWidget(self.label_14)
+
+        self.mzHi_SB = QtGui.QDoubleSpinBox(self.layoutWidget1)
+        self.mzHi_SB.setDecimals(3)
+        self.mzHi_SB.setMinimum(-1.0)
+        self.mzHi_SB.setMaximum(100000.0)
+        self.mzHi_SB.setSingleStep(0.05)
+        self.mzHi_SB.setProperty("value",QtCore.QVariant(1297.0))
+        self.mzHi_SB.setObjectName("mzHi_SB")
+        self.hboxlayout4.addWidget(self.mzHi_SB)
+        self.vboxlayout2.addLayout(self.hboxlayout4)
+
+        self.getEIC_Btn = QtGui.QPushButton(self.layoutWidget1)
+        self.getEIC_Btn.setObjectName("getEIC_Btn")
+        self.vboxlayout2.addWidget(self.getEIC_Btn)
+        self.gridlayout1.addLayout(self.vboxlayout2,3,1,1,1)
         self.tabWidget.addTab(self.optionsTab,"")
         self.hboxlayout.addWidget(self.tabWidget)
         MainWindow.setCentralWidget(self.centralwidget)
@@ -415,6 +457,10 @@ class Ui_MainWindow(object):
         self.excludeLIFTCB.setText(QtGui.QApplication.translate("MainWindow", "Exclude LIFT MS/MS Files", None, QtGui.QApplication.UnicodeUTF8))
         self.loadDirBtn.setText(QtGui.QApplication.translate("MainWindow", "Load Directory", None, QtGui.QApplication.UnicodeUTF8))
         self.invertCompCB.setText(QtGui.QApplication.translate("MainWindow", "Invert Single Comparison", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_13.setText(QtGui.QApplication.translate("MainWindow", "m/z Lo", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_14.setText(QtGui.QApplication.translate("MainWindow", "m/z Hi", None, QtGui.QApplication.UnicodeUTF8))
+        self.mzHi_SB.setToolTip(QtGui.QApplication.translate("MainWindow", "If this value is set to -1 then a TIC starting from m/z Lo will be returned", None, QtGui.QApplication.UnicodeUTF8))
+        self.getEIC_Btn.setText(QtGui.QApplication.translate("MainWindow", "Fetch EIC", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.optionsTab), QtGui.QApplication.translate("MainWindow", "Options", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_File.setTitle(QtGui.QApplication.translate("MainWindow", "&File", None, QtGui.QApplication.UnicodeUTF8))
         self.menuTools.setTitle(QtGui.QApplication.translate("MainWindow", "Tools", None, QtGui.QApplication.UnicodeUTF8))

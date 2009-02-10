@@ -484,7 +484,7 @@
           <x>40</x>
           <y>30</y>
           <width>351</width>
-          <height>141</height>
+          <height>160</height>
          </rect>
         </property>
         <layout class="QGridLayout" >
@@ -538,6 +538,80 @@
             <bool>true</bool>
            </property>
           </widget>
+         </item>
+         <item row="3" column="1" >
+          <layout class="QVBoxLayout" >
+           <item>
+            <layout class="QHBoxLayout" >
+             <item>
+              <widget class="QLabel" name="label_13" >
+               <property name="text" >
+                <string>m/z Lo</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QDoubleSpinBox" name="mzLo_SB" >
+               <property name="decimals" >
+                <number>3</number>
+               </property>
+               <property name="minimum" >
+                <double>1.000000000000000</double>
+               </property>
+               <property name="maximum" >
+                <double>100000.000000000000000</double>
+               </property>
+               <property name="singleStep" >
+                <double>0.050000000000000</double>
+               </property>
+               <property name="value" >
+                <double>1295.000000000000000</double>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" >
+             <item>
+              <widget class="QLabel" name="label_14" >
+               <property name="text" >
+                <string>m/z Hi</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QDoubleSpinBox" name="mzHi_SB" >
+               <property name="toolTip" >
+                <string>If this value is set to -1 then a TIC starting from m/z Lo will be returned</string>
+               </property>
+               <property name="decimals" >
+                <number>3</number>
+               </property>
+               <property name="minimum" >
+                <double>-1.000000000000000</double>
+               </property>
+               <property name="maximum" >
+                <double>100000.000000000000000</double>
+               </property>
+               <property name="singleStep" >
+                <double>0.050000000000000</double>
+               </property>
+               <property name="value" >
+                <double>1297.000000000000000</double>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="QPushButton" name="getEIC_Btn" >
+             <property name="text" >
+              <string>Fetch EIC</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </item>
         </layout>
        </widget>
