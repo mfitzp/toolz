@@ -8,21 +8,17 @@ Need to add exception for when there is no data in the file (i.e. a blank spectr
 
 Load a single file?
 
-Need to normalize spectrum
-interpolate spectrum for CWT
-
 make miniFingerprint
     show FP window for a given group, and table
 
 fix wonky autoscale--want a return to 0 when appropriate
 
+implement static cutoff--question use raw counts or normalized counts....
 
 PCA after peak pick
 
 implement TreeView???
 
-
-PEAK PICKING REQUIRES A NORMALIZED SPECTRUM--HOW TO????
 
 '''
 ###################################
@@ -873,7 +869,7 @@ class LoadThread(QtCore.QThread):
                             if len(tempSpec)>0:
 #                                print 'Spec OK', os.path.basename(item)
                                 data2plot = DataPlot(tempSpec[0],  tempSpec[1],  name = os.path.basename(item), path = item)
-                                data2plot.setPeakList(tempmzXML.data['peaklist'])
+                                data2plot.setPeakList(tempmzXML.data['peaklist'], normalized = True)
                                 #this following line is key to pass python object via the SIGNAL/SLOT mechanism of PyQt
                                 #note PyQt_PyObject
                                 self.emit(QtCore.SIGNAL("itemLoaded(PyQt_PyObject)"),data2plot)
@@ -887,7 +883,7 @@ class LoadThread(QtCore.QThread):
                             tempFlex = FR(item)
                             tempSpec = tempFlex.data['spectrum']
                             data2plot = DataPlot(tempSpec[:, 0],  tempSpec[:, 1], name = item.split(os.path.sep)[-4], path = item)#the -4 index is to handle the Bruker File Structure
-                            data2plot.setPeakList(tempFlex.data['peaklist'])
+                            data2plot.setPeakList(tempFlex.data['peaklist'],  nomralized = False)
                             #this following line is key to pass python object via the SIGNAL/SLOT mechanism of PyQt
                             self.emit(QtCore.SIGNAL("itemLoaded(PyQt_PyObject)"),data2plot)#note PyQt_PyObject
                             self.numItems -=1
@@ -962,7 +958,7 @@ class FindPeaksThread(QtCore.QThread):
                             if cClass != None:
                                 if len(peakLoc) != 0:
                                     print peakLoc
-                                    dataItem.setPeakList([peakLoc,peakInt])
+                                    dataItem.setPeakList(N.column_stack((peakLoc,peakInt)))
                                     self.numItems += -1
                                     self.emit(QtCore.SIGNAL("peakPickUpdate(PyQt_PyObject)"),self.numItems)
     #                                ax.vlines(peakLoc, 0, 100, 'r', linestyle = 'dashed', alpha = 0.5)
@@ -1008,6 +1004,7 @@ class DataPlot(object):
             self.path = 'None'
 
         self.axSet = False
+        self.peakList = None
         self.pkListOk = False
         self.labelPks = False
         self.peakList = None
@@ -1016,10 +1013,10 @@ class DataPlot(object):
         self.noiseEst = None
         self.minNoiseEst = None
         self.noiseOK = False
-        self.normFactor = None
+        self.normFactor = self.y.max()
         self.interpOk = False
         self.mzPad = None#this value is used for peak picking and is equal to the number of points in 0.5 mz units
-        self.interpData()
+        #self.interpData()
 
 
     def getEICVal(self, mzLo, mzHi, type = 'sum'):#the other type is 'max'
@@ -1038,12 +1035,21 @@ class DataPlot(object):
         self.axSet = True
         self.mplAx = mplAxInstance
 
-    def setPeakList(self, peaklist):
+    def setPeakList(self, peakList, normalized = True):
         #peak list is two arrays peakLoc and intensity
-        if peaklist != None:
-            if len(peaklist)>0:
-                self.pkListOk = True#CHANGE ME True
-                self.peakList = peaklist
+        if normalized:
+            if peakList != None:
+                if len(peakList)>0:
+                    self.pkListOk = True#CHANGE ME True
+                    self.peakList = peakList
+        else:
+            if peakList != None:
+                if len(peakList)>0:
+                    self.pkListOk = True#CHANGE ME True
+                    self.peakList = peakList
+                    if type(self.peakList[0]) == N.ndarray:
+                        self.peakList[:,1] = SF.normalize(self.peakList[:,1])
+
 
     def applyTopHat(self):
         self.y = SF.topHat(self.y, 0.01)
@@ -1054,7 +1060,7 @@ class DataPlot(object):
             newX, newY = SF.interpolate_spectrum_XY(self.x, self.y)
 
             meanMZ = N.round(newX.mean())
-            crit = (newX >= meanMZ) & (newX <= (meanMZ+0.5))
+            crit = (newX >= meanMZ) & (newX <= (meanMZ+0.5))#CHECK ME
             self.mzPad = len(N.where(crit)[0])
             print "MZ Pad", self.mzPad
 
@@ -1106,7 +1112,7 @@ class DataPlot(object):
                 if self.pkListOk:
                     try:
                         if type(self.peakList[0]) == N.ndarray:
-                            self.mplAx.vlines(self.peakList[:, 0], 0, self.peakList[:, 1]*1.1*self.plotModVal,  color = 'r',  label = '_nolegend_')
+                            self.mplAx.vlines(self.peakList[:, 0], 0, self.peakList[:, 1]*1.15*self.plotModVal,  color = 'r',  label = '_nolegend_')
                             if self.labelPks:
                                 for peak in self.peakList:
                                     self.mplAx.text(peak[0], peak[1]*1.1*self.plotModVal, '%.4f'%peak[0],  fontsize=8, rotation = 45)
