@@ -13,7 +13,8 @@
    <string>SpectrumViewer</string>
   </property>
   <property name="windowIcon" >
-   <iconset resource="icons.qrc" >:/new/prefix1/Retro Mario World_32.png</iconset>
+   <iconset resource="icons.qrc" >
+    <normaloff>:/new/prefix1/Retro Mario World_32.png</normaloff>:/new/prefix1/Retro Mario World_32.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget" >
    <widget class="QTabWidget" name="tabWidget" >
@@ -492,7 +493,7 @@
           <property name="orientation" >
            <enum>Qt::Vertical</enum>
           </property>
-          <property name="sizeHint" >
+          <property name="sizeHint" stdset="0" >
            <size>
             <width>20</width>
             <height>40</height>
@@ -634,7 +635,7 @@
                 <property name="orientation" >
                  <enum>Qt::Horizontal</enum>
                 </property>
-                <property name="sizeHint" >
+                <property name="sizeHint" stdset="0" >
                  <size>
                   <width>40</width>
                   <height>20</height>
@@ -660,7 +661,7 @@
               <property name="orientation" >
                <enum>Qt::Horizontal</enum>
               </property>
-              <property name="sizeHint" >
+              <property name="sizeHint" stdset="0" >
                <size>
                 <width>40</width>
                 <height>20</height>
@@ -796,6 +797,12 @@ Higher numbers mean fewer peaks.</string>
 p, li { white-space: pre-wrap; }
 &lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
 &lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">Allowed tolerance for each peak found in each subsequent row of the wavelet transform.  A smaller number requires tighter grouping of peaks for each scale of the CWT in order for a peak to be located.  Too large a number creates more peaks, but at a cost.&lt;/p>&lt;/body>&lt;/html></string>
+              </property>
+              <property name="minimum" >
+               <number>1</number>
+              </property>
+              <property name="value" >
+               <number>3</number>
               </property>
              </widget>
             </item>
@@ -940,7 +947,7 @@ p, li { white-space: pre-wrap; }
               <property name="orientation" >
                <enum>Qt::Horizontal</enum>
               </property>
-              <property name="sizeHint" >
+              <property name="sizeHint" stdset="0" >
                <size>
                 <width>40</width>
                 <height>20</height>
@@ -955,7 +962,7 @@ p, li { white-space: pre-wrap; }
             <property name="orientation" >
              <enum>Qt::Vertical</enum>
             </property>
-            <property name="sizeHint" >
+            <property name="sizeHint" stdset="0" >
              <size>
               <width>20</width>
               <height>40</height>
@@ -1118,7 +1125,7 @@ p, li { white-space: pre-wrap; }
                 <property name="orientation" >
                  <enum>Qt::Vertical</enum>
                 </property>
-                <property name="sizeHint" >
+                <property name="sizeHint" stdset="0" >
                  <size>
                   <width>20</width>
                   <height>40</height>
@@ -1133,7 +1140,7 @@ p, li { white-space: pre-wrap; }
               <property name="orientation" >
                <enum>Qt::Horizontal</enum>
               </property>
-              <property name="sizeHint" >
+              <property name="sizeHint" stdset="0" >
                <size>
                 <width>40</width>
                 <height>20</height>
@@ -1176,7 +1183,7 @@ p, li { white-space: pre-wrap; }
               <property name="orientation" >
                <enum>Qt::Vertical</enum>
               </property>
-              <property name="sizeHint" >
+              <property name="sizeHint" stdset="0" >
                <size>
                 <width>20</width>
                 <height>40</height>
@@ -1191,7 +1198,7 @@ p, li { white-space: pre-wrap; }
             <property name="orientation" >
              <enum>Qt::Horizontal</enum>
             </property>
-            <property name="sizeHint" >
+            <property name="sizeHint" stdset="0" >
              <size>
               <width>40</width>
               <height>20</height>
@@ -1209,13 +1216,13 @@ p, li { white-space: pre-wrap; }
      <attribute name="title" >
       <string>Misc</string>
      </attribute>
-     <widget class="QWidget" name="" >
+     <widget class="QWidget" name="layoutWidget" >
       <property name="geometry" >
        <rect>
         <x>290</x>
         <y>310</y>
-        <width>146</width>
-        <height>22</height>
+        <width>173</width>
+        <height>25</height>
        </rect>
       </property>
       <layout class="QHBoxLayout" >
@@ -1240,7 +1247,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>831</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File" >

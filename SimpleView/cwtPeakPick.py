@@ -111,8 +111,8 @@ def getCWTPeaks(scaledCWT, X, Y, noiseEst, minSNR = 3,\
                 tempDiffY = N.diff(temp[:,1])
                 diffSumX = tempDiffX.sum()
                 diffSumY = tempDiffY.sum()
-                print tempDiffX, diffSumX
-                print tempDiffY, diffSumY
+#                print tempDiffX, diffSumX
+#                print tempDiffY, diffSumY
 
 
         #        if diffSumX <= len(tempDiffX)*2:
@@ -170,7 +170,9 @@ if __name__ == "__main__":
         'BSA_XY_Full.csv'
         'J15.csv'
         'Tryptone.csv'
-        ms = P.load('Tryptone.csv', delimiter = ',')
+        ms = P.load('A1.csv', delimiter = ',')
+#        x = ms[:,0]
+#        ms = ms[:,0]
         x, ms = interpolate_spectrum(ms)
         ms = SF.normalize(SF.topHat(ms, 0.01))
         ms = SF.roundLen(ms)
