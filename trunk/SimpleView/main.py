@@ -8,12 +8,23 @@ Need to add exception for when there is no data in the file (i.e. a blank spectr
 
 Load a single file?
 
+Need to normalize spectrum
+interpolate spectrum for CWT
+
+make miniFingerprint
+    show FP window for a given group, and table
+
+
+
+PCA after peak pick
+
+implement TreeView???
 
 
 
 '''
 ###################################
-import os, sys
+import os, sys, traceback
 import time
 
 from PyQt4 import QtCore,  QtGui
@@ -32,6 +43,8 @@ from mzXML_reader import mzXMLDoc as mzXMLR
 from mpl_pyqt4_widget import MPL_Widget
 
 import supportFunc as SF
+import getBaseline as GB
+import cwtPeakPick as CWT
 
 import ui_main
 
@@ -65,7 +78,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
         self.labelAction = QtGui.QAction("Label Peak",  self)
         self.plotWidget.addAction(self.labelAction)
-
 
         self.removeAction = QtGui.QAction("Remove File(s)",  self)
         self.specListWidget.addAction(self.removeAction)
@@ -106,7 +118,14 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         QtCore.QObject.connect(self.cursACB,QtCore.SIGNAL("stateChanged (int)"),self.toggleCA)
         QtCore.QObject.connect(self.cursBCB,QtCore.SIGNAL("stateChanged (int)"),self.toggleCB)
 
+        QtCore.QObject.connect(self.useDefaultScale_CB,QtCore.SIGNAL("stateChanged (int)"),self.scaleSetup)
+        QtCore.QObject.connect(self.makeScales_Btn, QtCore.SIGNAL("clicked()"), self.makeUserScale)
+#        QtCore.QObject.connect(self.showNoise_Btn, QtCore.SIGNAL("clicked()"), self.getCurDataNoise)
+
+
         QtCore.QObject.connect(self.getEIC_Btn, QtCore.SIGNAL("clicked()"), self.fetchEIC)
+
+        self.useDefaultScale_CB.nextCheckState()
 
 
     def SFDialog(self):
@@ -255,6 +274,19 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                 eicPlot.show()
                 self.eicPlots.append(eicPlot)
 
+    def plotCurData(self, curData, curAx):
+        #test to see if noise has been calculated, if not do it and then plot.
+        if self.plotNoiseEst_CB.isChecked():
+            if curData.noiseOk:
+                curData.plot(curAx, pColor = self.plotColor, plotNoise = True)#, labelPks = False)
+            else:
+                numSegs = len(curData.x)/self.noiseFactor_SB.value()
+                minSNR = self.snrNoiseEst_SB.value()
+                curData.getNoise(numSegs,minSNR)
+                curData.plot(curAx, pColor = self.plotColor, plotNoise = True)#, labelPks = False)
+        else:
+            curData.plot(curAx, pColor = self.plotColor)#, labelPks = False)
+
     def plotByIndex(self, plotIndex=None,  multiPlot = False):
         if self.loadOk:
             curAx = self.plotWidget.canvas.ax
@@ -263,7 +295,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
             self.plotColorIndex = 0
             if multiPlot:
-
                 if self.invertCompCB.isChecked() and len(self.multiPlotIndex) == 2:
                     self._updatePlotColor_()
                     curDataName = self.dataList[self.multiPlotIndex[0]]
@@ -275,9 +306,11 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                     for i in self.multiPlotIndex:
                         self._updatePlotColor_()
                         curDataName = self.dataList[i]
-                        self.dataDict[curDataName].plot(curAx, pColor = self.plotColor)
+                        curData = self.dataDict[curDataName]
+                        self.plotCurData(curData, curAx)
+#                        curData.plot(curAx, pColor = self.plotColor)
                     #the following makes it so the change is ignored and the plot does not update
-                    self.specNameEdit.setText(self.dataDict[curDataName].path)#use dataList to get the name?
+                    self.specNameEdit.setText(curData.path)#use dataList to get the name?
                     self.ignoreSignal = True
                     self.indexHSlider.setValue(i)
                     self.indexSpinBox.setValue(i)
@@ -288,8 +321,21 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                 if plotIndex == self.indexSpinBox.value():#this is just to see if the user is still sliding things around before updating plot
                     self._updatePlotColor_()
                     curDataName = self.dataList[plotIndex]
-                    self.dataDict[curDataName].plot(curAx, pColor = self.plotColor)#, labelPks = False)
-                    self.specNameEdit.setText(self.dataDict[curDataName].path)#use dataList to ge the name?
+                    curData = self.dataDict[curDataName]
+                    #test to see if noise has been calculated, if not do it and then plot.
+#                    print self.plotNoiseEst_CB.isChecked()
+                    self.plotCurData(curData, curAx)
+#                    if self.plotNoiseEst_CB.isChecked():
+#                        if curData.noiseOk:
+#                            curData.plot(curAx, pColor = self.plotColor, plotNoise = True)#, labelPks = False)
+#                        else:
+#                            numSegs = len(curData.x)/self.noiseFactor_SB.value()
+#                            minSNR = self.snrNoiseEst_SB.value()
+#                            curData.getNoise(numSegs,minSNR)
+#                            curData.plot(curAx, pColor = self.plotColor, plotNoise = True)#, labelPks = False)
+#                    else:
+#                        curData.plot(curAx, pColor = self.plotColor)#, labelPks = False)
+                    self.specNameEdit.setText(curData.path)#use dataList to get the name?
                     #the following makes it so the change is ignored and the plot does not update
                     self.ignoreSignal = True
                     self.specListWidget.setCurrentRow(plotIndex)
@@ -307,10 +353,75 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             self.plotWidget.canvas.draw()
             self.plotWidget.setFocus()#this is needed so that you can use CTRL+Z to zoom
 
+    def makeUserScale(self):
+        self.startScale = self.scaleStart_SB.value()
+        self.endScale = self.scaleStop_SB.value()
+        self.scaleFactor = self.scaleFactor_SB.value()
+        try:
+            self.scales = N.arange(self.startScale, self.endScale, self.scaleFactor)
+        except:
+            QtGui.QMessageBox.warning(self, "Error creating Scales",  "Scale Start must be less than Scale End\n and the Scale Factor fall between.\nUsing Defaults.")
+            self.scales = N.arange(2,64,8)
+
+        if len(self.scales) < 1:
+            QtGui.QMessageBox.warning(self, "Error creating Scales",  "You Created and Empty Scale\nUsing Defaults.")
+            self.scales = N.arange(2,64,8)
+        self.setupScaleTable()
+
+    def scaleSetup(self, value=None):
+#        print value
+        if value == 2:
+            self.scaleStart_SB.setEnabled(False)
+            self.scaleStartLbl.setEnabled(False)
+            self.scaleEndLbl.setEnabled(False)
+            self.scaleStop_SB.setEnabled(False)
+            self.scaleFactorLbl.setEnabled(False)
+            self.scaleFactor_SB.setEnabled(False)
+            self.makeScales_Btn.setEnabled(False)
+
+            self.scales = N.arange(2,64,8)
+            self.setupScaleTable()
+
+        elif value == 0:
+            self.scaleStart_SB.setEnabled(True)
+            self.scaleStartLbl.setEnabled(True)
+            self.scaleEndLbl.setEnabled(True)
+            self.scaleStop_SB.setEnabled(True)
+            self.scaleFactorLbl.setEnabled(True)
+            self.scaleFactor_SB.setEnabled(True)
+            self.makeScales_Btn.setEnabled(True)
+
+            self.makeUserScale()
+        else:
+            self.scales = N.arange(2,64,8)
+            self.setupScaleTable()
+
+
+
+    def setupScaleTable(self):
+        self.scalesTable.clear()
+        self.scalesTable.setColumnCount(1)
+        self.scalesTable.setRowCount(len(self.scales))
+        for i,scale in enumerate(self.scales):
+            newitem = QtGui.QTableWidgetItem(0)
+            newitem.setData(0,QtCore.QVariant(scale))
+            self.scalesTable.setItem(i,0,newitem)
+
+    def setupPeakPick(self):
+        self.noiseSplitFactor = self.noiseFactor_SB.value()#default 10
+        self.snrNoiseEst = self.snrNoiseEst_SB.value()#default 3
+        self.minRows = self.minRow_SB.value()#default 1
+        self.minClust = self.minClust_SB.value() #default is 4
+        self.dbScanEPS = self.dbscanEPS_SB.value() #default -1 for auto calculate
+        if self.dbScanEPS == -1:
+            self.dbScanEPS = None#this is done because if no EPS is passed autocalculate is enabled.
+        self.scales = None
+
 
     def setupVars(self):
         self.dirList = []
         self.curDir = os.getcwd()
+        self.curDataName = None
         self.dataList = []
         self.dataDict = {}
         self.loadOk = False
@@ -324,6 +435,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.plotColorIndex = 0
         self.curEIC = None
         self.eicPlots = []
+        self.setupPeakPick()
 
     def setupGUI(self):
         self.specNameEdit.clear()
@@ -525,7 +637,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             self.plotWidget.canvas.draw()
 
 
-
     def cursBClear(self):
         if self.cBOn:# and self.cBPicker:
             self.selectHandleB.set_visible(False)
@@ -715,8 +826,106 @@ class LoadThread(QtCore.QThread):
             self.wait()
 
 
+class findPeaksThread(QtCore.QThread):
+        def __init__(self, parent = None):
+            QtCore.QThread.__init__(self, parent)
+
+            self.finished = False
+            self.ready = False
+            self.cwt = None
+            self.numItems = None
+            self.dataItem = None
+            self.dataList = None
+            self.xData = None
+            self.yData = None
+            self.paramDict = {'scales':None,
+                              'minSNR':None,
+                              'minRow':None,
+                              'minClust':None,
+                              'dbscanEPS':None,
+                              'mzPad':None,
+                              'staticThresh':None
+                              }
+
+        def updateThread(self, dataItemList, paramDict):
+            self.dataList = dataItemList
+            self.numItems = len(self.dataList)
+            self.paramDict = paramDict
+            self.scales = self.paramDict['scales']
+            self.minRow = self.paramDict['minRow']
+            self.minClust = self.paramDict['minClust']
+            self.rowThresh = self.paramDict['rowThresh']
+            self.mzPad = self.paramDict['mzPad']
+            self.EPS = self.paramDict['dbScanEPS']
+            self.ready = True
+            return True
+
+
+
+        def run(self):
+            if self.ready:
+                for dataItem in dataItemList:
+                    self.cwt = CWT.cwtMS(dataItem.yData, self.scales)
+                    if self.cwt != None:
+                        cwtResult = CWT.getCWTPeaks(self.cwt, dataItem.xData, dataItem.yData,\
+                                                    dataItem.noiseEst, self.paramDict['minRow'],\
+                                                    self.paramDict['minClust'], self.paramDict['rowThresh'],\
+                                                    self.paramDict['mzPad'], EPS = self.paramDict['dbScanEPS'])
+
+                    peakLoc, peakInt, cwtPeakLoc, cClass, boolAns = cwtResult
+
+                    if boolAns:
+                        if cClass != None:
+                            if len(peakLoc) != 0:
+                                self.dataItem.setPeakList([peakLoc,peakInt])
+#                                self.emit(QtCore.SIGNAL("returnPeakList(PyQt_PyObject)"),cwtResult)
+#                                ax.vlines(peakLoc, 0, 100, 'r', linestyle = 'dashed', alpha = 0.5)
+                    else:
+                        print "Error with Peak Picking"
+                        self.emit(QtCore.SIGNAL("returnPeakList(PyQt_PyObject)"),None)
+                else:
+                    print "Error with CWT"
+                    self.emit(QtCore.SIGNAL("returnPeakList(PyQt_PyObject)"),None)
+
+#                ,
+#                                     self.paramDict['noiseEst'], self.paramDict['minSNR'],
+#                                     )
+
+                if self.loadmzXML:
+                    while not self.finished and self.numItems > 0:
+                        for item in self.loadList:
+#                            print os.path.basename(item)
+                            tempmzXML =  mzXMLR(item)
+                            tempSpec = tempmzXML.data['spectrum']
+                            if len(tempSpec)>0:
+#                                print 'Spec OK', os.path.basename(item)
+                                data2plot = DataPlot(tempSpec[0],  tempSpec[1],  name = os.path.basename(item), path = item)
+                                data2plot.setPeakList(tempmzXML.data['peaklist'])
+                                #this following line is key to pass python object via the SIGNAL/SLOT mechanism of PyQt
+                                #note PyQt_PyObject
+                                self.emit(QtCore.SIGNAL("itemLoaded(PyQt_PyObject)"),data2plot)
+                            else:
+                                print 'Empty spectrum: ', item
+
+                            self.numItems -=1
+                else:
+                    while not self.finished and self.numItems > 0:
+                        for item in self.loadList:
+                            tempFlex = FR(item)
+                            tempSpec = tempFlex.data['spectrum']
+                            data2plot = DataPlot(tempSpec[:, 0],  tempSpec[:, 1], name = item.split(os.path.sep)[-4], path = item)#the -4 index is to handle the Bruker File Structure
+                            data2plot.setPeakList(tempFlex.data['peaklist'])
+                            #this following line is key to pass python object via the SIGNAL/SLOT mechanism of PyQt
+                            self.emit(QtCore.SIGNAL("itemLoaded(PyQt_PyObject)"),data2plot)#note PyQt_PyObject
+                            self.numItems -=1
+
+        def __del__(self):
+            self.exiting = True
+            self.wait()
+
+
 class DataPlot(object):
-    def __init__(self, xdata,  ydata = None,  name = None, path = None):
+    def __init__(self, xdata,  ydata,  name = None, path = None):
         self.x = xdata
         if ydata != None:
             self.y = ydata
@@ -739,6 +948,13 @@ class DataPlot(object):
         self.peakList = None
         self.mplAx = None
         self.plotModVal = 1
+        self.noiseEst = None
+        self.minNoiseEst = None
+        self.noiseOk = False
+        self.normFactor = None
+        self.interpOk = False
+        self.interpData()
+
 
     def getEICVal(self, mzLo, mzHi, type = 'sum'):#the other type is 'max'
         if mzHi == -1:
@@ -752,12 +968,12 @@ class DataPlot(object):
             elif type == 'max':
                 return self.y[range].max()
 
-
     def setAxis(self,  mplAxInstance):
         self.axSet = True
         self.mplAx = mplAxInstance
 
     def setPeakList(self, peaklist):
+        #peak list is two arrays peakLoc and intensity
         if peaklist != None:
             if len(peaklist)>0:
                 self.pkListOk = True
@@ -766,7 +982,33 @@ class DataPlot(object):
     def applyTopHat(self):
         self.y = SF.topHat(self.y, 0.01)
 
-    def plot(self,  mplAxInstance, pColor = 'r', scatter = False, labelPks = False, invert = False):
+    def interpData(self):
+        #this of course slows loading down but is necessary for the peak picking using CWT
+        try:
+            newX, newY = SF.interpolate_spectrum_XY(self.x, self.y)
+            self.interpOk = True
+        except:
+            exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+            traceback.print_exception(exceptionType, exceptionValue, exceptionTraceback, file=sys.stdout)
+#                    print 'Error saving figure data'
+            errorMsg = "Sorry: %s\n\n:%s\n%s\n"%(exceptionType, exceptionValue, exceptionTraceback)
+            return QtGui.QMessageBox.warning(self, "Interpolation Error", errorMsg)
+            print errorMsg
+
+        if self.interpOk:
+            self.x = newX
+            self.y = newY
+
+    def getNoise(self, numSegs, minSNR):
+        noiseEst, minNoiseEst = GB.SplitNSmooth(self.y,numSegs, minSNR)
+        if noiseEst != None:
+            if len(noiseEst) == len(self.x):
+                self.noiseEst = noiseEst
+                self.minNoiseEst = minNoiseEst
+                self.noiseOk = True
+#                print "Get Noise Ok"
+
+    def plot(self,  mplAxInstance, pColor = 'r', scatter = False, labelPks = False, invert = False, plotNoise = False):
         #if self.axSet:
         self.labelPks = labelPks
         self.mplAx = mplAxInstance
@@ -780,6 +1022,11 @@ class DataPlot(object):
                 self.mplAx.scatter(self.x,  self.y,  label = self.name)
             else:
                 self.mplAx.plot(self.x,  self.y*self.plotModVal,  label = self.name,  picker = 5,  color = pColor)
+                if plotNoise:
+                    if self.noiseOk:
+                        self.mplAx.plot(self.x,  self.noiseEst,  label = '_nolegend_',  color = 'r', alpha = 0.6)
+                    else:
+                        print "No noise to plot"
                 if self.pkListOk:
                     try:
                         if type(self.peakList[0]) == N.ndarray:
