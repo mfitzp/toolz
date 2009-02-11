@@ -11,8 +11,6 @@ Load a single file?
 make miniFingerprint
     show FP window for a given group, and table
 
-fix wonky autoscale--want a return to 0 when appropriate
-
 implement static cutoff--question use raw counts or normalized counts....
 
 PCA after peak pick
@@ -91,6 +89,11 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.saveCSVAction.setShortcut("Ctrl+Alt+S")
         self.plotWidget.addAction(self.saveCSVAction)
 
+        self.actionAutoScale = QtGui.QAction("AutoScale",  self)#self.MainWindow)
+        self.actionAutoScale.setShortcut("Ctrl+A")
+        self.plotWidget.addAction(self.actionAutoScale)
+        QtCore.QObject.connect(self.actionAutoScale,QtCore.SIGNAL("triggered()"), self.autoscale_plot)
+
         QtCore.QObject.connect(self.saveCSVAction,QtCore.SIGNAL("triggered()"), self.save2CSV)
 
         QtCore.QObject.connect(self.removeAction, QtCore.SIGNAL("triggered()"),self.removeFile)
@@ -128,6 +131,16 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         QtCore.QObject.connect(self.findPeakAction,QtCore.SIGNAL("triggered()"),self.findPeaks)
 
         self.useDefaultScale_CB.nextCheckState()
+
+    def autoscale_plot(self):
+        curAx = self.plotWidget.canvas.ax
+        #self.toolbar.home() #implements the classic return to home
+        curAx.autoscale_view(tight = False, scalex=True, scaley=True)
+        if self.invertCompCB.isChecked() and len(self.multiPlotIndex) == 2:
+            pass
+        else:
+            curAx.set_ylim(ymin = 0)
+        self.plotWidget.canvas.draw()
 
 
     def SFDialog(self):

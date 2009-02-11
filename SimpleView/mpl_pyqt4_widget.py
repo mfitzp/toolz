@@ -113,10 +113,11 @@ class MPL_Widget(QtGui.QWidget):
         self.addAction(self.Zoom)
         QtCore.QObject.connect(self.Zoom,QtCore.SIGNAL("triggered()"), self.ZoomToggle)
 
-        self.actionAutoScale = QtGui.QAction("AutoScale",  self)#self.MainWindow)
-        self.actionAutoScale.setShortcut("Ctrl+A")
-        self.addAction(self.actionAutoScale)
-        QtCore.QObject.connect(self.actionAutoScale,QtCore.SIGNAL("triggered()"), self.autoscale_plot)
+        #This funciton has been disabled because of the special autoscaling requried for SimpleView
+#        self.actionAutoScale = QtGui.QAction("AutoScale",  self)#self.MainWindow)
+#        self.actionAutoScale.setShortcut("Ctrl+A")
+#        self.addAction(self.actionAutoScale)
+#        QtCore.QObject.connect(self.actionAutoScale,QtCore.SIGNAL("triggered()"), self.autoscale_plot)
 
         self.span = SpanSelector(self.canvas.ax, self.onselect, 'horizontal', minspan =0.01,
                                  useblit=True, rectprops=dict(alpha=0.5, facecolor='#C6DEFF') )
