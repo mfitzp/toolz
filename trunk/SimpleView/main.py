@@ -133,6 +133,10 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.useDefaultScale_CB.nextCheckState()
 
     def autoscale_plot(self):
+        print "Cur Group", self.curGroup
+        print "Group list", self.groupList
+        print "Num Groups", self.numGroups
+
         curAx = self.plotWidget.canvas.ax
         #self.toolbar.home() #implements the classic return to home
         curAx.autoscale_view(tight = False, scalex=True, scaley=True)
@@ -498,6 +502,11 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.dirList = []
         self.curDir = os.getcwd()
         self.curDataName = None
+        #these are used to keep track of what group is loaded
+        self.groupList = []
+        self.curGroup = None
+        self.numGroups = 0
+        #########################
         self.dataList = []
         self.dataDict = {}
         self.loadOk = False
@@ -568,6 +577,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
 
     def initDataList(self):
+        #handles loading of new group.
         #####Text Color Handler
         if self.colorIndex%len(COLORS) == 0:
             self.colorIndex = 0
@@ -591,6 +601,15 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                 self.firstLoad = False
                 if self.readThread.updateThread(dirList,  loadmzXML = True):
                     self.readThread.start()
+
+                self.curGroup = self.numGroups
+                self.groupList.append(self.numGroups)
+                self.numGroups+=1
+
+                print "Cur Group", self.curGroup
+                print "Group list", self.groupList
+                print "Num Groups", self.numGroups
+
             elif startDir != None:
                 return QtGui.QMessageBox.warning(self, "No Data Found",  "Check selected folder, does it have any data?")
 
@@ -882,7 +901,7 @@ class LoadThread(QtCore.QThread):
                             if len(tempSpec)>0:
 #                                print 'Spec OK', os.path.basename(item)
                                 data2plot = DataPlot(tempSpec[0],  tempSpec[1],  name = os.path.basename(item), path = item)
-                                data2plot.setPeakList(tempmzXML.data['peaklist'], normalized = True)
+                                data2plot.setPeakList(tempmzXML.data['peaklist'], normalized = False)
                                 #this following line is key to pass python object via the SIGNAL/SLOT mechanism of PyQt
                                 #note PyQt_PyObject
                                 self.emit(QtCore.SIGNAL("itemLoaded(PyQt_PyObject)"),data2plot)
@@ -1029,7 +1048,7 @@ class DataPlot(object):
         self.normFactor = self.y.max()
         self.interpOk = False
         self.mzPad = None#this value is used for peak picking and is equal to the number of points in 0.5 mz units
-        #self.interpData()
+        self.interpData()
 
 
     def getEICVal(self, mzLo, mzHi, type = 'sum'):#the other type is 'max'
@@ -1075,7 +1094,7 @@ class DataPlot(object):
             meanMZ = N.round(newX.mean())
             crit = (newX >= meanMZ) & (newX <= (meanMZ+0.5))#CHECK ME
             self.mzPad = len(N.where(crit)[0])
-            print "MZ Pad", self.mzPad
+#            print "MZ Pad", self.mzPad
 
             self.x = newX
             self.y = SF.normalize(newY)
