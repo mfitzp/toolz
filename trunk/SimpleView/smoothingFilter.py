@@ -2,7 +2,7 @@
 #import wx
 import os
 
-from pylab import *
+#from pylab import *
 import numpy as N
 
 #######################
