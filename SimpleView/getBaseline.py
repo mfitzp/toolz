@@ -1,6 +1,6 @@
 
 from scipy.signal import cspline1d, cspline1d_eval
-import matplotlib.pylab as P
+#import matplotlib.pylab as P
 
 #from scipy.interpolate import interp1d
 import time

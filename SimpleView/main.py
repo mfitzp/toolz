@@ -348,6 +348,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             curData.plot(curAx, pColor = self.plotColor)#, labelPks = False)
 
     def plotByIndex(self, plotIndex=None,  multiPlot = False):
+        curDataName = None
         if self.loadOk:
             curAx = self.plotWidget.canvas.ax
             curAx.cla()
