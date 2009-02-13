@@ -34,7 +34,7 @@ def cwtMS(Y, scales, sampleScale = 1.0, wlet = 'Mexican Hat', maxClip = 1000., s
     try:
         if staticThresh != None:
             yIndex = N.where(Y>=staticThresh)[0]#find elements below static thresh
-            print "Y Index Max", yIndex[-1]
+#            print "Y Index Max", yIndex[-1]
             ans = W.cwt_a(SF.roundLen(Y[0:yIndex[-1]]), scales, sampling_scale = sampleScale)#, wavelet = wlet)
         else:
             ans = W.cwt_a(Y, scales, sampling_scale = sampleScale)#, wavelet = wlet)
@@ -89,7 +89,7 @@ def getCWTPeaks(scaledCWT, X, Y, noiseEst, minSNR = 3,\
                     if normRow[m] >= noiseEst[m]:
                         cwtPeakLoc.append([m,i])
 
-            print "Zero Crossing", time.clock()-t3
+#            print "Zero Crossing", time.clock()-t3
 
 
     cwtPeakLoc = N.array(cwtPeakLoc)

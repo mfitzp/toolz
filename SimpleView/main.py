@@ -11,10 +11,6 @@ Load a single file?
 make miniFingerprint
     show FP window for a given group, and table
 
-implement static cutoff-- need to add for GUI
-
-batch Peak Pick and Write to File
-
 PCA after peak pick
 
 implement TreeView???
@@ -59,10 +55,11 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
         self.setupVars()
         self.readThread = LoadThread()
-        self.findPeakThread = FindPeaksThread()
+        self.FPT = FindPeaksThread()
         self.initConnections()
         self.setupGUI()
         self.setupPlot()
+        self.layoutStatusBar()
 
 
     def initConnections(self):
@@ -87,9 +84,15 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.findPeakAction = QtGui.QAction("Find Peaks",  self)
         self.specListWidget.addAction(self.findPeakAction)
 
+        self.selectAllAction = QtGui.QAction("Select All",  self)
+        self.specListWidget.addAction(self.selectAllAction)
+
         self.saveCSVAction = QtGui.QAction("Save to CSV",  self)
         self.saveCSVAction.setShortcut("Ctrl+Alt+S")
         self.plotWidget.addAction(self.saveCSVAction)
+
+        self.savePksAction = QtGui.QAction("Save Peak List",  self)
+        self.specListWidget.addAction(self.savePksAction)
 
         self.actionAutoScale = QtGui.QAction("AutoScale",  self)#self.MainWindow)
         self.actionAutoScale.setShortcut("Ctrl+A")
@@ -131,13 +134,46 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         QtCore.QObject.connect(self.getEIC_Btn, QtCore.SIGNAL("clicked()"), self.fetchEIC)
 
         QtCore.QObject.connect(self.findPeakAction,QtCore.SIGNAL("triggered()"),self.findPeaks)
+        QtCore.QObject.connect(self.savePksAction,QtCore.SIGNAL("triggered()"),self.savePeaks)
+        QtCore.QObject.connect(self.selectAllAction,QtCore.SIGNAL("triggered()"),self.selectAllLoaded)
+
+
+
+        QtCore.QObject.connect(self.FPT, QtCore.SIGNAL("progress(int)"), self.threadProgress)
+        QtCore.QObject.connect(self.FPT, QtCore.SIGNAL("finished(bool)"), self.PFTFinished)
+
+
 
         self.useDefaultScale_CB.nextCheckState()
 
+    def selectAllLoaded(self):
+        self.ignoreSignal = True
+        self.specListWidget.selectAll()
+        self.ignoreSignal = False
+
+
+    def PFTFinished(self, finishedBool):
+        self.setStatusLabel("Peak Fitting Completed!")
+        self.resetProgressBar()
+
+    def savePeaks(self):
+        selectItems = self.specListWidget.selectedItems()
+        #curRow
+        if len(selectItems) > 0:
+            itemRows = []
+            for item in selectItems:
+                curRow = self.specListWidget.indexFromItem(item).row()
+                curDataName = self.dataList[curRow]
+                curData = self.dataDict[curDataName]
+                curData.savePkList()
+
+
+
+
     def autoscale_plot(self):
-        print "Cur Group", self.curGroup
-        print "Group list", self.groupList
-        print "Num Groups", self.numGroups
+#        print "Cur Group", self.curGroup
+#        print "Group list", self.groupList
+#        print "Num Groups", self.numGroups
 
         curAx = self.plotWidget.canvas.ax
         #self.toolbar.home() #implements the classic return to home
@@ -245,14 +281,17 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             self.updateGUI()
 
     def specListSelect(self, widgetItem=None):
-        selectItems = self.specListWidget.selectedItems()
-        #curRow
-        if len(selectItems) > 0:
-            self.multiPlotIndex = []#reset indexes to plot
-            for item in selectItems:
-                self.multiPlotIndex.append(self.specListWidget.indexFromItem(item).row())
+        if self.ignoreSignal:
+            return
+        else:
+            selectItems = self.specListWidget.selectedItems()
+            #curRow
+            if len(selectItems) > 0:
+                self.multiPlotIndex = []#reset indexes to plot
+                for item in selectItems:
+                    self.multiPlotIndex.append(self.specListWidget.indexFromItem(item).row())
 
-            self.plotByIndex(multiPlot = True)
+                self.plotByIndex(multiPlot = True)
 
 
     def updatePlotIndex(self):
@@ -437,13 +476,15 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             self.scalesTable.setItem(i,0,newitem)
 
     def setupPeakPick(self):
-        self.staticThresh = 100
+        self.progressMax = 0
+        self.staticThresh = self.staticCutoff_SB.value()
         self.noiseSplitFactor = self.noiseFactor_SB.value()#default 10
         self.snrNoiseEst = self.snrNoiseEst_SB.value()#default 3
         self.minRows = self.minRow_SB.value()#default 1
         self.minClust = self.minClust_SB.value() #default is 4
         self.rowThresh = self.waveletRowTol_SB.value()
         self.dbScanEPS = self.dbscanEPS_SB.value() #default -1 for auto calculate
+        self.autoSavePks = self.autoSavePkList_CB.isChecked()
         if self.dbScanEPS == -1:
             self.dbScanEPS = None#this is done because if no EPS is passed autocalculate is enabled.
         self.scales = None
@@ -455,7 +496,8 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                           'dbscanEPS':None,
                           'noiseFactor':None,
                           'rowThresh':None,
-                          'staticThresh':None
+                          'staticThresh':None,
+                          'autoSave':None
                           }
 
 
@@ -467,7 +509,8 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.dbScanEPS = self.dbscanEPS_SB.value() #default -1 for auto calculate
         self.rowThresh = self.waveletRowTol_SB.value()
         self.noiseSplitFactor = self.noiseFactor_SB.value()
-        self.staticThresh = 100
+        self.staticThresh = self.staticCutoff_SB.value()
+        self.autoSavePks = self.autoSavePkList_CB.isChecked()
         if self.dbScanEPS == -1:
             self.dbScanEPS = None#this is done because if no EPS is passed autocalculate is enabled.
         if self.scales != None:
@@ -479,12 +522,16 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                                   'rowThresh':self.rowThresh,
                                   'noiseFactor':self.noiseSplitFactor,
                                   'dbscanEPS':self.dbScanEPS,
-                                  'staticThresh':self.staticThresh
+                                  'staticThresh':self.staticThresh,
+                                  'autoSave':self.autoSavePks
                                   }
 #                for # need to get dataItemList self.dataDict[curDataName]
                 print self.peakParams
-                if self.findPeakThread.updateThread(dataItemList, self.peakParams):
-                    self.findPeakThread.start()
+                if self.FPT.updateThread(dataItemList, self.peakParams):
+                    self.toggleProgressBar(True)
+                    self.progressMax = N.float(len(dataItemList))
+                    print self.progressMax
+                    self.FPT.start()
 
 
     def findPeaks(self):
@@ -499,6 +546,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                 dataItemList.append(curData)
                 #peakPickIndex.append(self.specListWidget.indexFromItem(item).row())
             self.startPeakThread(dataItemList)
+            return True
 #            print "Find Peaks"
 
 
@@ -610,9 +658,9 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                 self.groupList.append(self.numGroups)
                 self.numGroups+=1
 
-                print "Cur Group", self.curGroup
-                print "Group list", self.groupList
-                print "Num Groups", self.numGroups
+#                print "Cur Group", self.curGroup
+#                print "Group list", self.groupList
+#                print "Num Groups", self.numGroups
 
             elif startDir != None:
                 return QtGui.QMessageBox.warning(self, "No Data Found",  "Check selected folder, does it have any data?")
@@ -697,6 +745,9 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         ct_menu.addAction(self.removeAction)
         ct_menu.addAction(self.topHatAction)
         ct_menu.addAction(self.findPeakAction)
+        ct_menu.addAction(self.savePksAction)
+        ct_menu.addSeparator()
+        ct_menu.addAction(self.selectAllAction)
         ct_menu.exec_(self.specListWidget.mapToGlobal(point))
 
     def __mplContext__(self, point):
@@ -878,6 +929,49 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
         ###############################
 
+##########Begin Ashoka Progress Bar Code....
+    def layoutStatusBar(self):
+        self.progressBar = QtGui.QProgressBar()
+        self.statusLabel = QtGui.QLabel("Ready")
+#        self.statusLabel.setMinimumSize(self.statusLabel.sizeHint())
+        self.statusLabel.setAlignment(QtCore.Qt.AlignLeft)
+        self.statusLabel.setText("Ready")
+        self.statusbar.addPermanentWidget(self.statusLabel)
+        self.progressBar.setTextVisible(False)
+        self.progressBar.setRange(0,100)
+        self.progressBar.setValue(0)
+        self.progressBar.setFixedHeight(15)
+        self.progressBar.setFixedWidth(100)
+        self.toggleProgressBar(False)
+        self.statusbar.addWidget(self.progressBar)
+
+    def resetProgressBar(self):
+        self.setProgressValue(0)
+        self.toggleProgressBar(False)
+
+    def setStatusLabel(self, text):
+        self.statusLabel.setText(text)
+
+    def showStatusMessage(self, text, stime):
+        self.statusBar().showMessage(text, stime)
+
+    def setProgressValue(self, val):
+        self.progressBar.setValue(val)
+
+    def toggleProgressBar(self, toggle):
+        self.progressBar.setVisible(toggle)
+
+    def threadProgress(self, progVal):
+        print progVal
+        self.setStatusLabel("Fitting Peaks, %d spectra completed." % progVal)
+        newVal = int(100*(progVal/self.progressMax))
+        self.setProgressValue(newVal)
+#        self.AddMessage2Tab("  %d Iterations Done." % progVal)
+#        print progVal, newVal, self.progressMax
+
+    def PCTProgress(self, updateString):
+        self.setStatusLabel(updateString)
+
 
 class LoadThread(QtCore.QThread):
         def __init__(self, parent = None):
@@ -913,6 +1007,8 @@ class LoadThread(QtCore.QThread):
                                 print 'Empty spectrum: ', item
 
                             self.numItems -=1
+
+
                 else:
                     while not self.finished and self.numItems > 0:
                         for item in self.loadList:
@@ -937,6 +1033,7 @@ class FindPeaksThread(QtCore.QThread):
             self.ready = False
             self.cwt = None
             self.numItems = None
+            self.iteration = 0
             self.dataItemList = None
 #            self.dataItemDict = None
             self.dataList = None
@@ -949,10 +1046,12 @@ class FindPeaksThread(QtCore.QThread):
                               'dbscanEPS':None,
                               'rowThresh':None,
                               'noiseFactor':None,
-                              'staticThresh':None
+                              'staticThresh':None,
+                              'autoSave':None
                               }
 
         def updateThread(self, dataItemList, paramDict):
+            self.iteration = 0
             self.dataItemList = dataItemList
 #            self.dataItemDict = dataItemDict
             self.numItems = len(self.dataItemList)
@@ -965,11 +1064,13 @@ class FindPeaksThread(QtCore.QThread):
             self.rowThresh = self.paramDict['rowThresh']
             self.EPS = self.paramDict['dbscanEPS']
             self.staticThresh = self.paramDict['staticThresh']
+            self.autoSave = self.paramDict['autoSave']
             self.ready = True
             return True
 
         def run(self):
             if self.ready:
+                t0 = time.clock()
                 for dataItem in self.dataItemList:
 #                    dataItem = self.dataItemDict[name]
 
@@ -1002,9 +1103,12 @@ class FindPeaksThread(QtCore.QThread):
                                 if len(peakLoc) != 0:
                                     print peakLoc
                                     dataItem.setPeakList(N.column_stack((peakLoc,peakInt)))
+                                    dataItem.pkListOk = boolAns
+                                    if self.autoSave:
+                                        dataItem.savePkList()
                                     self.numItems += -1
-                                    self.emit(QtCore.SIGNAL("peakPickUpdate(PyQt_PyObject)"),self.numItems)
-    #                                ax.vlines(peakLoc, 0, 100, 'r', linestyle = 'dashed', alpha = 0.5)
+                                    self.iteration +=1
+                                    self.emit(QtCore.SIGNAL("progress(int)"),self.iteration)
                                     self.ready = False
                             else:
                                 print "Error with Peak Picking"
@@ -1017,6 +1121,9 @@ class FindPeaksThread(QtCore.QThread):
                     else:
                         print "Error with CWT"
                         self.emit(QtCore.SIGNAL("returnPeakList(PyQt_PyObject)"),None)
+                #emit finished signal
+                print "Peak Find Time: ", time.clock()-t0
+                self.emit(QtCore.SIGNAL("finished(bool)"),True)
 
 #                    while not self.finished and self.numItems > 0:
 #                        for item in self.loadList:
@@ -1060,6 +1167,26 @@ class DataPlot(object):
         self.interpOk = False
         self.mzPad = None#this value is used for peak picking and is equal to the number of points in 0.5 mz units
         self.interpData()
+
+
+    def savePkList(self):
+        if self.pkListOk:
+            t1 = time.clock()
+#            print self.name
+            #print self.path
+            try:
+                peakListFN = self.path.replace('.mzXML', '_pks.csv')
+                N.savetxt(peakListFN, self.peakList, delimiter = ',', fmt='%.4f')
+                print "Peak List Save Time: ", time.clock()-t1
+            except:
+                exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+                traceback.print_exception(exceptionType, exceptionValue, exceptionTraceback, file=sys.stdout)
+    #                    print 'Error saving figure data'
+                errorMsg = "Sorry: %s\n\n:%s\n%s\n"%(exceptionType, exceptionValue, exceptionTraceback)
+    #            return QtGui.QMessageBox.warning(self, "Interpolation Error", errorMsg)
+                print errorMsg
+                print self.path
+
 
 
     def getEICVal(self, mzLo, mzHi, type = 'sum'):#the other type is 'max'
@@ -1183,6 +1310,8 @@ class DataPlot(object):
 #    else:
 #        errMsg = 'axis must be set before attempting to plot'
 #        raise errMsg
+
+
 
 if __name__ == "__main__":
     import sys
