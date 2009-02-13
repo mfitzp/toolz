@@ -23,13 +23,27 @@ import supportFunc as SF
 #except:
 #    print "Pysco not installed, try easy_install psyco at your command prompt"
 
-def cwtMS(Y, scales, sampleScale = 1.0, wlet = 'Mexican Hat', maxClip = 1000.):
+def cwtMS(Y, scales, sampleScale = 1.0, wlet = 'Mexican Hat', maxClip = 1000., staticThresh = None):
     '''
     Y is the INTERPOLATED intensity array from a mass spectrum.
     interpolation IS necessary especially for TOF data as the m/z domain is non-linear.
+    Static Thresh is to screen out the noise and is optional.  This is done for two reasons
+    1: for speed
+    2: so the algorithm doesn't try to pick peaks that are statistically meaningless from a MS perspective
     '''
     try:
-        ans = W.cwt_a(Y, scales, sampling_scale = sampleScale)#, wavelet = wlet)
+        if staticThresh != None:
+            yIndex = N.where(Y>=staticThresh)[0]#find elements below static thresh
+            print "Y Index Max", yIndex[-1]
+            ans = W.cwt_a(SF.roundLen(Y[0:yIndex[-1]]), scales, sampling_scale = sampleScale)#, wavelet = wlet)
+        else:
+            ans = W.cwt_a(Y, scales, sampling_scale = sampleScale)#, wavelet = wlet)
+            #Y[yIndex] *= 0.#set them to 0
+#            yTemp = Y[0:yIndex[-1]]#clip length of Y to make it faster
+#            yTemp = SF.roundLen(yTemp)
+#            print "Clipped", len(yTemp)
+
+
         scaledCWT=N.clip(N.fabs(ans.real), 0., maxClip)#N.fabs get the element-wise absolute values
         return scaledCWT
     except:
@@ -43,7 +57,7 @@ def cwtMS(Y, scales, sampleScale = 1.0, wlet = 'Mexican Hat', maxClip = 1000.):
 
 def getCWTPeaks(scaledCWT, X, Y, noiseEst, minSNR = 3,\
                 minRow = 3, minClust = 4, rowThresh = 3,\
-                pntPad = 50, staticThresh = 0.2, minNoiseEst = 0.025,
+                pntPad = 50, staticThresh = 0.1, minNoiseEst = 0.025,
                 EPS = None):
     '''
     returns: N.array(peakLoc), cwtPeakLoc, cClass, boolean
@@ -97,7 +111,7 @@ def getCWTPeaks(scaledCWT, X, Y, noiseEst, minSNR = 3,\
 
     print 'Peak Cluster: ', time.clock() - t3
     if boolAns:
-        print cClass.max(), len(tType), Eps
+#        print cClass.max(), len(tType), Eps
         i = cClass.max()
         for m in xrange(int(i)+1):
             ind = N.where(m == cClass)
@@ -194,7 +208,7 @@ if __name__ == "__main__":
     s = N.append(s1, s2)
 #    print type(s), s
 
-    cwt = cwtMS(ms, s1)
+    cwt = cwtMS(ms, s1, staticThresh = 2)
 
     print "wavelet complete"
     print time.clock()-t1, 'seconds'

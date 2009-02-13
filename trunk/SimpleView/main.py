@@ -11,7 +11,9 @@ Load a single file?
 make miniFingerprint
     show FP window for a given group, and table
 
-implement static cutoff--question use raw counts or normalized counts....
+implement static cutoff-- need to add for GUI
+
+batch Peak Pick and Write to File
 
 PCA after peak pick
 
@@ -435,6 +437,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             self.scalesTable.setItem(i,0,newitem)
 
     def setupPeakPick(self):
+        self.staticThresh = 100
         self.noiseSplitFactor = self.noiseFactor_SB.value()#default 10
         self.snrNoiseEst = self.snrNoiseEst_SB.value()#default 3
         self.minRows = self.minRow_SB.value()#default 1
@@ -464,6 +467,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.dbScanEPS = self.dbscanEPS_SB.value() #default -1 for auto calculate
         self.rowThresh = self.waveletRowTol_SB.value()
         self.noiseSplitFactor = self.noiseFactor_SB.value()
+        self.staticThresh = 100
         if self.dbScanEPS == -1:
             self.dbScanEPS = None#this is done because if no EPS is passed autocalculate is enabled.
         if self.scales != None:
@@ -475,7 +479,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                                   'rowThresh':self.rowThresh,
                                   'noiseFactor':self.noiseSplitFactor,
                                   'dbscanEPS':self.dbScanEPS,
-                                  'staticThresh':None
+                                  'staticThresh':self.staticThresh
                                   }
 #                for # need to get dataItemList self.dataDict[curDataName]
                 print self.peakParams
@@ -960,6 +964,7 @@ class FindPeaksThread(QtCore.QThread):
             self.minClust = self.paramDict['minClust']
             self.rowThresh = self.paramDict['rowThresh']
             self.EPS = self.paramDict['dbscanEPS']
+            self.staticThresh = self.paramDict['staticThresh']
             self.ready = True
             return True
 
@@ -967,17 +972,23 @@ class FindPeaksThread(QtCore.QThread):
             if self.ready:
                 for dataItem in self.dataItemList:
 #                    dataItem = self.dataItemDict[name]
-                    self.cwt = CWT.cwtMS(dataItem.y, self.scales)
+
+#                    print "Length of Y: ", len(dataItem.y)
+#                    print "Thresh: ", self.staticThresh/dataItem.normFactor, dataItem.normFactor, self.staticThresh
+                    self.cwt = CWT.cwtMS(dataItem.y, self.scales, staticThresh = (self.staticThresh/dataItem.normFactor)*100)
                     if self.cwt != None:
                         if not dataItem.noiseOK:
                             numSegs = len(dataItem.x)/self.noiseFactor
                             dataItem.getNoise(numSegs,self.minSNR)
-
+                        #static Thresh is scaled for each individual spectrum and uses the normFactor or maximum of the
+                        # Y values to compute where a spectrum should be cut
                         cwtResult = CWT.getCWTPeaks(self.cwt, dataItem.x, dataItem.y,\
                                                     dataItem.noiseEst, minSNR = self.minSNR,\
                                                     minRow = self.minRow, minClust =self.minClust,\
                                                     rowThresh = self.rowThresh, pntPad = dataItem.mzPad,\
-                                                    minNoiseEst = dataItem.minNoiseEst, EPS = self.EPS)
+                                                    minNoiseEst = dataItem.minNoiseEst,\
+                                                    staticThresh = self.staticThresh/dataItem.normFactor,\
+                                                    EPS = self.EPS)
 
 #                        def getCWTPeaks(scaledCWT, X, Y, noiseEst, minSNR = 3,\
 #                                        minRow = 3, minClust = 4, rowThresh = 3,\
@@ -1093,6 +1104,8 @@ class DataPlot(object):
 
             meanMZ = N.round(newX.mean())
             crit = (newX >= meanMZ) & (newX <= (meanMZ+0.5))#CHECK ME
+            #MZ Pad is a windowing factor to find the maximum of the peak rather than a valley.
+            #This also must be done after interpolation
             self.mzPad = len(N.where(crit)[0])
 #            print "MZ Pad", self.mzPad
 
