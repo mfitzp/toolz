@@ -58,7 +58,7 @@ def cwtMS(Y, scales, sampleScale = 1.0, wlet = 'Mexican Hat', maxClip = 1000., s
 def getCWTPeaks(scaledCWT, X, Y, noiseEst, minSNR = 3,\
                 minRow = 3, minClust = 4, rowThresh = 3,\
                 pntPad = 50, staticThresh = 0.1, minNoiseEst = 0.025,
-                EPS = None):
+                EPS = None, debug = False):
     '''
     returns: N.array(peakLoc), cwtPeakLoc, cClass, boolean
 
@@ -70,6 +70,15 @@ def getCWTPeaks(scaledCWT, X, Y, noiseEst, minSNR = 3,\
     too many peaks and the algorithm will choke.  Keep in mind that the first few rows of
     the CWT are highly correlated with high frequency noise--you don't want them anyway.
     '''
+    if debug:
+        print "Length X,Y ", len(X), len(Y)
+        print "Noise Est: ", noiseEst
+        print "minSNR: ", minSNR
+        print "rowThresh: ", rowThresh
+        print "pntPad: ", pntPad
+        print "staticThresh: ", staticThresh
+        print "minNoiseEst", minNoiseEst
+        print "EPS: ", EPS
     cwtPeakLoc = []
     print "Shape: ",scaledCWT.shape
 
@@ -210,7 +219,7 @@ if __name__ == "__main__":
     print len(s1), len(s2)
     s = N.append(s1, s2)
 #    print type(s), s
-#CWT.cwtMS(dataItem.y, self.scales, staticThresh = (self.staticThresh/dataItem.normFactor)*100)
+    #CWT.cwtMS(dataItem.y, self.scales, staticThresh = (self.staticThresh/dataItem.normFactor)*100)
     cwt = cwtMS(ms, s1, staticThresh = (2/msMax)*100)
 
     print "wavelet complete"
@@ -262,7 +271,7 @@ if __name__ == "__main__":
         stdNoise = cwt[0].std()
         mNoise = 3*stdNoise+mNoise
     print "minNoiseEst: ", minNoise
-    peakLoc, peakInt, cwtPeakLoc, cClass, boolAns = getCWTPeaks(cwt, x, ms, noiseEst, minRow = 1, minClust = 4, minNoiseEst = minNoise, EPS = None)
+    peakLoc, peakInt, cwtPeakLoc, cClass, boolAns = getCWTPeaks(cwt, x, ms, noiseEst, minRow = 1, minClust = 4, minNoiseEst = minNoise, EPS = None, debug = True)
     if boolAns:
         ax2.plot(cwtPeakLoc[:,0], cwtPeakLoc[:,1], 'oy', ms = 3, alpha = 0.4)
         if cClass != None:
