@@ -184,10 +184,13 @@ if __name__ == "__main__":
         'BSA_XY_Full.csv'
         'J15.csv'
         'Tryptone.csv'
-        ms = P.load('A1.csv', delimiter = ',')
+        ms = P.load('OLD_MS.csv', delimiter = ',')
+
 #        x = ms[:,0]
 #        ms = ms[:,0]
         x, ms = interpolate_spectrum(ms)
+        msMax = ms.max()
+        print "MS Max", msMax
         ms = SF.normalize(SF.topHat(ms, 0.01))
         ms = SF.roundLen(ms)
         start = 0#63000
@@ -207,8 +210,8 @@ if __name__ == "__main__":
     print len(s1), len(s2)
     s = N.append(s1, s2)
 #    print type(s), s
-
-    cwt = cwtMS(ms, s1, staticThresh = 2)
+#CWT.cwtMS(dataItem.y, self.scales, staticThresh = (self.staticThresh/dataItem.normFactor)*100)
+    cwt = cwtMS(ms, s1, staticThresh = (2/msMax)*100)
 
     print "wavelet complete"
     print time.clock()-t1, 'seconds'
@@ -222,7 +225,7 @@ if __name__ == "__main__":
     im=ax2.imshow(cwt,vmax = intMax, cmap=P.cm.jet,aspect='auto')
     #ax2.plot(plotcwt[1], alpha = 0.7, label = '1')
     #ax.plot(plotcwt[0], alpha = 0.7, label = '0')
-    minSNR = 15
+    minSNR = 5
     numSegs = len(ms)/10
     #numSegs = len(ms)/10#int(len(plotcwt[0])*0.0015)
 #    if numSegs < 1000 and len(ms) > 1000:
