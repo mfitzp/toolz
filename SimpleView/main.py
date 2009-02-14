@@ -154,6 +154,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
     def PFTFinished(self, finishedBool):
         self.setStatusLabel("Peak Fitting Completed!")
+        self.specListSelect()
         self.resetProgressBar()
 
     def savePeaks(self):
