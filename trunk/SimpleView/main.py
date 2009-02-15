@@ -142,9 +142,18 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         QtCore.QObject.connect(self.FPT, QtCore.SIGNAL("progress(int)"), self.threadProgress)
         QtCore.QObject.connect(self.FPT, QtCore.SIGNAL("finished(bool)"), self.PFTFinished)
 
+        QtCore.QObject.connect(self.groupTreeWidget, QtCore.SIGNAL("itemClicked(QTreeWidgetItem *,int)"), self.treeItemSelected)
+
 
 
         self.useDefaultScale_CB.nextCheckState()
+
+    def treeItemSelected(self, item = None, index = None):
+        if item != None:
+            print index
+            print item.text(index)
+            if item.parent() != None:
+                print item.parent().text(index)
 
     def selectAllLoaded(self):
         self.ignoreSignal = True
@@ -173,7 +182,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
     def autoscale_plot(self):
 #        print "Cur Group", self.curGroup
-#        print "Group list", self.groupList
+#        print "Group list", self.groupIndex
 #        print "Num Groups", self.numGroups
 
         curAx = self.plotWidget.canvas.ax
@@ -557,6 +566,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.curDir = os.getcwd()
         self.curDataName = None
         #these are used to keep track of what group is loaded
+        self.groupIndex = []
         self.groupList = []
         self.curGroup = None
         self.numGroups = 0
@@ -590,6 +600,8 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             if self.dataDict.has_key(loadedItem.path):
                 pass
             else:
+
+
                 #self.dataList.append(loadedItem.name)
                 self.dataList.append(loadedItem.path)
                 #color handler
@@ -599,7 +611,14 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                 tempItem.setToolTip(loadedItem.path)
                 #self.specListWidget.addItem(loadedItem.name)
                 self.specListWidget.addItem(tempItem)
-            #self.dataDict[loadedItem.name] = loadedItem
+
+                #TreeWidget Handling
+                tempTWI = QtGui.QTreeWidgetItem()
+                tempTWI.setText(0, loadedItem.name)
+                tempTWI.setTextColor(0, tempColor)
+                tempTWI.setToolTip(0, loadedItem.path)
+                self.curTreeItem.addChild(tempTWI)
+
             self.dataDict[loadedItem.path] = loadedItem
 
         self.numSpec = len(self.dataDict)
@@ -657,12 +676,21 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                     self.readThread.start()
 
                 self.curGroup = self.numGroups
-                self.groupList.append(self.numGroups)
+                self.curGroupName = self.curDir.split(os.path.sep)[-2]
+                self.groupIndex.append(self.numGroups)
+                self.groupList.append(self.curGroupName)
                 self.numGroups+=1
 
-#                print "Cur Group", self.curGroup
-#                print "Group list", self.groupList
-#                print "Num Groups", self.numGroups
+                self.curTreeItem = QtGui.QTreeWidgetItem(self.groupTreeWidget)
+                self.curTreeItem.setText(0,self.curGroupName)
+
+
+                print self.curDir
+
+                print "Cur Group", self.curGroup
+                print "Group Index", self.groupIndex
+                print "Group List", self.groupList
+                print "Num Groups", self.numGroups
 
             elif startDir != None:
                 return QtGui.QMessageBox.warning(self, "No Data Found",  "Check selected folder, does it have any data?")
