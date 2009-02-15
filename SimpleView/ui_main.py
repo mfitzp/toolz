@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/clowers/workspace/SimpleView/main.ui'
 #
-# Created: Sat Feb 14 16:29:27 2009
+# Created: Sun Feb 15 09:07:30 2009
 #      by: PyQt4 UI code generator 4.4.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -530,6 +530,7 @@ class Ui_MainWindow(object):
         self.hboxlayout21.addWidget(self.test2)
         self.gridLayout.addLayout(self.hboxlayout21, 0, 0, 1, 1)
         self.groupTreeWidget = QtGui.QTreeWidget(self.tab)
+        self.groupTreeWidget.setSelectionMode(QtGui.QAbstractItemView.ExtendedSelection)
         self.groupTreeWidget.setHeaderHidden(True)
         self.groupTreeWidget.setColumnCount(2)
         self.groupTreeWidget.setObjectName("groupTreeWidget")

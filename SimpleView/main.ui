@@ -1266,6 +1266,9 @@ p, li { white-space: pre-wrap; }
         </item>
         <item rowspan="2" row="0" column="1" >
          <widget class="QTreeWidget" name="groupTreeWidget" >
+          <property name="selectionMode" >
+           <enum>QAbstractItemView::ExtendedSelection</enum>
+          </property>
           <property name="sortingEnabled" >
            <bool>true</bool>
           </property>
