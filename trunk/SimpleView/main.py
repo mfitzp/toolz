@@ -16,6 +16,8 @@ PCA after peak pick
 Setup Group Class
 Group Display
 
+if peakfit is run the commit noise if it does not already exist
+
 
 '''
 ###################################
@@ -322,10 +324,10 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                     if self.invertCompCB.isChecked() and len(self.multiPlotList) == 2:
                         self._updatePlotColor_()
                         curDataName = self.multiPlotList[0]
-                        self.dataDict[curDataName].plot(curAx, pColor = self.plotColor)
+                        self.dataDict[curDataName].plot(curAx, pColor = self.plotColor, plotPks = self.plotPkListCB.isChecked())
                         self._updatePlotColor_()
                         curDataName = self.multiPlotList[1]
-                        self.dataDict[curDataName].plot(curAx, pColor = self.plotColor, invert = True)
+                        self.dataDict[curDataName].plot(curAx, pColor = self.plotColor, invert = True, plotPks = self.plotPkListCB.isChecked())
                     else:
                         for curDataName in self.multiPlotList:
                             self._updatePlotColor_()
@@ -446,12 +448,12 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         #test to see if noise has been calculated, if not do it and then plot.
         if self.plotNoiseEst_CB.isChecked():
             if curData.noiseOK:
-                curData.plot(curAx, pColor = self.plotColor, plotNoise = True)#, labelPks = False)
+                curData.plot(curAx, pColor = self.plotColor, plotNoise = True, plotPks = self.plotPkListCB.isChecked())#, labelPks = False)
             else:
                 numSegs = len(curData.x)/self.noiseFactor_SB.value()
                 minSNR = self.snrNoiseEst_SB.value()
                 curData.getNoise(numSegs,minSNR)
-                curData.plot(curAx, pColor = self.plotColor, plotNoise = True)#, labelPks = False)
+                curData.plot(curAx, pColor = self.plotColor, plotNoise = True, plotPks = self.plotPkListCB.isChecked())#, labelPks = False)
         else:
             curData.plot(curAx, pColor = self.plotColor)#, labelPks = False)
 
@@ -677,6 +679,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.ignoreSignal = False
         self.firstLoad = True
         self.labelPks = False
+        self.plotPks = False
         self.txtColor = None
         self.colorIndex = 0
         self.plotColor = None
@@ -734,9 +737,9 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         directory = QtGui.QFileDialog.getExistingDirectory(self, '', self.curDir)
         directory = str(directory)
         if directory != None:
-            self.curDir = directory
+            self.curDir = os.path.abspath(directory)
         else:
-            self.curDir = os.getcwd()
+            self.curDir = os.path.abspath(os.getcwd())
         #return directory
 
     def _updatePlotColor_(self):
@@ -776,14 +779,16 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                     self.readThread.start()
 
                 self.curGroup = self.numGroups
-                self.curGroupName = self.curDir.split(os.path.sep)[-2]
+                if sys.platform == 'win32':
+                    self.curGroupName = self.curDir.split(os.path.sep)[-1]
+                else:
+                    self.curGroupName = self.curDir.split(os.path.sep)[-2]
                 self.groupIndex.append(self.numGroups)
                 self.groupList.append(self.curGroupName)
                 self.numGroups+=1
 
                 self.curTreeItem = QtGui.QTreeWidgetItem(self.groupTreeWidget)
                 self.curTreeItem.setText(0,self.curGroupName)
-
 
                 print self.curDir
 
@@ -1405,7 +1410,7 @@ class DataPlot(object):
                 self.noiseOK = True
 #                print "Get Noise Ok"
 
-    def plot(self,  mplAxInstance, pColor = 'r', scatter = False, labelPks = False, invert = False, plotNoise = False):
+    def plot(self,  mplAxInstance, pColor = 'r', scatter = False, labelPks = False, plotPks = True, invert = False, plotNoise = False):
         #if self.axSet:
         self.labelPks = labelPks
         self.mplAx = mplAxInstance
@@ -1424,7 +1429,7 @@ class DataPlot(object):
                         self.mplAx.plot(self.x,  self.noiseEst,  label = '_nolegend_',  color = 'r', alpha = 0.6)
                     else:
                         print "No noise to plot"
-                if self.pkListOk:
+                if self.pkListOk and plotPks:
                     try:
                         if type(self.peakList[0]) == N.ndarray:
                             self.mplAx.vlines(self.peakList[:, 0], 0, self.peakList[:, 1]*1.15*self.plotModVal,  color = 'r',  label = '_nolegend_')
