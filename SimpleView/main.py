@@ -13,7 +13,8 @@ make miniFingerprint
 
 PCA after peak pick
 
-implement TreeView???
+Setup Group Class
+Group Display
 
 
 '''
@@ -76,23 +77,23 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.plotWidget.addAction(self.labelAction)
 
         self.removeAction = QtGui.QAction("Remove File(s)",  self)
-        self.specListWidget.addAction(self.removeAction)
+        self.groupTreeWidget.addAction(self.removeAction)
 
         self.topHatAction = QtGui.QAction("Apply TopHat",  self)
-        self.specListWidget.addAction(self.topHatAction)
+        self.groupTreeWidget.addAction(self.topHatAction)
 
         self.findPeakAction = QtGui.QAction("Find Peaks",  self)
-        self.specListWidget.addAction(self.findPeakAction)
+        self.groupTreeWidget.addAction(self.findPeakAction)
 
         self.selectAllAction = QtGui.QAction("Select All",  self)
-        self.specListWidget.addAction(self.selectAllAction)
+        self.groupTreeWidget.addAction(self.selectAllAction)
 
         self.saveCSVAction = QtGui.QAction("Save to CSV",  self)
         self.saveCSVAction.setShortcut("Ctrl+Alt+S")
         self.plotWidget.addAction(self.saveCSVAction)
 
         self.savePksAction = QtGui.QAction("Save Peak List",  self)
-        self.specListWidget.addAction(self.savePksAction)
+        self.groupTreeWidget.addAction(self.savePksAction)
 
         self.actionAutoScale = QtGui.QAction("AutoScale",  self)#self.MainWindow)
         self.actionAutoScale.setShortcut("Ctrl+A")
@@ -110,13 +111,13 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         QtCore.QObject.connect(self.labelAction, QtCore.SIGNAL("triggered()"),self.labelPeak)
         #QtCore.QObject.connect(self.mpl2ClipAction, QtCore.SIGNAL("triggered()"),self.mpl2Clip)
 
-        QtCore.QObject.connect(self.indexSpinBox, QtCore.SIGNAL("valueChanged (int)"), self.updatePlot)
+#        QtCore.QObject.connect(self.indexSpinBox, QtCore.SIGNAL("valueChanged (int)"), self.updatePlot)
         QtCore.QObject.connect(self.readThread, QtCore.SIGNAL("itemLoaded(PyQt_PyObject)"), self.updateGUI)
         QtCore.QObject.connect(self.readThread, QtCore.SIGNAL("terminated()"), self.updateGUI)
         QtCore.QObject.connect(self.readThread, QtCore.SIGNAL("finished()"), self.updateGUI)
         QtCore.QObject.connect(self.loadDirBtn, QtCore.SIGNAL("clicked()"), self.initDataList)
         QtCore.QObject.connect(self.action_Open,QtCore.SIGNAL("triggered()"),self.initDataList)
-        QtCore.QObject.connect(self.specListWidget, QtCore.SIGNAL("itemClicked (QListWidgetItem *)"), self.specListSelect)
+#        QtCore.QObject.connect(self.specListWidget, QtCore.SIGNAL("itemClicked (QListWidgetItem *)"), self.specListSelect)
 
         #UI Action Slots
         QtCore.QObject.connect(self.actionLabel_Peak,QtCore.SIGNAL("triggered()"),self.labelPeak)
@@ -137,10 +138,9 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         QtCore.QObject.connect(self.savePksAction,QtCore.SIGNAL("triggered()"),self.savePeaks)
         QtCore.QObject.connect(self.selectAllAction,QtCore.SIGNAL("triggered()"),self.selectAllLoaded)
 
-
-
         QtCore.QObject.connect(self.FPT, QtCore.SIGNAL("progress(int)"), self.threadProgress)
         QtCore.QObject.connect(self.FPT, QtCore.SIGNAL("finished(bool)"), self.PFTFinished)
+        QtCore.QObject.connect(self.readThread, QtCore.SIGNAL("finished(bool)"), self.readFinished)
 
 #        QtCore.QObject.connect(self.groupTreeWidget, QtCore.SIGNAL("itemClicked(QTreeWidgetItem *,int)"), self.treeItemSelected)
         QtCore.QObject.connect(self.groupTreeWidget, QtCore.SIGNAL("itemClicked(QTreeWidgetItem *,int)"), self.treeViewSelect)
@@ -158,22 +158,27 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
     def selectAllLoaded(self):
         self.ignoreSignal = True
-        self.specListWidget.selectAll()
+        self.groupTreeWidget.selectAll()
         self.ignoreSignal = False
+
+    def readFinished(self, finishedBool):
+        print "File Load Finished"
+        self.curTreeItem.sortChildren(0,QtCore.Qt.AscendingOrder)#sort column 0 in ascending order
+
 
 
     def PFTFinished(self, finishedBool):
         self.setStatusLabel("Peak Fitting Completed!")
-        self.specListSelect()
+        self.treeViewSelect()
         self.resetProgressBar()
 
     def savePeaks(self):
-        selectItems = self.specListWidget.selectedItems()
+        selectItems = self.groupTreeWidget.selectedItems()
         #curRow
         if len(selectItems) > 0:
             itemRows = []
             for item in selectItems:
-                curRow = self.specListWidget.indexFromItem(item).row()
+                curRow = self.groupTreeWidget.indexFromItem(item).row()
                 curDataName = self.dataList[curRow]
                 curData = self.dataDict[curDataName]
                 curData.savePkList()
@@ -266,29 +271,30 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             self.cursBClear()
 
     def filterSpec(self):
-        selectItems = self.specListWidget.selectedItems()
-        #curRow
+        selectItems = self.groupTreeWidget.selectedItems()
         if len(selectItems) > 0:
             for item in selectItems:
-                dataName = str(item.toolTip())
-                self.dataDict[dataName].applyTopHat()
-                #delRow = self.specListWidget.indexFromItem(item).row()
-            self.specListSelect()
+                if item.childCount() == 0:
+                    dataName = str(item.toolTip(0))
+                    self.dataDict[dataName].applyTopHat()
+                #delRow = self.groupTreeWidget.indexFromItem(item).row()
+                self.treeViewSelect()
 
     def removeFile(self):
-        selectItems = self.specListWidget.selectedItems()
-        #curRow
+#        QtGui.QTreeWidget.clear
+        selectItems = self.groupTreeWidget.selectedItems()
         if len(selectItems) > 0:
             for item in selectItems:
+                if item.childCount() == 0:
+                    parentItem = item.parent()
+                    if parentItem != None:
 
-                delRow = self.specListWidget.indexFromItem(item).row()
-                delName = str(item.toolTip())#used because the toolTip is set to the full path which is stored in the dataDict
-#                print delRow, delName
-                self.specListWidget.takeItem(delRow)
-                self.dataList.pop(delRow)
-                self.dataDict.pop(delName)
-#
-#                print item.text()
+                        delRow = parentItem.indexOfChild(item)#self.groupTreeWidget.indexFromItem(item).row()
+                        parentItem.takeChild(delRow)
+                        delName = str(item.toolTip(0))#used because the toolTip is set to the full path which is stored in the dataDict
+                        self.dataDict.pop(delName)
+                        print self.dataDict.keys()
+
             self.updateGUI()
 
     def treeViewSelect(self, widgetItem=None, index = None):
@@ -301,8 +307,8 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                 for item in selectItems:
                     if item.childCount() == 0:#test to see if the object is a leaf
                         self.multiPlotList.append(str(item.toolTip(0)))#get the toolTip which is a key to the dataDict
-
-                self.plotByList(multiPlot = True)
+                if len(self.multiPlotList)>0:
+                    self.plotByList(multiPlot = True)
 
     def plotByList(self, multiPlot = False):
         curDataName = None
@@ -356,7 +362,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
     #                    self.specNameEdit.setText(curData.path)#use dataList to get the name?
     #                    #the following makes it so the change is ignored and the plot does not update
     #                    self.ignoreSignal = True
-    #                    self.specListWidget.setCurrentRow(plotIndex)
+    #                    self.groupTreeWidget.setCurrentRow(plotIndex)
     #                    self.ignoreSignal = False
             if self.plotLegendCB.isChecked():
                 curAx.legend(axespad = 0.03, pad=0.25)
@@ -638,16 +644,17 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
 
     def findPeaks(self):
-        selectItems = self.specListWidget.selectedItems()
+        selectItems = self.groupTreeWidget.selectedItems()
         if len(selectItems) > 0:
             dataItemList = []#reset indexes to peak Pick
             for item in selectItems:
-                curRow = self.specListWidget.indexFromItem(item).row()
-                curDataName = self.dataList[curRow]
-                curData = self.dataDict[curDataName]
-#                print curData.noiseOK
-                dataItemList.append(curData)
-                #peakPickIndex.append(self.specListWidget.indexFromItem(item).row())
+                if item.childCount() == 0:
+                    curRow = self.groupTreeWidget.indexFromItem(item).row()
+                    curDataName = str(item.toolTip(0))
+                    curData = self.dataDict[curDataName]
+    #                print curData.noiseOK
+                    dataItemList.append(curData)
+                #peakPickIndex.append(self.groupTreeWidget.indexFromItem(item).row())
             self.startPeakThread(dataItemList)
             return True
 #            print "Find Peaks"
@@ -681,8 +688,8 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
     def setupGUI(self):
         self.specNameEdit.clear()
-        self.indexHSlider.setMaximum(0)
-        self.indexSpinBox.setMaximum(0)
+#        self.indexHSlider.setMaximum(0)
+#        self.indexSpinBox.setMaximum(0)
         self.initContextMenus()
 
     def updateGUI(self,  loadedItem=None):
@@ -697,16 +704,17 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                 #self.dataList.append(loadedItem.name)
                 self.dataList.append(loadedItem.path)
                 #color handler
-                tempItem = QtGui.QListWidgetItem(loadedItem.name)
-                tempColor = QtGui.QColor(self.txtColor)
-                tempItem.setTextColor(tempColor)
-                tempItem.setToolTip(loadedItem.path)
-                #self.specListWidget.addItem(loadedItem.name)
-                self.specListWidget.addItem(tempItem)
+#                tempItem = QtGui.QListWidgetItem(loadedItem.name)
+
+#                tempItem.setTextColor(tempColor)
+#                tempItem.setToolTip(loadedItem.path)
+#                #self.specListWidget.addItem(loadedItem.name)
+#                self.specListWidget.addItem(tempItem)
 
                 #TreeWidget Handling
                 tempTWI = QtGui.QTreeWidgetItem()
                 tempTWI.setText(0, loadedItem.name)
+                tempColor = QtGui.QColor(self.txtColor)
                 tempTWI.setTextColor(0, tempColor)
                 tempTWI.setToolTip(0, loadedItem.path)
                 self.curTreeItem.addChild(tempTWI)
@@ -714,13 +722,13 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             self.dataDict[loadedItem.path] = loadedItem
 
         self.numSpec = len(self.dataDict)
-        if self.numSpec == 1:
-            self.plotByIndex(0)
-            self.indexHSlider.setMaximum(self.numSpec)
-            self.indexSpinBox.setMaximum(self.numSpec)
-        else:
-            self.indexHSlider.setMaximum(self.numSpec-1)
-            self.indexSpinBox.setMaximum(self.numSpec-1)
+#        if self.numSpec == 1:
+#            self.plotByIndex(0)
+#            self.indexHSlider.setMaximum(self.numSpec)
+#            self.indexSpinBox.setMaximum(self.numSpec)
+#        else:
+#            self.indexHSlider.setMaximum(self.numSpec-1)
+#            self.indexSpinBox.setMaximum(self.numSpec-1)
 
     def _getDir_(self):
         directory = QtGui.QFileDialog.getExistingDirectory(self, '', self.curDir)
@@ -858,12 +866,12 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
     def initContextMenus(self):
         self.plotWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.plotWidget.connect(self.plotWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self.__mplContext__)
-        self.specListWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
-        self.specListWidget.connect(self.specListWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self.__listContext__)
+        self.groupTreeWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.groupTreeWidget.connect(self.groupTreeWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self.__treeContext__)
 
     def __treeContext__(self, point):
         '''Create a menu for the file list widget'''
-        ct_menu = QtGui.QMenu("List Menu", self.groupTreeWidget)
+        ct_menu = QtGui.QMenu("Tree Menu", self.groupTreeWidget)
         ct_menu.addAction(self.removeAction)
         ct_menu.addAction(self.topHatAction)
         ct_menu.addAction(self.findPeakAction)
@@ -1141,6 +1149,7 @@ class LoadThread(QtCore.QThread):
                                 print 'Empty spectrum: ', item
 
                             self.numItems -=1
+                        self.emit(QtCore.SIGNAL("finished(bool)"),True)
 
 
                 else:

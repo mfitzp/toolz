@@ -27,37 +27,13 @@
        <attribute name="title" >
         <string>Plot</string>
        </attribute>
-       <layout class="QVBoxLayout" >
-        <item>
-         <widget class="QSplitter" name="splitter" >
-          <property name="orientation" >
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <widget class="QWidget" name="layoutWidget" >
-           <layout class="QVBoxLayout" >
+       <layout class="QGridLayout" name="gridLayout_2" >
+        <item row="0" column="0" >
+         <layout class="QHBoxLayout" name="horizontalLayout_2" >
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout" >
             <item>
-             <layout class="QHBoxLayout" >
-              <item>
-               <widget class="QLabel" name="label" >
-                <property name="text" >
-                 <string>Spectrum Index:</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QSlider" name="indexHSlider" >
-                <property name="orientation" >
-                 <enum>Qt::Horizontal</enum>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QSpinBox" name="indexSpinBox" />
-              </item>
-             </layout>
-            </item>
-            <item>
-             <layout class="QHBoxLayout" >
+             <layout class="QHBoxLayout" name="horizontalLayout" >
               <item>
                <widget class="QLabel" name="label_2" >
                 <property name="text" >
@@ -78,21 +54,42 @@
              <widget class="MPL_Widget" native="1" name="plotWidget" />
             </item>
            </layout>
-          </widget>
-          <widget class="QListWidget" name="specListWidget" >
-           <property name="maximumSize" >
-            <size>
-             <width>200</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="selectionMode" >
-            <enum>QAbstractItemView::ExtendedSelection</enum>
-           </property>
-          </widget>
-         </widget>
+          </item>
+          <item>
+           <widget class="QTreeWidget" name="groupTreeWidget" >
+            <property name="maximumSize" >
+             <size>
+              <width>200</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="selectionMode" >
+             <enum>QAbstractItemView::ExtendedSelection</enum>
+            </property>
+            <property name="sortingEnabled" >
+             <bool>true</bool>
+            </property>
+            <property name="headerHidden" >
+             <bool>true</bool>
+            </property>
+            <property name="columnCount" >
+             <number>2</number>
+            </property>
+            <column>
+             <property name="text" >
+              <string>1</string>
+             </property>
+            </column>
+            <column>
+             <property name="text" >
+              <string>2</string>
+             </property>
+            </column>
+           </widget>
+          </item>
+         </layout>
         </item>
-        <item>
+        <item row="1" column="0" >
          <layout class="QGridLayout" >
           <property name="horizontalSpacing" >
            <number>3</number>
@@ -1265,7 +1262,7 @@ p, li { white-space: pre-wrap; }
          </layout>
         </item>
         <item rowspan="2" row="0" column="1" >
-         <widget class="QTreeWidget" name="groupTreeWidget" >
+         <widget class="QTreeWidget" name="groupTreeWidget1" >
           <property name="selectionMode" >
            <enum>QAbstractItemView::ExtendedSelection</enum>
           </property>
@@ -1309,6 +1306,7 @@ p, li { white-space: pre-wrap; }
      </widget>
     </item>
    </layout>
+   <zorder>tabWidget</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar" >
    <property name="geometry" >
@@ -1417,38 +1415,5 @@ p, li { white-space: pre-wrap; }
  <resources>
   <include location="icons.qrc" />
  </resources>
- <connections>
-  <connection>
-   <sender>indexHSlider</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>indexSpinBox</receiver>
-   <slot>setValue(int)</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>728</x>
-     <y>34</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>756</x>
-     <y>32</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>indexSpinBox</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>indexHSlider</receiver>
-   <slot>setValue(int)</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>762</x>
-     <y>47</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>734</x>
-     <y>47</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>
