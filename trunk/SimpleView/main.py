@@ -142,7 +142,8 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         QtCore.QObject.connect(self.FPT, QtCore.SIGNAL("progress(int)"), self.threadProgress)
         QtCore.QObject.connect(self.FPT, QtCore.SIGNAL("finished(bool)"), self.PFTFinished)
 
-        QtCore.QObject.connect(self.groupTreeWidget, QtCore.SIGNAL("itemClicked(QTreeWidgetItem *,int)"), self.treeItemSelected)
+#        QtCore.QObject.connect(self.groupTreeWidget, QtCore.SIGNAL("itemClicked(QTreeWidgetItem *,int)"), self.treeItemSelected)
+        QtCore.QObject.connect(self.groupTreeWidget, QtCore.SIGNAL("itemClicked(QTreeWidgetItem *,int)"), self.treeViewSelect)
 
 
 
@@ -289,6 +290,97 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 #
 #                print item.text()
             self.updateGUI()
+
+    def treeViewSelect(self, widgetItem=None, index = None):
+        if self.ignoreSignal:
+            return
+        else:
+            selectItems = self.groupTreeWidget.selectedItems()
+            if len(selectItems) > 0:
+                self.multiPlotList = []#reset indexes to plot
+                for item in selectItems:
+                    if item.childCount() == 0:#test to see if the object is a leaf
+                        self.multiPlotList.append(str(item.toolTip(0)))#get the toolTip which is a key to the dataDict
+
+                self.plotByList(multiPlot = True)
+
+    def plotByList(self, multiPlot = False):
+        curDataName = None
+        if self.loadOk:
+            curAx = self.plotWidget.canvas.ax
+            curAx.cla()
+            self.labelPks = self.plotPkListCB.isChecked()
+            self.plotColorIndex = 0
+            if multiPlot:
+                if len(self.multiPlotList)>0:
+                    if self.invertCompCB.isChecked() and len(self.multiPlotList) == 2:
+                        self._updatePlotColor_()
+                        curDataName = self.multiPlotList[0]
+                        self.dataDict[curDataName].plot(curAx, pColor = self.plotColor)
+                        self._updatePlotColor_()
+                        curDataName = self.multiPlotList[1]
+                        self.dataDict[curDataName].plot(curAx, pColor = self.plotColor, invert = True)
+                    else:
+                        for curDataName in self.multiPlotList:
+                            self._updatePlotColor_()
+                            curData = self.dataDict[curDataName]
+                            self.plotCurData(curData, curAx)
+    #                        curData.plot(curAx, pColor = self.plotColor)
+                        #the following makes it so the change is ignored and the plot does not update
+                        self.specNameEdit.setText(curData.path)#use dataList to get the name?
+    #                    self.ignoreSignal = True
+    #                    self.indexHSlider.setValue(i)
+    #                    self.indexSpinBox.setValue(i)
+    #                    self.ignoreSignal = False
+    #            else:
+    #                if plotIndex == None:
+    #                    plotIndex = self.initIndex
+    #                if plotIndex == self.indexSpinBox.value():#this is just to see if the user is still sliding things around before updating plot
+    #                    self._updatePlotColor_()
+    #                    curDataName = self.dataList[plotIndex]
+    #                    curData = self.dataDict[curDataName]
+    #                    #test to see if noise has been calculated, if not do it and then plot.
+    ##                    print self.plotNoiseEst_CB.isChecked()
+    #                    self.plotCurData(curData, curAx)
+
+    #                    if self.plotNoiseEst_CB.isChecked():
+    #                        if curData.noiseOK:
+    #                            curData.plot(curAx, pColor = self.plotColor, plotNoise = True)#, labelPks = False)
+    #                        else:
+    #                            numSegs = len(curData.x)/self.noiseFactor_SB.value()
+    #                            minSNR = self.snrNoiseEst_SB.value()
+    #                            curData.getNoise(numSegs,minSNR)
+    #                            curData.plot(curAx, pColor = self.plotColor, plotNoise = True)#, labelPks = False)
+    #                    else:
+    #                        curData.plot(curAx, pColor = self.plotColor)#, labelPks = False)
+    #                    self.specNameEdit.setText(curData.path)#use dataList to get the name?
+    #                    #the following makes it so the change is ignored and the plot does not update
+    #                    self.ignoreSignal = True
+    #                    self.specListWidget.setCurrentRow(plotIndex)
+    #                    self.ignoreSignal = False
+            if self.plotLegendCB.isChecked():
+                curAx.legend(axespad = 0.03, pad=0.25)
+            try:
+                minX = curAx.get_lines()[0].get_xdata()[0]
+                self.addPickers(minX)
+            except:
+                errorMsg = "Sorry: %s\n\n:%s\n"%(sys.exc_type, sys.exc_value)
+                print errorMsg
+                self.addPickers()
+            #used so that the scales will not be wonkey
+            if multiPlot:
+                if self.invertCompCB.isChecked() and len(self.multiPlotList) == 2:
+                    pass
+                else:
+                    curAx.set_ylim(ymin = 0)
+            else:
+                curAx.set_ylim(ymin = 0)
+            self.curDataName = curDataName
+            self.plotWidget.canvas.format_labels()
+            self.plotWidget.canvas.draw()
+            self.plotWidget.setFocus()#this is needed so that you can use CTRL+Z to zoom
+
+
 
     def specListSelect(self, widgetItem=None):
         if self.ignoreSignal:
@@ -768,6 +860,18 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.plotWidget.connect(self.plotWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self.__mplContext__)
         self.specListWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.specListWidget.connect(self.specListWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self.__listContext__)
+
+    def __treeContext__(self, point):
+        '''Create a menu for the file list widget'''
+        ct_menu = QtGui.QMenu("List Menu", self.groupTreeWidget)
+        ct_menu.addAction(self.removeAction)
+        ct_menu.addAction(self.topHatAction)
+        ct_menu.addAction(self.findPeakAction)
+        ct_menu.addAction(self.savePksAction)
+        ct_menu.addSeparator()
+#        ct_menu.addAction(self.selectAllAction)
+        ct_menu.exec_(self.groupTreeWidget.mapToGlobal(point))
+
 
     def __listContext__(self, point):
         '''Create a menu for the file list widget'''
