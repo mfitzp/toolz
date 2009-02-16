@@ -43,7 +43,7 @@ Dependencies include scipy, numpy, and hcluster. Note the function now returns a
 stating whether the process was a successfully completed.
 
 '''
-import sys
+import sys,traceback
 
 import numpy as N
 import hcluster as H
@@ -82,6 +82,12 @@ def dbscan(x,k,Eps = None, distMethod = 'euclidean'):
             dist = H.squareform(H.pdist(x, distMethod))
             distOK = True
         except:
+            exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+            traceback.print_exception(exceptionType, exceptionValue, exceptionTraceback, file=sys.stdout)
+    #                    print 'Error saving figure data'
+            errorMsg ="An error occured with the Distance Matrix calculation\n"
+            errorMsg = "Sorry: %s\n\n:%s\n%s\n"%(exceptionType, exceptionValue, exceptionTraceback)
+            print errorMsg
             distOK = False
 
         x = N.column_stack((N.arange(0,m),x))
@@ -141,7 +147,7 @@ def dbscan(x,k,Eps = None, distMethod = 'euclidean'):
                         no+=1
         else:#this is the very slow way but gets around the memory problem.
             print "The Input Array is too big and a squareform cannot be computed"
-            raise "MemoryErro"
+            raise "MemoryError"
 #            for i in xrange(m):
 #                if touched[i] == 0:
 #                    ob = x[i]
@@ -192,8 +198,11 @@ def dbscan(x,k,Eps = None, distMethod = 'euclidean'):
         tType[i1] = -1
         return cClass, tType, Eps, True
     except:
+        exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+        traceback.print_exception(exceptionType, exceptionValue, exceptionTraceback, file=sys.stdout)
+#                    print 'Error saving figure data'
         errorMsg ="An error occured with the DBSCAN Algorithm\n"
-        errorMsg += "Sorry: %s\n\n%s\n"%(sys.exc_type, sys.exc_value)
+        errorMsg = "Sorry: %s\n\n:%s\n%s\n"%(exceptionType, exceptionValue, exceptionTraceback)
         print errorMsg
 
         return None,None,None,False
@@ -217,7 +226,7 @@ def epsilon(x,k):
         m,n = x.shape
     else:
         m = x.shape[0]
-        n == 1
+        n = 1
     prod = N.prod(x.max(axis = 0)-x.min(axis = 0))
     gamma = special.gamma(0.5*n+1)
     denom = (m*N.sqrt(N.pi**n))
