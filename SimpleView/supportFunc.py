@@ -45,6 +45,28 @@ def interpolate_spectrum_XY(X, Y): #data array contains two columns. x & y, resp
     y_new=f(x_new)
     return (x_new, y_new)
 
+def flattenX(x):
+    """flatten(sequence) -> list
+
+    Returns a single, flat list which contains all elements retrieved
+    from the sequence and all recursively contained sub-sequences
+    (iterables).
+
+    Examples:
+    >>> [1, 2, [3,4], (5,6)]
+    [1, 2, [3, 4], (5, 6)]
+    >>> flatten([[[1,2,3], (42,None)], [4,5], [6], 7, MyVector(8,9,10)])
+    [1, 2, 3, 42, None, 4, 5, 6, 7, 8, 9, 10]"""
+
+    result = []
+    for el in x:
+        #if isinstance(el, (list, tuple)):
+        if hasattr(el, "__iter__") and not isinstance(el, basestring):
+            result.extend(flattenX(el))
+        else:
+            result.append(el)
+    return result
+
 #def saveCSV(self,  path):
 #    spectrum = self.data.get('spectrum')
 #    if spectrum != None:

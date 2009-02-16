@@ -393,7 +393,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             tempGroupItems.append(str(self.curTreeItem.child(i).toolTip(0)))
         self.groupDict[str(self.curTreeItem.toolTip(0))] = tempGroupItems
         self.curTreeItem.sortChildren(0,QtCore.Qt.AscendingOrder)#sort column 0 in ascending order
-        print self.groupDict
+#        print self.groupDict
 
     def selectGroups(self):
         selectItems = self.groupTreeWidget.selectedItems()
@@ -404,16 +404,16 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                 if self.groupDict.has_key(curGroupName):
                     tempItemList = self.groupDict[curGroupName]
                     if len(tempItemList)>0:
+                        tempDataDict = {}#self.dataDict.fromkeys(tempItemList)
                         for childName in tempItemList:
-                            curData = self.dataDict[childName]
-                            self._updatePlotColor_()
-                            curData.plot(curFingerPlot.mainAx, pColor = self.plotColor)
+                            tempDataDict[childName] = self.dataDict[childName]
+                        curFingerPlot.updateDataDict(tempDataDict)
 
                 print item.toolTip(0)
 
 
-
-
+            curFingerPlot.setupPlot()
+            curFingerPlot.getFPPeakList()
             curFingerPlot.show()
             self.fingerPlots.append(curFingerPlot)
 
@@ -1466,7 +1466,8 @@ class DataPlot(object):
                 self.noiseOK = True
 #                print "Get Noise Ok"
 
-    def plot(self,  mplAxInstance, pColor = 'r', scatter = False, labelPks = False, plotPks = True, invert = False, plotNoise = False):
+    def plot(self,  mplAxInstance, pColor = 'r', scatter = False, labelPks = False, plotPks = True,\
+             invert = False, plotNoise = False, usrAlpha = 1):
         #if self.axSet:
         self.labelPks = labelPks
         self.mplAx = mplAxInstance
@@ -1479,7 +1480,7 @@ class DataPlot(object):
             if scatter:
                 self.mplAx.scatter(self.x,  self.y,  label = self.name)
             else:
-                self.mplAx.plot(self.x,  self.y*self.plotModVal,  label = self.name,  picker = 5,  color = pColor)
+                self.mplAx.plot(self.x,  self.y*self.plotModVal,  label = self.name,  picker = 5,  color = pColor, alpha = usrAlpha)
                 if plotNoise:
                     if self.noiseOK:
                         self.mplAx.plot(self.x,  self.noiseEst,  label = '_nolegend_',  color = 'r', alpha = 0.6)
