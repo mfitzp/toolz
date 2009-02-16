@@ -44,11 +44,19 @@ import getBaseline as GB
 import cwtPeakPick as CWT
 
 import ui_main
+from fingerPrint import Finger_Widget
 
 COLORS = ['#297AA3','#A3293D','#3B9DCE','#293DA3','#5229A3','#8F29A3','#A3297A',
 '#7AA329','#3DA329','#29A352','#29A38F','#A38F29','#3B9DCE','#6CB6DA','#CE6C3B','#DA916C',
 '#0080FF','#0000FF','#7ABDFF','#8000FF','#FF0080','#FF0000','#FF8000','#FFFF00','#A35229','#80FF00',
 '#00FF00','#00FF80','#00FFFF','#3D9EFF','#FF9E3D','#FFBD7A']
+
+
+#        QtGui.QWidget.__init__(self, None)
+#        self.ui = ui_fingerPrint.Ui_Form()
+#        self.ui.setupUi(self)
+#        super(Finger_Widget,  self).__init__(parent)
+#        self.ui = self.setupUi(self)
 
 
 class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
@@ -72,30 +80,33 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.handleActionB = QtGui.QAction("Cursor B", self)
         self.plotWidget.addAction(self.handleActionB)
 
-        self.cursorClearAction = QtGui.QAction("Clear Cursors",  self)
+        self.cursorClearAction = QtGui.QAction("Clear Cursors", self)
         self.plotWidget.addAction(self.cursorClearAction)
 
-        self.labelAction = QtGui.QAction("Label Peak",  self)
+        self.labelAction = QtGui.QAction("Label Peak", self)
         self.plotWidget.addAction(self.labelAction)
 
-        self.removeAction = QtGui.QAction("Remove File(s)",  self)
+        self.removeAction = QtGui.QAction("Remove File(s)", self)
         self.groupTreeWidget.addAction(self.removeAction)
 
         self.topHatAction = QtGui.QAction("Apply TopHat",  self)
         self.groupTreeWidget.addAction(self.topHatAction)
 
-        self.findPeakAction = QtGui.QAction("Find Peaks",  self)
+        self.findPeakAction = QtGui.QAction("Find Peaks", self)
         self.groupTreeWidget.addAction(self.findPeakAction)
 
-        self.selectAllAction = QtGui.QAction("Select All",  self)
+        self.selectAllAction = QtGui.QAction("Select All", self)
         self.groupTreeWidget.addAction(self.selectAllAction)
 
-        self.saveCSVAction = QtGui.QAction("Save to CSV",  self)
+        self.saveCSVAction = QtGui.QAction("Save to CSV", self)
         self.saveCSVAction.setShortcut("Ctrl+Alt+S")
         self.plotWidget.addAction(self.saveCSVAction)
 
-        self.savePksAction = QtGui.QAction("Save Peak List",  self)
+        self.savePksAction = QtGui.QAction("Save Peak List", self)
         self.groupTreeWidget.addAction(self.savePksAction)
+
+        self.selectGroupAction = QtGui.QAction("Process Group(s)", self)
+        self.groupTreeWidget.addAction(self.selectGroupAction)
 
         self.actionAutoScale = QtGui.QAction("AutoScale",  self)#self.MainWindow)
         self.actionAutoScale.setShortcut("Ctrl+A")
@@ -111,7 +122,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         QtCore.QObject.connect(self.handleActionB, QtCore.SIGNAL("triggered()"),self.SelectPointsB)
         QtCore.QObject.connect(self.cursorClearAction, QtCore.SIGNAL("triggered()"),self.cursorClear)
         QtCore.QObject.connect(self.labelAction, QtCore.SIGNAL("triggered()"),self.labelPeak)
-        #QtCore.QObject.connect(self.mpl2ClipAction, QtCore.SIGNAL("triggered()"),self.mpl2Clip)
+#        QtCore.QObject.connect(self.mpl2ClipAction, QtCore.SIGNAL("triggered()"),self.mpl2Clip)
 
 #        QtCore.QObject.connect(self.indexSpinBox, QtCore.SIGNAL("valueChanged (int)"), self.updatePlot)
         QtCore.QObject.connect(self.readThread, QtCore.SIGNAL("itemLoaded(PyQt_PyObject)"), self.updateGUI)
@@ -146,17 +157,228 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
 #        QtCore.QObject.connect(self.groupTreeWidget, QtCore.SIGNAL("itemClicked(QTreeWidgetItem *,int)"), self.treeItemSelected)
         QtCore.QObject.connect(self.groupTreeWidget, QtCore.SIGNAL("itemClicked(QTreeWidgetItem *,int)"), self.treeViewSelect)
+        QtCore.QObject.connect(self.selectGroupAction,QtCore.SIGNAL("triggered()"),self.selectGroups)
 
 
 
         self.useDefaultScale_CB.nextCheckState()
 
-    def treeItemSelected(self, item = None, index = None):
-        if item != None:
-            print index
-            print item.text(index)
-            if item.parent() != None:
-                print item.parent().text(index)
+    def setupVars(self):
+        self.dirList = []
+        self.curDir = os.getcwd()
+        self.curDataName = None
+        #these are used to keep track of what group is loaded
+        self.groupIndex = []
+        self.groupList = []
+        self.groupDict = {}
+        self.curGroup = None
+        self.numGroups = 0
+        #########################
+        self.dataList = []
+        self.dataDict = {}
+        self.loadOk = False
+        self.multiPlotIndex = []
+        self.ignoreSignal = False
+        self.firstLoad = True
+        self.labelPks = False
+        self.plotPks = False
+        self.txtColor = None
+        self.colorIndex = 0
+        self.plotColor = None
+        self.plotColorIndex = 0
+        self.curEIC = None
+        self.eicPlots = []
+        self.fingerPlots = []
+        self.peakParams = None
+        self.setupPeakPick()
+
+    def setupGUI(self):
+        self.specNameEdit.clear()
+        self.groupTreeWidget.setHeaderLabel('Spectra')
+#        self.indexHSlider.setMaximum(0)
+#        self.indexSpinBox.setMaximum(0)
+        self.initContextMenus()
+
+    def updateGUI(self,  loadedItem=None):
+        if loadedItem != None:
+            #So that duplicate files are not loaded into the dataDict
+            #if self.dataDict.has_key(loadedItem.name):
+            if self.dataDict.has_key(loadedItem.path):
+                pass
+            else:
+                #self.dataList.append(loadedItem.name)
+                self.dataList.append(loadedItem.path)
+                #color handler
+#                tempItem = QtGui.QListWidgetItem(loadedItem.name)
+
+#                tempItem.setTextColor(tempColor)
+#                tempItem.setToolTip(loadedItem.path)
+#                #self.specListWidget.addItem(loadedItem.name)
+#                self.specListWidget.addItem(tempItem)
+
+                #TreeWidget Handling
+                tempTWI = QtGui.QTreeWidgetItem()
+                tempTWI.setText(0, loadedItem.name)
+                tempColor = QtGui.QColor(self.txtColor)
+                tempTWI.setTextColor(0, tempColor)
+                tempTWI.setToolTip(0, loadedItem.path)
+                self.curTreeItem.addChild(tempTWI)
+
+            self.dataDict[loadedItem.path] = loadedItem
+
+        self.numSpec = len(self.dataDict)
+#        if self.numSpec == 1:
+#            self.plotByIndex(0)
+#            self.indexHSlider.setMaximum(self.numSpec)
+#            self.indexSpinBox.setMaximum(self.numSpec)
+#        else:
+#            self.indexHSlider.setMaximum(self.numSpec-1)
+#            self.indexSpinBox.setMaximum(self.numSpec-1)
+
+    def _getDir_(self):
+        directory = QtGui.QFileDialog.getExistingDirectory(self, '', self.curDir)
+        directory = str(directory)
+        if directory != None:
+            self.curDir = os.path.abspath(directory)
+        else:
+            self.curDir = os.path.abspath(os.getcwd())
+        #return directory
+
+    def _updatePlotColor_(self):
+        if self.plotColorIndex%len(COLORS) == 0:
+            self.plotColorIndex = 0
+            self.plotColor = COLORS[self.plotColorIndex]
+            self.plotColorIndex +=1
+        else:
+            self.plotColor = COLORS[self.plotColorIndex]
+            self.plotColorIndex +=1
+
+    def initContextMenus(self):
+        self.plotWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.plotWidget.connect(self.plotWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self.__mplContext__)
+        self.groupTreeWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.groupTreeWidget.connect(self.groupTreeWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self.__treeContext__)
+
+    def __treeContext__(self, point):
+        '''Create a menu for the file list widget'''
+        ct_menu = QtGui.QMenu("Tree Menu", self.groupTreeWidget)
+        ct_menu.addAction(self.removeAction)
+        ct_menu.addAction(self.topHatAction)
+        ct_menu.addAction(self.findPeakAction)
+        ct_menu.addAction(self.savePksAction)
+        ct_menu.addSeparator()
+        selectItems = self.groupTreeWidget.selectedItems()
+        groupBool = True
+        if len(selectItems) > 0:
+            for item in selectItems:
+                if item.childCount() == 0:#test to see if any of the items selected are leaves
+                    groupBool = False
+        if groupBool:
+            ct_menu.addAction(self.selectGroupAction)
+#        ct_menu.addAction(self.selectAllAction)
+        ct_menu.exec_(self.groupTreeWidget.mapToGlobal(point))
+
+
+    def __listContext__(self, point):
+        '''Create a menu for the file list widget'''
+        ct_menu = QtGui.QMenu("List Menu", self.specListWidget)
+        ct_menu.addAction(self.removeAction)
+        ct_menu.addAction(self.topHatAction)
+        ct_menu.addAction(self.findPeakAction)
+        ct_menu.addAction(self.savePksAction)
+        ct_menu.addSeparator()
+        ct_menu.addAction(self.selectAllAction)
+        ct_menu.exec_(self.specListWidget.mapToGlobal(point))
+
+    def __mplContext__(self, point):
+        '''Create a menu for the mpl widget'''
+        ct_menu = QtGui.QMenu("Plot Menu", self.plotWidget)
+#        ct_menu.addAction(self.ui.actionZoom)
+#        ct_menu.addAction(self.ui.actionAutoScale)
+#        ct_menu.addSeparator()
+#        ct_menu.addAction(self.ui.actionPlotOptions)
+#        ct_menu.addSeparator()
+#        ct_menu.addAction(self.ui.actionClear)
+#        ct_menu.addSeparator()
+        ct_menu.addAction(self.handleActionA)
+        ct_menu.addAction(self.handleActionB)
+        ct_menu.addAction(self.cursorClearAction)
+#        ct_menu.addSeparator()
+        ct_menu.addAction(self.labelAction)
+#        ct_menu.addSeparator()
+        ct_menu.addAction(self.plotWidget.mpl2ClipAction)
+        ct_menu.exec_(self.plotWidget.mapToGlobal(point))
+
+    def initDataList(self):
+        #handles loading of new group.
+        #####Text Color Handler
+        if self.colorIndex%len(COLORS) == 0:
+            self.colorIndex = 0
+            self.txtColor = COLORS[self.colorIndex]
+            self.colorIndex +=1
+        else:
+            self.txtColor = COLORS[self.colorIndex]
+            self.colorIndex +=1
+
+        if not self.firstLoad:
+            #reinitialize GUI and spectrumList
+            self.setupGUI()
+        if self.loadmzXMLCB.isChecked():
+            loadLIFT = self.excludeLIFTCB.isChecked()
+            self._getDir_()
+            dirList, startDir = LmzXML(self.curDir, excludeLIFT = loadLIFT)
+            dirList.sort()
+            if len(dirList) !=0:
+                print dirList
+                self.dirList = dirList
+                self.loadOk = True
+                self.firstLoad = False
+                if self.readThread.updateThread(dirList,  loadmzXML = True):
+                    self.readThread.start()
+
+                self.curGroup = self.numGroups
+                if sys.platform == 'win32':
+                    self.curGroupName = self.curDir.split(os.path.sep)[-1]
+                else:
+                    self.curGroupName = self.curDir.split(os.path.sep)[-1]#[-2]
+                self.groupIndex.append(self.numGroups)
+                self.groupList.append(self.curGroupName)
+                self.numGroups+=1
+
+                self.curTreeItem = QtGui.QTreeWidgetItem(self.groupTreeWidget)
+                self.curTreeItem.setText(0,self.curGroupName)
+                self.curTreeItem.setToolTip(0, self.curDir)
+
+#                print self.curDir
+
+#                print "Cur Group", self.curGroup
+#                print "Group Index", self.groupIndex
+#                print "Group List", self.groupList
+#                print "Num Groups", self.numGroups
+
+            elif startDir != None:
+                return QtGui.QMessageBox.warning(self, "No Data Found",  "Check selected folder, does it have any data?")
+
+        else:
+            self._getDir_()
+            dirList, startDir = LFid(self.curDir)
+            dirList.sort()
+            if len(dirList) !=0:
+                self.dirList = dirList
+                self.loadOk = True
+                self.firstLoad = False
+                if self.readThread.updateThread(dirList):
+                    self.readThread.start()
+            elif startDir != None:
+                return QtGui.QMessageBox.warning(self, "No Data Found",  "Check selected folder, does it have any data?")
+
+
+#    def treeItemSelected(self, item = None, index = None):
+#        if item != None:
+#            print index
+#            print item.text(index)
+#            if item.parent() != None:
+#                print item.parent().text(index)
 
     def selectAllLoaded(self):
         self.ignoreSignal = True
@@ -165,14 +387,132 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
     def readFinished(self, finishedBool):
         print "File Load Finished"
+#        self.curTreeItem.sortChildren(0,QtCore.Qt.AscendingOrder)#sort column 0 in ascending order
+        tempGroupItems = []#the temporary list to contain the names of each file in the group
+        for i in xrange(self.curTreeItem.childCount()):
+            tempGroupItems.append(str(self.curTreeItem.child(i).toolTip(0)))
+        self.groupDict[str(self.curTreeItem.toolTip(0))] = tempGroupItems
         self.curTreeItem.sortChildren(0,QtCore.Qt.AscendingOrder)#sort column 0 in ascending order
+        print self.groupDict
+
+    def selectGroups(self):
+        selectItems = self.groupTreeWidget.selectedItems()
+        if len(selectItems) > 0:
+            curFingerPlot = Finger_Widget()
+            for item in selectItems:
+                curGroupName = str(item.toolTip(0))
+                if self.groupDict.has_key(curGroupName):
+                    tempItemList = self.groupDict[curGroupName]
+                    if len(tempItemList)>0:
+                        for childName in tempItemList:
+                            curData = self.dataDict[childName]
+                            self._updatePlotColor_()
+                            curData.plot(curFingerPlot.mainAx, pColor = self.plotColor)
+
+                print item.toolTip(0)
 
 
+
+
+            curFingerPlot.show()
+            self.fingerPlots.append(curFingerPlot)
 
     def PFTFinished(self, finishedBool):
         self.setStatusLabel("Peak Fitting Completed!")
         self.treeViewSelect()
         self.resetProgressBar()
+
+    def treeViewSelect(self, widgetItem=None, index = None):
+        if self.ignoreSignal:
+            return
+        else:
+            selectItems = self.groupTreeWidget.selectedItems()
+            if len(selectItems) > 0:
+                self.multiPlotList = []#reset indexes to plot
+                for item in selectItems:
+                    if item.childCount() == 0:#test to see if the object is a leaf
+                        self.multiPlotList.append(str(item.toolTip(0)))#get the toolTip which is a key to the dataDict
+                if len(self.multiPlotList)>0:
+                    self.plotByList(multiPlot = True)
+
+    def plotByList(self, multiPlot = False):
+        curDataName = None
+        if self.loadOk:
+            curAx = self.plotWidget.canvas.ax
+            curAx.cla()
+            self.labelPks = self.plotPkListCB.isChecked()
+            self.plotColorIndex = 0
+            if multiPlot:
+                if len(self.multiPlotList)>0:
+                    if self.invertCompCB.isChecked() and len(self.multiPlotList) == 2:
+                        self._updatePlotColor_()
+                        curDataName = self.multiPlotList[0]
+                        self.dataDict[curDataName].plot(curAx, pColor = self.plotColor, plotPks = self.plotPkListCB.isChecked())
+                        self._updatePlotColor_()
+                        curDataName = self.multiPlotList[1]
+                        self.dataDict[curDataName].plot(curAx, pColor = self.plotColor, invert = True, plotPks = self.plotPkListCB.isChecked())
+                    else:
+                        for curDataName in self.multiPlotList:
+                            self._updatePlotColor_()
+                            curData = self.dataDict[curDataName]
+                            self.plotCurData(curData, curAx)
+    #                        curData.plot(curAx, pColor = self.plotColor)
+                        #the following makes it so the change is ignored and the plot does not update
+                        self.specNameEdit.setText(curData.path)#use dataList to get the name?
+    #                    self.ignoreSignal = True
+    #                    self.indexHSlider.setValue(i)
+    #                    self.indexSpinBox.setValue(i)
+    #                    self.ignoreSignal = False
+    #            else:
+    #                if plotIndex == None:
+    #                    plotIndex = self.initIndex
+    #                if plotIndex == self.indexSpinBox.value():#this is just to see if the user is still sliding things around before updating plot
+    #                    self._updatePlotColor_()
+    #                    curDataName = self.dataList[plotIndex]
+    #                    curData = self.dataDict[curDataName]
+    #                    #test to see if noise has been calculated, if not do it and then plot.
+    ##                    print self.plotNoiseEst_CB.isChecked()
+    #                    self.plotCurData(curData, curAx)
+
+    #                    if self.plotNoiseEst_CB.isChecked():
+    #                        if curData.noiseOK:
+    #                            curData.plot(curAx, pColor = self.plotColor, plotNoise = True)#, labelPks = False)
+    #                        else:
+    #                            numSegs = len(curData.x)/self.noiseFactor_SB.value()
+    #                            minSNR = self.snrNoiseEst_SB.value()
+    #                            curData.getNoise(numSegs,minSNR)
+    #                            curData.plot(curAx, pColor = self.plotColor, plotNoise = True)#, labelPks = False)
+    #                    else:
+    #                        curData.plot(curAx, pColor = self.plotColor)#, labelPks = False)
+    #                    self.specNameEdit.setText(curData.path)#use dataList to get the name?
+    #                    #the following makes it so the change is ignored and the plot does not update
+    #                    self.ignoreSignal = True
+    #                    self.groupTreeWidget.setCurrentRow(plotIndex)
+    #                    self.ignoreSignal = False
+            if self.plotLegendCB.isChecked():
+                curAx.legend(axespad = 0.03, pad=0.25)
+            try:
+                minX = curAx.get_lines()[0].get_xdata()[0]
+                self.addPickers(minX)
+            except:
+                errorMsg = "Sorry: %s\n\n:%s\n"%(sys.exc_type, sys.exc_value)
+                print errorMsg
+                self.addPickers()
+            #used so that the scales will not be wonkey
+            if multiPlot:
+                if self.invertCompCB.isChecked() and len(self.multiPlotList) == 2:
+                    pass
+                else:
+                    curAx.set_ylim(ymin = 0)
+            else:
+                curAx.set_ylim(ymin = 0)
+            self.curDataName = curDataName
+            self.plotWidget.canvas.format_labels()
+            self.plotWidget.canvas.draw()
+            self.plotWidget.setFocus()#this is needed so that you can use CTRL+Z to zoom
+
+
+
 
     def savePeaks(self):
         selectItems = self.groupTreeWidget.selectedItems()
@@ -184,9 +524,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                 curDataName = self.dataList[curRow]
                 curData = self.dataDict[curDataName]
                 curData.savePkList()
-
-
-
 
     def autoscale_plot(self):
 #        print "Cur Group", self.curGroup
@@ -298,97 +635,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                         print self.dataDict.keys()
 
             self.updateGUI()
-
-    def treeViewSelect(self, widgetItem=None, index = None):
-        if self.ignoreSignal:
-            return
-        else:
-            selectItems = self.groupTreeWidget.selectedItems()
-            if len(selectItems) > 0:
-                self.multiPlotList = []#reset indexes to plot
-                for item in selectItems:
-                    if item.childCount() == 0:#test to see if the object is a leaf
-                        self.multiPlotList.append(str(item.toolTip(0)))#get the toolTip which is a key to the dataDict
-                if len(self.multiPlotList)>0:
-                    self.plotByList(multiPlot = True)
-
-    def plotByList(self, multiPlot = False):
-        curDataName = None
-        if self.loadOk:
-            curAx = self.plotWidget.canvas.ax
-            curAx.cla()
-            self.labelPks = self.plotPkListCB.isChecked()
-            self.plotColorIndex = 0
-            if multiPlot:
-                if len(self.multiPlotList)>0:
-                    if self.invertCompCB.isChecked() and len(self.multiPlotList) == 2:
-                        self._updatePlotColor_()
-                        curDataName = self.multiPlotList[0]
-                        self.dataDict[curDataName].plot(curAx, pColor = self.plotColor, plotPks = self.plotPkListCB.isChecked())
-                        self._updatePlotColor_()
-                        curDataName = self.multiPlotList[1]
-                        self.dataDict[curDataName].plot(curAx, pColor = self.plotColor, invert = True, plotPks = self.plotPkListCB.isChecked())
-                    else:
-                        for curDataName in self.multiPlotList:
-                            self._updatePlotColor_()
-                            curData = self.dataDict[curDataName]
-                            self.plotCurData(curData, curAx)
-    #                        curData.plot(curAx, pColor = self.plotColor)
-                        #the following makes it so the change is ignored and the plot does not update
-                        self.specNameEdit.setText(curData.path)#use dataList to get the name?
-    #                    self.ignoreSignal = True
-    #                    self.indexHSlider.setValue(i)
-    #                    self.indexSpinBox.setValue(i)
-    #                    self.ignoreSignal = False
-    #            else:
-    #                if plotIndex == None:
-    #                    plotIndex = self.initIndex
-    #                if plotIndex == self.indexSpinBox.value():#this is just to see if the user is still sliding things around before updating plot
-    #                    self._updatePlotColor_()
-    #                    curDataName = self.dataList[plotIndex]
-    #                    curData = self.dataDict[curDataName]
-    #                    #test to see if noise has been calculated, if not do it and then plot.
-    ##                    print self.plotNoiseEst_CB.isChecked()
-    #                    self.plotCurData(curData, curAx)
-
-    #                    if self.plotNoiseEst_CB.isChecked():
-    #                        if curData.noiseOK:
-    #                            curData.plot(curAx, pColor = self.plotColor, plotNoise = True)#, labelPks = False)
-    #                        else:
-    #                            numSegs = len(curData.x)/self.noiseFactor_SB.value()
-    #                            minSNR = self.snrNoiseEst_SB.value()
-    #                            curData.getNoise(numSegs,minSNR)
-    #                            curData.plot(curAx, pColor = self.plotColor, plotNoise = True)#, labelPks = False)
-    #                    else:
-    #                        curData.plot(curAx, pColor = self.plotColor)#, labelPks = False)
-    #                    self.specNameEdit.setText(curData.path)#use dataList to get the name?
-    #                    #the following makes it so the change is ignored and the plot does not update
-    #                    self.ignoreSignal = True
-    #                    self.groupTreeWidget.setCurrentRow(plotIndex)
-    #                    self.ignoreSignal = False
-            if self.plotLegendCB.isChecked():
-                curAx.legend(axespad = 0.03, pad=0.25)
-            try:
-                minX = curAx.get_lines()[0].get_xdata()[0]
-                self.addPickers(minX)
-            except:
-                errorMsg = "Sorry: %s\n\n:%s\n"%(sys.exc_type, sys.exc_value)
-                print errorMsg
-                self.addPickers()
-            #used so that the scales will not be wonkey
-            if multiPlot:
-                if self.invertCompCB.isChecked() and len(self.multiPlotList) == 2:
-                    pass
-                else:
-                    curAx.set_ylim(ymin = 0)
-            else:
-                curAx.set_ylim(ymin = 0)
-            self.curDataName = curDataName
-            self.plotWidget.canvas.format_labels()
-            self.plotWidget.canvas.draw()
-            self.plotWidget.setFocus()#this is needed so that you can use CTRL+Z to zoom
-
-
 
     def specListSelect(self, widgetItem=None):
         if self.ignoreSignal:
@@ -662,156 +908,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 #            print "Find Peaks"
 
 
-    def setupVars(self):
-        self.dirList = []
-        self.curDir = os.getcwd()
-        self.curDataName = None
-        #these are used to keep track of what group is loaded
-        self.groupIndex = []
-        self.groupList = []
-        self.curGroup = None
-        self.numGroups = 0
-        #########################
-        self.dataList = []
-        self.dataDict = {}
-        self.loadOk = False
-        self.multiPlotIndex = []
-        self.ignoreSignal = False
-        self.firstLoad = True
-        self.labelPks = False
-        self.plotPks = False
-        self.txtColor = None
-        self.colorIndex = 0
-        self.plotColor = None
-        self.plotColorIndex = 0
-        self.curEIC = None
-        self.eicPlots = []
-        self.peakParams = None
-        self.setupPeakPick()
-
-    def setupGUI(self):
-        self.specNameEdit.clear()
-#        self.indexHSlider.setMaximum(0)
-#        self.indexSpinBox.setMaximum(0)
-        self.initContextMenus()
-
-    def updateGUI(self,  loadedItem=None):
-        if loadedItem != None:
-            #So that duplicate files are not loaded into the dataDict
-            #if self.dataDict.has_key(loadedItem.name):
-            if self.dataDict.has_key(loadedItem.path):
-                pass
-            else:
-
-
-                #self.dataList.append(loadedItem.name)
-                self.dataList.append(loadedItem.path)
-                #color handler
-#                tempItem = QtGui.QListWidgetItem(loadedItem.name)
-
-#                tempItem.setTextColor(tempColor)
-#                tempItem.setToolTip(loadedItem.path)
-#                #self.specListWidget.addItem(loadedItem.name)
-#                self.specListWidget.addItem(tempItem)
-
-                #TreeWidget Handling
-                tempTWI = QtGui.QTreeWidgetItem()
-                tempTWI.setText(0, loadedItem.name)
-                tempColor = QtGui.QColor(self.txtColor)
-                tempTWI.setTextColor(0, tempColor)
-                tempTWI.setToolTip(0, loadedItem.path)
-                self.curTreeItem.addChild(tempTWI)
-
-            self.dataDict[loadedItem.path] = loadedItem
-
-        self.numSpec = len(self.dataDict)
-#        if self.numSpec == 1:
-#            self.plotByIndex(0)
-#            self.indexHSlider.setMaximum(self.numSpec)
-#            self.indexSpinBox.setMaximum(self.numSpec)
-#        else:
-#            self.indexHSlider.setMaximum(self.numSpec-1)
-#            self.indexSpinBox.setMaximum(self.numSpec-1)
-
-    def _getDir_(self):
-        directory = QtGui.QFileDialog.getExistingDirectory(self, '', self.curDir)
-        directory = str(directory)
-        if directory != None:
-            self.curDir = os.path.abspath(directory)
-        else:
-            self.curDir = os.path.abspath(os.getcwd())
-        #return directory
-
-    def _updatePlotColor_(self):
-        if self.plotColorIndex%len(COLORS) == 0:
-            self.plotColorIndex = 0
-            self.plotColor = COLORS[self.plotColorIndex]
-            self.plotColorIndex +=1
-        else:
-            self.plotColor = COLORS[self.plotColorIndex]
-            self.plotColorIndex +=1
-
-
-    def initDataList(self):
-        #handles loading of new group.
-        #####Text Color Handler
-        if self.colorIndex%len(COLORS) == 0:
-            self.colorIndex = 0
-            self.txtColor = COLORS[self.colorIndex]
-            self.colorIndex +=1
-        else:
-            self.txtColor = COLORS[self.colorIndex]
-            self.colorIndex +=1
-
-        if not self.firstLoad:
-            #reinitialize GUI and spectrumList
-            self.setupGUI()
-        if self.loadmzXMLCB.isChecked():
-            loadLIFT = self.excludeLIFTCB.isChecked()
-            self._getDir_()
-            dirList, startDir = LmzXML(self.curDir, excludeLIFT = loadLIFT)
-            dirList.sort()
-            if len(dirList) !=0:
-                self.dirList = dirList
-                self.loadOk = True
-                self.firstLoad = False
-                if self.readThread.updateThread(dirList,  loadmzXML = True):
-                    self.readThread.start()
-
-                self.curGroup = self.numGroups
-                if sys.platform == 'win32':
-                    self.curGroupName = self.curDir.split(os.path.sep)[-1]
-                else:
-                    self.curGroupName = self.curDir.split(os.path.sep)[-2]
-                self.groupIndex.append(self.numGroups)
-                self.groupList.append(self.curGroupName)
-                self.numGroups+=1
-
-                self.curTreeItem = QtGui.QTreeWidgetItem(self.groupTreeWidget)
-                self.curTreeItem.setText(0,self.curGroupName)
-
-                print self.curDir
-
-                print "Cur Group", self.curGroup
-                print "Group Index", self.groupIndex
-                print "Group List", self.groupList
-                print "Num Groups", self.numGroups
-
-            elif startDir != None:
-                return QtGui.QMessageBox.warning(self, "No Data Found",  "Check selected folder, does it have any data?")
-
-        else:
-            self._getDir_()
-            dirList, startDir = LFid(self.curDir)
-            dirList.sort()
-            if len(dirList) !=0:
-                self.dirList = dirList
-                self.loadOk = True
-                self.firstLoad = False
-                if self.readThread.updateThread(dirList):
-                    self.readThread.start()
-            elif startDir != None:
-                return QtGui.QMessageBox.warning(self, "No Data Found",  "Check selected folder, does it have any data?")
 
 
 
@@ -830,6 +926,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
     ##########Saving canvas to Clipboard
     def mpl2Clip(self):
+        self.plotWidget.mpl2Clip()
         print "GO Clipboard"
 
         #########  Index Picker  ###############################
@@ -838,6 +935,13 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         if len(self.eicPlots) > 0:
             for plot in self.eicPlots:
                 if isinstance(plot, MPL_Widget):
+                    try:
+                        plot.close()
+                    except:
+                        pass
+        if len(self.fingerPlots)>0:
+            for plot in self.fingerPlots:
+                if isinstance(plot, Finger_Widget):
                     try:
                         plot.close()
                     except:
@@ -867,54 +971,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                                         ms=8, alpha=.4, color='yellow', visible=False,  label = '_nolegend_')
         self.selectHandleB,  = self.plotWidget.canvas.ax.plot([minX], [0], 's',\
                                         ms=8, alpha=.4, color='green', visible=False,  label = '_nolegend_')
-
-    def initContextMenus(self):
-        self.plotWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
-        self.plotWidget.connect(self.plotWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self.__mplContext__)
-        self.groupTreeWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
-        self.groupTreeWidget.connect(self.groupTreeWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self.__treeContext__)
-
-    def __treeContext__(self, point):
-        '''Create a menu for the file list widget'''
-        ct_menu = QtGui.QMenu("Tree Menu", self.groupTreeWidget)
-        ct_menu.addAction(self.removeAction)
-        ct_menu.addAction(self.topHatAction)
-        ct_menu.addAction(self.findPeakAction)
-        ct_menu.addAction(self.savePksAction)
-        ct_menu.addSeparator()
-#        ct_menu.addAction(self.selectAllAction)
-        ct_menu.exec_(self.groupTreeWidget.mapToGlobal(point))
-
-
-    def __listContext__(self, point):
-        '''Create a menu for the file list widget'''
-        ct_menu = QtGui.QMenu("List Menu", self.specListWidget)
-        ct_menu.addAction(self.removeAction)
-        ct_menu.addAction(self.topHatAction)
-        ct_menu.addAction(self.findPeakAction)
-        ct_menu.addAction(self.savePksAction)
-        ct_menu.addSeparator()
-        ct_menu.addAction(self.selectAllAction)
-        ct_menu.exec_(self.specListWidget.mapToGlobal(point))
-
-    def __mplContext__(self, point):
-        '''Create a menu for the mpl widget'''
-        ct_menu = QtGui.QMenu("Plot Menu", self.plotWidget)
-#        ct_menu.addAction(self.ui.actionZoom)
-#        ct_menu.addAction(self.ui.actionAutoScale)
-#        ct_menu.addSeparator()
-#        ct_menu.addAction(self.ui.actionPlotOptions)
-#        ct_menu.addSeparator()
-#        ct_menu.addAction(self.ui.actionClear)
-#        ct_menu.addSeparator()
-        ct_menu.addAction(self.handleActionA)
-        ct_menu.addAction(self.handleActionB)
-        ct_menu.addAction(self.cursorClearAction)
-#        ct_menu.addSeparator()
-        ct_menu.addAction(self.labelAction)
-#        ct_menu.addSeparator()
-        ct_menu.addAction(self.plotWidget.mpl2ClipAction)
-        ct_menu.exec_(self.plotWidget.mapToGlobal(point))
 
     def cursAClear(self):
         if self.cAOn:# and self.cAPicker:

@@ -75,7 +75,7 @@ def Load_mzXML_Folder(startDir, excludeLIFT = False,  debug = False):
             for root, dirs, files in walk(directory):
                 #for dir in dirs:
                 for file in files:
-                    if 'mzXML' in file:
+                    if '.mzXML' in file:
                         #temptime = time.clock()
                         if 'LIFT' not in file:
                             datadir = path.abspath(path.join(root, file))
@@ -100,7 +100,7 @@ def Load_mzXML_Folder(startDir, excludeLIFT = False,  debug = False):
             for root, dirs, files in walk(directory):
                 #for dir in dirs:
                 for file in files:
-                    if 'mzXML' in file:
+                    if '.mzXML' in file:
                         #temptime = time.clock()
                         datadir = path.abspath(path.join(root, file))
                         dirList.append(datadir)
