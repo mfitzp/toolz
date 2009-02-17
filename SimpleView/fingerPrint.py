@@ -31,8 +31,8 @@ class EventFilter(QtCore.QObject):
     def eventFilter(self, obj, event):
         if event.type() == QtCore.QEvent.ActivationChange:
             if self.parent().isActiveWindow():
-                print "Got the focus @ %s"%(self.parent().windowTitle)
-                self.parent().parent.testFocus()
+#                print "Got the focus @ %s"%(self.parent().windowTitle)
+#                self.parent().parent.testFocus()
                 self.parent().parent._setFPFocus_(self.parent())
         return QtCore.QObject.eventFilter(self, obj, event)
 ############################

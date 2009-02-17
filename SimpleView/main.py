@@ -164,14 +164,54 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
         QtCore.QObject.connect(self.expand_Btn, QtCore.SIGNAL("clicked()"), self.expandFPSpectra)
         QtCore.QObject.connect(self.testFocus_Btn, QtCore.SIGNAL("clicked()"), self.testFocus)
-
-        QtCore.QObject.connect(self.curFPWidget, QtCore.SIGNAL("commitFP(PyQt_PyObject)"),self.commitFP)
-
+        QtCore.QObject.connect(self.fpListWidget, QtCore.SIGNAL("itemClicked (QListWidgetItem *)"), self.fpListSelect)
 
         self.useDefaultScale_CB.nextCheckState()
 
+    def fpListSelect(self, listItem=None):
+        if listItem != None:
+            if self.fpDict.has_key(str(listItem.text())):
+                '''
+                the value of fpDict has keys of 'dataDict' and  'peakStats'
+                '''
+                self.curFPName = str(listItem.text())
+                self.curFPName_LE.setText(self.curFPName)
+                peakStatDict = self.fpDict[self.curFPName]['peakStats']
+                self.fingerPTable.clear()
+                self.fingerPTable.setSortingEnabled(False)
+                tableHeaders = ['aveLoc','stdLoc', 'aveInt', 'stdInt', 'numMembers']
+        #        for key in tableHeaders:
+        #            self.peakStatDict[key] = N.array(self.peakStatDict[key])
+
+                tableData = peakStatDict['aveLoc']
+                for key in tableHeaders[1:]:
+                    tableData = N.column_stack((tableData,peakStatDict[key]))
+        #        print tableData.shape
+                self.fingerPTable.addData(tableData)
+                self.fingerPTable.setSortingEnabled(True)
+                self.fingerPTable.setHorizontalHeaderLabels(tableHeaders)
+
+
     def commitFP(self, fpDict):
-        print fpDict
+        '''
+        Need to ask confirm overwrite in user dictionary
+        '''
+        for item in fpDict.iteritems():
+            self.fpDict[item[0]]=item[1]
+        self.addFP(fpDict)
+
+    def addFP(self, fpDict):
+        curFPName = fpDict.keys()[0]
+        matchNameList = self.fpListWidget.findItems(curFPName, QtCore.Qt.MatchExactly)
+        if len(matchNameList)>0:
+            return QtGui.QMessageBox.warning(self, "Fingerprint Name Error", "A fingerpint of that name already exists!" )
+        else:
+            curFP = QtGui.QListWidgetItem()
+            curFP.setText(curFPName)
+            curFP.setFlags(QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsEditable | QtCore.Qt.ItemIsUserCheckable)
+            curFP.setCheckState(QtCore.Qt.Unchecked)
+            self.fpListWidget.addItem(curFP)
+
 
 
     def testFocus(self):
@@ -223,12 +263,15 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.curEIC = None
         self.eicPlots = []
         self.fingerPlots = []
+        self.curFPWidget = Finger_Widget(parent = self)
+        self.fingerPlots.append(self.curFPWidget)
         self.peakParams = None
         self.setupPeakPick()
         ###FP Related Vars:
         self.expandFPBool = False
-        self.curFPWidget = Finger_Widget(parent = self)
-        self.fingerPlots.append(self.curFPWidget)
+        self.fpDict = {}
+        self.curFPName = None
+
 
     def setupGUI(self):
         self.specNameEdit.clear()
@@ -269,11 +312,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                 tempFPTWI.setTextColor(0, tempColor)
                 tempFPTWI.setToolTip(0, loadedItem.path)
                 self.curFPTreeItem.addChild(tempFPTWI)
-
-#                curPlanet = QtGui.QTreeWidgetItem()
-#                curPlanet.setFlags(QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsEditable | QtCore.Qt.ItemIsUserCheckable)
-#                curPlanet.setCheckState(0, QtCore.Qt.Unchecked)
-#
 
             self.dataDict[loadedItem.path] = loadedItem
 
@@ -676,6 +714,9 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                 self.treeViewSelect()
 
     def removeFile(self):
+        '''
+        Need to add code to remove item from the FP treeWidget too.
+        '''
 #        QtGui.QTreeWidget.clear
         selectItems = self.groupTreeWidget.selectedItems()
         if len(selectItems) > 0:

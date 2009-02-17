@@ -1235,37 +1235,112 @@ p, li { white-space: pre-wrap; }
        </attribute>
        <layout class="QHBoxLayout" >
         <item>
-         <layout class="QVBoxLayout" >
-          <item>
+         <widget class="QSplitter" name="splitter" >
+          <property name="orientation" >
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <widget class="QWidget" name="" >
            <layout class="QVBoxLayout" >
             <item>
-             <widget class="QLabel" name="label" >
-              <property name="text" >
-               <string>Available Fingerprints:</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QListWidget" name="fpListWidget" />
+             <layout class="QVBoxLayout" >
+              <item>
+               <widget class="QLabel" name="label" >
+                <property name="text" >
+                 <string>Available Fingerprints:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QListWidget" name="fpListWidget" />
+              </item>
+              <item>
+               <layout class="QHBoxLayout" >
+                <item>
+                 <widget class="QPushButton" name="loadFP_Btn" >
+                  <property name="text" >
+                   <string>Load Fingerprint</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <spacer>
+                  <property name="orientation" >
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" >
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+               </layout>
+              </item>
+             </layout>
             </item>
             <item>
              <layout class="QHBoxLayout" >
               <item>
-               <widget class="QPushButton" name="loadFP_Btn" >
+               <widget class="QCheckBox" name="autoLoadFP_CB" >
                 <property name="text" >
-                 <string>Load Fingerprint</string>
+                 <string>Auto Load Fingerprints</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="curFPName_LE" >
+                <property name="readOnly" >
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="CustomTable" name="fingerPTable" />
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="" >
+           <layout class="QHBoxLayout" >
+            <item>
+             <layout class="QVBoxLayout" >
+              <item>
+               <widget class="QToolButton" name="doPCA_Btn" >
+                <property name="minimumSize" >
+                 <size>
+                  <width>30</width>
+                  <height>30</height>
+                 </size>
+                </property>
+                <property name="text" >
+                 <string>PCA</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QToolButton" name="doFP_Btn" >
+                <property name="minimumSize" >
+                 <size>
+                  <width>30</width>
+                  <height>30</height>
+                 </size>
+                </property>
+                <property name="text" >
+                 <string>FP</string>
                 </property>
                </widget>
               </item>
               <item>
                <spacer>
                 <property name="orientation" >
-                 <enum>Qt::Horizontal</enum>
+                 <enum>Qt::Vertical</enum>
                 </property>
                 <property name="sizeHint" >
                  <size>
-                  <width>40</width>
-                  <height>20</height>
+                  <width>20</width>
+                  <height>40</height>
                  </size>
                 </property>
                </spacer>
@@ -1273,116 +1348,63 @@ p, li { white-space: pre-wrap; }
              </layout>
             </item>
             <item>
-             <widget class="QCheckBox" name="autoLoadFP_CB" >
-              <property name="text" >
-               <string>Auto Load Fingerprints</string>
-              </property>
-             </widget>
+             <layout class="QVBoxLayout" >
+              <item>
+               <layout class="QHBoxLayout" >
+                <item>
+                 <widget class="QPushButton" name="expand_Btn" >
+                  <property name="text" >
+                   <string>Expand or Collapse All</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <spacer>
+                  <property name="orientation" >
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" >
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <widget class="QTreeWidget" name="loadSpecTreeWidget" >
+                <property name="maximumSize" >
+                 <size>
+                  <width>200</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="selectionMode" >
+                 <enum>QAbstractItemView::ExtendedSelection</enum>
+                </property>
+                <property name="sortingEnabled" >
+                 <bool>true</bool>
+                </property>
+                <property name="columnCount" >
+                 <number>1</number>
+                </property>
+                <property name="headerHidden" stdset="0" >
+                 <bool>false</bool>
+                </property>
+                <column>
+                 <property name="text" >
+                  <string>1</string>
+                 </property>
+                </column>
+               </widget>
+              </item>
+             </layout>
             </item>
            </layout>
-          </item>
-          <item>
-           <widget class="CustomTable" name="fingerPTable" />
-          </item>
-         </layout>
-        </item>
-        <item>
-         <layout class="QVBoxLayout" >
-          <item>
-           <widget class="QToolButton" name="doPCA_Btn" >
-            <property name="minimumSize" >
-             <size>
-              <width>30</width>
-              <height>30</height>
-             </size>
-            </property>
-            <property name="text" >
-             <string>PCA</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QToolButton" name="doFP_Btn" >
-            <property name="minimumSize" >
-             <size>
-              <width>30</width>
-              <height>30</height>
-             </size>
-            </property>
-            <property name="text" >
-             <string>FP</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <spacer>
-            <property name="orientation" >
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeHint" >
-             <size>
-              <width>20</width>
-              <height>40</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <layout class="QVBoxLayout" >
-          <item>
-           <layout class="QHBoxLayout" >
-            <item>
-             <widget class="QPushButton" name="expand_Btn" >
-              <property name="text" >
-               <string>Expand or Collapse All</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <spacer>
-              <property name="orientation" >
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" >
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
-          </item>
-          <item>
-           <widget class="QTreeWidget" name="loadSpecTreeWidget" >
-            <property name="maximumSize" >
-             <size>
-              <width>200</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="selectionMode" >
-             <enum>QAbstractItemView::ExtendedSelection</enum>
-            </property>
-            <property name="sortingEnabled" >
-             <bool>true</bool>
-            </property>
-            <property name="columnCount" >
-             <number>1</number>
-            </property>
-            <property name="headerHidden" stdset="0" >
-             <bool>false</bool>
-            </property>
-            <column>
-             <property name="text" >
-              <string>1</string>
-             </property>
-            </column>
-           </widget>
-          </item>
-         </layout>
+          </widget>
+         </widget>
         </item>
        </layout>
       </widget>
