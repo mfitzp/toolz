@@ -22,23 +22,42 @@
       <attribute name="title" >
        <string>Fingerprint</string>
       </attribute>
-      <layout class="QVBoxLayout" >
-       <item>
+      <layout class="QGridLayout" >
+       <item row="0" column="0" >
         <widget class="MPL_Widget" native="1" name="plotWidget" />
        </item>
-       <item>
+       <item row="1" column="0" >
         <layout class="QGridLayout" >
          <item row="0" column="2" >
           <layout class="QHBoxLayout" >
            <item>
             <widget class="QLabel" name="label" >
              <property name="text" >
-              <string>TextLabel</string>
+              <string>ppm Tolerance:</string>
+             </property>
+             <property name="alignment" >
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QDoubleSpinBox" name="doubleSpinBox" />
+            <widget class="QDoubleSpinBox" name="mzTol_SB" >
+             <property name="decimals" >
+              <number>3</number>
+             </property>
+             <property name="minimum" >
+              <double>0.001000000000000</double>
+             </property>
+             <property name="maximum" >
+              <double>50000.000000000000000</double>
+             </property>
+             <property name="singleStep" >
+              <double>0.500000000000000</double>
+             </property>
+             <property name="value" >
+              <double>500.000000000000000</double>
+             </property>
+            </widget>
            </item>
           </layout>
          </item>
@@ -57,18 +76,35 @@
           </layout>
          </item>
          <item row="1" column="1" >
-          <widget class="QPushButton" name="pushButton" >
+          <widget class="QPushButton" name="fingerPrint_Btn" >
            <property name="text" >
-            <string>PushButton</string>
+            <string>Fingerprint</string>
            </property>
           </widget>
          </item>
          <item row="1" column="0" >
-          <widget class="QCheckBox" name="checkBox" >
+          <widget class="QCheckBox" name="showRaw_CB" >
            <property name="text" >
-            <string>CheckBox</string>
+            <string>Show FP Spectra?</string>
+           </property>
+           <property name="checked" >
+            <bool>true</bool>
            </property>
           </widget>
+         </item>
+         <item row="0" column="0" >
+          <layout class="QHBoxLayout" >
+           <item>
+            <widget class="QLabel" name="label_3" >
+             <property name="text" >
+              <string>Fingerprint Name:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="lineEdit" />
+           </item>
+          </layout>
          </item>
         </layout>
        </item>
@@ -88,6 +124,19 @@
       <attribute name="title" >
        <string>Options</string>
       </attribute>
+      <widget class="QPushButton" name="saveFP_Btn" >
+       <property name="geometry" >
+        <rect>
+         <x>20</x>
+         <y>20</y>
+         <width>131</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="text" >
+        <string>Save Fingerprint</string>
+       </property>
+      </widget>
      </widget>
     </widget>
    </item>

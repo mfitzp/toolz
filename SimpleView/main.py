@@ -38,6 +38,7 @@ from flexReader import brukerFlexDoc as FR
 from mzXML_reader import mzXMLDoc as mzXMLR
 
 from mpl_pyqt4_widget import MPL_Widget
+from dataClass import DataClass
 
 import supportFunc as SF
 import getBaseline as GB
@@ -398,7 +399,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
     def selectGroups(self):
         selectItems = self.groupTreeWidget.selectedItems()
         if len(selectItems) > 0:
-            curFingerPlot = Finger_Widget()
+            curFingerPlot = Finger_Widget(parent = self)
             for item in selectItems:
                 curGroupName = str(item.toolTip(0))
                 if self.groupDict.has_key(curGroupName):
@@ -1201,7 +1202,7 @@ class LoadThread(QtCore.QThread):
                             tempSpec = tempmzXML.data['spectrum']
                             if len(tempSpec)>0:
 #                                print 'Spec OK', os.path.basename(item)
-                                data2plot = DataPlot(tempSpec[0],  tempSpec[1],  name = os.path.basename(item), path = item)
+                                data2plot = DataClass(tempSpec[0],  tempSpec[1],  name = os.path.basename(item), path = item)
                                 data2plot.setPeakList(tempmzXML.data['peaklist'], normalized = False)
                                 #this following line is key to pass python object via the SIGNAL/SLOT mechanism of PyQt
                                 #note PyQt_PyObject
@@ -1218,7 +1219,7 @@ class LoadThread(QtCore.QThread):
                         for item in self.loadList:
                             tempFlex = FR(item)
                             tempSpec = tempFlex.data['spectrum']
-                            data2plot = DataPlot(tempSpec[:, 0],  tempSpec[:, 1], name = item.split(os.path.sep)[-4], path = item)#the -4 index is to handle the Bruker File Structure
+                            data2plot = DataClass(tempSpec[:, 0],  tempSpec[:, 1], name = item.split(os.path.sep)[-4], path = item)#the -4 index is to handle the Bruker File Structure
                             data2plot.setPeakList(tempFlex.data['peaklist'],  nomralized = False)
                             #this following line is key to pass python object via the SIGNAL/SLOT mechanism of PyQt
                             self.emit(QtCore.SIGNAL("itemLoaded(PyQt_PyObject)"),data2plot)#note PyQt_PyObject
@@ -1337,185 +1338,6 @@ class FindPeaksThread(QtCore.QThread):
         def __del__(self):
             self.exiting = True
             self.wait()
-
-
-class DataPlot(object):
-    def __init__(self, xdata,  ydata,  name = None, path = None):
-        self.x = xdata
-        if ydata != None:
-            self.y = ydata
-        else:
-            self.y = None
-
-        if name:
-            self.name = name
-        else:
-            self.name = 'None'
-
-        if path:
-            self.path = path
-        else:
-            self.path = 'None'
-
-        self.axSet = False
-        self.peakList = None
-        self.pkListOk = False
-        self.labelPks = False
-        self.peakList = None
-        self.mplAx = None
-        self.plotModVal = 1
-        self.noiseEst = None
-        self.minNoiseEst = None
-        self.noiseOK = False
-        self.normFactor = self.y.max()
-        self.interpOk = False
-        self.mzPad = None#this value is used for peak picking and is equal to the number of points in 0.5 mz units
-        self.interpData()
-
-
-    def savePkList(self):
-        if self.pkListOk:
-            t1 = time.clock()
-#            print self.name
-            #print self.path
-            try:
-                peakListFN = self.path.replace('.mzXML', '_pks.csv')
-                N.savetxt(peakListFN, self.peakList, delimiter = ',', fmt='%.4f')
-                print "Peak List Save Time: ", time.clock()-t1
-            except:
-                exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
-                traceback.print_exception(exceptionType, exceptionValue, exceptionTraceback, file=sys.stdout)
-    #                    print 'Error saving figure data'
-                errorMsg = "Sorry: %s\n\n:%s\n%s\n"%(exceptionType, exceptionValue, exceptionTraceback)
-    #            return QtGui.QMessageBox.warning(self, "Interpolation Error", errorMsg)
-                print errorMsg
-                print self.path
-
-
-
-    def getEICVal(self, mzLo, mzHi, type = 'sum'):#the other type is 'max'
-        if mzHi == -1:
-            crit = (self.x >= mzLo)
-        else:
-            crit = (self.x >= mzLo) & (self.x <= mzHi)
-        range = N.where(crit)[0]
-        if len(range) != 0:
-            if type == 'sum':
-                return self.y[range].sum()
-            elif type == 'max':
-                return self.y[range].max()
-
-    def setAxis(self,  mplAxInstance):
-        self.axSet = True
-        self.mplAx = mplAxInstance
-
-    def setPeakList(self, peakList, normalized = True):
-        #peak list is two arrays peakLoc and intensity
-        if normalized:
-            if peakList != None:
-                if len(peakList)>0:
-                    self.pkListOk = True#CHANGE ME True
-                    self.peakList = peakList
-        else:
-            if peakList != None:
-                if len(peakList)>0:
-                    self.pkListOk = True#CHANGE ME True
-                    self.peakList = peakList
-                    if type(self.peakList[0]) == N.ndarray:
-                        self.peakList[:,1] = SF.normalize(self.peakList[:,1])
-
-
-    def applyTopHat(self):
-        self.y = SF.topHat(self.y, 0.01)
-
-    def interpData(self):
-        #this of course slows loading down but is necessary for the peak picking using CWT
-        try:
-            newX, newY = SF.interpolate_spectrum_XY(self.x, self.y)
-
-            meanMZ = N.round(newX.mean())
-            crit = (newX >= meanMZ) & (newX <= (meanMZ+0.5))#CHECK ME
-            #MZ Pad is a windowing factor to find the maximum of the peak rather than a valley.
-            #This also must be done after interpolation
-            self.mzPad = len(N.where(crit)[0])
-#            print "MZ Pad", self.mzPad
-
-            self.x = newX
-            self.y = SF.normalize(newY)
-
-            self.interpOk = True
-        except:
-            exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
-            traceback.print_exception(exceptionType, exceptionValue, exceptionTraceback, file=sys.stdout)
-#                    print 'Error saving figure data'
-            errorMsg = "Sorry: %s\n\n:%s\n%s\n"%(exceptionType, exceptionValue, exceptionTraceback)
-#            return QtGui.QMessageBox.warning(self, "Interpolation Error", errorMsg)
-            print self.name
-            print errorMsg
-
-        if self.interpOk:
-            self.x = newX
-            self.y = newY
-
-    def getNoise(self, numSegs, minSNR):
-        noiseEst, minNoiseEst = GB.SplitNSmooth(self.y,numSegs, minSNR)
-        if noiseEst != None:
-            if len(noiseEst) == len(self.x):
-                self.noiseEst = noiseEst
-                self.minNoiseEst = minNoiseEst
-                self.noiseOK = True
-#                print "Get Noise Ok"
-
-    def plot(self,  mplAxInstance, pColor = 'r', scatter = False, labelPks = False, plotPks = True,\
-             invert = False, plotNoise = False, usrAlpha = 1):
-        #if self.axSet:
-        self.labelPks = labelPks
-        self.mplAx = mplAxInstance
-        if self.y != None:
-            if invert:
-                self.plotModVal = -1
-            else:
-                self.plotModVal = 1
-
-            if scatter:
-                self.mplAx.scatter(self.x,  self.y,  label = self.name)
-            else:
-                self.mplAx.plot(self.x,  self.y*self.plotModVal,  label = self.name,  picker = 5,  color = pColor, alpha = usrAlpha)
-                if plotNoise:
-                    if self.noiseOK:
-                        self.mplAx.plot(self.x,  self.noiseEst,  label = '_nolegend_',  color = 'r', alpha = 0.6)
-                    else:
-                        print "No noise to plot"
-                if self.pkListOk and plotPks:
-                    try:
-                        if type(self.peakList[0]) == N.ndarray:
-                            self.mplAx.vlines(self.peakList[:, 0], 0, self.peakList[:, 1]*1.15*self.plotModVal,  color = 'r',  label = '_nolegend_')
-                            if self.labelPks:
-                                for peak in self.peakList:
-                                    self.mplAx.text(peak[0], peak[1]*1.1*self.plotModVal, '%.4f'%peak[0],  fontsize=8, rotation = 45)
-                        elif type(self.peakList[0]) == N.float64:
-                            #this is the case where there is only one value in the peaklist
-                            self.mplAx.vlines(self.peakList[[0]], 0, self.peakList[[1]]*1.1*self.plotModVal,  color = 'r',  label = '_nolegend_')
-                            if self.labelPks:
-                                self.mplAx.text(self.peakList[0], self.peakList[1]*1.1*self.plotModVal, '%.4f'%self.peakList[0],  fontsize=8, rotation = 45)
-
-                        else:
-                            print 'Type of First peakList element', type(self.peakList[0])
-                            print "Error plotting peak list"
-
-                    except:
-                        print "Error plotting peak list"
-                        errorMsg = "Sorry: %s\n\n:%s\n"%(sys.exc_type, sys.exc_value)
-                        print errorMsg
-
-
-
-        else:
-            self.mplAx.plot(self.x,  label = self.name)
-#    else:
-#        errMsg = 'axis must be set before attempting to plot'
-#        raise errMsg
-
 
 
 if __name__ == "__main__":
