@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Documents and Settings\d3p483\workspace\SimpleView\fingerPrint.ui'
 #
-# Created: Mon Feb 16 16:08:33 2009
+# Created: Tue Feb 17 09:56:13 2009
 #      by: PyQt4 UI code generator 4.3.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -79,9 +79,9 @@ class Ui_fingerPlotWidget(object):
         self.label_3.setObjectName("label_3")
         self.hboxlayout3.addWidget(self.label_3)
 
-        self.lineEdit = QtGui.QLineEdit(self.tab)
-        self.lineEdit.setObjectName("lineEdit")
-        self.hboxlayout3.addWidget(self.lineEdit)
+        self.fpName_LE = QtGui.QLineEdit(self.tab)
+        self.fpName_LE.setObjectName("fpName_LE")
+        self.hboxlayout3.addWidget(self.fpName_LE)
         self.gridlayout1.addLayout(self.hboxlayout3,0,0,1,1)
         self.gridlayout.addLayout(self.gridlayout1,1,0,1,1)
         self.tabWidget.addTab(self.tab,"")
@@ -103,6 +103,10 @@ class Ui_fingerPlotWidget(object):
         self.saveFP_Btn = QtGui.QPushButton(self.tab_2)
         self.saveFP_Btn.setGeometry(QtCore.QRect(20,20,131,31))
         self.saveFP_Btn.setObjectName("saveFP_Btn")
+
+        self.commitFP_Btn = QtGui.QPushButton(self.tab_2)
+        self.commitFP_Btn.setGeometry(QtCore.QRect(20,70,131,31))
+        self.commitFP_Btn.setObjectName("commitFP_Btn")
         self.tabWidget.addTab(self.tab_2,"")
         self.hboxlayout.addWidget(self.tabWidget)
 
@@ -113,16 +117,26 @@ class Ui_fingerPlotWidget(object):
     def retranslateUi(self, fingerPlotWidget):
         fingerPlotWidget.setWindowTitle(QtGui.QApplication.translate("fingerPlotWidget", "Fingerprint Plot", None, QtGui.QApplication.UnicodeUTF8))
         self.label.setText(QtGui.QApplication.translate("fingerPlotWidget", "ppm Tolerance:", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_2.setText(QtGui.QApplication.translate("fingerPlotWidget", "TextLabel", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_2.setText(QtGui.QApplication.translate("fingerPlotWidget", "Misc:", None, QtGui.QApplication.UnicodeUTF8))
         self.fingerPrint_Btn.setText(QtGui.QApplication.translate("fingerPlotWidget", "Fingerprint", None, QtGui.QApplication.UnicodeUTF8))
         self.showRaw_CB.setText(QtGui.QApplication.translate("fingerPlotWidget", "Show FP Spectra?", None, QtGui.QApplication.UnicodeUTF8))
         self.label_3.setText(QtGui.QApplication.translate("fingerPlotWidget", "Fingerprint Name:", None, QtGui.QApplication.UnicodeUTF8))
+        self.fpName_LE.setText(QtGui.QApplication.translate("fingerPlotWidget", "Change me if you want to commit fingerprint!", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), QtGui.QApplication.translate("fingerPlotWidget", "Fingerprint", None, QtGui.QApplication.UnicodeUTF8))
         self.peakTable.clear()
         self.peakTable.setColumnCount(0)
         self.peakTable.setRowCount(0)
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), QtGui.QApplication.translate("fingerPlotWidget", "Peak Table", None, QtGui.QApplication.UnicodeUTF8))
+        self.saveFP_Btn.setToolTip(QtGui.QApplication.translate("fingerPlotWidget", "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+        "p, li { white-space: pre-wrap; }\n"
+        "</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:8.25pt; font-weight:400; font-style:normal;\">\n"
+        "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Saves Fingerprint to Disk</p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
         self.saveFP_Btn.setText(QtGui.QApplication.translate("fingerPlotWidget", "Save Fingerprint", None, QtGui.QApplication.UnicodeUTF8))
+        self.commitFP_Btn.setToolTip(QtGui.QApplication.translate("fingerPlotWidget", "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+        "p, li { white-space: pre-wrap; }\n"
+        "</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:8.25pt; font-weight:400; font-style:normal;\">\n"
+        "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;\">Commits fingerprint to main window for future comparison with user selected spectra.</p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
+        self.commitFP_Btn.setText(QtGui.QApplication.translate("fingerPlotWidget", "Commit Fingerprint", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), QtGui.QApplication.translate("fingerPlotWidget", "Options", None, QtGui.QApplication.UnicodeUTF8))
 
 from customTable import CustomTable

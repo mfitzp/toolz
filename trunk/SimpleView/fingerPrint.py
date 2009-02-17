@@ -15,11 +15,40 @@ COLORS = ['#297AA3','#A3293D','#3B9DCE','#293DA3','#5229A3','#8F29A3','#A3297A',
 '#0080FF','#0000FF','#7ABDFF','#8000FF','#FF0080','#FF0000','#FF8000','#FFFF00','#A35229','#80FF00',
 '#00FF00','#00FF80','#00FFFF','#3D9EFF','#FF9E3D','#FFBD7A']
 
+##Used to test whether the item is the top widget or alive
+def isAlive(qobj):#new
+    import sip
+    try:
+        sip.unwrapinstance(qobj)
+    except RuntimeError:
+        return False
+    return True
+
+class EventFilter(QtCore.QObject):
+    def __init__(self, parent=None):
+        QtCore.QObject.__init__(self, parent)
+
+    def eventFilter(self, obj, event):
+        if event.type() == QtCore.QEvent.ActivationChange:
+            if self.parent().isActiveWindow():
+                print "Got the focus @ %s"%(self.parent().windowTitle)
+                self.parent().parent.testFocus()
+                self.parent().parent._setFPFocus_(self.parent())
+        return QtCore.QObject.eventFilter(self, obj, event)
+############################
+
 class Finger_Widget(QtGui.QWidget, ui_fingerPrint.Ui_fingerPlotWidget):
+    NextId = 1
+    Instances = set()
+
     def __init__(self, dataDict = None, parent = None):
         super(Finger_Widget, self).__init__(None)
-#        self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+        Finger_Widget.Instances.add(self)#new
+
         self.ui = self.setupUi(self)
+        self.installEventFilter(EventFilter(self))
+
         self.mainAx = self.plotWidget.canvas.ax
         self.dataDict = {}
         self.dataDictOK = False
@@ -30,7 +59,9 @@ class Finger_Widget(QtGui.QWidget, ui_fingerPrint.Ui_fingerPlotWidget):
         if parent != None:
             self.parent = parent
             self.parentOk = True
-
+        self.windowTitle = "FingerPrint %d" % Finger_Widget.NextId
+        self.setWindowTitle(self.windowTitle)
+        Finger_Widget.NextId +=1
 
         if dataDict != None:
             self.dataDict = dataDict
@@ -46,6 +77,22 @@ class Finger_Widget(QtGui.QWidget, ui_fingerPrint.Ui_fingerPlotWidget):
         QtCore.QObject.connect(self.actionAutoScale, QtCore.SIGNAL("triggered()"), self.autoscale_plot)
         QtCore.QObject.connect(self.fingerPrint_Btn, QtCore.SIGNAL("clicked()"), self.fetchFP)
         QtCore.QObject.connect(self.saveFP_Btn, QtCore.SIGNAL("clicked()"), self.saveFinger2HDF5)
+        QtCore.QObject.connect(self.commitFP_Btn, QtCore.SIGNAL("clicked()"), self.commitFinger2Parent)
+        QtCore.QObject.connect(self, QtCore.SIGNAL("destroyed(QObject*)"), Finger_Widget.updateInstances)
+
+    def commitFinger2Parent(self):
+        if self.parentOk:
+            fpName = str(self.fpName_LE.text())
+            if fpName == 'Change me if you want to commit fingerprint!':
+                return QtGui.QMessageBox.warning(self, "Fingerprint Name Error", "Please give a name to the current FP" )
+            else:
+                self.fpDict = {}
+                self.fpDict[fpName] = {'dataDict':self.dataDict, 'peakStats':self.peakStatDict}
+                self.parent.commitFP(self.fpDict)
+#                self.emit(QtCore.SIGNAL("commitFP(dict)"),self.fpDict)
+        else:
+            return QtGui.QMessageBox.warning(self, "CRAP!", "No Parent Window Exists:\nBIG ERROR: Contact Clowers" )
+
 
     def updateDataDict(self, dataDict):
         for item in dataDict.iteritems():
@@ -66,6 +113,7 @@ class Finger_Widget(QtGui.QWidget, ui_fingerPrint.Ui_fingerPlotWidget):
         self.xLoc = None
         self.yLoc = None
         self.mzTol = self.mzTol_SB.value()
+        self.fpDict = None
 
     def _updatePlotColor_(self):
         if self.plotColorIndex%len(COLORS) == 0:
@@ -227,6 +275,12 @@ class Finger_Widget(QtGui.QWidget, ui_fingerPrint.Ui_fingerPlotWidget):
                 return QtGui.QMessageBox.warning(self, "Save File Error", errorMsg)
                 print 'Error saving fingerprint to HDF5'
                 print errorMsg
+
+    @staticmethod
+    def updateInstances(qobj):
+        Finger_Widget.Instances = set([window for window \
+                in Finger_Widget.Instances if isAlive(window)])
+
 
 def groupOneD(oneDVec, tol, origOrder = None):
     '''

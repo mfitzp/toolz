@@ -1229,12 +1229,252 @@ p, li { white-space: pre-wrap; }
         </item>
        </layout>
       </widget>
+      <widget class="QWidget" name="tab_2" >
+       <attribute name="title" >
+        <string>Fingerprint</string>
+       </attribute>
+       <layout class="QHBoxLayout" >
+        <item>
+         <layout class="QVBoxLayout" >
+          <item>
+           <layout class="QVBoxLayout" >
+            <item>
+             <widget class="QLabel" name="label" >
+              <property name="text" >
+               <string>Available Fingerprints:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QListWidget" name="fpListWidget" />
+            </item>
+            <item>
+             <layout class="QHBoxLayout" >
+              <item>
+               <widget class="QPushButton" name="loadFP_Btn" >
+                <property name="text" >
+                 <string>Load Fingerprint</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer>
+                <property name="orientation" >
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" >
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="autoLoadFP_CB" >
+              <property name="text" >
+               <string>Auto Load Fingerprints</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="CustomTable" name="fingerPTable" />
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QVBoxLayout" >
+          <item>
+           <widget class="QToolButton" name="doPCA_Btn" >
+            <property name="minimumSize" >
+             <size>
+              <width>30</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="text" >
+             <string>PCA</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QToolButton" name="doFP_Btn" >
+            <property name="minimumSize" >
+             <size>
+              <width>30</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="text" >
+             <string>FP</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer>
+            <property name="orientation" >
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" >
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QVBoxLayout" >
+          <item>
+           <layout class="QHBoxLayout" >
+            <item>
+             <widget class="QPushButton" name="expand_Btn" >
+              <property name="text" >
+               <string>Expand or Collapse All</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer>
+              <property name="orientation" >
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" >
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QTreeWidget" name="loadSpecTreeWidget" >
+            <property name="maximumSize" >
+             <size>
+              <width>200</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="selectionMode" >
+             <enum>QAbstractItemView::ExtendedSelection</enum>
+            </property>
+            <property name="sortingEnabled" >
+             <bool>true</bool>
+            </property>
+            <property name="columnCount" >
+             <number>1</number>
+            </property>
+            <property name="headerHidden" stdset="0" >
+             <bool>false</bool>
+            </property>
+            <column>
+             <property name="text" >
+              <string>1</string>
+             </property>
+            </column>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tab_3" >
+       <attribute name="title" >
+        <string>Preferences</string>
+       </attribute>
+       <widget class="QWidget" name="layoutWidget" >
+        <property name="geometry" >
+         <rect>
+          <x>30</x>
+          <y>60</y>
+          <width>441</width>
+          <height>25</height>
+         </rect>
+        </property>
+        <layout class="QHBoxLayout" >
+         <item>
+          <widget class="QPushButton" name="pushButton_2" >
+           <property name="text" >
+            <string>Default Fingerprint Folder:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="lineEdit_2" >
+           <property name="readOnly" >
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="layoutWidget_2" >
+        <property name="geometry" >
+         <rect>
+          <x>30</x>
+          <y>100</y>
+          <width>441</width>
+          <height>25</height>
+         </rect>
+        </property>
+        <layout class="QHBoxLayout" >
+         <item>
+          <widget class="QPushButton" name="pushButton_3" >
+           <property name="text" >
+            <string>Default Fingerprint Folder:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="lineEdit_3" >
+           <property name="readOnly" >
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="" >
+        <property name="geometry" >
+         <rect>
+          <x>20</x>
+          <y>20</y>
+          <width>441</width>
+          <height>25</height>
+         </rect>
+        </property>
+        <layout class="QHBoxLayout" >
+         <item>
+          <widget class="QPushButton" name="pushButton" >
+           <property name="text" >
+            <string>Default Fingerprint Folder:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="lineEdit" >
+           <property name="readOnly" >
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </widget>
       <widget class="QWidget" name="tab" >
        <attribute name="title" >
         <string>Misc</string>
        </attribute>
        <layout class="QGridLayout" >
-        <item row="0" column="0" >
+        <item row="1" column="0" >
          <layout class="QHBoxLayout" >
           <item>
            <widget class="QLabel" name="test" >
@@ -1258,7 +1498,7 @@ p, li { white-space: pre-wrap; }
           </item>
          </layout>
         </item>
-        <item rowspan="2" row="0" column="1" >
+        <item rowspan="2" row="1" column="1" >
          <widget class="QTreeWidget" name="groupTreeWidget1" >
           <property name="selectionMode" >
            <enum>QAbstractItemView::ExtendedSelection</enum>
@@ -1284,7 +1524,7 @@ p, li { white-space: pre-wrap; }
           </column>
          </widget>
         </item>
-        <item row="1" column="0" >
+        <item row="2" column="0" >
          <layout class="QHBoxLayout" >
           <item>
            <widget class="QLabel" name="label_18" >
@@ -1297,6 +1537,13 @@ p, li { white-space: pre-wrap; }
            <widget class="QSpinBox" name="spinBox" />
           </item>
          </layout>
+        </item>
+        <item row="0" column="0" >
+         <widget class="QPushButton" name="testFocus_Btn" >
+          <property name="text" >
+           <string>Test Focus</string>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>
@@ -1406,6 +1653,11 @@ p, li { white-space: pre-wrap; }
    <extends>QWidget</extends>
    <header>mpl_pyqt4_widget</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>CustomTable</class>
+   <extends>QTableWidget</extends>
+   <header>customTable</header>
   </customwidget>
  </customwidgets>
  <resources>
