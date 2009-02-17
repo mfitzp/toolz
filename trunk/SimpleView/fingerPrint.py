@@ -2,10 +2,13 @@ import os, sys, traceback
 from PyQt4 import QtGui, QtCore
 import numpy as N
 
+import tables as T
+
 from matplotlib.patches import Rectangle as Rect
 import supportFunc as SF
 import ui_fingerPrint
 from dbscan import dbscan
+from dataClass import DataClass
 
 COLORS = ['#297AA3','#A3293D','#3B9DCE','#293DA3','#5229A3','#8F29A3','#A3297A',
 '#7AA329','#3DA329','#29A352','#29A38F','#A38F29','#3B9DCE','#6CB6DA','#CE6C3B','#DA916C',
@@ -22,6 +25,13 @@ class Finger_Widget(QtGui.QWidget, ui_fingerPrint.Ui_fingerPlotWidget):
         self.dataDictOK = False
         self.setupVars()
 
+        self.parent = None
+        self.parentOk = False
+        if parent != None:
+            self.parent = parent
+            self.parentOk = True
+
+
         if dataDict != None:
             self.dataDict = dataDict
             self.dataDictOK = True
@@ -34,6 +44,8 @@ class Finger_Widget(QtGui.QWidget, ui_fingerPrint.Ui_fingerPlotWidget):
         self.actionAutoScale.setShortcut("Ctrl+A")
         self.plotWidget.addAction(self.actionAutoScale)
         QtCore.QObject.connect(self.actionAutoScale, QtCore.SIGNAL("triggered()"), self.autoscale_plot)
+        QtCore.QObject.connect(self.fingerPrint_Btn, QtCore.SIGNAL("clicked()"), self.fetchFP)
+        QtCore.QObject.connect(self.saveFP_Btn, QtCore.SIGNAL("clicked()"), self.saveFinger2HDF5)
 
     def updateDataDict(self, dataDict):
         for item in dataDict.iteritems():
@@ -53,6 +65,7 @@ class Finger_Widget(QtGui.QWidget, ui_fingerPrint.Ui_fingerPlotWidget):
                              }
         self.xLoc = None
         self.yLoc = None
+        self.mzTol = self.mzTol_SB.value()
 
     def _updatePlotColor_(self):
         if self.plotColorIndex%len(COLORS) == 0:
@@ -62,6 +75,17 @@ class Finger_Widget(QtGui.QWidget, ui_fingerPrint.Ui_fingerPlotWidget):
         else:
             self.plotColor = COLORS[self.plotColorIndex]
             self.plotColorIndex +=1
+
+    def fetchFP(self):
+#        print "FETCH FP"
+        self.mainAx.cla()
+        self.setupVars()
+        if self.showRaw_CB.isChecked():
+            self.setupPlot()
+        self.getFPPeakList()
+        self.plotWidget.canvas.format_labels()
+        self.plotWidget.canvas.draw()
+        self.plotWidget.setFocus()
 
     def setupPlot(self):
         if self.dataDictOK:
@@ -77,16 +101,22 @@ class Finger_Widget(QtGui.QWidget, ui_fingerPrint.Ui_fingerPlotWidget):
 #            self.mainAx.cla()
             self.xLoc = N.zeros(1)
             self.yLoc = N.zeros(1)
+            self.specNum = N.zeros(1)#this is a bookeeping array
+            curSpecNum = 0
             for curData in self.dataDict.itervalues():
                 pkList = curData.peakList
                 self.xLoc = N.append(self.xLoc, pkList[:,0])
                 self.yLoc = N.append(self.yLoc, pkList[:,1])
+                self.specNum = N.append(self.specNum, N.zeros_like(pkList[:,0])+curSpecNum)
+                curSpecNum +=1
 #                self.mainAx.scatter(pkList[:,0],pkList[:,1]*0, color = self.plotColor)
             sortInd = self.xLoc.argsort()
             self.xLoc = self.xLoc[sortInd]
             self.yLoc = self.yLoc[sortInd]
+            self.specNum = self.specNum[sortInd]
 #            self.mainAx.plot(self.xLoc, self.yLoc, '--r')
-            groups, gNum = groupOneD(self.xLoc, 500)
+            self.mzTol = self.mzTol_SB.value()
+            groups, gNum = groupOneD(self.xLoc, self.mzTol, origOrder = self.specNum)
             for g in xrange(gNum):
                 self._updatePlotColor_()
                 subInd = N.where(groups == g)[0]
@@ -100,25 +130,28 @@ class Finger_Widget(QtGui.QWidget, ui_fingerPrint.Ui_fingerPlotWidget):
                 self.peakStatDict['aveInt'].append(curYMean)
                 self.peakStatDict['stdInt'].append(curYStd)
                 self.peakStatDict['numMembers'].append(len(subInd))
-#                self.peakStatDict['prob'].append()
+                self.peakStatDict['prob'].append(0)
                 if len(subInd)>=2:
                     self.mainAx.plot(self.xLoc[subInd], self.yLoc[subInd], ms = 4, marker = 'o', alpha = 0.5, color = self.plotColor)
                     #Rect((x,y),width, height)
                     tempRect = Rect((curXMean-curXStd,0),curXStd*2,curYMean+curYStd, alpha = 0.5, facecolor = self.plotColor)
                     self.mainAx.add_patch(tempRect)
-
-
+            #convert peakStats to Numpy
+            for key in self.peakStatDict.iterkeys():
+                self.peakStatDict[key] = N.array(self.peakStatDict[key])
             self.setupTable()
 
     def setupTable(self):
+        self.peakTable.clear()
+        self.peakTable.setSortingEnabled(False)
         tableHeaders = ['aveLoc','stdLoc', 'aveInt', 'stdInt', 'numMembers']
-        for key in tableHeaders:
-            self.peakStatDict[key] = N.array(self.peakStatDict[key])
+#        for key in tableHeaders:
+#            self.peakStatDict[key] = N.array(self.peakStatDict[key])
 
         tableData = self.peakStatDict['aveLoc']
         for key in tableHeaders[1:]:
             tableData = N.column_stack((tableData,self.peakStatDict[key]))
-
+#        print tableData.shape
         self.peakTable.addData(tableData)
         self.peakTable.setSortingEnabled(True)
         self.peakTable.setHorizontalHeaderLabels(tableHeaders)
@@ -129,11 +162,78 @@ class Finger_Widget(QtGui.QWidget, ui_fingerPrint.Ui_fingerPlotWidget):
         self.mainAx.set_ylim(ymin = 0)
         self.plotWidget.canvas.draw()
 
+    def saveFileDialog(self):
+        fileName = QtGui.QFileDialog.getSaveFileName(self,
+                                         "Select File to Save",
+                                         "",
+                                         "hdf5 Files (*.h5)")
+        if not fileName.isEmpty():
+            print fileName
+            return str(fileName)
+        else:
+            return None
 
-def groupOneD(oneDVec, tol):
+    def saveDict(self, hdfInstance, dataDict, groupName, attrDict = None):
+        '''
+        Saves the original netCDF arrays in a compressed HDF5 format
+        '''
+
+        filters = T.Filters(complevel=5, complib='zlib')
+        atom = T.FloatAtom()
+#        hdf = T.openFile(filename, mode = "w", title = 'Data_Array')
+        varGroup = hdfInstance.createGroup("/", groupName, groupName)
+        tempKey = dataDict.keys()[0]
+        pkListOK = False
+        if isinstance(dataDict[tempKey], DataClass):
+            pkListGroup = hdfInstance.createGroup("/", "PeakLists", "PeakLists")
+
+        for item in dataDict.iteritems():
+            if isinstance(item[1], DataClass):
+                specX = item[1].x
+                specY = item[1].y
+                data = N.column_stack((specX,specY))
+                pkList = item[1].peakList
+                if pkList != None and pkListOK:
+                    shape = pkList.shape
+                    ca = hdfInstance.createCArray(pkListGroup, item[0], atom, shape, filters = filters)
+                    ca[0:shape[0]] = pkList
+            else:
+                data = item[1]
+            shape = data.shape
+            ca = hdfInstance.createCArray(varGroup, item[0], atom, shape, filters = filters)
+            ca[0:shape[0]] = data
+#            ca.flush()
+            print "%s written"%item[0]
+
+
+    def saveFinger2HDF5(self):
+        fileName = self.saveFileDialog()
+        if fileName != None and self.dataDictOK:
+            hdf = T.openFile(fileName, mode = 'w', title = 'FingerPrint')
+            try:
+                self.saveDict(hdf, self.dataDict, "Spectra")
+                self.saveDict(hdf, self.peakStatDict, "PeakStats")
+                '''
+                Need to iteratively save XY spectra and each peak List
+                Save Peak Table
+                Need a way to handle saving dictionaries
+                '''
+                hdf.close()
+            except:
+                hdf.close()
+                exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+                traceback.print_exception(exceptionType, exceptionValue, exceptionTraceback, file=sys.stdout)
+                errorMsg = "Sorry: %s\n\n:%s\n%s\n"%(exceptionType, exceptionValue, exceptionTraceback)
+                return QtGui.QMessageBox.warning(self, "Save File Error", errorMsg)
+                print 'Error saving fingerprint to HDF5'
+                print errorMsg
+
+def groupOneD(oneDVec, tol, origOrder = None):
     '''
     oneDVec is already sorted
     tol is in ppm
+    it would be nice to take into account the original order of the peaks to make sure that
+    peaks from the same spectrum don't contribute to the same m/z fingerprint
     '''
     diffArray = N.diff(oneDVec)
     groups = N.zeros_like(diffArray)
