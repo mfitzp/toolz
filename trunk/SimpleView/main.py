@@ -160,9 +160,42 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         QtCore.QObject.connect(self.groupTreeWidget, QtCore.SIGNAL("itemClicked(QTreeWidgetItem *,int)"), self.treeViewSelect)
         QtCore.QObject.connect(self.selectGroupAction,QtCore.SIGNAL("triggered()"),self.selectGroups)
 
+        #FingerPrint Related Connections:
+
+        QtCore.QObject.connect(self.expand_Btn, QtCore.SIGNAL("clicked()"), self.expandFPSpectra)
+        QtCore.QObject.connect(self.testFocus_Btn, QtCore.SIGNAL("clicked()"), self.testFocus)
+
+        QtCore.QObject.connect(self.curFPWidget, QtCore.SIGNAL("commitFP(PyQt_PyObject)"),self.commitFP)
 
 
         self.useDefaultScale_CB.nextCheckState()
+
+    def commitFP(self, fpDict):
+        print fpDict
+
+
+    def testFocus(self):
+        print "Test Focus"
+
+    def _setFPFocus_(self, fpInstance=None):
+        '''
+        used to capture the top window focus
+        '''
+        if isinstance(fpInstance, Finger_Widget):
+            self.curFPWidget = fpInstance
+#            print "Got Finger Widget"
+
+    def expandFPSpectra(self):
+        if self.expandFPBool:
+            self.expandFPBool = False
+        else:
+            self.expandFPBool = True
+
+        if self.expandFPBool:
+            self.loadSpecTreeWidget.expandAll()
+        else:
+            self.loadSpecTreeWidget.collapseAll()
+
 
     def setupVars(self):
         self.dirList = []
@@ -192,10 +225,16 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.fingerPlots = []
         self.peakParams = None
         self.setupPeakPick()
+        ###FP Related Vars:
+        self.expandFPBool = False
+        self.curFPWidget = Finger_Widget(parent = self)
+        self.fingerPlots.append(self.curFPWidget)
 
     def setupGUI(self):
         self.specNameEdit.clear()
-        self.groupTreeWidget.setHeaderLabel('Spectra')
+        self.groupTreeWidget.setHeaderLabel('Loaded Spectra:')
+        self.loadSpecTreeWidget.setHeaderLabel('Loaded Spectra:')
+
 #        self.indexHSlider.setMaximum(0)
 #        self.indexSpinBox.setMaximum(0)
         self.initContextMenus()
@@ -224,6 +263,17 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                 tempTWI.setTextColor(0, tempColor)
                 tempTWI.setToolTip(0, loadedItem.path)
                 self.curTreeItem.addChild(tempTWI)
+
+                tempFPTWI = QtGui.QTreeWidgetItem()
+                tempFPTWI.setText(0, loadedItem.name)
+                tempFPTWI.setTextColor(0, tempColor)
+                tempFPTWI.setToolTip(0, loadedItem.path)
+                self.curFPTreeItem.addChild(tempFPTWI)
+
+#                curPlanet = QtGui.QTreeWidgetItem()
+#                curPlanet.setFlags(QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsEditable | QtCore.Qt.ItemIsUserCheckable)
+#                curPlanet.setCheckState(0, QtCore.Qt.Unchecked)
+#
 
             self.dataDict[loadedItem.path] = loadedItem
 
@@ -349,6 +399,11 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                 self.curTreeItem = QtGui.QTreeWidgetItem(self.groupTreeWidget)
                 self.curTreeItem.setText(0,self.curGroupName)
                 self.curTreeItem.setToolTip(0, self.curDir)
+
+                #items for the fingerprint comparison
+                self.curFPTreeItem = QtGui.QTreeWidgetItem(self.loadSpecTreeWidget)
+                self.curFPTreeItem.setText(0,self.curGroupName)
+                self.curFPTreeItem.setToolTip(0, self.curDir)
 
 #                print self.curDir
 
