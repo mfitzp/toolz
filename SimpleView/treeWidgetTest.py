@@ -55,7 +55,11 @@ class TWidget(QtGui.QWidget):
         self.planetItems = QtGui.QTreeWidgetItem(self.treeWidget)
         self.planetItems.setText(0,'Planets')
         for i,planet in enumerate(planetNames):
+#            QtGui.QTreeWidget
             curPlanet = QtGui.QTreeWidgetItem()
+            curPlanet.setFlags(QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsEditable | QtCore.Qt.ItemIsUserCheckable)
+            curPlanet.setCheckState(0, QtCore.Qt.Unchecked)
+#            curPlanet.setFlags(curPlanet.flags()|QtCore.Qt.ItemIsEnabled)
             curPlanet.setText(0,planet)
             self.planetItems.addChild(curPlanet)
 
@@ -74,6 +78,7 @@ class TWidget(QtGui.QWidget):
 #            print item.childCount()
             if item.parent() != None:
                 print item.parent().text(index)
+            print item.checkState(0)
 #        if index != None:
 #            print index
 
