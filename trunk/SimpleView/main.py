@@ -8,8 +8,7 @@ Need to add exception for when there is no data in the file (i.e. a blank spectr
 
 Load a single file?
 
-make miniFingerprint
-    show FP window for a given group, and table
+Load FP
 
 PCA after peak pick
 
@@ -28,6 +27,7 @@ from PyQt4 import QtCore,  QtGui
 
 import numpy as N
 import scipy as S
+import tables as T
 
 from matplotlib.lines import Line2D
 from matplotlib.mlab import rec2csv
@@ -114,6 +114,12 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.plotWidget.addAction(self.actionAutoScale)
         QtCore.QObject.connect(self.actionAutoScale,QtCore.SIGNAL("triggered()"), self.autoscale_plot)
 
+
+        self.reviewFPAction = QtGui.QAction("Review Fingerprint",  self)
+        self.fpListWidget.addAction(self.reviewFPAction)
+        QtCore.QObject.connect(self.reviewFPAction,QtCore.SIGNAL("triggered()"), self.reviewFP)
+
+
         QtCore.QObject.connect(self.saveCSVAction,QtCore.SIGNAL("triggered()"), self.save2CSV)
 
         QtCore.QObject.connect(self.removeAction, QtCore.SIGNAL("triggered()"),self.removeFile)
@@ -166,7 +172,118 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         QtCore.QObject.connect(self.testFocus_Btn, QtCore.SIGNAL("clicked()"), self.testFocus)
         QtCore.QObject.connect(self.fpListWidget, QtCore.SIGNAL("itemClicked (QListWidgetItem *)"), self.fpListSelect)
 
+        QtCore.QObject.connect(self.loadHDF5FP_Btn, QtCore.SIGNAL("clicked()"), self.loadFPfromHDF5)
+
         self.useDefaultScale_CB.nextCheckState()
+
+    def reviewFP(self):
+        print "ReviewFP"
+        selectItems = self.fpListWidget.selectedItems()
+        if len(selectItems) > 0:
+            item = selectItems[0]#only select one FP at a time
+            print str(item.text())
+            tempDataDict = self.fpDict[str(item.text())]['dataDict']
+            peakStatDict = self.fpDict[str(item.text())]['peakStats']
+            curFingerPlot = Finger_Widget(parent = self)
+            curFingerPlot.updateDataDict(tempDataDict)
+            curFingerPlot.peakStatDict = peakStatDict
+            curFingerPlot.setupTable()
+
+
+            curFingerPlot.setupPlot()
+            curFingerPlot.show()
+            self.fingerPlots.append(curFingerPlot)
+
+
+#                self.fpDict
+
+    def loadFPfromHDF5(self):
+        fileName = self.openFileDialog()
+        if os.path.isfile(fileName):
+            hdf = T.openFile(fileName, mode = 'r')
+            hdfRoot = hdf.root
+            try:
+
+                specList = hdfRoot.Spectra._v_children
+                peakStats = hdfRoot.PeakStats._v_children
+                peakLists = hdfRoot.PeakLists._v_children
+
+                self.curGroupName = fileName.split(os.path.sep)[-1]
+                self.groupIndex.append(self.numGroups)
+                self.groupList.append(self.curGroupName)
+                self.numGroups+=1
+
+                self.curTreeItem = QtGui.QTreeWidgetItem(self.groupTreeWidget)
+                self.curTreeItem.setText(0,self.curGroupName)
+                self.curTreeItem.setToolTip(0, fileName)
+                self.groupTreeWidget.resizeColumnToContents(0)
+
+                #Should we add a FP tree item?
+                self.curFPTreeItem = QtGui.QTreeWidgetItem(self.loadSpecTreeWidget)
+                self.curFPTreeItem.setText(0,self.curGroupName)
+                self.curFPTreeItem.setToolTip(0, fileName)
+                self.loadSpecTreeWidget.resizeColumnToContents(0)
+
+                self.getTextColor()
+
+                dataDict = {}
+                for i, key in enumerate(specList.keys()):
+                    bName = os.path.basename(key)
+                    newName = os.path.join(self.curGroupName, bName)
+                    spec = specList[key].read()
+                    dataFile = DataClass(spec[:,0], spec[:,1],  name = bName, path = newName, interp = True)#should already by interpolated
+                    pkList = peakLists[key].read()
+                    dataFile.setPeakList(pkList, normalized = True)#set to normalized as these values are by nature already normalized
+                    dataDict[newName] = dataFile#used to add to FP interface
+                    self.updateGUI(dataFile)
+
+                peakStatDict = {}
+                for j, key in enumerate(peakStats.keys()):
+                    peakStatDict[key] = peakStats[key].read()
+
+
+                fpDict = {}
+                fpDict[self.curGroupName] = {'dataDict':dataDict, 'peakStats':peakStatDict}
+                self.commitFP(fpDict)
+
+                hdf.close()
+                self.loadOk = True
+                self.readFinished(True)
+            except:
+                hdf.close()
+                exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+                traceback.print_exception(exceptionType, exceptionValue, exceptionTraceback, file=sys.stdout)
+                errorMsg = "Sorry: %s\n\n:%s\n%s\n"%(exceptionType, exceptionValue, exceptionTraceback)
+                return QtGui.QMessageBox.warning(self, "Load Fingerpint Error", errorMsg)
+                print 'Error loading fingerprint from HDF5'
+                print errorMsg
+#                self.saveDict(hdf, self.dataDict, "Spectra")
+#                self.saveDict(hdf, self.peakStatDict, "PeakStats")
+#
+#            pkListGroup = hdfInstance.createGroup("/", "PeakLists", "PeakLists")
+#
+#        for item in dataDict.iteritems():
+#            if isinstance(item[1], DataClass):
+#                specX = item[1].x
+#                specY = item[1].y
+#                data = N.column_stack((specX,specY))
+#                pkList = item[1].peakList
+#                if pkList != None and pkListOK:
+#                    shape = pkList.shape
+#                    ca = hdfInstance.createCArray(pkListGroup, item[0], atom, shape, filters = filters)
+#                    ca[0:shape[0]] = pkList
+
+
+    def openFileDialog(self):
+        fileName = QtGui.QFileDialog.getOpenFileName(self,
+                                         "Select Fingerprint File to Load",
+                                         "",
+                                         "HDF5 Files (*.h5)")
+        if not fileName.isEmpty():
+#            print fileName
+            return os.path.abspath(str(fileName))
+        else:
+            return None
 
     def fpListSelect(self, listItem=None):
         if listItem != None:
@@ -194,11 +311,22 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
     def commitFP(self, fpDict):
         '''
-        Need to ask confirm overwrite in user dictionary
         '''
         for item in fpDict.iteritems():
-            self.fpDict[item[0]]=item[1]
-        self.addFP(fpDict)
+            if self.fpDict.has_key(item[0]):
+                if self.__askConfirm__("Fingerprint Already Exists", "Overwrite existing FP?"):
+                    self.fpDict[item[0]]=item[1]
+                    self.addFP(fpDict)
+            else:
+                self.fpDict[item[0]]=item[1]
+                self.addFP(fpDict)
+
+    def __askConfirm__(self,title,message):
+        clickedButton = QtGui.QMessageBox.question(self,\
+                                                   title,message,\
+                                                   QtGui.QMessageBox.Yes,QtGui.QMessageBox.Cancel)
+        if clickedButton == QtGui.QMessageBox.Yes: return True
+        return False
 
     def addFP(self, fpDict):
         curFPName = fpDict.keys()[0]
@@ -208,11 +336,9 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         else:
             curFP = QtGui.QListWidgetItem()
             curFP.setText(curFPName)
-            curFP.setFlags(QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsEditable | QtCore.Qt.ItemIsUserCheckable)
+            curFP.setFlags(QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsSelectable)
             curFP.setCheckState(QtCore.Qt.Unchecked)
             self.fpListWidget.addItem(curFP)
-
-
 
     def testFocus(self):
         print "Test Focus"
@@ -287,6 +413,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             #So that duplicate files are not loaded into the dataDict
             #if self.dataDict.has_key(loadedItem.name):
             if self.dataDict.has_key(loadedItem.path):
+                print "%s already exists...skipping"%loadedItem.path
                 pass
             else:
                 #self.dataList.append(loadedItem.name)
@@ -347,6 +474,20 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.plotWidget.connect(self.plotWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self.__mplContext__)
         self.groupTreeWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.groupTreeWidget.connect(self.groupTreeWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self.__treeContext__)
+        self.fpListWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.fpListWidget.connect(self.fpListWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self.__fpContext__)
+
+
+    def __fpContext__(self, point):
+        '''Create a menu for the FingerPrint list widget'''
+        ct_menu = QtGui.QMenu("Fingerprint Menu", self.fpListWidget)
+        ct_menu.addAction(self.reviewFPAction)
+#        ct_menu.addAction(self.topHatAction)
+#        ct_menu.addAction(self.findPeakAction)
+#        ct_menu.addAction(self.savePksAction)
+#        ct_menu.addSeparator()
+#        ct_menu.addAction(self.selectAllAction)
+        ct_menu.exec_(self.fpListWidget.mapToGlobal(point))
 
     def __treeContext__(self, point):
         '''Create a menu for the file list widget'''
@@ -398,9 +539,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         ct_menu.addAction(self.plotWidget.mpl2ClipAction)
         ct_menu.exec_(self.plotWidget.mapToGlobal(point))
 
-    def initDataList(self):
-        #handles loading of new group.
-        #####Text Color Handler
+    def getTextColor(self):
         if self.colorIndex%len(COLORS) == 0:
             self.colorIndex = 0
             self.txtColor = COLORS[self.colorIndex]
@@ -408,6 +547,11 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         else:
             self.txtColor = COLORS[self.colorIndex]
             self.colorIndex +=1
+
+    def initDataList(self):
+        #handles loading of new group.
+        #####Text Color Handler
+        self.getTextColor()
 
         if not self.firstLoad:
             #reinitialize GUI and spectrumList
@@ -641,7 +785,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                                          "csv Files (*.csv)")
         if not fileName.isEmpty():
             print fileName
-            return fileName
+            return str(fileName)
         else:
             return None
 
@@ -677,12 +821,12 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                     data2write[i][0:len(data)] = data
                     i+=1
 
-                N.savetxt(str(path), N.transpose(data2write), delimiter = ',', fmt='%.4f')
+                N.savetxt(path, N.transpose(data2write), delimiter = ',', fmt='%.4f')
 
             except:
                 try:
                     #this is for the case where the data may not be in float format?
-                    N.savetxt(str(path), N.transpose(data2write), delimiter = ',')
+                    N.savetxt(path, N.transpose(data2write), delimiter = ',')
                 except:
                     errorMsg ='Error saving figure data to csv\n\n'
                     errorMsg += "Sorry: %s\n\n:%s\n"%(sys.exc_type, sys.exc_value)
@@ -716,6 +860,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
     def removeFile(self):
         '''
         Need to add code to remove item from the FP treeWidget too.
+        Need to remove parent when num of children == 0
         '''
 #        QtGui.QTreeWidget.clear
         selectItems = self.groupTreeWidget.selectedItems()
@@ -726,10 +871,41 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                     if parentItem != None:
 
                         delRow = parentItem.indexOfChild(item)#self.groupTreeWidget.indexFromItem(item).row()
-                        parentItem.takeChild(delRow)
                         delName = str(item.toolTip(0))#used because the toolTip is set to the full path which is stored in the dataDict
                         self.dataDict.pop(delName)
-                        print self.dataDict.keys()
+                        parentItem.takeChild(delRow)
+                        #remove file reference from groupDict
+                        if self.groupDict.has_key(str(parentItem.toolTip(0))):
+                            tempItemList = self.groupDict[str(parentItem.toolTip(0))]
+                            for j,name in enumerate(tempItemList):
+                                if name == delName:
+                                    tempItemList.pop(j)
+
+                        #used to remove from loadSpecTreeWidget
+                        foundItems = self.loadSpecTreeWidget.findItems(parentItem.text(0),QtCore.Qt.MatchExactly, 0)#take only the first item
+                        fpParent = None
+                        if len(foundItems) > 0:
+                            fpParent = foundItems[0]
+                            numChidren = fpParent.childCount()
+                            for i in xrange(numChidren):
+                                fpChild = fpParent.child(i)
+                                if fpChild != None:
+                                    if fpChild.toolTip(0) == item.toolTip(0):#check to see if it is the same file
+                                        delFPRow = fpParent.indexOfChild(fpChild)
+                                        fpParent.takeChild(delFPRow)
+    #                                    fpParent.removeChild(fpChild)
+                                        i = numChidren
+
+                        #if the number of children reaches zero--remove item
+                        if parentItem.childCount() == 0:
+                            self.groupDict.pop(str(parentItem.toolTip(0)))
+                            topIndex = self.groupTreeWidget.indexOfTopLevelItem(parentItem)
+                            self.groupTreeWidget.takeTopLevelItem(topIndex)
+
+                        if fpParent != None:
+                            if fpParent.childCount() == 0:
+                                topIndex = self.loadSpecTreeWidget.indexOfTopLevelItem(fpParent)
+                                self.loadSpecTreeWidget.takeTopLevelItem(topIndex)
 
             self.updateGUI()
 

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Documents and Settings\d3p483\workspace\SimpleView\main.ui'
 #
-# Created: Tue Feb 17 11:07:00 2009
+# Created: Tue Feb 17 17:23:50 2009
 #      by: PyQt4 UI code generator 4.3.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -640,27 +640,28 @@ class Ui_MainWindow(object):
         self.splitter.setOrientation(QtCore.Qt.Horizontal)
         self.splitter.setObjectName("splitter")
 
-        self.widget = QtGui.QWidget(self.splitter)
-        self.widget.setObjectName("widget")
+        self.layoutWidget = QtGui.QWidget(self.splitter)
+        self.layoutWidget.setObjectName("layoutWidget")
 
-        self.vboxlayout6 = QtGui.QVBoxLayout(self.widget)
+        self.vboxlayout6 = QtGui.QVBoxLayout(self.layoutWidget)
         self.vboxlayout6.setObjectName("vboxlayout6")
 
         self.vboxlayout7 = QtGui.QVBoxLayout()
         self.vboxlayout7.setObjectName("vboxlayout7")
 
-        self.label = QtGui.QLabel(self.widget)
+        self.label = QtGui.QLabel(self.layoutWidget)
         self.label.setObjectName("label")
         self.vboxlayout7.addWidget(self.label)
 
-        self.fpListWidget = QtGui.QListWidget(self.widget)
+        self.fpListWidget = QtGui.QListWidget(self.layoutWidget)
+        self.fpListWidget.setSelectionMode(QtGui.QAbstractItemView.ExtendedSelection)
         self.fpListWidget.setObjectName("fpListWidget")
         self.vboxlayout7.addWidget(self.fpListWidget)
 
         self.hboxlayout22 = QtGui.QHBoxLayout()
         self.hboxlayout22.setObjectName("hboxlayout22")
 
-        self.loadFP_Btn = QtGui.QPushButton(self.widget)
+        self.loadFP_Btn = QtGui.QPushButton(self.layoutWidget)
         self.loadFP_Btn.setObjectName("loadFP_Btn")
         self.hboxlayout22.addWidget(self.loadFP_Btn)
 
@@ -672,35 +673,35 @@ class Ui_MainWindow(object):
         self.hboxlayout23 = QtGui.QHBoxLayout()
         self.hboxlayout23.setObjectName("hboxlayout23")
 
-        self.autoLoadFP_CB = QtGui.QCheckBox(self.widget)
+        self.autoLoadFP_CB = QtGui.QCheckBox(self.layoutWidget)
         self.autoLoadFP_CB.setObjectName("autoLoadFP_CB")
         self.hboxlayout23.addWidget(self.autoLoadFP_CB)
 
-        self.curFPName_LE = QtGui.QLineEdit(self.widget)
+        self.curFPName_LE = QtGui.QLineEdit(self.layoutWidget)
         self.curFPName_LE.setReadOnly(True)
         self.curFPName_LE.setObjectName("curFPName_LE")
         self.hboxlayout23.addWidget(self.curFPName_LE)
         self.vboxlayout6.addLayout(self.hboxlayout23)
 
-        self.fingerPTable = CustomTable(self.widget)
+        self.fingerPTable = CustomTable(self.layoutWidget)
         self.fingerPTable.setObjectName("fingerPTable")
         self.vboxlayout6.addWidget(self.fingerPTable)
 
-        self.widget1 = QtGui.QWidget(self.splitter)
-        self.widget1.setObjectName("widget1")
+        self.layoutWidget1 = QtGui.QWidget(self.splitter)
+        self.layoutWidget1.setObjectName("layoutWidget1")
 
-        self.hboxlayout24 = QtGui.QHBoxLayout(self.widget1)
+        self.hboxlayout24 = QtGui.QHBoxLayout(self.layoutWidget1)
         self.hboxlayout24.setObjectName("hboxlayout24")
 
         self.vboxlayout8 = QtGui.QVBoxLayout()
         self.vboxlayout8.setObjectName("vboxlayout8")
 
-        self.doPCA_Btn = QtGui.QToolButton(self.widget1)
+        self.doPCA_Btn = QtGui.QToolButton(self.layoutWidget1)
         self.doPCA_Btn.setMinimumSize(QtCore.QSize(30,30))
         self.doPCA_Btn.setObjectName("doPCA_Btn")
         self.vboxlayout8.addWidget(self.doPCA_Btn)
 
-        self.doFP_Btn = QtGui.QToolButton(self.widget1)
+        self.doFP_Btn = QtGui.QToolButton(self.layoutWidget1)
         self.doFP_Btn.setMinimumSize(QtCore.QSize(30,30))
         self.doFP_Btn.setObjectName("doFP_Btn")
         self.vboxlayout8.addWidget(self.doFP_Btn)
@@ -715,7 +716,7 @@ class Ui_MainWindow(object):
         self.hboxlayout25 = QtGui.QHBoxLayout()
         self.hboxlayout25.setObjectName("hboxlayout25")
 
-        self.expand_Btn = QtGui.QPushButton(self.widget1)
+        self.expand_Btn = QtGui.QPushButton(self.layoutWidget1)
         self.expand_Btn.setObjectName("expand_Btn")
         self.hboxlayout25.addWidget(self.expand_Btn)
 
@@ -723,7 +724,7 @@ class Ui_MainWindow(object):
         self.hboxlayout25.addItem(spacerItem11)
         self.vboxlayout9.addLayout(self.hboxlayout25)
 
-        self.loadSpecTreeWidget = QtGui.QTreeWidget(self.widget1)
+        self.loadSpecTreeWidget = QtGui.QTreeWidget(self.layoutWidget1)
         self.loadSpecTreeWidget.setMaximumSize(QtCore.QSize(200,16777215))
         self.loadSpecTreeWidget.setSelectionMode(QtGui.QAbstractItemView.ExtendedSelection)
         self.loadSpecTreeWidget.setSortingEnabled(True)
@@ -738,18 +739,18 @@ class Ui_MainWindow(object):
         self.tab_3 = QtGui.QWidget()
         self.tab_3.setObjectName("tab_3")
 
-        self.layoutWidget = QtGui.QWidget(self.tab_3)
-        self.layoutWidget.setGeometry(QtCore.QRect(30,60,441,25))
-        self.layoutWidget.setObjectName("layoutWidget")
+        self.layoutWidget2 = QtGui.QWidget(self.tab_3)
+        self.layoutWidget2.setGeometry(QtCore.QRect(30,60,441,25))
+        self.layoutWidget2.setObjectName("layoutWidget2")
 
-        self.hboxlayout26 = QtGui.QHBoxLayout(self.layoutWidget)
+        self.hboxlayout26 = QtGui.QHBoxLayout(self.layoutWidget2)
         self.hboxlayout26.setObjectName("hboxlayout26")
 
-        self.pushButton_2 = QtGui.QPushButton(self.layoutWidget)
+        self.pushButton_2 = QtGui.QPushButton(self.layoutWidget2)
         self.pushButton_2.setObjectName("pushButton_2")
         self.hboxlayout26.addWidget(self.pushButton_2)
 
-        self.lineEdit_2 = QtGui.QLineEdit(self.layoutWidget)
+        self.lineEdit_2 = QtGui.QLineEdit(self.layoutWidget2)
         self.lineEdit_2.setReadOnly(True)
         self.lineEdit_2.setObjectName("lineEdit_2")
         self.hboxlayout26.addWidget(self.lineEdit_2)
@@ -770,18 +771,18 @@ class Ui_MainWindow(object):
         self.lineEdit_3.setObjectName("lineEdit_3")
         self.hboxlayout27.addWidget(self.lineEdit_3)
 
-        self.widget2 = QtGui.QWidget(self.tab_3)
-        self.widget2.setGeometry(QtCore.QRect(20,20,441,25))
-        self.widget2.setObjectName("widget2")
+        self.layoutWidget3 = QtGui.QWidget(self.tab_3)
+        self.layoutWidget3.setGeometry(QtCore.QRect(20,20,441,25))
+        self.layoutWidget3.setObjectName("layoutWidget3")
 
-        self.hboxlayout28 = QtGui.QHBoxLayout(self.widget2)
+        self.hboxlayout28 = QtGui.QHBoxLayout(self.layoutWidget3)
         self.hboxlayout28.setObjectName("hboxlayout28")
 
-        self.pushButton = QtGui.QPushButton(self.widget2)
+        self.pushButton = QtGui.QPushButton(self.layoutWidget3)
         self.pushButton.setObjectName("pushButton")
         self.hboxlayout28.addWidget(self.pushButton)
 
-        self.lineEdit = QtGui.QLineEdit(self.widget2)
+        self.lineEdit = QtGui.QLineEdit(self.layoutWidget3)
         self.lineEdit.setReadOnly(True)
         self.lineEdit.setObjectName("lineEdit")
         self.hboxlayout28.addWidget(self.lineEdit)
@@ -790,21 +791,36 @@ class Ui_MainWindow(object):
         self.tab = QtGui.QWidget()
         self.tab.setObjectName("tab")
 
-        self.gridlayout3 = QtGui.QGridLayout(self.tab)
-        self.gridlayout3.setObjectName("gridlayout3")
+        self.vboxlayout10 = QtGui.QVBoxLayout(self.tab)
+        self.vboxlayout10.setObjectName("vboxlayout10")
 
         self.hboxlayout29 = QtGui.QHBoxLayout()
         self.hboxlayout29.setObjectName("hboxlayout29")
 
+        self.loadHDF5FP_Btn = QtGui.QPushButton(self.tab)
+        self.loadHDF5FP_Btn.setObjectName("loadHDF5FP_Btn")
+        self.hboxlayout29.addWidget(self.loadHDF5FP_Btn)
+
+        spacerItem12 = QtGui.QSpacerItem(40,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
+        self.hboxlayout29.addItem(spacerItem12)
+        self.vboxlayout10.addLayout(self.hboxlayout29)
+
+        self.testFocus_Btn = QtGui.QPushButton(self.tab)
+        self.testFocus_Btn.setObjectName("testFocus_Btn")
+        self.vboxlayout10.addWidget(self.testFocus_Btn)
+
+        self.hboxlayout30 = QtGui.QHBoxLayout()
+        self.hboxlayout30.setObjectName("hboxlayout30")
+
         self.test = QtGui.QLabel(self.tab)
         self.test.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.test.setObjectName("test")
-        self.hboxlayout29.addWidget(self.test)
+        self.hboxlayout30.addWidget(self.test)
 
         self.test2 = QtGui.QSpinBox(self.tab)
         self.test2.setObjectName("test2")
-        self.hboxlayout29.addWidget(self.test2)
-        self.gridlayout3.addLayout(self.hboxlayout29,1,0,1,1)
+        self.hboxlayout30.addWidget(self.test2)
+        self.vboxlayout10.addLayout(self.hboxlayout30)
 
         self.groupTreeWidget1 = QtGui.QTreeWidget(self.tab)
         self.groupTreeWidget1.setSelectionMode(QtGui.QAbstractItemView.ExtendedSelection)
@@ -812,23 +828,19 @@ class Ui_MainWindow(object):
         self.groupTreeWidget1.setColumnCount(2)
         self.groupTreeWidget1.setProperty("headerHidden",QtCore.QVariant(True))
         self.groupTreeWidget1.setObjectName("groupTreeWidget1")
-        self.gridlayout3.addWidget(self.groupTreeWidget1,1,1,2,1)
+        self.vboxlayout10.addWidget(self.groupTreeWidget1)
 
-        self.hboxlayout30 = QtGui.QHBoxLayout()
-        self.hboxlayout30.setObjectName("hboxlayout30")
+        self.hboxlayout31 = QtGui.QHBoxLayout()
+        self.hboxlayout31.setObjectName("hboxlayout31")
 
         self.label_18 = QtGui.QLabel(self.tab)
         self.label_18.setObjectName("label_18")
-        self.hboxlayout30.addWidget(self.label_18)
+        self.hboxlayout31.addWidget(self.label_18)
 
         self.spinBox = QtGui.QSpinBox(self.tab)
         self.spinBox.setObjectName("spinBox")
-        self.hboxlayout30.addWidget(self.spinBox)
-        self.gridlayout3.addLayout(self.hboxlayout30,2,0,1,1)
-
-        self.testFocus_Btn = QtGui.QPushButton(self.tab)
-        self.testFocus_Btn.setObjectName("testFocus_Btn")
-        self.gridlayout3.addWidget(self.testFocus_Btn,0,0,1,1)
+        self.hboxlayout31.addWidget(self.spinBox)
+        self.vboxlayout10.addLayout(self.hboxlayout31)
         self.tabWidget.addTab(self.tab,"")
         self.hboxlayout.addWidget(self.tabWidget)
         MainWindow.setCentralWidget(self.centralwidget)
@@ -1036,6 +1048,8 @@ class Ui_MainWindow(object):
         self.pushButton_3.setText(QtGui.QApplication.translate("MainWindow", "Default Fingerprint Folder:", None, QtGui.QApplication.UnicodeUTF8))
         self.pushButton.setText(QtGui.QApplication.translate("MainWindow", "Default Fingerprint Folder:", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), QtGui.QApplication.translate("MainWindow", "Preferences", None, QtGui.QApplication.UnicodeUTF8))
+        self.loadHDF5FP_Btn.setText(QtGui.QApplication.translate("MainWindow", "Load HDF5 FP", None, QtGui.QApplication.UnicodeUTF8))
+        self.testFocus_Btn.setText(QtGui.QApplication.translate("MainWindow", "Test Focus", None, QtGui.QApplication.UnicodeUTF8))
         self.test.setText(QtGui.QApplication.translate("MainWindow", "Static Cutoff:", None, QtGui.QApplication.UnicodeUTF8))
         self.test2.setToolTip(QtGui.QApplication.translate("MainWindow", "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
         "p, li { white-space: pre-wrap; }\n"
@@ -1044,7 +1058,6 @@ class Ui_MainWindow(object):
         self.groupTreeWidget1.headerItem().setText(0,QtGui.QApplication.translate("MainWindow", "1", None, QtGui.QApplication.UnicodeUTF8))
         self.groupTreeWidget1.headerItem().setText(1,QtGui.QApplication.translate("MainWindow", "2", None, QtGui.QApplication.UnicodeUTF8))
         self.label_18.setText(QtGui.QApplication.translate("MainWindow", "Wavelet Tolerance:", None, QtGui.QApplication.UnicodeUTF8))
-        self.testFocus_Btn.setText(QtGui.QApplication.translate("MainWindow", "Test Focus", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), QtGui.QApplication.translate("MainWindow", "Misc", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_File.setTitle(QtGui.QApplication.translate("MainWindow", "&File", None, QtGui.QApplication.UnicodeUTF8))
         self.menuTools.setTitle(QtGui.QApplication.translate("MainWindow", "Tools", None, QtGui.QApplication.UnicodeUTF8))

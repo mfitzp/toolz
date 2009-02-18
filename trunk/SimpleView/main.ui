@@ -1239,7 +1239,7 @@ p, li { white-space: pre-wrap; }
           <property name="orientation" >
            <enum>Qt::Horizontal</enum>
           </property>
-          <widget class="QWidget" name="" >
+          <widget class="QWidget" name="layoutWidget" >
            <layout class="QVBoxLayout" >
             <item>
              <layout class="QVBoxLayout" >
@@ -1251,7 +1251,11 @@ p, li { white-space: pre-wrap; }
                </widget>
               </item>
               <item>
-               <widget class="QListWidget" name="fpListWidget" />
+               <widget class="QListWidget" name="fpListWidget" >
+                <property name="selectionMode" >
+                 <enum>QAbstractItemView::ExtendedSelection</enum>
+                </property>
+               </widget>
               </item>
               <item>
                <layout class="QHBoxLayout" >
@@ -1302,7 +1306,7 @@ p, li { white-space: pre-wrap; }
             </item>
            </layout>
           </widget>
-          <widget class="QWidget" name="" >
+          <widget class="QWidget" name="layoutWidget" >
            <layout class="QHBoxLayout" >
             <item>
              <layout class="QVBoxLayout" >
@@ -1464,7 +1468,7 @@ p, li { white-space: pre-wrap; }
          </item>
         </layout>
        </widget>
-       <widget class="QWidget" name="" >
+       <widget class="QWidget" name="layoutWidget" >
         <property name="geometry" >
          <rect>
           <x>20</x>
@@ -1495,8 +1499,39 @@ p, li { white-space: pre-wrap; }
        <attribute name="title" >
         <string>Misc</string>
        </attribute>
-       <layout class="QGridLayout" >
-        <item row="1" column="0" >
+       <layout class="QVBoxLayout" >
+        <item>
+         <layout class="QHBoxLayout" >
+          <item>
+           <widget class="QPushButton" name="loadHDF5FP_Btn" >
+            <property name="text" >
+             <string>Load HDF5 FP</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer>
+            <property name="orientation" >
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" >
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QPushButton" name="testFocus_Btn" >
+          <property name="text" >
+           <string>Test Focus</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <layout class="QHBoxLayout" >
           <item>
            <widget class="QLabel" name="test" >
@@ -1520,7 +1555,7 @@ p, li { white-space: pre-wrap; }
           </item>
          </layout>
         </item>
-        <item rowspan="2" row="1" column="1" >
+        <item>
          <widget class="QTreeWidget" name="groupTreeWidget1" >
           <property name="selectionMode" >
            <enum>QAbstractItemView::ExtendedSelection</enum>
@@ -1546,7 +1581,7 @@ p, li { white-space: pre-wrap; }
           </column>
          </widget>
         </item>
-        <item row="2" column="0" >
+        <item>
          <layout class="QHBoxLayout" >
           <item>
            <widget class="QLabel" name="label_18" >
@@ -1559,13 +1594,6 @@ p, li { white-space: pre-wrap; }
            <widget class="QSpinBox" name="spinBox" />
           </item>
          </layout>
-        </item>
-        <item row="0" column="0" >
-         <widget class="QPushButton" name="testFocus_Btn" >
-          <property name="text" >
-           <string>Test Focus</string>
-          </property>
-         </widget>
         </item>
        </layout>
       </widget>

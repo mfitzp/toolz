@@ -145,6 +145,9 @@ class Finger_Widget(QtGui.QWidget, ui_fingerPrint.Ui_fingerPlotWidget):
 #                self.mainAx.scatter(pkList[:,0], pkList[:,1]*0, color = self.plotColor)
 
     def getFPPeakList(self):
+        '''
+        Need to make this more modular so that one can plot the peak locations with circles and the window...
+        '''
         if self.dataDictOK:
 #            self.mainAx.cla()
             self.xLoc = N.zeros(1)
@@ -234,6 +237,7 @@ class Finger_Widget(QtGui.QWidget, ui_fingerPrint.Ui_fingerPlotWidget):
         pkListOK = False
         if isinstance(dataDict[tempKey], DataClass):
             pkListGroup = hdfInstance.createGroup("/", "PeakLists", "PeakLists")
+            pkListOK = True
 
         for item in dataDict.iteritems():
             if isinstance(item[1], DataClass):
@@ -243,6 +247,7 @@ class Finger_Widget(QtGui.QWidget, ui_fingerPrint.Ui_fingerPlotWidget):
                 pkList = item[1].peakList
                 if pkList != None and pkListOK:
                     shape = pkList.shape
+#                    print pkList
                     ca = hdfInstance.createCArray(pkListGroup, item[0], atom, shape, filters = filters)
                     ca[0:shape[0]] = pkList
             else:

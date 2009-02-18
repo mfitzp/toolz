@@ -6,7 +6,7 @@ import getBaseline as GB
 
 
 class DataClass(object):
-    def __init__(self, xdata,  ydata,  name = None, path = None):
+    def __init__(self, xdata,  ydata,  name = None, path = None, interp = False):
         self.x = xdata
         if ydata != None:
             self.y = ydata
@@ -36,7 +36,10 @@ class DataClass(object):
         self.normFactor = self.y.max()
         self.interpOk = False
         self.mzPad = None#this value is used for peak picking and is equal to the number of points in 0.5 mz units
-        self.interpData()
+        if interp:
+            self.interpOk = True
+        else:
+            self.interpData()
 
 
     def savePkList(self):
