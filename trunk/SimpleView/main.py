@@ -189,8 +189,12 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             curFingerPlot.peakStatDict = peakStatDict
             curFingerPlot.setupTable()
 
+            #set mzTol and the stdDev
+            curFingerPlot.mzTol_SB.setValue(peakStatDict['mzTol'].mean())
+            curFingerPlot.stdDev_SB.setValue(peakStatDict['stdDevTol'].mean())
 
             curFingerPlot.setupPlot()
+            curFingerPlot.getFPPeakList(resetDict = True)
             curFingerPlot.show()
             self.fingerPlots.append(curFingerPlot)
 
@@ -205,8 +209,9 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             try:
 
                 specList = hdfRoot.Spectra._v_children
-                peakStats = hdfRoot.PeakStats._v_children
                 peakLists = hdfRoot.PeakLists._v_children
+                peakStats = hdfRoot.PeakStats._v_children
+
 
                 self.curGroupName = fileName.split(os.path.sep)[-1]
                 self.groupIndex.append(self.numGroups)

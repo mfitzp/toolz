@@ -108,11 +108,14 @@ class Finger_Widget(QtGui.QWidget, ui_fingerPrint.Ui_fingerPlotWidget):
                              'aveInt':[],
                              'stdInt':[],
                              'numMembers':[],
-                             'prob':[]
+                             'prob':[],
+                             'mzTol':[],
+                             'stdDevTol':[]
                              }
         self.xLoc = None
         self.yLoc = None
         self.mzTol = self.mzTol_SB.value()
+        self.stdDevTol = self.stdDev_SB.value()
         self.fpDict = None
 
     def _updatePlotColor_(self):
@@ -143,11 +146,24 @@ class Finger_Widget(QtGui.QWidget, ui_fingerPrint.Ui_fingerPlotWidget):
                 curData.plot(self.mainAx, pColor = self.plotColor)
 #                pkList = curData.peakList
 #                self.mainAx.scatter(pkList[:,0], pkList[:,1]*0, color = self.plotColor)
+    def resetPeakStatDict(self):
+        self.peakStatDict = {'aveLoc':[],
+                             'stdLoc':[],
+                             'aveInt':[],
+                             'stdInt':[],
+                             'numMembers':[],
+                             'prob':[],
+                             'mzTol':[],
+                             'stdDevTol':[]
+                             }
 
-    def getFPPeakList(self):
+    def getFPPeakList(self, resetDict = False):
         '''
         Need to make this more modular so that one can plot the peak locations with circles and the window...
         '''
+        if resetDict:
+            self.resetPeakStatDict()
+
         if self.dataDictOK:
 #            self.mainAx.cla()
             self.xLoc = N.zeros(1)
@@ -167,6 +183,7 @@ class Finger_Widget(QtGui.QWidget, ui_fingerPrint.Ui_fingerPlotWidget):
             self.specNum = self.specNum[sortInd]
 #            self.mainAx.plot(self.xLoc, self.yLoc, '--r')
             self.mzTol = self.mzTol_SB.value()
+            self.stdDevTol = self.stdDev_SB.value()
             groups, gNum = groupOneD(self.xLoc, self.mzTol, origOrder = self.specNum)
             for g in xrange(gNum):
                 self._updatePlotColor_()
@@ -182,10 +199,12 @@ class Finger_Widget(QtGui.QWidget, ui_fingerPrint.Ui_fingerPlotWidget):
                 self.peakStatDict['stdInt'].append(curYStd)
                 self.peakStatDict['numMembers'].append(len(subInd))
                 self.peakStatDict['prob'].append(0)
+                self.peakStatDict['mzTol'].append(self.mzTol)
+                self.peakStatDict['stdDevTol'].append(self.stdDevTol)
                 if len(subInd)>=2:
                     self.mainAx.plot(self.xLoc[subInd], self.yLoc[subInd], ms = 4, marker = 'o', alpha = 0.5, color = self.plotColor)
                     #Rect((x,y),width, height)
-                    tempRect = Rect((curXMean-curXStd,0),curXStd*2,curYMean+curYStd, alpha = 0.5, facecolor = self.plotColor)
+                    tempRect = Rect((curXMean-curXStd*self.stdDev_SB.value(),0),curXStd*2*self.stdDev_SB.value(),curYMean+curYStd, alpha = 0.5, facecolor = self.plotColor)
                     self.mainAx.add_patch(tempRect)
             #convert peakStats to Numpy
             for key in self.peakStatDict.iterkeys():
@@ -223,6 +242,8 @@ class Finger_Widget(QtGui.QWidget, ui_fingerPrint.Ui_fingerPlotWidget):
             return str(fileName)
         else:
             return None
+#    def changePathStr(self, pathStr):
+#        ret
 
     def saveDict(self, hdfInstance, dataDict, groupName, attrDict = None):
         '''
@@ -240,6 +261,7 @@ class Finger_Widget(QtGui.QWidget, ui_fingerPrint.Ui_fingerPlotWidget):
             pkListOK = True
 
         for item in dataDict.iteritems():
+            natName = item[0].replace(os.path.sep, '*')#natural Name
             if isinstance(item[1], DataClass):
                 specX = item[1].x
                 specY = item[1].y
@@ -248,15 +270,18 @@ class Finger_Widget(QtGui.QWidget, ui_fingerPrint.Ui_fingerPlotWidget):
                 if pkList != None and pkListOK:
                     shape = pkList.shape
 #                    print pkList
-                    ca = hdfInstance.createCArray(pkListGroup, item[0], atom, shape, filters = filters)
+                    ca = hdfInstance.createCArray(pkListGroup, natName, atom, shape, filters = filters)
                     ca[0:shape[0]] = pkList
-            else:
+            else:#this would be the case for PeakStatsDict
+#                varGroup._v_attrs.mzTol = self.mzTol_SB.value()
+#                varGroup._v_attrs.stDev = self.stdDev_SB.value()
+
                 data = item[1]
             shape = data.shape
-            ca = hdfInstance.createCArray(varGroup, item[0], atom, shape, filters = filters)
+            ca = hdfInstance.createCArray(varGroup, natName, atom, shape, filters = filters)
             ca[0:shape[0]] = data
 #            ca.flush()
-            print "%s written"%item[0]
+            print "%s written"%natName
 
 
     def saveFinger2HDF5(self):
