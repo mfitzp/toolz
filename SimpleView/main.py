@@ -177,7 +177,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.useDefaultScale_CB.nextCheckState()
 
     def reviewFP(self):
-        print "ReviewFP"
+#        print "ReviewFP"
         selectItems = self.fpListWidget.selectedItems()
         if len(selectItems) > 0:
             item = selectItems[0]#only select one FP at a time
@@ -233,7 +233,8 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
                 dataDict = {}
                 for i, key in enumerate(specList.keys()):
-                    bName = os.path.basename(key)
+
+                    bName = os.path.basename(key.replace('*',os.path.sep))
                     newName = os.path.join(self.curGroupName, bName)
                     spec = specList[key].read()
                     dataFile = DataClass(spec[:,0], spec[:,1],  name = bName, path = newName, interp = True)#should already by interpolated
