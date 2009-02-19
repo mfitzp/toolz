@@ -103,20 +103,13 @@ class Finger_Widget(QtGui.QWidget, ui_fingerPrint.Ui_fingerPlotWidget):
         self.plotColor = None
         self.plotColorIndex = 0
         self.compositePeakList = []
-        self.peakStatDict = {'aveLoc':[],
-                             'stdLoc':[],
-                             'aveInt':[],
-                             'stdInt':[],
-                             'numMembers':[],
-                             'prob':[],
-                             'mzTol':[],
-                             'stdDevTol':[]
-                             }
+        self.resetPeakStatDict()
         self.xLoc = None
         self.yLoc = None
         self.mzTol = self.mzTol_SB.value()
         self.stdDevTol = self.stdDev_SB.value()
         self.fpDict = None
+        self.numSpectra = 0
 
     def _updatePlotColor_(self):
         if self.plotColorIndex%len(COLORS) == 0:
@@ -152,6 +145,7 @@ class Finger_Widget(QtGui.QWidget, ui_fingerPrint.Ui_fingerPlotWidget):
                              'aveInt':[],
                              'stdInt':[],
                              'numMembers':[],
+                             'freq':[],
                              'prob':[],
                              'mzTol':[],
                              'stdDevTol':[]
@@ -170,6 +164,8 @@ class Finger_Widget(QtGui.QWidget, ui_fingerPrint.Ui_fingerPlotWidget):
             self.yLoc = N.zeros(1)
             self.specNum = N.zeros(1)#this is a bookeeping array
             curSpecNum = 0
+            self.numSpectra = len(self.dataDict)/1.0#used to turn into float
+            print "Number of Spectra: ", self.numSpectra
             for curData in self.dataDict.itervalues():
                 pkList = curData.peakList
                 self.xLoc = N.append(self.xLoc, pkList[:,0])
@@ -198,6 +194,7 @@ class Finger_Widget(QtGui.QWidget, ui_fingerPrint.Ui_fingerPlotWidget):
                 self.peakStatDict['aveInt'].append(curYMean)
                 self.peakStatDict['stdInt'].append(curYStd)
                 self.peakStatDict['numMembers'].append(len(subInd))
+                self.peakStatDict['freq'].append(len(subInd)/self.numSpectra)
                 self.peakStatDict['prob'].append(0)
                 self.peakStatDict['mzTol'].append(self.mzTol)
                 self.peakStatDict['stdDevTol'].append(self.stdDevTol)
@@ -208,13 +205,14 @@ class Finger_Widget(QtGui.QWidget, ui_fingerPrint.Ui_fingerPlotWidget):
                     self.mainAx.add_patch(tempRect)
             #convert peakStats to Numpy
             for key in self.peakStatDict.iterkeys():
-                self.peakStatDict[key] = N.array(self.peakStatDict[key])
+                #CHECK THIS
+                self.peakStatDict[key] = N.array(self.peakStatDict[key][1:])#we want to remove the first element as it is zero and just a place holder
             self.setupTable()
 
     def setupTable(self):
         self.peakTable.clear()
         self.peakTable.setSortingEnabled(False)
-        tableHeaders = ['aveLoc','stdLoc', 'aveInt', 'stdInt', 'numMembers']
+        tableHeaders = ['aveLoc','stdLoc', 'aveInt', 'stdInt', 'numMembers', 'freq']
 #        for key in tableHeaders:
 #            self.peakStatDict[key] = N.array(self.peakStatDict[key])
 

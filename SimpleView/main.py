@@ -17,7 +17,6 @@ Group Display
 
 if peakfit is run the commit noise if it does not already exist
 
-
 '''
 ###################################
 import os, sys, traceback
@@ -167,7 +166,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         QtCore.QObject.connect(self.selectGroupAction,QtCore.SIGNAL("triggered()"),self.selectGroups)
 
         #FingerPrint Related Connections:
-
         QtCore.QObject.connect(self.expand_Btn, QtCore.SIGNAL("clicked()"), self.expandFPSpectra)
         QtCore.QObject.connect(self.testFocus_Btn, QtCore.SIGNAL("clicked()"), self.testFocus)
         QtCore.QObject.connect(self.fpListWidget, QtCore.SIGNAL("itemClicked (QListWidgetItem *)"), self.fpListSelect)
@@ -302,7 +300,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                 peakStatDict = self.fpDict[self.curFPName]['peakStats']
                 self.fingerPTable.clear()
                 self.fingerPTable.setSortingEnabled(False)
-                tableHeaders = ['aveLoc','stdLoc', 'aveInt', 'stdInt', 'numMembers']
+                tableHeaders = ['aveLoc','stdLoc', 'aveInt', 'stdInt', 'numMembers', 'freq']
         #        for key in tableHeaders:
         #            self.peakStatDict[key] = N.array(self.peakStatDict[key])
 
