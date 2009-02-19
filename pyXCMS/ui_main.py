@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Documents and Settings\d3p483\workspace\pyXCMS\main.ui'
 #
-# Created: Thu Feb 05 11:29:48 2009
+# Created: Thu Feb 19 11:01:03 2009
 #      by: PyQt4 UI code generator 4.3.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -12,7 +12,7 @@ from PyQt4 import QtCore, QtGui
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(QtCore.QSize(QtCore.QRect(0,0,987,731).size()).expandedTo(MainWindow.minimumSizeHint()))
+        MainWindow.resize(QtCore.QSize(QtCore.QRect(0,0,987,673).size()).expandedTo(MainWindow.minimumSizeHint()))
         MainWindow.setWindowIcon(QtGui.QIcon("games.png"))
         MainWindow.setIconSize(QtCore.QSize(30,30))
 
@@ -147,51 +147,48 @@ class Ui_MainWindow(object):
         self.tab_2 = QtGui.QWidget()
         self.tab_2.setObjectName("tab_2")
 
-        self.hboxlayout6 = QtGui.QHBoxLayout(self.tab_2)
-        self.hboxlayout6.setObjectName("hboxlayout6")
-
-        self.hboxlayout7 = QtGui.QHBoxLayout()
-        self.hboxlayout7.setObjectName("hboxlayout7")
+        self.gridlayout = QtGui.QGridLayout(self.tab_2)
+        self.gridlayout.setObjectName("gridlayout")
 
         self.vboxlayout6 = QtGui.QVBoxLayout()
         self.vboxlayout6.setObjectName("vboxlayout6")
 
-        self.hboxlayout8 = QtGui.QHBoxLayout()
-        self.hboxlayout8.setObjectName("hboxlayout8")
+        self.hboxlayout6 = QtGui.QHBoxLayout()
+        self.hboxlayout6.setObjectName("hboxlayout6")
 
         self.label_6 = QtGui.QLabel(self.tab_2)
         self.label_6.setObjectName("label_6")
-        self.hboxlayout8.addWidget(self.label_6)
+        self.hboxlayout6.addWidget(self.label_6)
 
         self.eicIndexSlider = QtGui.QSlider(self.tab_2)
-        self.eicIndexSlider.setMaximum(150)
+        self.eicIndexSlider.setMaximum(10000)
         self.eicIndexSlider.setOrientation(QtCore.Qt.Horizontal)
         self.eicIndexSlider.setObjectName("eicIndexSlider")
-        self.hboxlayout8.addWidget(self.eicIndexSlider)
+        self.hboxlayout6.addWidget(self.eicIndexSlider)
 
         self.eicIndexSB = QtGui.QSpinBox(self.tab_2)
-        self.eicIndexSB.setMaximum(150)
+        self.eicIndexSB.setMaximum(10000)
         self.eicIndexSB.setObjectName("eicIndexSB")
-        self.hboxlayout8.addWidget(self.eicIndexSB)
-        self.vboxlayout6.addLayout(self.hboxlayout8)
+        self.hboxlayout6.addWidget(self.eicIndexSB)
+        self.vboxlayout6.addLayout(self.hboxlayout6)
 
         self.plotWidget = MPL_Widget(self.tab_2)
         self.plotWidget.setObjectName("plotWidget")
         self.vboxlayout6.addWidget(self.plotWidget)
-        self.hboxlayout7.addLayout(self.vboxlayout6)
+        self.gridlayout.addLayout(self.vboxlayout6,0,0,1,1)
 
-        self.hboxlayout9 = QtGui.QHBoxLayout()
-        self.hboxlayout9.setObjectName("hboxlayout9")
+        self.hboxlayout7 = QtGui.QHBoxLayout()
+        self.hboxlayout7.setObjectName("hboxlayout7")
 
         self.vboxlayout7 = QtGui.QVBoxLayout()
         self.vboxlayout7.setObjectName("vboxlayout7")
 
-        self.hboxlayout10 = QtGui.QHBoxLayout()
-        self.hboxlayout10.setObjectName("hboxlayout10")
+        self.hboxlayout8 = QtGui.QHBoxLayout()
+        self.hboxlayout8.setObjectName("hboxlayout8")
 
         self.label_7 = QtGui.QLabel(self.tab_2)
         self.label_7.setObjectName("label_7")
-        self.hboxlayout10.addWidget(self.label_7)
+        self.hboxlayout8.addWidget(self.label_7)
 
         self.eicCurFolderLE = QtGui.QLineEdit(self.tab_2)
 
@@ -202,17 +199,17 @@ class Ui_MainWindow(object):
         self.eicCurFolderLE.setSizePolicy(sizePolicy)
         self.eicCurFolderLE.setReadOnly(True)
         self.eicCurFolderLE.setObjectName("eicCurFolderLE")
-        self.hboxlayout10.addWidget(self.eicCurFolderLE)
-        self.vboxlayout7.addLayout(self.hboxlayout10)
+        self.hboxlayout8.addWidget(self.eicCurFolderLE)
+        self.vboxlayout7.addLayout(self.hboxlayout8)
 
-        self.hboxlayout11 = QtGui.QHBoxLayout()
-        self.hboxlayout11.setObjectName("hboxlayout11")
+        self.hboxlayout9 = QtGui.QHBoxLayout()
+        self.hboxlayout9.setObjectName("hboxlayout9")
 
         self.label_5 = QtGui.QLabel(self.tab_2)
         self.label_5.setLayoutDirection(QtCore.Qt.LeftToRight)
         self.label_5.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_5.setObjectName("label_5")
-        self.hboxlayout11.addWidget(self.label_5)
+        self.hboxlayout9.addWidget(self.label_5)
 
         self.mzStartSB = QtGui.QDoubleSpinBox(self.tab_2)
         self.mzStartSB.setDecimals(4)
@@ -220,16 +217,16 @@ class Ui_MainWindow(object):
         self.mzStartSB.setSingleStep(0.05)
         self.mzStartSB.setProperty("value",QtCore.QVariant(215.15))
         self.mzStartSB.setObjectName("mzStartSB")
-        self.hboxlayout11.addWidget(self.mzStartSB)
-        self.vboxlayout7.addLayout(self.hboxlayout11)
+        self.hboxlayout9.addWidget(self.mzStartSB)
+        self.vboxlayout7.addLayout(self.hboxlayout9)
 
-        self.hboxlayout12 = QtGui.QHBoxLayout()
-        self.hboxlayout12.setObjectName("hboxlayout12")
+        self.hboxlayout10 = QtGui.QHBoxLayout()
+        self.hboxlayout10.setObjectName("hboxlayout10")
 
         self.label_4 = QtGui.QLabel(self.tab_2)
         self.label_4.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_4.setObjectName("label_4")
-        self.hboxlayout12.addWidget(self.label_4)
+        self.hboxlayout10.addWidget(self.label_4)
 
         self.mzStopSB = QtGui.QDoubleSpinBox(self.tab_2)
         self.mzStopSB.setDecimals(4)
@@ -237,16 +234,16 @@ class Ui_MainWindow(object):
         self.mzStopSB.setSingleStep(0.05)
         self.mzStopSB.setProperty("value",QtCore.QVariant(227.15))
         self.mzStopSB.setObjectName("mzStopSB")
-        self.hboxlayout12.addWidget(self.mzStopSB)
-        self.vboxlayout7.addLayout(self.hboxlayout12)
+        self.hboxlayout10.addWidget(self.mzStopSB)
+        self.vboxlayout7.addLayout(self.hboxlayout10)
 
-        self.hboxlayout13 = QtGui.QHBoxLayout()
-        self.hboxlayout13.setObjectName("hboxlayout13")
+        self.hboxlayout11 = QtGui.QHBoxLayout()
+        self.hboxlayout11.setObjectName("hboxlayout11")
 
         self.label_11 = QtGui.QLabel(self.tab_2)
         self.label_11.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_11.setObjectName("label_11")
-        self.hboxlayout13.addWidget(self.label_11)
+        self.hboxlayout11.addWidget(self.label_11)
 
         self.rtWidthSB = QtGui.QDoubleSpinBox(self.tab_2)
         self.rtWidthSB.setDecimals(1)
@@ -255,16 +252,16 @@ class Ui_MainWindow(object):
         self.rtWidthSB.setSingleStep(1.0)
         self.rtWidthSB.setProperty("value",QtCore.QVariant(200.0))
         self.rtWidthSB.setObjectName("rtWidthSB")
-        self.hboxlayout13.addWidget(self.rtWidthSB)
-        self.vboxlayout7.addLayout(self.hboxlayout13)
+        self.hboxlayout11.addWidget(self.rtWidthSB)
+        self.vboxlayout7.addLayout(self.hboxlayout11)
 
-        self.hboxlayout14 = QtGui.QHBoxLayout()
-        self.hboxlayout14.setObjectName("hboxlayout14")
+        self.hboxlayout12 = QtGui.QHBoxLayout()
+        self.hboxlayout12.setObjectName("hboxlayout12")
 
         self.label_12 = QtGui.QLabel(self.tab_2)
         self.label_12.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_12.setObjectName("label_12")
-        self.hboxlayout14.addWidget(self.label_12)
+        self.hboxlayout12.addWidget(self.label_12)
 
         self.rtWidthSB_Stop = QtGui.QDoubleSpinBox(self.tab_2)
         self.rtWidthSB_Stop.setDecimals(1)
@@ -273,13 +270,18 @@ class Ui_MainWindow(object):
         self.rtWidthSB_Stop.setSingleStep(1.0)
         self.rtWidthSB_Stop.setProperty("value",QtCore.QVariant(-1.0))
         self.rtWidthSB_Stop.setObjectName("rtWidthSB_Stop")
-        self.hboxlayout14.addWidget(self.rtWidthSB_Stop)
-        self.vboxlayout7.addLayout(self.hboxlayout14)
+        self.hboxlayout12.addWidget(self.rtWidthSB_Stop)
+        self.vboxlayout7.addLayout(self.hboxlayout12)
 
         self.rtTypeCB = QtGui.QCheckBox(self.tab_2)
         self.rtTypeCB.setChecked(True)
         self.rtTypeCB.setObjectName("rtTypeCB")
         self.vboxlayout7.addWidget(self.rtTypeCB)
+
+        self.fillPeaks_CB = QtGui.QCheckBox(self.tab_2)
+        self.fillPeaks_CB.setChecked(False)
+        self.fillPeaks_CB.setObjectName("fillPeaks_CB")
+        self.vboxlayout7.addWidget(self.fillPeaks_CB)
 
         self.plotLegendCB = QtGui.QCheckBox(self.tab_2)
         self.plotLegendCB.setChecked(False)
@@ -292,9 +294,8 @@ class Ui_MainWindow(object):
 
         spacerItem2 = QtGui.QSpacerItem(20,40,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
         self.vboxlayout7.addItem(spacerItem2)
-        self.hboxlayout9.addLayout(self.vboxlayout7)
-        self.hboxlayout7.addLayout(self.hboxlayout9)
-        self.hboxlayout6.addLayout(self.hboxlayout7)
+        self.hboxlayout7.addLayout(self.vboxlayout7)
+        self.gridlayout.addLayout(self.hboxlayout7,0,1,1,1)
         self.tabWidget.addTab(self.tab_2,"")
 
         self.tab_4 = QtGui.QWidget()
@@ -303,34 +304,34 @@ class Ui_MainWindow(object):
         self.vboxlayout8 = QtGui.QVBoxLayout(self.tab_4)
         self.vboxlayout8.setObjectName("vboxlayout8")
 
-        self.hboxlayout15 = QtGui.QHBoxLayout()
-        self.hboxlayout15.setObjectName("hboxlayout15")
+        self.hboxlayout13 = QtGui.QHBoxLayout()
+        self.hboxlayout13.setObjectName("hboxlayout13")
 
         self.loadRPY2BatchBtn = QtGui.QPushButton(self.tab_4)
         self.loadRPY2BatchBtn.setEnabled(False)
         self.loadRPY2BatchBtn.setObjectName("loadRPY2BatchBtn")
-        self.hboxlayout15.addWidget(self.loadRPY2BatchBtn)
+        self.hboxlayout13.addWidget(self.loadRPY2BatchBtn)
 
         spacerItem3 = QtGui.QSpacerItem(40,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
-        self.hboxlayout15.addItem(spacerItem3)
-        self.vboxlayout8.addLayout(self.hboxlayout15)
+        self.hboxlayout13.addItem(spacerItem3)
+        self.vboxlayout8.addLayout(self.hboxlayout13)
 
         self.batchScriptTE = QtGui.QTextEdit(self.tab_4)
         self.batchScriptTE.setEnabled(False)
         self.batchScriptTE.setObjectName("batchScriptTE")
         self.vboxlayout8.addWidget(self.batchScriptTE)
 
-        self.hboxlayout16 = QtGui.QHBoxLayout()
-        self.hboxlayout16.setObjectName("hboxlayout16")
+        self.hboxlayout14 = QtGui.QHBoxLayout()
+        self.hboxlayout14.setObjectName("hboxlayout14")
 
         spacerItem4 = QtGui.QSpacerItem(40,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
-        self.hboxlayout16.addItem(spacerItem4)
+        self.hboxlayout14.addItem(spacerItem4)
 
         self.runBatchBtn = QtGui.QPushButton(self.tab_4)
         self.runBatchBtn.setEnabled(False)
         self.runBatchBtn.setObjectName("runBatchBtn")
-        self.hboxlayout16.addWidget(self.runBatchBtn)
-        self.vboxlayout8.addLayout(self.hboxlayout16)
+        self.hboxlayout14.addWidget(self.runBatchBtn)
+        self.vboxlayout8.addLayout(self.hboxlayout14)
         self.tabWidget.addTab(self.tab_4,"")
 
         self.tab_3 = QtGui.QWidget()
@@ -434,6 +435,8 @@ class Ui_MainWindow(object):
         "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:8pt;\">Set to -1 for the entire spectrum</span></p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
         self.rtTypeCB.setToolTip(QtGui.QApplication.translate("MainWindow", "Do you want the corrected EIC or the raw values?", None, QtGui.QApplication.UnicodeUTF8))
         self.rtTypeCB.setText(QtGui.QApplication.translate("MainWindow", "Retrieve Corrected EIC?", None, QtGui.QApplication.UnicodeUTF8))
+        self.fillPeaks_CB.setToolTip(QtGui.QApplication.translate("MainWindow", "Do you want the corrected EIC or the raw values?", None, QtGui.QApplication.UnicodeUTF8))
+        self.fillPeaks_CB.setText(QtGui.QApplication.translate("MainWindow", "Fill Missing Peaks?", None, QtGui.QApplication.UnicodeUTF8))
         self.plotLegendCB.setText(QtGui.QApplication.translate("MainWindow", "Plot Legend?", None, QtGui.QApplication.UnicodeUTF8))
         self.getEICBtn.setToolTip(QtGui.QApplication.translate("MainWindow", "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
         "p, li { white-space: pre-wrap; }\n"
@@ -462,4 +465,4 @@ class Ui_MainWindow(object):
 
 from customTable import CustomTable
 from mpl_pyqt4_widget import MPL_Widget
-import resource_rc
+import icons_rc
