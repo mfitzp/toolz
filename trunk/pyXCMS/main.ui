@@ -6,14 +6,14 @@
     <x>0</x>
     <y>0</y>
     <width>987</width>
-    <height>731</height>
+    <height>673</height>
    </rect>
   </property>
   <property name="windowTitle" >
    <string>pyXCMS</string>
   </property>
   <property name="windowIcon" >
-   <iconset>../../../../:/new/prefix1/icons/games.png</iconset>
+   <iconset>games.png</iconset>
   </property>
   <property name="iconSize" >
    <size>
@@ -197,7 +197,7 @@ p, li { white-space: pre-wrap; }
                <string>...</string>
               </property>
               <property name="icon" >
-               <iconset>../../../../:/new/prefix1/icons/applications.png</iconset>
+               <iconset>applications.png</iconset>
               </property>
               <property name="iconSize" >
                <size>
@@ -231,266 +231,275 @@ p, li { white-space: pre-wrap; }
        <attribute name="title" >
         <string>EIC</string>
        </attribute>
-       <layout class="QHBoxLayout" >
-        <item>
+       <layout class="QGridLayout" >
+        <item row="0" column="0" >
+         <layout class="QVBoxLayout" >
+          <item>
+           <layout class="QHBoxLayout" >
+            <item>
+             <widget class="QLabel" name="label_6" >
+              <property name="text" >
+               <string>EIC Index:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSlider" name="eicIndexSlider" >
+              <property name="maximum" >
+               <number>10000</number>
+              </property>
+              <property name="orientation" >
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="eicIndexSB" >
+              <property name="maximum" >
+               <number>10000</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="MPL_Widget" native="1" name="plotWidget" />
+          </item>
+         </layout>
+        </item>
+        <item row="0" column="1" >
          <layout class="QHBoxLayout" >
           <item>
            <layout class="QVBoxLayout" >
             <item>
              <layout class="QHBoxLayout" >
               <item>
-               <widget class="QLabel" name="label_6" >
+               <widget class="QLabel" name="label_7" >
                 <property name="text" >
-                 <string>EIC Index:</string>
+                 <string>Current Folder:</string>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QSlider" name="eicIndexSlider" >
-                <property name="maximum" >
-                 <number>150</number>
+               <widget class="QLineEdit" name="eicCurFolderLE" >
+                <property name="sizePolicy" >
+                 <sizepolicy vsizetype="Fixed" hsizetype="Minimum" >
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
                 </property>
-                <property name="orientation" >
-                 <enum>Qt::Horizontal</enum>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QSpinBox" name="eicIndexSB" >
-                <property name="maximum" >
-                 <number>150</number>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <widget class="MPL_Widget" native="1" name="plotWidget" />
-            </item>
-           </layout>
-          </item>
-          <item>
-           <layout class="QHBoxLayout" >
-            <item>
-             <layout class="QVBoxLayout" >
-              <item>
-               <layout class="QHBoxLayout" >
-                <item>
-                 <widget class="QLabel" name="label_7" >
-                  <property name="text" >
-                   <string>Current Folder:</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLineEdit" name="eicCurFolderLE" >
-                  <property name="sizePolicy" >
-                   <sizepolicy vsizetype="Fixed" hsizetype="Minimum" >
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="readOnly" >
-                   <bool>true</bool>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" >
-                <item>
-                 <widget class="QLabel" name="label_5" >
-                  <property name="layoutDirection" >
-                   <enum>Qt::LeftToRight</enum>
-                  </property>
-                  <property name="text" >
-                   <string>m/z Start:</string>
-                  </property>
-                  <property name="alignment" >
-                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QDoubleSpinBox" name="mzStartSB" >
-                  <property name="toolTip" >
-                   <string>Upper bound of the EIC extraction range</string>
-                  </property>
-                  <property name="decimals" >
-                   <number>4</number>
-                  </property>
-                  <property name="maximum" >
-                   <double>100000.000000000000000</double>
-                  </property>
-                  <property name="singleStep" >
-                   <double>0.050000000000000</double>
-                  </property>
-                  <property name="value" >
-                   <double>215.150000000000006</double>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" >
-                <item>
-                 <widget class="QLabel" name="label_4" >
-                  <property name="text" >
-                   <string>m/z Stop:</string>
-                  </property>
-                  <property name="alignment" >
-                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QDoubleSpinBox" name="mzStopSB" >
-                  <property name="toolTip" >
-                   <string>Low bound of the EIC extraction range</string>
-                  </property>
-                  <property name="decimals" >
-                   <number>4</number>
-                  </property>
-                  <property name="maximum" >
-                   <double>100000.000000000000000</double>
-                  </property>
-                  <property name="singleStep" >
-                   <double>0.050000000000000</double>
-                  </property>
-                  <property name="value" >
-                   <double>227.150000000000006</double>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" >
-                <item>
-                 <widget class="QLabel" name="label_11" >
-                  <property name="text" >
-                   <string>RT Start:</string>
-                  </property>
-                  <property name="alignment" >
-                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QDoubleSpinBox" name="rtWidthSB" >
-                  <property name="toolTip" >
-                   <string>Retention time window of the EIC</string>
-                  </property>
-                  <property name="decimals" >
-                   <number>1</number>
-                  </property>
-                  <property name="minimum" >
-                   <double>1.000000000000000</double>
-                  </property>
-                  <property name="maximum" >
-                   <double>100000.000000000000000</double>
-                  </property>
-                  <property name="singleStep" >
-                   <double>1.000000000000000</double>
-                  </property>
-                  <property name="value" >
-                   <double>200.000000000000000</double>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" >
-                <item>
-                 <widget class="QLabel" name="label_12" >
-                  <property name="text" >
-                   <string>RT Stop:</string>
-                  </property>
-                  <property name="alignment" >
-                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QDoubleSpinBox" name="rtWidthSB_Stop" >
-                  <property name="toolTip" >
-                   <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
-p, li { white-space: pre-wrap; }
-&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
-&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">&lt;span style=" font-size:8pt;">Set to -1 for the entire spectrum&lt;/span>&lt;/p>&lt;/body>&lt;/html></string>
-                  </property>
-                  <property name="decimals" >
-                   <number>1</number>
-                  </property>
-                  <property name="minimum" >
-                   <double>-1.000000000000000</double>
-                  </property>
-                  <property name="maximum" >
-                   <double>100000.000000000000000</double>
-                  </property>
-                  <property name="singleStep" >
-                   <double>1.000000000000000</double>
-                  </property>
-                  <property name="value" >
-                   <double>-1.000000000000000</double>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <widget class="QCheckBox" name="rtTypeCB" >
-                <property name="toolTip" >
-                 <string>Do you want the corrected EIC or the raw values?</string>
-                </property>
-                <property name="text" >
-                 <string>Retrieve Corrected EIC?</string>
-                </property>
-                <property name="checked" >
+                <property name="readOnly" >
                  <bool>true</bool>
                 </property>
                </widget>
               </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" >
               <item>
-               <widget class="QCheckBox" name="plotLegendCB" >
-                <property name="text" >
-                 <string>Plot Legend?</string>
+               <widget class="QLabel" name="label_5" >
+                <property name="layoutDirection" >
+                 <enum>Qt::LeftToRight</enum>
                 </property>
-                <property name="checked" >
-                 <bool>false</bool>
+                <property name="text" >
+                 <string>m/z Start:</string>
+                </property>
+                <property name="alignment" >
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QPushButton" name="getEICBtn" >
+               <widget class="QDoubleSpinBox" name="mzStartSB" >
+                <property name="toolTip" >
+                 <string>Upper bound of the EIC extraction range</string>
+                </property>
+                <property name="decimals" >
+                 <number>4</number>
+                </property>
+                <property name="maximum" >
+                 <double>100000.000000000000000</double>
+                </property>
+                <property name="singleStep" >
+                 <double>0.050000000000000</double>
+                </property>
+                <property name="value" >
+                 <double>215.150000000000006</double>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" >
+              <item>
+               <widget class="QLabel" name="label_4" >
+                <property name="text" >
+                 <string>m/z Stop:</string>
+                </property>
+                <property name="alignment" >
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDoubleSpinBox" name="mzStopSB" >
+                <property name="toolTip" >
+                 <string>Low bound of the EIC extraction range</string>
+                </property>
+                <property name="decimals" >
+                 <number>4</number>
+                </property>
+                <property name="maximum" >
+                 <double>100000.000000000000000</double>
+                </property>
+                <property name="singleStep" >
+                 <double>0.050000000000000</double>
+                </property>
+                <property name="value" >
+                 <double>227.150000000000006</double>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" >
+              <item>
+               <widget class="QLabel" name="label_11" >
+                <property name="text" >
+                 <string>RT Start:</string>
+                </property>
+                <property name="alignment" >
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDoubleSpinBox" name="rtWidthSB" >
+                <property name="toolTip" >
+                 <string>Retention time window of the EIC</string>
+                </property>
+                <property name="decimals" >
+                 <number>1</number>
+                </property>
+                <property name="minimum" >
+                 <double>1.000000000000000</double>
+                </property>
+                <property name="maximum" >
+                 <double>100000.000000000000000</double>
+                </property>
+                <property name="singleStep" >
+                 <double>1.000000000000000</double>
+                </property>
+                <property name="value" >
+                 <double>200.000000000000000</double>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" >
+              <item>
+               <widget class="QLabel" name="label_12" >
+                <property name="text" >
+                 <string>RT Stop:</string>
+                </property>
+                <property name="alignment" >
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDoubleSpinBox" name="rtWidthSB_Stop" >
                 <property name="toolTip" >
                  <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
 p, li { white-space: pre-wrap; }
 &lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
-&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">Do It!&lt;/p>&lt;/body>&lt;/html></string>
+&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">&lt;span style=" font-size:8pt;">Set to -1 for the entire spectrum&lt;/span>&lt;/p>&lt;/body>&lt;/html></string>
                 </property>
-                <property name="text" >
-                 <string>Fetch EIC</string>
+                <property name="decimals" >
+                 <number>1</number>
+                </property>
+                <property name="minimum" >
+                 <double>-1.000000000000000</double>
+                </property>
+                <property name="maximum" >
+                 <double>100000.000000000000000</double>
+                </property>
+                <property name="singleStep" >
+                 <double>1.000000000000000</double>
+                </property>
+                <property name="value" >
+                 <double>-1.000000000000000</double>
                 </property>
                </widget>
               </item>
-              <item>
-               <spacer>
-                <property name="orientation" >
-                 <enum>Qt::Vertical</enum>
-                </property>
-                <property name="sizeHint" >
-                 <size>
-                  <width>20</width>
-                  <height>40</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
              </layout>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="rtTypeCB" >
+              <property name="toolTip" >
+               <string>Do you want the corrected EIC or the raw values?</string>
+              </property>
+              <property name="text" >
+               <string>Retrieve Corrected EIC?</string>
+              </property>
+              <property name="checked" >
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="fillPeaks_CB" >
+              <property name="toolTip" >
+               <string>Do you want the corrected EIC or the raw values?</string>
+              </property>
+              <property name="text" >
+               <string>Fill Missing Peaks?</string>
+              </property>
+              <property name="checked" >
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="plotLegendCB" >
+              <property name="text" >
+               <string>Plot Legend?</string>
+              </property>
+              <property name="checked" >
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="getEICBtn" >
+              <property name="toolTip" >
+               <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+p, li { white-space: pre-wrap; }
+&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
+&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">Do It!&lt;/p>&lt;/body>&lt;/html></string>
+              </property>
+              <property name="text" >
+               <string>Fetch EIC</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer>
+              <property name="orientation" >
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" >
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
             </item>
            </layout>
           </item>
@@ -669,19 +678,19 @@ p, li { white-space: pre-wrap; }
  </widget>
  <customwidgets>
   <customwidget>
-   <class>CustomTable</class>
-   <extends>QTableWidget</extends>
-   <header>customTable</header>
-  </customwidget>
-  <customwidget>
    <class>MPL_Widget</class>
    <extends>QWidget</extends>
    <header>mpl_pyqt4_widget</header>
    <container>1</container>
   </customwidget>
+  <customwidget>
+   <class>CustomTable</class>
+   <extends>QTableWidget</extends>
+   <header>customTable</header>
+  </customwidget>
  </customwidgets>
  <resources>
-  <include location="resource.qrc" />
+  <include location="icons.qrc" />
  </resources>
  <connections>
   <connection>

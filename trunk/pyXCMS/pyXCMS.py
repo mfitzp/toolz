@@ -237,6 +237,20 @@ class pyXCMSWindow(QtGui.QMainWindow, ui_main.Ui_MainWindow):
         self.dirListWidget.addAction(self.removeFileAction)
         QtCore.QObject.connect(self.removeFileAction,QtCore.SIGNAL("triggered()"), self.removeFile)
 
+        self.removeEICAction = QtGui.QAction("Remove EIC", self)
+        self.plotWidget.addAction(self.removeEICAction)
+        QtCore.QObject.connect(self.removeEICAction,QtCore.SIGNAL("triggered()"), self.removeEIC)
+
+
+    def removeEIC(self):
+        print "Remove EIC"
+        self.curIndex = self.plotIndex#need to do this because the slider is going from 1 and python counts from 0
+        self.eicClass.eicTraces.pop(self.curIndex)
+        self.eicClass.numEICs = self.eicClass.numEICs-1
+        numEICs = self.eicClass.numEICs
+        self.eicIndexSlider.setMaximum(numEICs-1)
+        self.eicIndexSB.setMaximum(numEICs-1)
+        self.eicIndexSB.setValue(self.curIndex-1)#just to be safe
 
     def removeFile(self):
         selItem = self.dirListWidget.selectedItems()[0]
@@ -265,6 +279,8 @@ class pyXCMSWindow(QtGui.QMainWindow, ui_main.Ui_MainWindow):
         ct_menu.addSeparator()
         ct_menu.addAction(self.plotWidget.saveCSVAction)
         ct_menu.addAction(self.plotWidget.mpl2ClipAction)
+        ct_menu.addSeparator()
+        ct_menu.addAction(self.removeEICAction)
         ct_menu.exec_(self.plotWidget.mapToGlobal(point))
 
 
@@ -282,21 +298,29 @@ class pyXCMSWindow(QtGui.QMainWindow, ui_main.Ui_MainWindow):
             print errorMsg
         #print peakTableName
 
-    def setXCMSGroup(self, xcmsSetObject):
-        if xcmsSetObject != None:
-            self.curXSET = xcmsSetObject
-            ro.r.writePeakTable(self.curXSET, self.peakTableName)
-            if os.path.isfile(self.peakTableName):
-                self.RoutputTE.append('xcms peak table written to: %s'%self.peakTableName)
+    def setXCMSGroup(self, xcmsSetObject, fileName = None):
+        if fileName != None:
+            if xcmsSetObject != None:
+                self.curXSET = xcmsSetObject
+                ro.r.writePeakTable(self.curXSET, fileName)
+                if os.path.isfile(fileName):
+                    self.RoutputTE.append('xcms peak table written to: %s'%fileName)
+        else:
+            if xcmsSetObject != None:
+                self.curXSET = xcmsSetObject
+                ro.r.writePeakTable(self.curXSET, self.peakTableName)
+                if os.path.isfile(self.peakTableName):
+                    self.RoutputTE.append('xcms peak table written to: %s'%self.peakTableName)
 
     def saveXCMSResultsCSV(self):
         if self.curXSET != None:
             if os.path.isfile(self.peakTableName):
                 fileName = str(self.SaveCSVDialog())
                 if fileName != None:
-                    shutil.copy(self.peakTableName, fileName)
-                    if os.path.isfile(fileName):
-                        self.RoutputTE.append('xcms peak table written to: %s'%fileName)
+                    self.setXCMSGroup(self.curXSET, fileName)
+#                    #shutil.copy(self.peakTableName, fileName)
+#                    if os.path.isfile(fileName):
+#                        self.RoutputTE.append('xcms peak table written to: %s'%fileName)
         else:
             Msg = 'No XSET Exists\nTry Again!'
             return QtGui.QMessageBox.warning(self, "There is no xset instance, hence no table!", Msg )
@@ -454,10 +478,10 @@ class pyXCMSWindow(QtGui.QMainWindow, ui_main.Ui_MainWindow):
             for entry in fileList:
                 self.fileList.append(str(entry.toolTip()))#we use the tooltip as it contains the full path
             if self.rtTypeCB.isChecked():
-                if self.rThread.updateThread(self.fileList, self.xcmsParamDict, self.rtWidthSB.value()):
+                if self.rThread.updateThread(self.fileList, self.xcmsParamDict, self.rtWidthSB.value(), self.fillPeaks_CB.isChecked()):
                     self.rThread.start()
             else:
-                if self.rThread.updateThread(self.fileList, self.xcmsParamDict, self.rtWidthSB.value(), corType = 'raw'):
+                if self.rThread.updateThread(self.fileList, self.xcmsParamDict, self.rtWidthSB.value(), self.fillPeaks_CB.isChecked(), corType = 'raw'):
                     self.rThread.start()
 #            print fileList
         print 'Start XCMS'
@@ -474,7 +498,7 @@ class pyXCMSWindow(QtGui.QMainWindow, ui_main.Ui_MainWindow):
         if len(cdffiles) == 0:
             rMsg = 'Open R and enter the following:\nsource("http://bioconductor.org/biocLite.R")\nbiocLite("faahKO")'
             return QtGui.QMessageBox.warning(self, "Error with Test Data", rMsg )
-        if self.rThread.updateThread(cdfList, self.xcmsParamDict, self.rtWidthSB.value()):
+        if self.rThread.updateThread(cdfList, self.xcmsParamDict, self.rtWidthSB.value(), self.fillPeaks_CB.isChecked()):
             self.rThread.start()
 
     def showParamHelp(self, emitString):

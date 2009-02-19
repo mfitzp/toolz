@@ -1,4 +1,4 @@
-import sys
+import os,sys
 import rpy2
 import rpy2.robjects as ro
 import rpy2.rinterface as ri
@@ -30,6 +30,10 @@ class XCMSThread(QtCore.QThread):
         self.Rlibs = self.initRlibs(self.Rliblist)
         self.rtWidth = 200
         self.corType = 'corrected'
+        self.fillPeaksOK = False
+        self.curDir = os.getcwd()
+        retcorImageName = 'image.png'
+        self.imageName = os.path.join(self.curDir, retcorImageName)
         self.matchedFilterParams = {'fwhm':30.,
                                     'sigma':30/2.3548,
                                     'max': 5.,
@@ -111,13 +115,14 @@ class XCMSThread(QtCore.QThread):
             for key in threadDict.iterkeys():
                 threadDict[key] = parentDict[key]
 
-    def updateThread(self, fileList, paramDict, rtWidth, corType = 'corrected'):
+    def updateThread(self, fileList, paramDict, rtWidth, fillPeaksBool, corType = 'corrected'):
         self.fileList = fileList
         self.updateParamDict(paramDict)
         self.rtWidth = rtWidth
         self.numSteps = 3
         self.ready = True
         self.corType = corType
+        self.fillPeaksOK = fillPeaksBool
         return True
 
     def add2ROutput(self, rVector):
@@ -159,12 +164,25 @@ class XCMSThread(QtCore.QThread):
                 self.emitUpdate('\n\nXSET')
                 self.emitUpdate(str(xset)+'\n')
                 time.sleep(0.5)
+#                if self.retcorParams['plottype'] != None:
+##                    print self.retcorParams['plottype']self.retcorParams['plottype']
+#                    r.png(file=self.imageName)
+#                    r('dev.off')
+
                 xset2 = r.retcor(xset,
                                  family=self.retcorParams['f'],
                                  plottype=self.retcorParams['plottype'],
                                  missing=self.retcorParams['missing'],
                                  extra=self.retcorParams['extra'],
                                  span=self.retcorParams['span'])
+
+
+                if self.retcorParams['plottype'] == 'mdevden':
+                    r.savePlot(file=self.imageName, type = 'png')
+                    r('dev.off()')
+                elif self.retcorParams['plottype'] == 'deviation':
+                    r.savePlot(file=self.imageName, type = 'png')
+                    r('dev.off()')
 
                 ri.globalEnv["xset2"] = xset2
                 self.emitUpdate('\n\nXSET2')
@@ -189,7 +207,11 @@ class XCMSThread(QtCore.QThread):
                 eic = r.getEIC(xset3, rtrange = self.rtWidth, groupidx = tsidx, rt = self.corType)
                 eicClass = EIC(eic)
                 self.emit(QtCore.SIGNAL("xcmsGetEIC(PyQt_PyObject)"),eicClass)
-                self.emit(QtCore.SIGNAL("xcmsSet(PyQt_PyObject)"),xset3)
+                #if this is False then the peak table without the filled peaks will be returned and written to csv
+                if self.fillPeaksOK:
+                    self.emit(QtCore.SIGNAL("xcmsSet(PyQt_PyObject)"),xset3)
+                else:
+                    self.emit(QtCore.SIGNAL("xcmsSet(PyQt_PyObject)"),xset2)
                 t2 = time.clock()
                 self.emitUpdate('\nProcessing Time: %s seconds'%t2)
     #            self.updateGUI()
