@@ -25,6 +25,8 @@ Keys:            GUI Elements:
 "excludelift":self.excludeLIFTCB,
 "loadmzxml":self.loadmzXMLCB,
 "autoloadfp":self.autoLoadFP_CB
+"fpdir":self.fpFolder_LE
+"datadir": #Not used
 }
 
 Add progress bar to status bar...look at Ashoka's Code
@@ -191,18 +193,33 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         QtCore.QObject.connect(self.testFocus_Btn, QtCore.SIGNAL("clicked()"), self.testFocus)
         QtCore.QObject.connect(self.fpListWidget, QtCore.SIGNAL("itemClicked (QListWidgetItem *)"), self.fpListSelect)
 
-        QtCore.QObject.connect(self.loadHDF5FP_Btn, QtCore.SIGNAL("clicked()"), self.loadFPfromHDF5)
+        QtCore.QObject.connect(self.loadFP_Btn, QtCore.SIGNAL("clicked()"), self.loadFPfromHDF5)
+        QtCore.QObject.connect(self.savePref_Btn, QtCore.SIGNAL("clicked()"), self.savePrefs)
+        QtCore.QObject.connect(self.revert_Btn, QtCore.SIGNAL("clicked()"), self.defaultRevert)
+
 
         self.useDefaultScale_CB.nextCheckState()
 
+
+    def defaultRevert(self):
+        try:
+            if os.path.isfile(self.orgPrefFileName):
+                self._getPrefs_(self.orgPrefFileName)
+        except:
+            return QtGui.QMessageBox.warning(self, "Preferences File is Hosed", "Try Reinstalling to fix this!")
+
     def loadPrefs(self):
+#        try:
         if os.path.isfile(self.prefFileName):
             self._getPrefs_(self.prefFileName)
             print self.prefFileName
         else:
-            print "No preference file exists...reverting to defaults"
+            return QtGui.QMessageBox.warning(self, "Load Preferences Error", "No Preference File Exists\nReverting to Defaults")
+#        except:
+#            self.defaultRevert()
+#            return QtGui.QMessageBox.warning(self, "Load Preferences Error", "No Preference File Exists\nReverting to Defaults")
 
-    def _setPref_(self, val, valType, guiElement):
+    def _setGUIPref_(self, val, valType, guiElement):
         '''
         guiElement = element to commit value to
         val = value to load into GUI
@@ -212,36 +229,98 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             guiElement.setValue(val)
         elif valType == bool:
             guiElement.setChecked(val)
+        elif valType == str:
+            guiElement.setText(val)
 
 
     def _getPrefs_(self, configFileName):
+        '''
+        Need to get floats and ints before bools and strings.  Otherwise
+        types can get mixed
+        '''
+        self.prefFileStruct = {}
         config = ConfigParser.ConfigParser()
         config.read(configFileName)
         i = 0
         for section in config.sections():
+            tempOptions = []
 #            print '\t',config.options(section)
             for option in config.options(section):
                 val = None
+                valOk = False
+
                 try:
-                    val = config.getboolean(section, option)
+                    if not valOk:
+                        val = config.getfloat(section, option)
+                        valOk = True
                 except:
                     pass
 
                 try:
-                    val = config.getfloat(section, option)
+                    if not valOk:
+                        val = config.getint(section, option)
+                        valOk = True
                 except:
                     pass
 
                 try:
-                    val = config.getint(section, option)
+                    if not valOk:
+                        val = config.getboolean(section, option)
+                        valOk = True
+                except:
+                    pass
+
+                try:
+                    if not valOk:
+                        val = config.get(section, option)
+                        valOk = True
                 except:
                     pass
 
                 if val != None:
+                    if self.prefDict.has_key(option):
+#                        print " ", option, "=", val, type(val)
+                        tempOptions.append([option, type(val)])
+                        self._setGUIPref_(val, type(val), self.prefDict[option])
 #                    print option, self.prefDict[option]
-#                    print " ", option, "=", val, type(val)
-                    self._setPref_(val, type(val), self.prefDict[option])
+            self.prefFileStruct[section] = tempOptions
 
+#        print self.prefFileStruct
+
+    def savePrefs(self):
+        try:
+            if len(self.prefFileStruct) != len(self.prefDict):
+                config = ConfigParser.ConfigParser()
+                for key in self.prefFileStruct.iterkeys():
+                    config.add_section(key)
+                    prefList = self.prefFileStruct[key]
+                    for varList in prefList:
+                        varName = varList[0]
+                        guiElement = self.prefDict[varName]
+                        valType = varList[1]#each varList is a list containing the variable then the variable type
+                        if valType == float or valType == int:
+                            val = guiElement.value()
+                        elif valType == bool:
+                            val = guiElement.isChecked()
+                        elif valType == str:
+                            val = str(guiElement.text())
+                        config.set(key, varName, val)
+
+                # write to screen
+                fp = open(self.prefFileName, 'w')
+                config.write(fp)
+                fp.close()
+#                config.
+
+    #            print "Go"
+            else:
+                return QtGui.QMessageBox.warning(self, "Save Preferences Error", "Dictionary mismatch")
+        except:
+            exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+            traceback.print_exception(exceptionType, exceptionValue, exceptionTraceback, file=sys.stdout)
+            errorMsg = "Sorry: %s\n\n:%s\n%s\n"%(exceptionType, exceptionValue, exceptionTraceback)
+            return QtGui.QMessageBox.warning(self, "Save Preferences Error", errorMsg)
+            print errorMsg
 
 
     def reviewFP(self):
@@ -473,6 +552,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.curFPName = None
         ###Preference Variables
         self.prefFileName = 'svconfig.ini'
+        self.orgPrefFileName = 'original_svconfig.ini'#Don't change this.
         self.prefDict = {'showsnrest':self.plotNoiseEst_CB,
                          'snrnoiseest':self.snrNoiseEst_SB,
                          'minrowtol':self.waveletRowTol_SB,
@@ -493,8 +573,10 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                          'mzlo':self.mzLo_SB,
                          'excludelift':self.excludeLIFTCB,
                          'loadmzxml':self.loadmzXMLCB,
-                         'autoloadfp':self.autoLoadFP_CB
+                         'autoloadfp':self.autoLoadFP_CB,
+                         'fpdir':self.fpFolder_LE
                          }
+        self.prefFileStruct ={}
 
 
     def setupGUI(self):
