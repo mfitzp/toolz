@@ -1,6 +1,31 @@
 #!/usr/bin/env python
 ###################################
 '''To Do:
+"""
+Keys:            GUI Elements:
+{
+"showsnrest":self.plotNoiseEst_CB,
+"snrnoiseest":self.snrNoiseEst_SB,
+"minrowtol":self.waveletRowTol_SB,
+"minrownoise":self.minRow_SB,
+"defaultscales":self.useDefaultScale_CB,
+"splitfactor":self.noiseFactor_SB,
+"autosavepeaks":self.autoSavePkList_CB,
+"scaleend":self.scaleStop_SB,
+"minclust":self.minClust_SB,
+"staticcutoff":self.staticCutoff_SB,
+"distthresh":self.dbscanEPS_SB,
+"scalestart":self.scaleStart_SB,
+"scalefactor":self.scaleFactor_SB,
+"plotlegend":self.plotLegendCB,
+"invertcomp":self.invertCompCB,
+"plotpeaklist":self.plotPkListCB,
+"mzhi":self.mzHi_SB,
+"mzlo":self.mzLo_SB,
+"excludelift":self.excludeLIFTCB,
+"loadmzxml":self.loadmzXMLCB,
+"autoloadfp":self.autoLoadFP_CB
+}
 
 Add progress bar to status bar...look at Ashoka's Code
 
@@ -21,7 +46,10 @@ if peakfit is run the commit noise if it does not already exist
 ###################################
 import os, sys, traceback
 import time
+import ConfigParser
+import string
 
+config = ConfigParser.ConfigParser()
 from PyQt4 import QtCore,  QtGui
 
 import numpy as N
@@ -51,14 +79,6 @@ COLORS = ['#297AA3','#A3293D','#3B9DCE','#293DA3','#5229A3','#8F29A3','#A3297A',
 '#0080FF','#0000FF','#7ABDFF','#8000FF','#FF0080','#FF0000','#FF8000','#FFFF00','#A35229','#80FF00',
 '#00FF00','#00FF80','#00FFFF','#3D9EFF','#FF9E3D','#FFBD7A']
 
-
-#        QtGui.QWidget.__init__(self, None)
-#        self.ui = ui_fingerPrint.Ui_Form()
-#        self.ui.setupUi(self)
-#        super(Finger_Widget,  self).__init__(parent)
-#        self.ui = self.setupUi(self)
-
-
 class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
     def __init__(self, parent = None):
         super(Plot_Widget,  self).__init__(parent)
@@ -69,6 +89,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.FPT = FindPeaksThread()
         self.initConnections()
         self.setupGUI()
+        self.loadPrefs()
         self.setupPlot()
         self.layoutStatusBar()
 
@@ -173,6 +194,55 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         QtCore.QObject.connect(self.loadHDF5FP_Btn, QtCore.SIGNAL("clicked()"), self.loadFPfromHDF5)
 
         self.useDefaultScale_CB.nextCheckState()
+
+    def loadPrefs(self):
+        if os.path.isfile(self.prefFileName):
+            self._getPrefs_(self.prefFileName)
+            print self.prefFileName
+        else:
+            print "No preference file exists...reverting to defaults"
+
+    def _setPref_(self, val, valType, guiElement):
+        '''
+        guiElement = element to commit value to
+        val = value to load into GUI
+        valType = type used to determine which function to use to set the value to the GUI
+        '''
+        if valType == float or valType == int:
+            guiElement.setValue(val)
+        elif valType == bool:
+            guiElement.setChecked(val)
+
+
+    def _getPrefs_(self, configFileName):
+        config = ConfigParser.ConfigParser()
+        config.read(configFileName)
+        i = 0
+        for section in config.sections():
+#            print '\t',config.options(section)
+            for option in config.options(section):
+                val = None
+                try:
+                    val = config.getboolean(section, option)
+                except:
+                    pass
+
+                try:
+                    val = config.getfloat(section, option)
+                except:
+                    pass
+
+                try:
+                    val = config.getint(section, option)
+                except:
+                    pass
+
+                if val != None:
+#                    print option, self.prefDict[option]
+#                    print " ", option, "=", val, type(val)
+                    self._setPref_(val, type(val), self.prefDict[option])
+
+
 
     def reviewFP(self):
 #        print "ReviewFP"
@@ -401,6 +471,30 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.expandFPBool = False
         self.fpDict = {}
         self.curFPName = None
+        ###Preference Variables
+        self.prefFileName = 'svconfig.ini'
+        self.prefDict = {'showsnrest':self.plotNoiseEst_CB,
+                         'snrnoiseest':self.snrNoiseEst_SB,
+                         'minrowtol':self.waveletRowTol_SB,
+                         'minrownoise':self.minRow_SB,
+                         'defaultscales':self.useDefaultScale_CB,
+                         'splitfactor':self.noiseFactor_SB,
+                         'autosavepeaks':self.autoSavePkList_CB,
+                         'scaleend':self.scaleStop_SB,
+                         'minclust':self.minClust_SB,
+                         'staticcutoff':self.staticCutoff_SB,
+                         'distthresh':self.dbscanEPS_SB,
+                         'scalestart':self.scaleStart_SB,
+                         'scalefactor':self.scaleFactor_SB,
+                         'plotlegend':self.plotLegendCB,
+                         'invertcomp':self.invertCompCB,
+                         'plotpeaklist':self.plotPkListCB,
+                         'mzhi':self.mzHi_SB,
+                         'mzlo':self.mzLo_SB,
+                         'excludelift':self.excludeLIFTCB,
+                         'loadmzxml':self.loadmzXMLCB,
+                         'autoloadfp':self.autoLoadFP_CB
+                         }
 
 
     def setupGUI(self):

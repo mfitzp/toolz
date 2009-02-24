@@ -13,7 +13,8 @@
    <string>SpectrumViewer</string>
   </property>
   <property name="windowIcon" >
-   <iconset resource="icons.qrc" >:/new/prefix1/Retro Mario World_32.png</iconset>
+   <iconset resource="icons.qrc" >
+    <normaloff>:/new/prefix1/Retro Mario World_32.png</normaloff>:/new/prefix1/Retro Mario World_32.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget" >
    <layout class="QHBoxLayout" >
@@ -68,11 +69,11 @@
             <property name="sortingEnabled" >
              <bool>true</bool>
             </property>
+            <property name="headerHidden" >
+             <bool>false</bool>
+            </property>
             <property name="columnCount" >
              <number>1</number>
-            </property>
-            <property name="headerHidden" stdset="0" >
-             <bool>false</bool>
             </property>
             <column>
              <property name="text" >
@@ -515,7 +516,7 @@
             <property name="orientation" >
              <enum>Qt::Horizontal</enum>
             </property>
-            <property name="sizeHint" >
+            <property name="sizeHint" stdset="0" >
              <size>
               <width>40</width>
               <height>20</height>
@@ -630,7 +631,7 @@
               <property name="orientation" >
                <enum>Qt::Horizontal</enum>
               </property>
-              <property name="sizeHint" >
+              <property name="sizeHint" stdset="0" >
                <size>
                 <width>40</width>
                 <height>20</height>
@@ -647,7 +648,7 @@
           <property name="orientation" >
            <enum>Qt::Vertical</enum>
           </property>
-          <property name="sizeHint" >
+          <property name="sizeHint" stdset="0" >
            <size>
             <width>20</width>
             <height>40</height>
@@ -966,7 +967,7 @@ p, li { white-space: pre-wrap; }
               <property name="orientation" >
                <enum>Qt::Horizontal</enum>
               </property>
-              <property name="sizeHint" >
+              <property name="sizeHint" stdset="0" >
                <size>
                 <width>40</width>
                 <height>20</height>
@@ -981,7 +982,7 @@ p, li { white-space: pre-wrap; }
             <property name="orientation" >
              <enum>Qt::Vertical</enum>
             </property>
-            <property name="sizeHint" >
+            <property name="sizeHint" stdset="0" >
              <size>
               <width>20</width>
               <height>40</height>
@@ -1144,7 +1145,7 @@ p, li { white-space: pre-wrap; }
                 <property name="orientation" >
                  <enum>Qt::Vertical</enum>
                 </property>
-                <property name="sizeHint" >
+                <property name="sizeHint" stdset="0" >
                  <size>
                   <width>20</width>
                   <height>40</height>
@@ -1159,7 +1160,7 @@ p, li { white-space: pre-wrap; }
               <property name="orientation" >
                <enum>Qt::Horizontal</enum>
               </property>
-              <property name="sizeHint" >
+              <property name="sizeHint" stdset="0" >
                <size>
                 <width>40</width>
                 <height>20</height>
@@ -1202,7 +1203,7 @@ p, li { white-space: pre-wrap; }
               <property name="orientation" >
                <enum>Qt::Vertical</enum>
               </property>
-              <property name="sizeHint" >
+              <property name="sizeHint" stdset="0" >
                <size>
                 <width>20</width>
                 <height>40</height>
@@ -1217,7 +1218,7 @@ p, li { white-space: pre-wrap; }
             <property name="orientation" >
              <enum>Qt::Horizontal</enum>
             </property>
-            <property name="sizeHint" >
+            <property name="sizeHint" stdset="0" >
              <size>
               <width>40</width>
               <height>20</height>
@@ -1271,7 +1272,7 @@ p, li { white-space: pre-wrap; }
                   <property name="orientation" >
                    <enum>Qt::Horizontal</enum>
                   </property>
-                  <property name="sizeHint" >
+                  <property name="sizeHint" stdset="0" >
                    <size>
                     <width>40</width>
                     <height>20</height>
@@ -1341,7 +1342,7 @@ p, li { white-space: pre-wrap; }
                 <property name="orientation" >
                  <enum>Qt::Vertical</enum>
                 </property>
-                <property name="sizeHint" >
+                <property name="sizeHint" stdset="0" >
                  <size>
                   <width>20</width>
                   <height>40</height>
@@ -1367,7 +1368,7 @@ p, li { white-space: pre-wrap; }
                   <property name="orientation" >
                    <enum>Qt::Horizontal</enum>
                   </property>
-                  <property name="sizeHint" >
+                  <property name="sizeHint" stdset="0" >
                    <size>
                     <width>40</width>
                     <height>20</height>
@@ -1391,11 +1392,11 @@ p, li { white-space: pre-wrap; }
                 <property name="sortingEnabled" >
                  <bool>true</bool>
                 </property>
+                <property name="headerHidden" >
+                 <bool>false</bool>
+                </property>
                 <property name="columnCount" >
                  <number>1</number>
-                </property>
-                <property name="headerHidden" stdset="0" >
-                 <bool>false</bool>
                 </property>
                 <column>
                  <property name="text" >
@@ -1416,84 +1417,91 @@ p, li { white-space: pre-wrap; }
        <attribute name="title" >
         <string>Preferences</string>
        </attribute>
-       <widget class="QWidget" name="layoutWidget" >
-        <property name="geometry" >
-         <rect>
-          <x>30</x>
-          <y>60</y>
-          <width>441</width>
-          <height>25</height>
-         </rect>
-        </property>
-        <layout class="QHBoxLayout" >
-         <item>
-          <widget class="QPushButton" name="pushButton_2" >
-           <property name="text" >
-            <string>Default Fingerprint Folder:</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="lineEdit_2" >
-           <property name="readOnly" >
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-       <widget class="QWidget" name="layoutWidget_2" >
-        <property name="geometry" >
-         <rect>
-          <x>30</x>
-          <y>100</y>
-          <width>441</width>
-          <height>25</height>
-         </rect>
-        </property>
-        <layout class="QHBoxLayout" >
-         <item>
-          <widget class="QPushButton" name="pushButton_3" >
-           <property name="text" >
-            <string>Default Fingerprint Folder:</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="lineEdit_3" >
-           <property name="readOnly" >
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-       <widget class="QWidget" name="layoutWidget" >
-        <property name="geometry" >
-         <rect>
-          <x>20</x>
-          <y>20</y>
-          <width>441</width>
-          <height>25</height>
-         </rect>
-        </property>
-        <layout class="QHBoxLayout" >
-         <item>
-          <widget class="QPushButton" name="pushButton" >
-           <property name="text" >
-            <string>Default Fingerprint Folder:</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="lineEdit" >
-           <property name="readOnly" >
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
+       <layout class="QVBoxLayout" name="verticalLayout_2" >
+        <item>
+         <layout class="QGridLayout" name="gridLayout" >
+          <item row="0" column="0" >
+           <layout class="QVBoxLayout" name="verticalLayout" >
+            <item>
+             <layout class="QHBoxLayout" >
+              <item>
+               <widget class="QPushButton" name="fpFolder_Btn" >
+                <property name="text" >
+                 <string>Default Fingerprint Folder:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="fpFolder_LE" >
+                <property name="readOnly" >
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout" >
+              <item>
+               <widget class="QPushButton" name="savePref_Btn" >
+                <property name="text" >
+                 <string>Save Preferences</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="revert_Btn" >
+                <property name="text" >
+                 <string>Revert to Defaults</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer" >
+                <property name="orientation" >
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0" >
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </item>
+          <item row="0" column="1" >
+           <spacer name="horizontalSpacer_2" >
+            <property name="orientation" >
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0" >
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="1" column="0" >
+           <spacer name="verticalSpacer" >
+            <property name="orientation" >
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0" >
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </item>
+       </layout>
       </widget>
       <widget class="QWidget" name="tab" >
        <attribute name="title" >
@@ -1514,7 +1522,7 @@ p, li { white-space: pre-wrap; }
             <property name="orientation" >
              <enum>Qt::Horizontal</enum>
             </property>
-            <property name="sizeHint" >
+            <property name="sizeHint" stdset="0" >
              <size>
               <width>40</width>
               <height>20</height>
@@ -1563,11 +1571,11 @@ p, li { white-space: pre-wrap; }
           <property name="sortingEnabled" >
            <bool>true</bool>
           </property>
+          <property name="headerHidden" >
+           <bool>true</bool>
+          </property>
           <property name="columnCount" >
            <number>2</number>
-          </property>
-          <property name="headerHidden" stdset="0" >
-           <bool>true</bool>
           </property>
           <column>
            <property name="text" >
@@ -1607,7 +1615,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>831</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File" >
