@@ -66,7 +66,7 @@
            <item>
             <widget class="QLabel" name="label_2" >
              <property name="text" >
-              <string># of Standard Deviations:</string>
+              <string>Min # of Standard Deviations:</string>
              </property>
             </widget>
            </item>
@@ -112,6 +112,39 @@
             <widget class="QLineEdit" name="fpName_LE" >
              <property name="text" >
               <string>Change me if you want to commit fingerprint!</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="2" column="2" >
+          <layout class="QHBoxLayout" >
+           <item>
+            <widget class="QLabel" name="label_4" >
+             <property name="text" >
+              <string>Significance Level:</string>
+             </property>
+             <property name="alignment" >
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QDoubleSpinBox" name="sigLvl_SB" >
+             <property name="decimals" >
+              <number>2</number>
+             </property>
+             <property name="minimum" >
+              <double>0.010000000000000</double>
+             </property>
+             <property name="maximum" >
+              <double>1.000000000000000</double>
+             </property>
+             <property name="singleStep" >
+              <double>0.050000000000000</double>
+             </property>
+             <property name="value" >
+              <double>0.050000000000000</double>
              </property>
             </widget>
            </item>
