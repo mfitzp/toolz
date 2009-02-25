@@ -1,6 +1,7 @@
 import os, sys, traceback
 from PyQt4 import QtGui, QtCore
 import numpy as N
+import scipy.stats as stats
 
 import tables as T
 
@@ -209,6 +210,55 @@ class Finger_Widget(QtGui.QWidget, ui_fingerPrint.Ui_fingerPlotWidget):
                 self.peakStatDict[key] = N.array(self.peakStatDict[key][1:])#we want to remove the first element as it is zero and just a place holder
             self.setupTable()
 
+
+    def fpextract(self, peakStatDict, peakCompDict, alpha, sgmadivmu):
+
+        '''
+        Variables needed:
+        number of spectra for each dictionary
+        df1 = numMembers - 1
+        df2 = numMembers - 1
+        dfe = df1+df2
+
+
+        '''
+
+    def loctest(self, meanVal, absDiff, sgma, numObs, sigLvl = 0.05, n0 = 0):
+        '''
+        CURRENTLY NOT USED!!!!!!!!!!!!!2/25/09 BHC
+        %  Usage:   [dec] = loctest(absdiff,sgmasq,N);
+        %   This funciton tests whether or not difference absdiff is significantly
+        %   different from zero.  NOTE n0 is a parameter which is used in
+        %   aligning MALDI peaks - it is based on how good our initial guess
+        %   for the variance is.....omit this parameter unless used by pkalign.m
+        %              Inputs:   absdiff = the absolute difference between obs.
+        %                        sgmasq = the variance of the observations.
+        %                             N = the number of observations in the average
+        %                                  (the number for the other is always =1).
+        %                             n0 = number of obs on which initial guess
+        %                                   of variance is based.
+        %
+        %
+        Modified by BHC to take into account ppm differences
+        '''
+        ppmDiff = (absDiff/meanVal)*1000000#convert to ppm domain
+        sgmaSqPPM = ((sgma/meanVal)*1000000)**2#convert to ppm domain
+
+        dec = 0 #decision whether the peak fits in the window or not
+        diffMax = 0
+        if (numObs+n0) > 5:
+            tCrit = N.abs(stats.t.ppf(1-sigLvl/2,numObs+n0-1))
+            tStat = ppmDiff/(N.sqrt((1/N+1)*sgmaSqPPM))
+            if tStat>=tCrit:
+                diffMax = -1
+                dec = 1
+        else:
+            if ppmDiff>=1.96*sgmaSqPPM:
+                diffMax = -1
+                dec = 1
+        return dec, diffMax
+
+
     def setupTable(self):
         self.peakTable.clear()
         self.peakTable.setSortingEnabled(False)
@@ -310,23 +360,31 @@ class Finger_Widget(QtGui.QWidget, ui_fingerPrint.Ui_fingerPlotWidget):
                 in Finger_Widget.Instances if isAlive(window)])
 
 
-def groupOneD(oneDVec, tol, origOrder = None):
+def groupOneD(oneDVec, tol, origOrder):
     '''
     oneDVec is already sorted
     tol is in ppm
     it would be nice to take into account the original order of the peaks to make sure that
     peaks from the same spectrum don't contribute to the same m/z fingerprint
+    one way to do this is to take the closest peak
     '''
     diffArray = N.diff(oneDVec)
     groups = N.zeros_like(diffArray)
     gNum = 0
+    origNum = 0
     for i,diffVal in enumerate(diffArray):
-        ppmDiff = (diffVal/oneDVec[i+1])*1000000
-        if ppmDiff <= tol:
-            groups[i] = gNum
+        if origOrder[i+1]!=origNum:#test to make sure that the next value does not come from the same spectrum
+            ppmDiff = (diffVal/oneDVec[i+1])*1000000
+            if ppmDiff <= tol:
+                groups[i] = gNum
+            else:
+                groups[i] = gNum
+                gNum+=1
         else:
             groups[i] = gNum
             gNum+=1
+        origNum = origOrder[i+1]
+
     return groups, gNum
 
 
