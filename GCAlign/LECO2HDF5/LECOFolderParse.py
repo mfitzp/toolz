@@ -16,7 +16,6 @@ def getLECOFiles(directory = None):
     if directory == None:
         directory= str(QFileDialog.getExistingDirectory())
 
-
     if directory:
         numFiles = 0
         for root, dirs, files in walk(directory):

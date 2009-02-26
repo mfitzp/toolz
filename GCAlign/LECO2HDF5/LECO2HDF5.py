@@ -250,7 +250,6 @@ class saveThread(QtCore.QThread):
 
                     self.curFileNum+=1
 
-
     def __del__(self):
         self.exiting = True
         self.wait()

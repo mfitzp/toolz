@@ -29,7 +29,7 @@ def saveDict(arrayDict, filename):
 
     hdf.close()
 
-def saveChromaTOF(fileName,  cdf, numCols=None,  numRows = None, dataType = 'NetCDF'):
+def saveChromaTOF(fileName, cdf, numCols=None,  numRows = None, dataType = 'NetCDF'):
     t1 = time.clock()
 
     mzMax = 401 #rows
