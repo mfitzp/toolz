@@ -60,8 +60,6 @@ class DataClass(object):
                 print errorMsg
                 print self.path
 
-
-
     def getEICVal(self, mzLo, mzHi, type = 'sum'):#the other type is 'max'
         if mzHi == -1:
             crit = (self.x >= mzLo)

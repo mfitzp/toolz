@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/clowers/workspace/SimpleView/fingerPrint.ui'
 #
-# Created: Tue Feb 17 21:13:18 2009
+# Created: Sat Feb 28 20:41:47 2009
 #      by: PyQt4 UI code generator 4.4.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -68,17 +68,32 @@ class Ui_fingerPlotWidget(object):
         self.fpName_LE.setObjectName("fpName_LE")
         self.hboxlayout3.addWidget(self.fpName_LE)
         self.gridlayout1.addLayout(self.hboxlayout3, 0, 0, 1, 1)
+        self.hboxlayout4 = QtGui.QHBoxLayout()
+        self.hboxlayout4.setObjectName("hboxlayout4")
+        self.label_4 = QtGui.QLabel(self.tab)
+        self.label_4.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_4.setObjectName("label_4")
+        self.hboxlayout4.addWidget(self.label_4)
+        self.sigLvl_SB = QtGui.QDoubleSpinBox(self.tab)
+        self.sigLvl_SB.setDecimals(2)
+        self.sigLvl_SB.setMinimum(0.01)
+        self.sigLvl_SB.setMaximum(1.0)
+        self.sigLvl_SB.setSingleStep(0.05)
+        self.sigLvl_SB.setProperty("value", QtCore.QVariant(0.05))
+        self.sigLvl_SB.setObjectName("sigLvl_SB")
+        self.hboxlayout4.addWidget(self.sigLvl_SB)
+        self.gridlayout1.addLayout(self.hboxlayout4, 2, 2, 1, 1)
         self.gridlayout.addLayout(self.gridlayout1, 1, 0, 1, 1)
         self.tabWidget.addTab(self.tab, "")
         self.tab_3 = QtGui.QWidget()
         self.tab_3.setObjectName("tab_3")
-        self.hboxlayout4 = QtGui.QHBoxLayout(self.tab_3)
-        self.hboxlayout4.setObjectName("hboxlayout4")
+        self.hboxlayout5 = QtGui.QHBoxLayout(self.tab_3)
+        self.hboxlayout5.setObjectName("hboxlayout5")
         self.peakTable = CustomTable(self.tab_3)
         self.peakTable.setObjectName("peakTable")
         self.peakTable.setColumnCount(0)
         self.peakTable.setRowCount(0)
-        self.hboxlayout4.addWidget(self.peakTable)
+        self.hboxlayout5.addWidget(self.peakTable)
         self.tabWidget.addTab(self.tab_3, "")
         self.tab_2 = QtGui.QWidget()
         self.tab_2.setObjectName("tab_2")
@@ -98,11 +113,12 @@ class Ui_fingerPlotWidget(object):
     def retranslateUi(self, fingerPlotWidget):
         fingerPlotWidget.setWindowTitle(QtGui.QApplication.translate("fingerPlotWidget", "Fingerprint Plot", None, QtGui.QApplication.UnicodeUTF8))
         self.label.setText(QtGui.QApplication.translate("fingerPlotWidget", "ppm Tolerance:", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_2.setText(QtGui.QApplication.translate("fingerPlotWidget", "# of Standard Deviations:", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_2.setText(QtGui.QApplication.translate("fingerPlotWidget", "Min # of Standard Deviations:", None, QtGui.QApplication.UnicodeUTF8))
         self.fingerPrint_Btn.setText(QtGui.QApplication.translate("fingerPlotWidget", "Fingerprint", None, QtGui.QApplication.UnicodeUTF8))
         self.showRaw_CB.setText(QtGui.QApplication.translate("fingerPlotWidget", "Show FP Spectra?", None, QtGui.QApplication.UnicodeUTF8))
         self.label_3.setText(QtGui.QApplication.translate("fingerPlotWidget", "Fingerprint Name:", None, QtGui.QApplication.UnicodeUTF8))
         self.fpName_LE.setText(QtGui.QApplication.translate("fingerPlotWidget", "Change me if you want to commit fingerprint!", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_4.setText(QtGui.QApplication.translate("fingerPlotWidget", "Significance Level:", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), QtGui.QApplication.translate("fingerPlotWidget", "Fingerprint", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), QtGui.QApplication.translate("fingerPlotWidget", "Peak Table", None, QtGui.QApplication.UnicodeUTF8))
         self.saveFP_Btn.setToolTip(QtGui.QApplication.translate("fingerPlotWidget", "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
