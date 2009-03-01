@@ -1,5 +1,6 @@
 '''
 Questions weather to normalize or not when comparing?
+Need to cluster peaks
 '''
 
 import sys,traceback
@@ -33,9 +34,14 @@ def cwtMS(Y, scales, sampleScale = 1.0, wlet = 'Mexican Hat', maxClip = 1000., s
     '''
     try:
         if staticThresh != None:
+
             yIndex = N.where(Y>=staticThresh)[0]#find elements below static thresh
-#            print "Y Index Max", yIndex[-1]
-            ans = W.cwt_a(SF.roundLen(Y[0:yIndex[-1]]), scales, sampling_scale = sampleScale)#, wavelet = wlet)
+            yMod = 0.02*len(Y)#this is the modification to the length to be sure that any peaks at the edge are included
+            yMax = yIndex[-1]
+            if len(Y)<(yMax+yMod):
+                yMod = 0
+            print "Y Index Max", yMax+yMod
+            ans = W.cwt_a(SF.roundLen(Y[0:(yMax+yMod)]), scales, sampling_scale = sampleScale)#, wavelet = wlet)
         else:
             ans = W.cwt_a(Y, scales, sampling_scale = sampleScale)#, wavelet = wlet)
             #Y[yIndex] *= 0.#set them to 0
@@ -193,17 +199,18 @@ if __name__ == "__main__":
         'BSA_XY_Full.csv'
         'J15.csv'
         'Tryptone.csv'
-        ms = P.load('OLD_MS.csv', delimiter = ',')
+        ms = P.load('A4.csv', delimiter = ',')
 
 #        x = ms[:,0]
 #        ms = ms[:,0]
         x, ms = interpolate_spectrum(ms)
         msMax = ms.max()
+        print len(ms)
         print "MS Max", msMax
         ms = SF.normalize(SF.topHat(ms, 0.01))
         ms = SF.roundLen(ms)
         start = 0#63000
-        stop = int(len(ms)*.75)##79000#len(ms)*.75
+        stop = int(len(ms)*1)##79000#len(ms)*.75
         ms = ms[start:stop]
         x = x[start:stop]
         x = N.arange(len(x))

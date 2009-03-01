@@ -42,7 +42,7 @@ PCA after peak pick
 Setup Group Class
 Group Display
 
-if peakfit is run the commit noise if it does not already exist
+Double check peakfind thread
 
 '''
 ###################################
@@ -87,7 +87,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.ui = self.setupUi(self)
 
         self.setupVars()
-        self.readThread = LoadThread()
+        self.readThread = LoadThread(parent = self)
         self.FPT = FindPeaksThread()
         self.initConnections()
         self.setupGUI()
@@ -196,7 +196,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         QtCore.QObject.connect(self.loadFP_Btn, QtCore.SIGNAL("clicked()"), self.loadFPfromHDF5)
         QtCore.QObject.connect(self.savePref_Btn, QtCore.SIGNAL("clicked()"), self.savePrefs)
         QtCore.QObject.connect(self.revert_Btn, QtCore.SIGNAL("clicked()"), self.defaultRevert)
-
 
         self.useDefaultScale_CB.nextCheckState()
 
@@ -350,81 +349,67 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
     def loadFPfromHDF5(self):
         fileName = self.openFileDialog()
-        if os.path.isfile(fileName):
-            hdf = T.openFile(fileName, mode = 'r')
-            hdfRoot = hdf.root
-            try:
+        if fileName != None:
+            if os.path.isfile(fileName):
+                hdf = T.openFile(fileName, mode = 'r')
+                hdfRoot = hdf.root
+                try:
 
-                specList = hdfRoot.Spectra._v_children
-                peakLists = hdfRoot.PeakLists._v_children
-                peakStats = hdfRoot.PeakStats._v_children
-
-
-                self.curGroupName = fileName.split(os.path.sep)[-1]
-                self.groupIndex.append(self.numGroups)
-                self.groupList.append(self.curGroupName)
-                self.numGroups+=1
-
-                self.curTreeItem = QtGui.QTreeWidgetItem(self.groupTreeWidget)
-                self.curTreeItem.setText(0,self.curGroupName)
-                self.curTreeItem.setToolTip(0, fileName)
-                self.groupTreeWidget.resizeColumnToContents(0)
-
-                #Should we add a FP tree item?
-                self.curFPTreeItem = QtGui.QTreeWidgetItem(self.loadSpecTreeWidget)
-                self.curFPTreeItem.setText(0,self.curGroupName)
-                self.curFPTreeItem.setToolTip(0, fileName)
-                self.loadSpecTreeWidget.resizeColumnToContents(0)
-
-                self.getTextColor()
-
-                dataDict = {}
-                for i, key in enumerate(specList.keys()):
-
-                    bName = os.path.basename(key.replace('*',os.path.sep))
-                    newName = os.path.join(self.curGroupName, bName)
-                    spec = specList[key].read()
-                    dataFile = DataClass(spec[:,0], spec[:,1],  name = bName, path = newName, interp = True)#should already by interpolated
-                    pkList = peakLists[key].read()
-                    dataFile.setPeakList(pkList, normalized = True)#set to normalized as these values are by nature already normalized
-                    dataDict[newName] = dataFile#used to add to FP interface
-                    self.updateGUI(dataFile)
-
-                peakStatDict = {}
-                for j, key in enumerate(peakStats.keys()):
-                    peakStatDict[key] = peakStats[key].read()
+                    specList = hdfRoot.Spectra._v_children
+                    peakLists = hdfRoot.PeakLists._v_children
+                    peakStats = hdfRoot.PeakStats._v_children
 
 
-                fpDict = {}
-                fpDict[self.curGroupName] = {'dataDict':dataDict, 'peakStats':peakStatDict}
-                self.commitFP(fpDict)
+                    self.curGroupName = fileName.split(os.path.sep)[-1]
+                    self.groupIndex.append(self.numGroups)
+                    self.groupList.append(self.curGroupName)
+                    self.numGroups+=1
 
-                hdf.close()
-                self.loadOk = True
-                self.readFinished(True)
-            except:
-                hdf.close()
-                exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
-                traceback.print_exception(exceptionType, exceptionValue, exceptionTraceback, file=sys.stdout)
-                errorMsg = "Sorry: %s\n\n:%s\n%s\n"%(exceptionType, exceptionValue, exceptionTraceback)
-                return QtGui.QMessageBox.warning(self, "Load Fingerpint Error", errorMsg)
-                print 'Error loading fingerprint from HDF5'
-                print errorMsg
-#                self.saveDict(hdf, self.dataDict, "Spectra")
-#                self.saveDict(hdf, self.peakStatDict, "PeakStats")
-#
-#            pkListGroup = hdfInstance.createGroup("/", "PeakLists", "PeakLists")
-#
-#        for item in dataDict.iteritems():
-#            if isinstance(item[1], DataClass):
-#                specX = item[1].x
-#                specY = item[1].y
-#                data = N.column_stack((specX,specY))
-#                pkList = item[1].peakList
-#                if pkList != None and pkListOK:
-#                    shape = pkList.shape
-#                    ca = hdfInstance.createCArray(pkListGroup, item[0], atom, shape, filters = filters)
-#                    ca[0:shape[0]] = pkList
+                    self.curTreeItem = QtGui.QTreeWidgetItem(self.groupTreeWidget)
+                    self.curTreeItem.setText(0,self.curGroupName)
+                    self.curTreeItem.setToolTip(0, fileName)
+                    self.groupTreeWidget.resizeColumnToContents(0)
+
+                    #Should we add a FP tree item?
+                    self.curFPTreeItem = QtGui.QTreeWidgetItem(self.loadSpecTreeWidget)
+                    self.curFPTreeItem.setText(0,self.curGroupName)
+                    self.curFPTreeItem.setToolTip(0, fileName)
+                    self.loadSpecTreeWidget.resizeColumnToContents(0)
+
+                    self.getTextColor()
+
+                    dataDict = {}
+                    for i, key in enumerate(specList.keys()):
+
+                        bName = os.path.basename(key.replace('*',os.path.sep))
+                        newName = os.path.join(self.curGroupName, bName)
+                        spec = specList[key].read()
+                        dataFile = DataClass(spec[:,0], spec[:,1],  name = bName, path = newName, interp = True)#should already by interpolated
+                        pkList = peakLists[key].read()
+                        dataFile.setPeakList(pkList, normalized = True)#set to normalized as these values are by nature already normalized
+                        dataDict[newName] = dataFile#used to add to FP interface
+                        self.updateGUI(dataFile)
+
+                    peakStatDict = {}
+                    for j, key in enumerate(peakStats.keys()):
+                        peakStatDict[key] = peakStats[key].read()
+
+
+                    fpDict = {}
+                    fpDict[self.curGroupName] = {'dataDict':dataDict, 'peakStats':peakStatDict}
+                    self.commitFP(fpDict)
+
+                    hdf.close()
+                    self.loadOk = True
+                    self.readFinished(True)
+                except:
+                    hdf.close()
+                    exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+                    traceback.print_exception(exceptionType, exceptionValue, exceptionTraceback, file=sys.stdout)
+                    errorMsg = "Sorry: %s\n\n:%s\n%s\n"%(exceptionType, exceptionValue, exceptionTraceback)
+                    return QtGui.QMessageBox.warning(self, "Load Fingerpint Error", errorMsg)
+                    print 'Error loading fingerprint from HDF5'
+                    print errorMsg
 
 
     def openFileDialog(self):
@@ -853,6 +838,8 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                 if len(self.multiPlotList)>0:
                     self.plotByList(multiPlot = True)
 
+                self.PCTProgress("")#reset status label
+
     def plotByList(self, multiPlot = False):
         curDataName = None
         if self.loadOk:
@@ -928,9 +915,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             self.plotWidget.canvas.format_labels()
             self.plotWidget.canvas.draw()
             self.plotWidget.setFocus()#this is needed so that you can use CTRL+Z to zoom
-
-
-
+            self.setupTable()
 
     def savePeaks(self):
         selectItems = self.groupTreeWidget.selectedItems()
@@ -1361,9 +1346,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 #            print "Find Peaks"
 
 
-
-
-
     ###########Peak Label#########################
     def labelPeak(self):
         mplAx = self.plotWidget.canvas.ax
@@ -1380,7 +1362,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
     ##########Saving canvas to Clipboard
     def mpl2Clip(self):
         self.plotWidget.mpl2Clip()
-        print "GO Clipboard"
+#        print "GO Clipboard"
 
         #########  Index Picker  ###############################
 
@@ -1585,6 +1567,20 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
         ###############################
 
+    def setupTable(self):
+        self.tabPeakTable.clear()
+        #need to disable sorting as it corrupts data addition
+        self.tabPeakTable.setSortingEnabled(False)
+        header = ['m/z', 'Intensity']
+        if self.curDataName != None:
+            curData = self.dataDict[self.curDataName]
+            if curData.pkListOk:
+                self.tabPeakTable.addData(curData.peakList)
+            self.tabPeakTable.setHorizontalHeaderLabels(header)
+            self.tabPeakTable.setSortingEnabled(True)
+            self.tabPeakTable.resizeColumnToContents(0)
+
+
 ##########Begin Ashoka Progress Bar Code....
     def layoutStatusBar(self):
         self.progressBar = QtGui.QProgressBar()
@@ -1636,6 +1632,9 @@ class LoadThread(QtCore.QThread):
             self.finished = False
             self.ready = False
             self.loadmzXML = False
+            self.P = None
+            if parent != None:
+                self.P = parent
 
         def updateThread(self, loadList, loadmzXML = False):
             self.loadList = loadList
@@ -1651,16 +1650,22 @@ class LoadThread(QtCore.QThread):
                         for item in self.loadList:
 #                            print os.path.basename(item)
                             tempmzXML =  mzXMLR(item)
-                            tempSpec = tempmzXML.data['spectrum']
-                            if len(tempSpec)>0:
-#                                print 'Spec OK', os.path.basename(item)
-                                data2plot = DataClass(tempSpec[0],  tempSpec[1],  name = os.path.basename(item), path = item)
-                                data2plot.setPeakList(tempmzXML.data['peaklist'], normalized = False)
-                                #this following line is key to pass python object via the SIGNAL/SLOT mechanism of PyQt
-                                #note PyQt_PyObject
-                                self.emit(QtCore.SIGNAL("itemLoaded(PyQt_PyObject)"),data2plot)
+                            numScans = tempmzXML.data['totalScans']
+                            if numScans == 1:
+                                tempSpec = tempmzXML.data['spectrum']
+                                if len(tempSpec)>0:
+    #                                print 'Spec OK', os.path.basename(item)
+                                    data2plot = DataClass(tempSpec[0],  tempSpec[1],  name = os.path.basename(item), path = item)
+                                    data2plot.setPeakList(tempmzXML.data['peaklist'], normalized = False)
+                                    #this following line is key to pass python object via the SIGNAL/SLOT mechanism of PyQt
+                                    #note PyQt_PyObject
+                                    self.emit(QtCore.SIGNAL("itemLoaded(PyQt_PyObject)"),data2plot)
+                                else:
+                                    print 'Empty spectrum: ', item
                             else:
-                                print 'Empty spectrum: ', item
+                                errMsg = "%s has more than one spectrum in the file.\nRemember this is a program for viewing MALDI data!"%item
+                                if self.P != None:
+                                    QtGui.QMessageBox.warning(self, "Too many spectra in File", errMsg)
 
                             self.numItems -=1
                         self.emit(QtCore.SIGNAL("finished(bool)"),True)
