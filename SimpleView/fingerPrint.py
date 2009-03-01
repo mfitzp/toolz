@@ -1,3 +1,8 @@
+'''
+How to save peakParams to file?
+'''
+
+
 import os, sys, traceback
 from PyQt4 import QtGui, QtCore
 import numpy as N
