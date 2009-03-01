@@ -28,6 +28,7 @@ class DataClass(object):
         self.pkListOk = False
         self.labelPks = False
         self.peakList = None
+        self.peakParams = None
         self.mplAx = None
         self.plotModVal = 1
         self.noiseEst = None
@@ -75,6 +76,10 @@ class DataClass(object):
     def setAxis(self,  mplAxInstance):
         self.axSet = True
         self.mplAx = mplAxInstance
+
+    def setPeakParams(self, paramDict):
+        if type(paramDict) == dict:
+            self.peakParams = paramDict
 
     def setPeakList(self, peakList, normalized = True):
         #peak list is two arrays peakLoc and intensity

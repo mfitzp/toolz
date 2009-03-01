@@ -29,8 +29,6 @@ Keys:            GUI Elements:
 "datadir": #Not used
 }
 
-Add progress bar to status bar...look at Ashoka's Code
-
 Need to add exception for when there is no data in the file (i.e. a blank spectrum)
 
 Load a single file?
@@ -615,6 +613,42 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 #        else:
 #            self.indexHSlider.setMaximum(self.numSpec-1)
 #            self.indexSpinBox.setMaximum(self.numSpec-1)
+
+    def getMZXMLDialog(self):
+        fileName = QtGui.QFileDialog.getOpenFileName(self,
+                                         "Select mzXML File to Load",
+                                         "",
+                                         "mzXML (*.mzXML)")
+        if not fileName.isEmpty():
+#            print fileName
+            return os.path.abspath(str(fileName))
+        else:
+            return None
+
+    def openSingleFile(self):
+        '''
+        Need to handle which group the file will be loaded into....
+        '''
+        fileName = self.getMZXMLDialog()
+        if fileName != None:
+            tempmzXML =  mzXMLR(fileName)
+            numScans = tempmzXML.data['totalScans']
+            if numScans == 1:
+                tempSpec = tempmzXML.data['spectrum']
+                if len(tempSpec)>0:
+        #                                print 'Spec OK', os.path.basename(item)
+                    data2plot = DataClass(tempSpec[0],  tempSpec[1],  name = os.path.basename(item), path = item)
+                    data2plot.setPeakList(tempmzXML.data['peaklist'], normalized = False)
+
+                    #this following line is key to pass python object via the SIGNAL/SLOT mechanism of PyQt
+                    #note PyQt_PyObject
+                    self.emit(QtCore.SIGNAL("itemLoaded(PyQt_PyObject)"),data2plot)
+                else:
+                    print 'Empty spectrum: ', item
+            else:
+                errMsg = "%s has more than one spectrum in the file.\nRemember this is a program for viewing MALDI data!"%item
+                if self.P != None:
+                    QtGui.QMessageBox.warning(self, "Too many spectra in File", errMsg)
 
     def _getDir_(self):
         directory = QtGui.QFileDialog.getExistingDirectory(self, '', self.curDir)
@@ -1657,6 +1691,7 @@ class LoadThread(QtCore.QThread):
     #                                print 'Spec OK', os.path.basename(item)
                                     data2plot = DataClass(tempSpec[0],  tempSpec[1],  name = os.path.basename(item), path = item)
                                     data2plot.setPeakList(tempmzXML.data['peaklist'], normalized = False)
+
                                     #this following line is key to pass python object via the SIGNAL/SLOT mechanism of PyQt
                                     #note PyQt_PyObject
                                     self.emit(QtCore.SIGNAL("itemLoaded(PyQt_PyObject)"),data2plot)
@@ -1765,6 +1800,7 @@ class FindPeaksThread(QtCore.QThread):
                                 if len(peakLoc) != 0:
                                     print peakLoc
                                     dataItem.setPeakList(N.column_stack((peakLoc,peakInt)))
+                                    dataItem.setPeakParams(self.paramDict)
                                     dataItem.pkListOk = boolAns
                                     if self.autoSave:
                                         dataItem.savePkList()
