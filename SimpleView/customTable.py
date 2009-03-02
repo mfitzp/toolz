@@ -1,6 +1,6 @@
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
-import sys
+import os, sys, traceback
 import time
 
 from pylab import load as L
@@ -79,51 +79,59 @@ class CustomTable(QTableWidget):
 
     def addData(self, data, startrow=None,  startcol = None):
         if data != None:
-            if (len(data[0])) >= self.columnCount():
-                self.setColumnCount(len(data[0]))
-            if (len(data)) >= self.rowCount():
-                self.setRowCount(len(data))
+            try:
+                if (len(data[0])) >= self.columnCount():
+                    self.setColumnCount(len(data[0]))
+                if (len(data)) >= self.rowCount():
+                    self.setRowCount(len(data))
 
-            if startcol:
-                sc = startcol#start column
-            else:
-                sc = 0 # n is for columns
-            if startrow:
-                sr = startrow
-            else:
-                sr = 0
+                if startcol:
+                    sc = startcol#start column
+                else:
+                    sc = 0 # n is for columns
+                if startrow:
+                    sr = startrow
+                else:
+                    sr = 0
 
-            m = sr
-            #print "Row, Col Commit:", sr, n
-            if type(data) is N.ndarray:
-                for row in data:
-                    n = sc
-                    for item in row:
-                        #print repr(str(item))
-                        newitem = QTableWidgetItem(0)#'%.3f'%item)
-                        newitem.setData(0,QVariant(item))
-                        self.setItem(m,  n,  newitem)
-                        n+=1
-                    m+=1
-    #            print type(item)
-            else:
-                for row in data:
-                    n = sc
-                    for item in row:
-                        #print repr(str(item))
-                        newitem = QTableWidgetItem(0)#'%.3f'%item)
-                        newitem.setData(0,QVariant(item))
-                        self.setItem(m,  n,  newitem)
-                        n+=1
-                    m+=1
-#                for row in data:
-#                    n = sc
-#                    for item in row:
-#                        #print repr(str(item))
-#                        newitem = QTableWidgetItem(item)
-#                        self.setItem(m,  n,  newitem)
-#                        n+=1
-#                    m+=1
+                m = sr
+                #print "Row, Col Commit:", sr, n
+                if type(data) is N.ndarray:
+                    for row in data:
+                        n = sc
+                        for item in row:
+                            #print repr(str(item))
+                            newitem = QTableWidgetItem(0)#'%.3f'%item)
+                            newitem.setData(0,QVariant(item))
+                            self.setItem(m,  n,  newitem)
+                            n+=1
+                        m+=1
+        #            print type(item)
+                else:
+                    for row in data:
+                        n = sc
+                        for item in row:
+                            #print repr(str(item))
+                            newitem = QTableWidgetItem(0)#'%.3f'%item)
+                            newitem.setData(0,QVariant(item))
+                            self.setItem(m,  n,  newitem)
+                            n+=1
+                        m+=1
+    #                for row in data:
+    #                    n = sc
+    #                    for item in row:
+    #                        #print repr(str(item))
+    #                        newitem = QTableWidgetItem(item)
+    #                        self.setItem(m,  n,  newitem)
+    #                        n+=1
+    #                    m+=1
+            except:
+                exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+                traceback.print_exception(exceptionType, exceptionValue, exceptionTraceback, file=sys.stdout)
+                errorMsg = "Sorry: %s\n\n:%s\n%s\n"%(exceptionType, exceptionValue, exceptionTraceback)
+                return QMessageBox.warning(self, "Adding Data Error", errorMsg)
+                print errorMsg
+
         else:
             print "Error adding entry to table, there is no data!!!"
 

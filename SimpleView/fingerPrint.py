@@ -173,10 +173,17 @@ class Finger_Widget(QtGui.QWidget, ui_fingerPrint.Ui_fingerPlotWidget):
             self.numSpectra = len(self.dataDict)/1.0#used to turn into float
             print "Number of Spectra: ", self.numSpectra
             for curData in self.dataDict.itervalues():
-                pkList = curData.peakList
-                self.xLoc = N.append(self.xLoc, pkList[:,0])
-                self.yLoc = N.append(self.yLoc, pkList[:,1])
-                self.specNum = N.append(self.specNum, N.zeros_like(pkList[:,0])+curSpecNum)
+                if curData.pkListOk:
+                    try:
+                        pkList = curData.peakList
+                        self.xLoc = N.append(self.xLoc, pkList[:,0])
+                        self.yLoc = N.append(self.yLoc, pkList[:,1])
+                        self.specNum = N.append(self.specNum, N.zeros_like(pkList[:,0])+curSpecNum)
+                    except:
+                        print "Peak List Error"
+                        print curData.name
+                        print curData.path
+                        return False
                 curSpecNum +=1
 #                self.mainAx.scatter(pkList[:,0],pkList[:,1]*0, color = self.plotColor)
             sortInd = self.xLoc.argsort()

@@ -110,6 +110,9 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.removeAction = QtGui.QAction("Remove File(s)", self)
         self.groupTreeWidget.addAction(self.removeAction)
 
+        self.addFileAction = QtGui.QAction("Add File", self)
+        self.groupTreeWidget.addAction(self.addFileAction)
+
         self.topHatAction = QtGui.QAction("Apply TopHat",  self)
         self.groupTreeWidget.addAction(self.topHatAction)
 
@@ -143,6 +146,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         QtCore.QObject.connect(self.saveCSVAction,QtCore.SIGNAL("triggered()"), self.save2CSV)
 
         QtCore.QObject.connect(self.removeAction, QtCore.SIGNAL("triggered()"),self.removeFile)
+        QtCore.QObject.connect(self.addFileAction, QtCore.SIGNAL("triggered()"),self.addSingleFile)
         QtCore.QObject.connect(self.topHatAction, QtCore.SIGNAL("triggered()"), self.filterSpec)
 
         QtCore.QObject.connect(self.handleActionA, QtCore.SIGNAL("triggered()"),self.SelectPointsA)
@@ -369,10 +373,10 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                     self.groupTreeWidget.resizeColumnToContents(0)
 
                     #Should we add a FP tree item?
-                    self.curFPTreeItem = QtGui.QTreeWidgetItem(self.loadSpecTreeWidget)
+                    self.curFPTreeItem = QtGui.QTreeWidgetItem(self.fpSpecTreeWidget)
                     self.curFPTreeItem.setText(0,self.curGroupName)
                     self.curFPTreeItem.setToolTip(0, fileName)
-                    self.loadSpecTreeWidget.resizeColumnToContents(0)
+                    self.fpSpecTreeWidget.resizeColumnToContents(0)
 
                     self.getTextColor()
 
@@ -457,12 +461,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                 self.fpDict[item[0]]=item[1]
                 self.addFP(fpDict)
 
-    def __askConfirm__(self,title,message):
-        clickedButton = QtGui.QMessageBox.question(self,\
-                                                   title,message,\
-                                                   QtGui.QMessageBox.Yes,QtGui.QMessageBox.Cancel)
-        if clickedButton == QtGui.QMessageBox.Yes: return True
-        return False
+
 
     def addFP(self, fpDict):
         curFPName = fpDict.keys()[0]
@@ -494,9 +493,9 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             self.expandFPBool = True
 
         if self.expandFPBool:
-            self.loadSpecTreeWidget.expandAll()
+            self.fpSpecTreeWidget.expandAll()
         else:
-            self.loadSpecTreeWidget.collapseAll()
+            self.fpSpecTreeWidget.collapseAll()
 
 
     def setupVars(self):
@@ -565,7 +564,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
     def setupGUI(self):
         self.specNameEdit.clear()
         self.groupTreeWidget.setHeaderLabel('Loaded Spectra:')
-        self.loadSpecTreeWidget.setHeaderLabel('Loaded Spectra:')
+        self.fpSpecTreeWidget.setHeaderLabel('Loaded Spectra:')
 
 #        self.indexHSlider.setMaximum(0)
 #        self.indexSpinBox.setMaximum(0)
@@ -625,38 +624,53 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         else:
             return None
 
-    def openSingleFile(self):
+    def addSingleFile(self):
         '''
         Need to handle which group the file will be loaded into....
         '''
-        fileName = self.getMZXMLDialog()
-        if fileName != None:
-            tempmzXML =  mzXMLR(fileName)
-            numScans = tempmzXML.data['totalScans']
-            if numScans == 1:
-                tempSpec = tempmzXML.data['spectrum']
-                if len(tempSpec)>0:
-        #                                print 'Spec OK', os.path.basename(item)
-                    data2plot = DataClass(tempSpec[0],  tempSpec[1],  name = os.path.basename(item), path = item)
-                    data2plot.setPeakList(tempmzXML.data['peaklist'], normalized = False)
-
-                    #this following line is key to pass python object via the SIGNAL/SLOT mechanism of PyQt
-                    #note PyQt_PyObject
-                    self.emit(QtCore.SIGNAL("itemLoaded(PyQt_PyObject)"),data2plot)
-                else:
-                    print 'Empty spectrum: ', item
+        selectItems = self.groupTreeWidget.selectedItems()
+        if len(selectItems) > 0:
+            item = selectItems[0]
+            if item.childCount() == 0:
+                self.curTreeItem = item.parent()
             else:
-                errMsg = "%s has more than one spectrum in the file.\nRemember this is a program for viewing MALDI data!"%item
-                if self.P != None:
-                    QtGui.QMessageBox.warning(self, "Too many spectra in File", errMsg)
+                self.curTreeItem = item
+
+            self.curFPTreeItem = self.fpSpecTreeWidget.findItems(self.curTreeItem.text(0), QtCore.Qt.MatchExactly, 0)[0]
+            print self.curTreeItem.text(0)
+            print self.curFPTreeItem.text(0)
+
+            fileName = self.getMZXMLDialog()
+            if fileName != None:
+                tempmzXML =  mzXMLR(fileName)
+                numScans = tempmzXML.data['totalScans']
+                if numScans == 1:
+                    tempSpec = tempmzXML.data['spectrum']
+                    if len(tempSpec)>0:
+            #                                print 'Spec OK', os.path.basename(item)
+                        data2plot = DataClass(tempSpec[0],  tempSpec[1],  name = os.path.basename(fileName), path = fileName)
+                        data2plot.setPeakList(tempmzXML.data['peaklist'], normalized = False)
+                        self.updateGUI(data2plot)
+
+                        #this following line is key to pass python object via the SIGNAL/SLOT mechanism of PyQt
+                        #note PyQt_PyObject
+#                        self.emit(QtCore.SIGNAL("itemLoaded(PyQt_PyObject)"),data2plot)
+                    else:
+                        print 'Empty spectrum: ', item
+                else:
+                    errMsg = "%s has more than one spectrum in the file.\nRemember this is a program for viewing MALDI data!"%item
+                    if self.P != None:
+                        QtGui.QMessageBox.warning(self, "Too many spectra in File", errMsg)
 
     def _getDir_(self):
         directory = QtGui.QFileDialog.getExistingDirectory(self, '', self.curDir)
         directory = str(directory)
         if directory != None:
             self.curDir = os.path.abspath(directory)
+            return True
         else:
             self.curDir = os.path.abspath(os.getcwd())
+            return False
         #return directory
 
     def _updatePlotColor_(self):
@@ -704,6 +718,8 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                     groupBool = False
         if groupBool:
             ct_menu.addAction(self.selectGroupAction)
+
+        ct_menu.addAction(self.addFileAction)
 #        ct_menu.addAction(self.selectAllAction)
         ct_menu.exec_(self.groupTreeWidget.mapToGlobal(point))
 
@@ -757,42 +773,35 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             self.setupGUI()
         if self.loadmzXMLCB.isChecked():
             loadLIFT = self.excludeLIFTCB.isChecked()
-            self._getDir_()
-            dirList, startDir = LmzXML(self.curDir, excludeLIFT = loadLIFT)
-            dirList.sort()
-            #You could pre load the widgetitems then fill them in
-            if len(dirList) !=0:
-                print dirList
-                self.dirList = dirList
-                self.loadOk = True
-                self.firstLoad = False
-                if self.readThread.updateThread(dirList,  loadmzXML = True):
-                    self.readThread.start()
+            if self._getDir_():
+                dirList, startDir = LmzXML(self.curDir, excludeLIFT = loadLIFT)
+                dirList.sort()
+                #You could pre load the widgetitems then fill them in
+                if len(dirList) !=0:
+                    print dirList
+                    self.dirList = dirList
+                    self.loadOk = True
+                    self.firstLoad = False
+                    if self.readThread.updateThread(dirList,  loadmzXML = True):
+                        self.readThread.start()
 
-                self.curGroup = self.numGroups
-                if sys.platform == 'win32':
-                    self.curGroupName = self.curDir.split(os.path.sep)[-1]
-                else:
-                    self.curGroupName = self.curDir.split(os.path.sep)[-1]#[-2]
-                self.groupIndex.append(self.numGroups)
-                self.groupList.append(self.curGroupName)
-                self.numGroups+=1
+                    self.curGroup = self.numGroups
+                    if sys.platform == 'win32':
+                        self.curGroupName = self.curDir.split(os.path.sep)[-1]
+                    else:
+                        self.curGroupName = self.curDir.split(os.path.sep)[-1]#[-2]
+                    self.groupIndex.append(self.numGroups)
+                    self.groupList.append(self.curGroupName)
+                    self.numGroups+=1
 
-                self.curTreeItem = QtGui.QTreeWidgetItem(self.groupTreeWidget)
-                self.curTreeItem.setText(0,self.curGroupName)
-                self.curTreeItem.setToolTip(0, self.curDir)
+                    self.curTreeItem = QtGui.QTreeWidgetItem(self.groupTreeWidget)
+                    self.curTreeItem.setText(0,self.curGroupName)
+                    self.curTreeItem.setToolTip(0, self.curDir)
 
-                #items for the fingerprint comparison
-                self.curFPTreeItem = QtGui.QTreeWidgetItem(self.loadSpecTreeWidget)
-                self.curFPTreeItem.setText(0,self.curGroupName)
-                self.curFPTreeItem.setToolTip(0, self.curDir)
-
-#                print self.curDir
-
-#                print "Cur Group", self.curGroup
-#                print "Group Index", self.groupIndex
-#                print "Group List", self.groupList
-#                print "Num Groups", self.numGroups
+                    #items for the fingerprint comparison
+                    self.curFPTreeItem = QtGui.QTreeWidgetItem(self.fpSpecTreeWidget)
+                    self.curFPTreeItem.setText(0,self.curGroupName)
+                    self.curFPTreeItem.setToolTip(0, self.curDir)
 
             elif startDir != None:
                 return QtGui.QMessageBox.warning(self, "No Data Found",  "Check selected folder, does it have any data?")
@@ -1081,8 +1090,8 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                                 if name == delName:
                                     tempItemList.pop(j)
 
-                        #used to remove from loadSpecTreeWidget
-                        foundItems = self.loadSpecTreeWidget.findItems(parentItem.text(0),QtCore.Qt.MatchExactly, 0)#take only the first item
+                        #used to remove from fpSpecTreeWidget
+                        foundItems = self.fpSpecTreeWidget.findItems(parentItem.text(0),QtCore.Qt.MatchExactly, 0)#take only the first item
                         fpParent = None
                         if len(foundItems) > 0:
                             fpParent = foundItems[0]
@@ -1104,8 +1113,8 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
                         if fpParent != None:
                             if fpParent.childCount() == 0:
-                                topIndex = self.loadSpecTreeWidget.indexOfTopLevelItem(fpParent)
-                                self.loadSpecTreeWidget.takeTopLevelItem(topIndex)
+                                topIndex = self.fpSpecTreeWidget.indexOfTopLevelItem(fpParent)
+                                self.fpSpecTreeWidget.takeTopLevelItem(topIndex)
 
             self.updateGUI()
 
@@ -1614,6 +1623,13 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             self.tabPeakTable.setHorizontalHeaderLabels(header)
             self.tabPeakTable.setSortingEnabled(True)
             self.tabPeakTable.resizeColumnToContents(0)
+
+    def __askConfirm__(self,title,message):
+        clickedButton = QtGui.QMessageBox.question(self,\
+                                                   title,message,\
+                                                   QtGui.QMessageBox.Yes,QtGui.QMessageBox.Cancel)
+        if clickedButton == QtGui.QMessageBox.Yes: return True
+        return False
 
 
 ##########Begin Ashoka Progress Bar Code....
