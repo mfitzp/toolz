@@ -760,6 +760,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             self._getDir_()
             dirList, startDir = LmzXML(self.curDir, excludeLIFT = loadLIFT)
             dirList.sort()
+            #You could pre load the widgetitems then fill them in
             if len(dirList) !=0:
                 print dirList
                 self.dirList = dirList
