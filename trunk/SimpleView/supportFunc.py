@@ -41,7 +41,11 @@ def interpolate_spectrum_XY(X, Y): #data array contains two columns. x & y, resp
     x=X
     y=Y
     f=interp1d(x,y)
-    x_new = N.arange(x.min(), x.max(), ((x.max()-x.min())/(2*len(x))))
+    #subtract one from the max otherwise some rounding errors can cuase the lenght of the x_new to be 1 too many.
+    x_new = N.arange(x.min(), x.max()-1, ((x.max()-x.min())/(2*len(x))))
+#    print "Interp Test"
+#    print len(x_new), len(x), len(y)
+#    print f
     y_new=f(x_new)
     return (x_new, y_new)
 
