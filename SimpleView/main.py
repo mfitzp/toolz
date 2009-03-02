@@ -381,6 +381,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                         newName = os.path.join(self.curGroupName, bName)
                         spec = specList[key].read()
                         dataFile = DataClass(spec[:,0], spec[:,1],  name = bName, path = newName, interp = True)#should already by interpolated
+                        dataFile.mzPad = specList[key].attrs.mzPad
                         pkList = peakLists[key].read()
                         dataFile.setPeakList(pkList, normalized = True)#set to normalized as these values are by nature already normalized
                         dataDict[newName] = dataFile#used to add to FP interface

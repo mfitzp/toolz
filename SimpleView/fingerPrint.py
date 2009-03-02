@@ -426,8 +426,12 @@ class Finger_Widget(QtGui.QWidget, ui_fingerPrint.Ui_fingerPlotWidget):
             shape = data.shape
             ca = hdfInstance.createCArray(varGroup, natName, atom, shape, filters = filters)
             ca[0:shape[0]] = data
-#            ca.flush()
-#            print "%s written"%natName
+            if isinstance(item[1], DataClass):
+                mzPad = item[1].mzPad
+                if mzPad == None:
+                    ca._v_attrs.mzPad = 50
+                else:
+                    ca._v_attrs.mzPad = item[1].mzPad
 
 
     def saveFinger2HDF5(self):
@@ -443,6 +447,7 @@ class Finger_Widget(QtGui.QWidget, ui_fingerPrint.Ui_fingerPlotWidget):
                 Need a way to handle saving dictionaries
                 '''
                 hdf.close()
+                print "Successfully saved %s to disk!"%fileName
             except:
                 hdf.close()
                 exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()

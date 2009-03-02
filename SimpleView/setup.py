@@ -13,7 +13,7 @@ import glob
 opts = {
     'py2exe': { "includes" : ["sip", "PyQt4._qt", "matplotlib.backends.backend_qt4agg", "matplotlib.backends.backend_qt4",
                                "matplotlib.backends.backend_wxagg", "matplotlib.figure", "numpy", "matplotlib.numerix.fft",
-                               "matplotlib.numerix.linear_algebra", "matplotlib.numerix.random_array",
+                               "matplotlib.numerix.linear_algebra", "matplotlib.numerix.random_array", "tables.*",
                                "matplotlib.backends.backend_tkagg","xml.etree.cElementTree","xml.etree.ElementTree"],
                 'excludes': ['_gtkagg', '_tkagg', '_agg2', '_cairo', '_cocoaagg',
                              '_fltkagg', '_gtk', '_gtkcairo'],
