@@ -385,11 +385,32 @@ class Finger_Widget(QtGui.QWidget, ui_fingerPrint.Ui_fingerPlotWidget):
                 specY = item[1].y
                 data = N.column_stack((specX,specY))
                 pkList = item[1].peakList
+                pkParams = item[1].peakParams
                 if pkList != None and pkListOK:
                     shape = pkList.shape
 #                    print pkList
                     ca = hdfInstance.createCArray(pkListGroup, natName, atom, shape, filters = filters)
                     ca[0:shape[0]] = pkList
+                    if pkParams != None:
+                        ca._v_attrs.scales = pkParams['scales']
+                        ca._v_attrs.minSNR = pkParams['minSNR']
+                        ca._v_attrs.minSNR = pkParams['minSNR']
+                        ca._v_attrs.minRow = pkParams['minRow']
+                        ca._v_attrs.minClust = pkParams['minClust']
+                        ca._v_attrs.EPS = pkParams['dbscanEPS']
+                        ca._v_attrs.rowThresh = pkParams['rowThresh']
+                        ca._v_attrs.noiseFactor = pkParams['noiseFactor']
+                        ca._v_attrs.staticThresh = pkParams['staticThresh']
+#                        self.paramDict = {'scales':None,
+#                                      'minSNR':None,
+#                                      'minRow':None,
+#                                      'minClust':None,
+#                                      'dbscanEPS':None,
+#                                      'rowThresh':None,
+#                                      'noiseFactor':None,
+#                                      'staticThresh':None,
+#                                      'autoSave':None
+#                                      }
             else:#this would be the case for PeakStatsDict
 #                varGroup._v_attrs.mzTol = self.mzTol_SB.value()
 #                varGroup._v_attrs.stDev = self.stdDev_SB.value()
@@ -399,7 +420,7 @@ class Finger_Widget(QtGui.QWidget, ui_fingerPrint.Ui_fingerPlotWidget):
             ca = hdfInstance.createCArray(varGroup, natName, atom, shape, filters = filters)
             ca[0:shape[0]] = data
 #            ca.flush()
-            print "%s written"%natName
+#            print "%s written"%natName
 
 
     def saveFinger2HDF5(self):
