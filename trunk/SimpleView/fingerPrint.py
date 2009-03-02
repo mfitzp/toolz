@@ -89,7 +89,7 @@ class Finger_Widget(QtGui.QWidget, ui_fingerPrint.Ui_fingerPlotWidget):
     def commitFinger2Parent(self):
         if self.parentOk:
             fpName = str(self.fpName_LE.text())
-            if fpName == 'Change me if you want to commit fingerprint!':
+            if fpName == 'Rename me!':
                 return QtGui.QMessageBox.warning(self, "Fingerprint Name Error", "Please give a name to the current FP" )
             else:
                 self.fpDict = {}

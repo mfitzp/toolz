@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Documents and Settings\d3p483\workspace\SimpleView\fingerPrint.ui'
 #
-# Created: Mon Mar 02 10:15:09 2009
+# Created: Mon Mar 02 15:02:40 2009
 #      by: PyQt4 UI code generator 4.3.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -173,7 +173,7 @@ class Ui_fingerPlotWidget(object):
         self.label_2.setText(QtGui.QApplication.translate("fingerPlotWidget", "Min # of Standard Deviations:", None, QtGui.QApplication.UnicodeUTF8))
         self.showRaw_CB.setText(QtGui.QApplication.translate("fingerPlotWidget", "Show FP Spectra?", None, QtGui.QApplication.UnicodeUTF8))
         self.label_3.setText(QtGui.QApplication.translate("fingerPlotWidget", "Fingerprint Name:", None, QtGui.QApplication.UnicodeUTF8))
-        self.fpName_LE.setText(QtGui.QApplication.translate("fingerPlotWidget", "Change me if you want to commit fingerprint!", None, QtGui.QApplication.UnicodeUTF8))
+        self.fpName_LE.setText(QtGui.QApplication.translate("fingerPlotWidget", "Rename me!", None, QtGui.QApplication.UnicodeUTF8))
         self.label_4.setText(QtGui.QApplication.translate("fingerPlotWidget", "Significance Level:", None, QtGui.QApplication.UnicodeUTF8))
         self.fingerPrint_Btn.setText(QtGui.QApplication.translate("fingerPlotWidget", "Fingerprint", None, QtGui.QApplication.UnicodeUTF8))
         self.label_5.setText(QtGui.QApplication.translate("fingerPlotWidget", "Freq Cutoff:", None, QtGui.QApplication.UnicodeUTF8))

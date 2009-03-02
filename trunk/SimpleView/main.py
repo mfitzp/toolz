@@ -29,11 +29,7 @@ Keys:            GUI Elements:
 "datadir": #Not used
 }
 
-Need to add exception for when there is no data in the file (i.e. a blank spectrum)
-
-Load a single file?
-
-Load FP
+Load FP Table but not data--make that and option
 
 PCA after peak pick
 
@@ -359,8 +355,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
                     specList = hdfRoot.Spectra._v_children
                     peakLists = hdfRoot.PeakLists._v_children
-                    peakStats = hdfRoot.PeakStats._v_children
-
 
                     self.curGroupName = fileName.split(os.path.sep)[-1]
                     self.groupIndex.append(self.numGroups)
@@ -393,7 +387,9 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                         self.updateGUI(dataFile)
 
                     peakStatDict = {}
+                    peakStats = hdfRoot.PeakStats._v_children
                     for j, key in enumerate(peakStats.keys()):
+                        print key
                         peakStatDict[key] = peakStats[key].read()
 
 
@@ -637,8 +633,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                 self.curTreeItem = item
 
             self.curFPTreeItem = self.fpSpecTreeWidget.findItems(self.curTreeItem.text(0), QtCore.Qt.MatchExactly, 0)[0]
-            print self.curTreeItem.text(0)
-            print self.curFPTreeItem.text(0)
 
             fileName = self.getMZXMLDialog()
             if fileName != None:
@@ -649,18 +643,62 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                     if len(tempSpec)>0:
             #                                print 'Spec OK', os.path.basename(item)
                         data2plot = DataClass(tempSpec[0],  tempSpec[1],  name = os.path.basename(fileName), path = fileName)
-                        data2plot.setPeakList(tempmzXML.data['peaklist'], normalized = False)
+                        data2plot.setPeakList(tempmzXML.data['peaklist'], normalized = True)
                         self.updateGUI(data2plot)
-
-                        #this following line is key to pass python object via the SIGNAL/SLOT mechanism of PyQt
-                        #note PyQt_PyObject
-#                        self.emit(QtCore.SIGNAL("itemLoaded(PyQt_PyObject)"),data2plot)
                     else:
                         print 'Empty spectrum: ', item
                 else:
                     errMsg = "%s has more than one spectrum in the file.\nRemember this is a program for viewing MALDI data!"%item
                     if self.P != None:
                         QtGui.QMessageBox.warning(self, "Too many spectra in File", errMsg)
+        else:
+            #test to see if any item groups exists.  If not create a new one.
+            self.groupTreeWidget.selectAll()
+            selectItems = self.groupTreeWidget.selectedItems()
+            if len(selectItems) == 0:
+                fileName = self.getMZXMLDialog()
+                if fileName != None:
+                    self.getTextColor()
+                    self.curGroup = self.numGroups
+
+                    if sys.platform == 'win32':
+                        self.curGroupName = fileName.split(os.path.sep)[-2]
+                    else:
+                        self.curGroupName = fileName.split(os.path.sep)[-2]#[-2]
+
+                    self.curDir = os.path.dirname(fileName)
+                    self.groupIndex.append(self.numGroups)
+                    self.groupList.append(self.curGroupName)
+                    self.numGroups+=1
+
+                    self.curTreeItem = QtGui.QTreeWidgetItem(self.groupTreeWidget)
+                    self.curTreeItem.setText(0,self.curGroupName)
+                    self.curTreeItem.setToolTip(0, self.curDir)
+
+                    #items for the fingerprint comparison
+                    self.curFPTreeItem = QtGui.QTreeWidgetItem(self.fpSpecTreeWidget)
+                    self.curFPTreeItem.setText(0,self.curGroupName)
+                    self.curFPTreeItem.setToolTip(0, self.curDir)
+
+                    tempmzXML =  mzXMLR(fileName)
+                    numScans = tempmzXML.data['totalScans']
+                    if numScans == 1:
+                        tempSpec = tempmzXML.data['spectrum']
+                        if len(tempSpec)>0:
+                            data2plot = DataClass(tempSpec[0],  tempSpec[1],  name = os.path.basename(fileName), path = fileName)
+                            data2plot.setPeakList(tempmzXML.data['peaklist'], normalized = False)
+                            self.updateGUI(data2plot)
+                            self.loadOk = True
+                            self.readFinished(True)
+                        else:
+                            print 'Empty spectrum: ', item
+                    else:
+                        errMsg = "%s has more than one spectrum in the file.\nRemember this is a program for viewing MALDI data!"%item
+                        if self.P != None:
+                            QtGui.QMessageBox.warning(self, "Too many spectra in File", errMsg)
+
+
+
 
     def _getDir_(self):
         directory = QtGui.QFileDialog.getExistingDirectory(self, '', self.curDir)

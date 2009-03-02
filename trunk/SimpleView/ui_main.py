@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Documents and Settings\d3p483\workspace\SimpleView\main.ui'
 #
-# Created: Mon Mar 02 11:40:25 2009
+# Created: Mon Mar 02 15:10:26 2009
 #      by: PyQt4 UI code generator 4.3.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -418,118 +418,131 @@ class Ui_MainWindow(object):
         self.hboxlayout7 = QtGui.QHBoxLayout()
         self.hboxlayout7.setObjectName("hboxlayout7")
 
-        self.label_17 = QtGui.QLabel(self.optionsTab)
-        self.label_17.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
-        self.label_17.setObjectName("label_17")
-        self.hboxlayout7.addWidget(self.label_17)
+        self.label_25 = QtGui.QLabel(self.optionsTab)
+        self.label_25.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_25.setObjectName("label_25")
+        self.hboxlayout7.addWidget(self.label_25)
 
-        self.comboBox = QtGui.QComboBox(self.optionsTab)
-        self.comboBox.setEnabled(False)
-        self.comboBox.setObjectName("comboBox")
-        self.hboxlayout7.addWidget(self.comboBox)
+        self.peakSetting_CB = QtGui.QComboBox(self.optionsTab)
+        self.peakSetting_CB.setObjectName("peakSetting_CB")
+        self.hboxlayout7.addWidget(self.peakSetting_CB)
         self.vboxlayout2.addLayout(self.hboxlayout7)
 
         self.hboxlayout8 = QtGui.QHBoxLayout()
         self.hboxlayout8.setObjectName("hboxlayout8")
 
+        self.label_17 = QtGui.QLabel(self.optionsTab)
+        self.label_17.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_17.setObjectName("label_17")
+        self.hboxlayout8.addWidget(self.label_17)
+
+        self.comboBox = QtGui.QComboBox(self.optionsTab)
+        self.comboBox.setEnabled(False)
+        self.comboBox.setObjectName("comboBox")
+        self.hboxlayout8.addWidget(self.comboBox)
+        self.vboxlayout2.addLayout(self.hboxlayout8)
+
+        self.hboxlayout9 = QtGui.QHBoxLayout()
+        self.hboxlayout9.setObjectName("hboxlayout9")
+
         self.label_21 = QtGui.QLabel(self.optionsTab)
         self.label_21.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_21.setObjectName("label_21")
-        self.hboxlayout8.addWidget(self.label_21)
+        self.hboxlayout9.addWidget(self.label_21)
 
         self.minRow_SB = QtGui.QSpinBox(self.optionsTab)
         self.minRow_SB.setMinimum(1)
         self.minRow_SB.setMaximum(100)
         self.minRow_SB.setProperty("value",QtCore.QVariant(1))
         self.minRow_SB.setObjectName("minRow_SB")
-        self.hboxlayout8.addWidget(self.minRow_SB)
-        self.vboxlayout2.addLayout(self.hboxlayout8)
+        self.hboxlayout9.addWidget(self.minRow_SB)
+        self.vboxlayout2.addLayout(self.hboxlayout9)
 
-        self.hboxlayout9 = QtGui.QHBoxLayout()
-        self.hboxlayout9.setObjectName("hboxlayout9")
+        self.hboxlayout10 = QtGui.QHBoxLayout()
+        self.hboxlayout10.setObjectName("hboxlayout10")
 
         self.label_22 = QtGui.QLabel(self.optionsTab)
         self.label_22.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_22.setObjectName("label_22")
-        self.hboxlayout9.addWidget(self.label_22)
+        self.hboxlayout10.addWidget(self.label_22)
 
         self.minClust_SB = QtGui.QSpinBox(self.optionsTab)
         self.minClust_SB.setMinimum(1)
         self.minClust_SB.setMaximum(100)
         self.minClust_SB.setProperty("value",QtCore.QVariant(4))
         self.minClust_SB.setObjectName("minClust_SB")
-        self.hboxlayout9.addWidget(self.minClust_SB)
-        self.vboxlayout2.addLayout(self.hboxlayout9)
-
-        self.hboxlayout10 = QtGui.QHBoxLayout()
-        self.hboxlayout10.setObjectName("hboxlayout10")
-
-        self.label_19 = QtGui.QLabel(self.optionsTab)
-        self.label_19.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
-        self.label_19.setObjectName("label_19")
-        self.hboxlayout10.addWidget(self.label_19)
-
-        self.waveletRowTol_SB = QtGui.QSpinBox(self.optionsTab)
-        self.waveletRowTol_SB.setMinimum(1)
-        self.waveletRowTol_SB.setProperty("value",QtCore.QVariant(3))
-        self.waveletRowTol_SB.setObjectName("waveletRowTol_SB")
-        self.hboxlayout10.addWidget(self.waveletRowTol_SB)
+        self.hboxlayout10.addWidget(self.minClust_SB)
         self.vboxlayout2.addLayout(self.hboxlayout10)
 
         self.hboxlayout11 = QtGui.QHBoxLayout()
         self.hboxlayout11.setObjectName("hboxlayout11")
 
+        self.label_19 = QtGui.QLabel(self.optionsTab)
+        self.label_19.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_19.setObjectName("label_19")
+        self.hboxlayout11.addWidget(self.label_19)
+
+        self.waveletRowTol_SB = QtGui.QSpinBox(self.optionsTab)
+        self.waveletRowTol_SB.setMinimum(1)
+        self.waveletRowTol_SB.setProperty("value",QtCore.QVariant(3))
+        self.waveletRowTol_SB.setObjectName("waveletRowTol_SB")
+        self.hboxlayout11.addWidget(self.waveletRowTol_SB)
+        self.vboxlayout2.addLayout(self.hboxlayout11)
+
+        self.hboxlayout12 = QtGui.QHBoxLayout()
+        self.hboxlayout12.setObjectName("hboxlayout12")
+
         self.label_23 = QtGui.QLabel(self.optionsTab)
         self.label_23.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_23.setObjectName("label_23")
-        self.hboxlayout11.addWidget(self.label_23)
+        self.hboxlayout12.addWidget(self.label_23)
 
         self.dbscanEPS_SB = QtGui.QSpinBox(self.optionsTab)
         self.dbscanEPS_SB.setMinimum(-1)
         self.dbscanEPS_SB.setMaximum(1000)
         self.dbscanEPS_SB.setProperty("value",QtCore.QVariant(-1))
         self.dbscanEPS_SB.setObjectName("dbscanEPS_SB")
-        self.hboxlayout11.addWidget(self.dbscanEPS_SB)
-        self.vboxlayout2.addLayout(self.hboxlayout11)
+        self.hboxlayout12.addWidget(self.dbscanEPS_SB)
+        self.vboxlayout2.addLayout(self.hboxlayout12)
 
-        self.hboxlayout12 = QtGui.QHBoxLayout()
-        self.hboxlayout12.setObjectName("hboxlayout12")
+        self.hboxlayout13 = QtGui.QHBoxLayout()
+        self.hboxlayout13.setObjectName("hboxlayout13")
 
         self.label_15 = QtGui.QLabel(self.optionsTab)
         self.label_15.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_15.setObjectName("label_15")
-        self.hboxlayout12.addWidget(self.label_15)
+        self.hboxlayout13.addWidget(self.label_15)
 
         self.noiseFactor_SB = QtGui.QSpinBox(self.optionsTab)
         self.noiseFactor_SB.setMinimum(1)
         self.noiseFactor_SB.setMaximum(100)
         self.noiseFactor_SB.setProperty("value",QtCore.QVariant(10))
         self.noiseFactor_SB.setObjectName("noiseFactor_SB")
-        self.hboxlayout12.addWidget(self.noiseFactor_SB)
-        self.vboxlayout2.addLayout(self.hboxlayout12)
-
-        self.hboxlayout13 = QtGui.QHBoxLayout()
-        self.hboxlayout13.setObjectName("hboxlayout13")
-
-        self.label_24 = QtGui.QLabel(self.optionsTab)
-        self.label_24.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
-        self.label_24.setObjectName("label_24")
-        self.hboxlayout13.addWidget(self.label_24)
-
-        self.staticCutoff_SB = QtGui.QSpinBox(self.optionsTab)
-        self.staticCutoff_SB.setMaximum(1000000)
-        self.staticCutoff_SB.setProperty("value",QtCore.QVariant(100))
-        self.staticCutoff_SB.setObjectName("staticCutoff_SB")
-        self.hboxlayout13.addWidget(self.staticCutoff_SB)
+        self.hboxlayout13.addWidget(self.noiseFactor_SB)
         self.vboxlayout2.addLayout(self.hboxlayout13)
 
         self.hboxlayout14 = QtGui.QHBoxLayout()
         self.hboxlayout14.setObjectName("hboxlayout14")
 
+        self.label_24 = QtGui.QLabel(self.optionsTab)
+        self.label_24.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_24.setObjectName("label_24")
+        self.hboxlayout14.addWidget(self.label_24)
+
+        self.staticCutoff_SB = QtGui.QSpinBox(self.optionsTab)
+        self.staticCutoff_SB.setMaximum(1000000)
+        self.staticCutoff_SB.setProperty("value",QtCore.QVariant(100))
+        self.staticCutoff_SB.setObjectName("staticCutoff_SB")
+        self.hboxlayout14.addWidget(self.staticCutoff_SB)
+        self.vboxlayout2.addLayout(self.hboxlayout14)
+
+        self.hboxlayout15 = QtGui.QHBoxLayout()
+        self.hboxlayout15.setObjectName("hboxlayout15")
+
         self.label_16 = QtGui.QLabel(self.optionsTab)
         self.label_16.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_16.setObjectName("label_16")
-        self.hboxlayout14.addWidget(self.label_16)
+        self.hboxlayout15.addWidget(self.label_16)
 
         self.snrNoiseEst_SB = QtGui.QDoubleSpinBox(self.optionsTab)
         self.snrNoiseEst_SB.setDecimals(1)
@@ -537,8 +550,8 @@ class Ui_MainWindow(object):
         self.snrNoiseEst_SB.setMaximum(5000.0)
         self.snrNoiseEst_SB.setProperty("value",QtCore.QVariant(3.0))
         self.snrNoiseEst_SB.setObjectName("snrNoiseEst_SB")
-        self.hboxlayout14.addWidget(self.snrNoiseEst_SB)
-        self.vboxlayout2.addLayout(self.hboxlayout14)
+        self.hboxlayout15.addWidget(self.snrNoiseEst_SB)
+        self.vboxlayout2.addLayout(self.hboxlayout15)
 
         self.autoSavePkList_CB = QtGui.QCheckBox(self.optionsTab)
         self.autoSavePkList_CB.setObjectName("autoSavePkList_CB")
@@ -549,16 +562,16 @@ class Ui_MainWindow(object):
         self.plotNoiseEst_CB.setObjectName("plotNoiseEst_CB")
         self.vboxlayout2.addWidget(self.plotNoiseEst_CB)
 
-        self.hboxlayout15 = QtGui.QHBoxLayout()
-        self.hboxlayout15.setObjectName("hboxlayout15")
+        self.hboxlayout16 = QtGui.QHBoxLayout()
+        self.hboxlayout16.setObjectName("hboxlayout16")
 
         self.showNoise_Btn = QtGui.QPushButton(self.optionsTab)
         self.showNoise_Btn.setObjectName("showNoise_Btn")
-        self.hboxlayout15.addWidget(self.showNoise_Btn)
+        self.hboxlayout16.addWidget(self.showNoise_Btn)
 
         spacerItem3 = QtGui.QSpacerItem(40,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
-        self.hboxlayout15.addItem(spacerItem3)
-        self.vboxlayout2.addLayout(self.hboxlayout15)
+        self.hboxlayout16.addItem(spacerItem3)
+        self.vboxlayout2.addLayout(self.hboxlayout16)
 
         spacerItem4 = QtGui.QSpacerItem(20,40,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
         self.vboxlayout2.addItem(spacerItem4)
@@ -572,56 +585,56 @@ class Ui_MainWindow(object):
         self.useDefaultScale_CB.setObjectName("useDefaultScale_CB")
         self.vboxlayout3.addWidget(self.useDefaultScale_CB)
 
-        self.hboxlayout16 = QtGui.QHBoxLayout()
-        self.hboxlayout16.setObjectName("hboxlayout16")
+        self.hboxlayout17 = QtGui.QHBoxLayout()
+        self.hboxlayout17.setObjectName("hboxlayout17")
 
         self.scaleStartLbl = QtGui.QLabel(self.optionsTab)
         self.scaleStartLbl.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.scaleStartLbl.setObjectName("scaleStartLbl")
-        self.hboxlayout16.addWidget(self.scaleStartLbl)
+        self.hboxlayout17.addWidget(self.scaleStartLbl)
 
         self.scaleStart_SB = QtGui.QSpinBox(self.optionsTab)
         self.scaleStart_SB.setMinimum(1)
         self.scaleStart_SB.setMaximum(10000)
         self.scaleStart_SB.setProperty("value",QtCore.QVariant(2))
         self.scaleStart_SB.setObjectName("scaleStart_SB")
-        self.hboxlayout16.addWidget(self.scaleStart_SB)
-        self.vboxlayout3.addLayout(self.hboxlayout16)
+        self.hboxlayout17.addWidget(self.scaleStart_SB)
+        self.vboxlayout3.addLayout(self.hboxlayout17)
 
-        self.hboxlayout17 = QtGui.QHBoxLayout()
-        self.hboxlayout17.setObjectName("hboxlayout17")
+        self.hboxlayout18 = QtGui.QHBoxLayout()
+        self.hboxlayout18.setObjectName("hboxlayout18")
 
         self.scaleEndLbl = QtGui.QLabel(self.optionsTab)
         self.scaleEndLbl.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.scaleEndLbl.setObjectName("scaleEndLbl")
-        self.hboxlayout17.addWidget(self.scaleEndLbl)
+        self.hboxlayout18.addWidget(self.scaleEndLbl)
 
         self.scaleStop_SB = QtGui.QSpinBox(self.optionsTab)
         self.scaleStop_SB.setMinimum(1)
         self.scaleStop_SB.setMaximum(10000)
         self.scaleStop_SB.setProperty("value",QtCore.QVariant(64))
         self.scaleStop_SB.setObjectName("scaleStop_SB")
-        self.hboxlayout17.addWidget(self.scaleStop_SB)
-        self.vboxlayout3.addLayout(self.hboxlayout17)
+        self.hboxlayout18.addWidget(self.scaleStop_SB)
+        self.vboxlayout3.addLayout(self.hboxlayout18)
 
-        self.hboxlayout18 = QtGui.QHBoxLayout()
-        self.hboxlayout18.setObjectName("hboxlayout18")
+        self.hboxlayout19 = QtGui.QHBoxLayout()
+        self.hboxlayout19.setObjectName("hboxlayout19")
 
         self.scaleFactorLbl = QtGui.QLabel(self.optionsTab)
         self.scaleFactorLbl.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.scaleFactorLbl.setObjectName("scaleFactorLbl")
-        self.hboxlayout18.addWidget(self.scaleFactorLbl)
+        self.hboxlayout19.addWidget(self.scaleFactorLbl)
 
         self.scaleFactor_SB = QtGui.QSpinBox(self.optionsTab)
         self.scaleFactor_SB.setMinimum(1)
         self.scaleFactor_SB.setMaximum(100)
         self.scaleFactor_SB.setProperty("value",QtCore.QVariant(4))
         self.scaleFactor_SB.setObjectName("scaleFactor_SB")
-        self.hboxlayout18.addWidget(self.scaleFactor_SB)
-        self.vboxlayout3.addLayout(self.hboxlayout18)
+        self.hboxlayout19.addWidget(self.scaleFactor_SB)
+        self.vboxlayout3.addLayout(self.hboxlayout19)
 
-        self.hboxlayout19 = QtGui.QHBoxLayout()
-        self.hboxlayout19.setObjectName("hboxlayout19")
+        self.hboxlayout20 = QtGui.QHBoxLayout()
+        self.hboxlayout20.setObjectName("hboxlayout20")
 
         self.vboxlayout4 = QtGui.QVBoxLayout()
         self.vboxlayout4.setObjectName("vboxlayout4")
@@ -632,15 +645,15 @@ class Ui_MainWindow(object):
 
         spacerItem5 = QtGui.QSpacerItem(20,40,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
         self.vboxlayout4.addItem(spacerItem5)
-        self.hboxlayout19.addLayout(self.vboxlayout4)
+        self.hboxlayout20.addLayout(self.vboxlayout4)
 
         spacerItem6 = QtGui.QSpacerItem(40,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
-        self.hboxlayout19.addItem(spacerItem6)
-        self.vboxlayout3.addLayout(self.hboxlayout19)
+        self.hboxlayout20.addItem(spacerItem6)
+        self.vboxlayout3.addLayout(self.hboxlayout20)
         self.gridlayout4.addLayout(self.vboxlayout3,5,2,1,1)
 
-        self.hboxlayout20 = QtGui.QHBoxLayout()
-        self.hboxlayout20.setObjectName("hboxlayout20")
+        self.hboxlayout21 = QtGui.QHBoxLayout()
+        self.hboxlayout21.setObjectName("hboxlayout21")
 
         self.vboxlayout5 = QtGui.QVBoxLayout()
         self.vboxlayout5.setObjectName("vboxlayout5")
@@ -652,18 +665,18 @@ class Ui_MainWindow(object):
 
         spacerItem7 = QtGui.QSpacerItem(20,40,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
         self.vboxlayout5.addItem(spacerItem7)
-        self.hboxlayout20.addLayout(self.vboxlayout5)
+        self.hboxlayout21.addLayout(self.vboxlayout5)
 
         spacerItem8 = QtGui.QSpacerItem(40,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
-        self.hboxlayout20.addItem(spacerItem8)
-        self.gridlayout4.addLayout(self.hboxlayout20,5,3,1,1)
+        self.hboxlayout21.addItem(spacerItem8)
+        self.gridlayout4.addLayout(self.hboxlayout21,5,3,1,1)
         self.tabWidget.addTab(self.optionsTab,"")
 
         self.tab_2 = QtGui.QWidget()
         self.tab_2.setObjectName("tab_2")
 
-        self.hboxlayout21 = QtGui.QHBoxLayout(self.tab_2)
-        self.hboxlayout21.setObjectName("hboxlayout21")
+        self.hboxlayout22 = QtGui.QHBoxLayout(self.tab_2)
+        self.hboxlayout22.setObjectName("hboxlayout22")
 
         self.splitter = QtGui.QSplitter(self.tab_2)
         self.splitter.setOrientation(QtCore.Qt.Horizontal)
@@ -687,30 +700,34 @@ class Ui_MainWindow(object):
         self.fpListWidget.setObjectName("fpListWidget")
         self.vboxlayout7.addWidget(self.fpListWidget)
 
-        self.hboxlayout22 = QtGui.QHBoxLayout()
-        self.hboxlayout22.setObjectName("hboxlayout22")
-
-        self.loadFP_Btn = QtGui.QPushButton(self.layoutWidget)
-        self.loadFP_Btn.setObjectName("loadFP_Btn")
-        self.hboxlayout22.addWidget(self.loadFP_Btn)
-
-        spacerItem9 = QtGui.QSpacerItem(40,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
-        self.hboxlayout22.addItem(spacerItem9)
-        self.vboxlayout7.addLayout(self.hboxlayout22)
-        self.vboxlayout6.addLayout(self.vboxlayout7)
-
         self.hboxlayout23 = QtGui.QHBoxLayout()
         self.hboxlayout23.setObjectName("hboxlayout23")
 
+        self.loadFP_Btn = QtGui.QPushButton(self.layoutWidget)
+        self.loadFP_Btn.setObjectName("loadFP_Btn")
+        self.hboxlayout23.addWidget(self.loadFP_Btn)
+
+        self.loadRawFPData_CB = QtGui.QCheckBox(self.layoutWidget)
+        self.loadRawFPData_CB.setObjectName("loadRawFPData_CB")
+        self.hboxlayout23.addWidget(self.loadRawFPData_CB)
+
+        spacerItem9 = QtGui.QSpacerItem(40,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
+        self.hboxlayout23.addItem(spacerItem9)
+        self.vboxlayout7.addLayout(self.hboxlayout23)
+        self.vboxlayout6.addLayout(self.vboxlayout7)
+
+        self.hboxlayout24 = QtGui.QHBoxLayout()
+        self.hboxlayout24.setObjectName("hboxlayout24")
+
         self.autoLoadFP_CB = QtGui.QCheckBox(self.layoutWidget)
         self.autoLoadFP_CB.setObjectName("autoLoadFP_CB")
-        self.hboxlayout23.addWidget(self.autoLoadFP_CB)
+        self.hboxlayout24.addWidget(self.autoLoadFP_CB)
 
         self.curFPName_LE = QtGui.QLineEdit(self.layoutWidget)
         self.curFPName_LE.setReadOnly(True)
         self.curFPName_LE.setObjectName("curFPName_LE")
-        self.hboxlayout23.addWidget(self.curFPName_LE)
-        self.vboxlayout6.addLayout(self.hboxlayout23)
+        self.hboxlayout24.addWidget(self.curFPName_LE)
+        self.vboxlayout6.addLayout(self.hboxlayout24)
 
         self.fingerPTable = CustomTable(self.layoutWidget)
         self.fingerPTable.setObjectName("fingerPTable")
@@ -719,8 +736,8 @@ class Ui_MainWindow(object):
         self.layoutWidget1 = QtGui.QWidget(self.splitter)
         self.layoutWidget1.setObjectName("layoutWidget1")
 
-        self.hboxlayout24 = QtGui.QHBoxLayout(self.layoutWidget1)
-        self.hboxlayout24.setObjectName("hboxlayout24")
+        self.hboxlayout25 = QtGui.QHBoxLayout(self.layoutWidget1)
+        self.hboxlayout25.setObjectName("hboxlayout25")
 
         self.vboxlayout8 = QtGui.QVBoxLayout()
         self.vboxlayout8.setObjectName("vboxlayout8")
@@ -737,21 +754,21 @@ class Ui_MainWindow(object):
 
         spacerItem10 = QtGui.QSpacerItem(20,40,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
         self.vboxlayout8.addItem(spacerItem10)
-        self.hboxlayout24.addLayout(self.vboxlayout8)
+        self.hboxlayout25.addLayout(self.vboxlayout8)
 
         self.vboxlayout9 = QtGui.QVBoxLayout()
         self.vboxlayout9.setObjectName("vboxlayout9")
 
-        self.hboxlayout25 = QtGui.QHBoxLayout()
-        self.hboxlayout25.setObjectName("hboxlayout25")
+        self.hboxlayout26 = QtGui.QHBoxLayout()
+        self.hboxlayout26.setObjectName("hboxlayout26")
 
         self.expand_Btn = QtGui.QPushButton(self.layoutWidget1)
         self.expand_Btn.setObjectName("expand_Btn")
-        self.hboxlayout25.addWidget(self.expand_Btn)
+        self.hboxlayout26.addWidget(self.expand_Btn)
 
         spacerItem11 = QtGui.QSpacerItem(40,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
-        self.hboxlayout25.addItem(spacerItem11)
-        self.vboxlayout9.addLayout(self.hboxlayout25)
+        self.hboxlayout26.addItem(spacerItem11)
+        self.vboxlayout9.addLayout(self.hboxlayout26)
 
         self.fpSpecTreeWidget = QtGui.QTreeWidget(self.layoutWidget1)
         self.fpSpecTreeWidget.setMaximumSize(QtCore.QSize(200,16777215))
@@ -761,8 +778,8 @@ class Ui_MainWindow(object):
         self.fpSpecTreeWidget.setProperty("headerHidden",QtCore.QVariant(False))
         self.fpSpecTreeWidget.setObjectName("fpSpecTreeWidget")
         self.vboxlayout9.addWidget(self.fpSpecTreeWidget)
-        self.hboxlayout24.addLayout(self.vboxlayout9)
-        self.hboxlayout21.addWidget(self.splitter)
+        self.hboxlayout25.addLayout(self.vboxlayout9)
+        self.hboxlayout22.addWidget(self.splitter)
         self.tabWidget.addTab(self.tab_2,"")
 
         self.tab_3 = QtGui.QWidget()
@@ -777,34 +794,34 @@ class Ui_MainWindow(object):
         self.vboxlayout11 = QtGui.QVBoxLayout()
         self.vboxlayout11.setObjectName("vboxlayout11")
 
-        self.hboxlayout26 = QtGui.QHBoxLayout()
-        self.hboxlayout26.setObjectName("hboxlayout26")
+        self.hboxlayout27 = QtGui.QHBoxLayout()
+        self.hboxlayout27.setObjectName("hboxlayout27")
 
         self.fpFolder_Btn = QtGui.QPushButton(self.tab_3)
         self.fpFolder_Btn.setEnabled(True)
         self.fpFolder_Btn.setObjectName("fpFolder_Btn")
-        self.hboxlayout26.addWidget(self.fpFolder_Btn)
+        self.hboxlayout27.addWidget(self.fpFolder_Btn)
 
         self.fpFolder_LE = QtGui.QLineEdit(self.tab_3)
         self.fpFolder_LE.setReadOnly(True)
         self.fpFolder_LE.setObjectName("fpFolder_LE")
-        self.hboxlayout26.addWidget(self.fpFolder_LE)
-        self.vboxlayout11.addLayout(self.hboxlayout26)
+        self.hboxlayout27.addWidget(self.fpFolder_LE)
+        self.vboxlayout11.addLayout(self.hboxlayout27)
 
-        self.hboxlayout27 = QtGui.QHBoxLayout()
-        self.hboxlayout27.setObjectName("hboxlayout27")
+        self.hboxlayout28 = QtGui.QHBoxLayout()
+        self.hboxlayout28.setObjectName("hboxlayout28")
 
         self.savePref_Btn = QtGui.QPushButton(self.tab_3)
         self.savePref_Btn.setObjectName("savePref_Btn")
-        self.hboxlayout27.addWidget(self.savePref_Btn)
+        self.hboxlayout28.addWidget(self.savePref_Btn)
 
         self.revert_Btn = QtGui.QPushButton(self.tab_3)
         self.revert_Btn.setObjectName("revert_Btn")
-        self.hboxlayout27.addWidget(self.revert_Btn)
+        self.hboxlayout28.addWidget(self.revert_Btn)
 
         spacerItem12 = QtGui.QSpacerItem(40,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
-        self.hboxlayout27.addItem(spacerItem12)
-        self.vboxlayout11.addLayout(self.hboxlayout27)
+        self.hboxlayout28.addItem(spacerItem12)
+        self.vboxlayout11.addLayout(self.hboxlayout28)
         self.gridlayout5.addLayout(self.vboxlayout11,0,0,1,1)
 
         spacerItem13 = QtGui.QSpacerItem(40,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
@@ -818,36 +835,36 @@ class Ui_MainWindow(object):
         self.tab = QtGui.QWidget()
         self.tab.setObjectName("tab")
 
-        self.vboxlayout12 = QtGui.QVBoxLayout(self.tab)
-        self.vboxlayout12.setObjectName("vboxlayout12")
-
-        self.hboxlayout28 = QtGui.QHBoxLayout()
-        self.hboxlayout28.setObjectName("hboxlayout28")
-
-        self.loadHDF5FP_Btn = QtGui.QPushButton(self.tab)
-        self.loadHDF5FP_Btn.setObjectName("loadHDF5FP_Btn")
-        self.hboxlayout28.addWidget(self.loadHDF5FP_Btn)
-
-        spacerItem15 = QtGui.QSpacerItem(40,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
-        self.hboxlayout28.addItem(spacerItem15)
-        self.vboxlayout12.addLayout(self.hboxlayout28)
-
-        self.testFocus_Btn = QtGui.QPushButton(self.tab)
-        self.testFocus_Btn.setObjectName("testFocus_Btn")
-        self.vboxlayout12.addWidget(self.testFocus_Btn)
+        self.gridlayout6 = QtGui.QGridLayout(self.tab)
+        self.gridlayout6.setObjectName("gridlayout6")
 
         self.hboxlayout29 = QtGui.QHBoxLayout()
         self.hboxlayout29.setObjectName("hboxlayout29")
 
+        self.loadHDF5FP_Btn = QtGui.QPushButton(self.tab)
+        self.loadHDF5FP_Btn.setObjectName("loadHDF5FP_Btn")
+        self.hboxlayout29.addWidget(self.loadHDF5FP_Btn)
+
+        spacerItem15 = QtGui.QSpacerItem(40,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
+        self.hboxlayout29.addItem(spacerItem15)
+        self.gridlayout6.addLayout(self.hboxlayout29,0,0,1,1)
+
+        self.testFocus_Btn = QtGui.QPushButton(self.tab)
+        self.testFocus_Btn.setObjectName("testFocus_Btn")
+        self.gridlayout6.addWidget(self.testFocus_Btn,1,0,1,1)
+
+        self.hboxlayout30 = QtGui.QHBoxLayout()
+        self.hboxlayout30.setObjectName("hboxlayout30")
+
         self.test = QtGui.QLabel(self.tab)
         self.test.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.test.setObjectName("test")
-        self.hboxlayout29.addWidget(self.test)
+        self.hboxlayout30.addWidget(self.test)
 
         self.test2 = QtGui.QSpinBox(self.tab)
         self.test2.setObjectName("test2")
-        self.hboxlayout29.addWidget(self.test2)
-        self.vboxlayout12.addLayout(self.hboxlayout29)
+        self.hboxlayout30.addWidget(self.test2)
+        self.gridlayout6.addLayout(self.hboxlayout30,2,0,1,1)
 
         self.groupTreeWidget1 = QtGui.QTreeWidget(self.tab)
         self.groupTreeWidget1.setSelectionMode(QtGui.QAbstractItemView.ExtendedSelection)
@@ -855,19 +872,31 @@ class Ui_MainWindow(object):
         self.groupTreeWidget1.setColumnCount(2)
         self.groupTreeWidget1.setProperty("headerHidden",QtCore.QVariant(True))
         self.groupTreeWidget1.setObjectName("groupTreeWidget1")
-        self.vboxlayout12.addWidget(self.groupTreeWidget1)
+        self.gridlayout6.addWidget(self.groupTreeWidget1,3,0,1,1)
 
-        self.hboxlayout30 = QtGui.QHBoxLayout()
-        self.hboxlayout30.setObjectName("hboxlayout30")
+        self.hboxlayout31 = QtGui.QHBoxLayout()
+        self.hboxlayout31.setObjectName("hboxlayout31")
+
+        self.label_20 = QtGui.QLabel(self.tab)
+        self.label_20.setObjectName("label_20")
+        self.hboxlayout31.addWidget(self.label_20)
+
+        self.comboBox_2 = QtGui.QComboBox(self.tab)
+        self.comboBox_2.setObjectName("comboBox_2")
+        self.hboxlayout31.addWidget(self.comboBox_2)
+        self.gridlayout6.addLayout(self.hboxlayout31,4,0,1,1)
+
+        self.hboxlayout32 = QtGui.QHBoxLayout()
+        self.hboxlayout32.setObjectName("hboxlayout32")
 
         self.label_18 = QtGui.QLabel(self.tab)
         self.label_18.setObjectName("label_18")
-        self.hboxlayout30.addWidget(self.label_18)
+        self.hboxlayout32.addWidget(self.label_18)
 
         self.spinBox = QtGui.QSpinBox(self.tab)
         self.spinBox.setObjectName("spinBox")
-        self.hboxlayout30.addWidget(self.spinBox)
-        self.vboxlayout12.addLayout(self.hboxlayout30)
+        self.hboxlayout32.addWidget(self.spinBox)
+        self.gridlayout6.addLayout(self.hboxlayout32,6,0,1,1)
         self.tabWidget.addTab(self.tab,"")
         self.hboxlayout.addWidget(self.tabWidget)
         MainWindow.setCentralWidget(self.centralwidget)
@@ -969,6 +998,7 @@ class Ui_MainWindow(object):
         self.label_14.setText(QtGui.QApplication.translate("MainWindow", "m/z Hi:", None, QtGui.QApplication.UnicodeUTF8))
         self.mzHi_SB.setToolTip(QtGui.QApplication.translate("MainWindow", "If this value is set to -1 then a TIC starting from m/z Lo will be returned", None, QtGui.QApplication.UnicodeUTF8))
         self.getEIC_Btn.setText(QtGui.QApplication.translate("MainWindow", "Fetch EIC", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_25.setText(QtGui.QApplication.translate("MainWindow", "Auto Peak Setting:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_17.setText(QtGui.QApplication.translate("MainWindow", "Wavelet Type:", None, QtGui.QApplication.UnicodeUTF8))
         self.comboBox.setToolTip(QtGui.QApplication.translate("MainWindow", "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
         "p, li { white-space: pre-wrap; }\n"
@@ -1068,6 +1098,11 @@ class Ui_MainWindow(object):
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.optionsTab), QtGui.QApplication.translate("MainWindow", "Options", None, QtGui.QApplication.UnicodeUTF8))
         self.label.setText(QtGui.QApplication.translate("MainWindow", "Available Fingerprints:", None, QtGui.QApplication.UnicodeUTF8))
         self.loadFP_Btn.setText(QtGui.QApplication.translate("MainWindow", "Load Fingerprint", None, QtGui.QApplication.UnicodeUTF8))
+        self.loadRawFPData_CB.setToolTip(QtGui.QApplication.translate("MainWindow", "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+        "p, li { white-space: pre-wrap; }\n"
+        "</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:8.25pt; font-weight:400; font-style:normal;\">\n"
+        "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">By checking this box, if you open a saved FP, all of the raw data will also be loaded.  This can be useful if a new FP is needed.  Be aware that for large FP this could significantly slow your machine...</p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
+        self.loadRawFPData_CB.setText(QtGui.QApplication.translate("MainWindow", "Load Raw Data From FP?", None, QtGui.QApplication.UnicodeUTF8))
         self.autoLoadFP_CB.setText(QtGui.QApplication.translate("MainWindow", "Auto Load Fingerprints", None, QtGui.QApplication.UnicodeUTF8))
         self.fingerPTable.clear()
         self.fingerPTable.setColumnCount(0)
@@ -1090,6 +1125,7 @@ class Ui_MainWindow(object):
         "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">This is the minimum value in absolute counts (i.e. not normalized) to be considered for peak picking.</p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
         self.groupTreeWidget1.headerItem().setText(0,QtGui.QApplication.translate("MainWindow", "1", None, QtGui.QApplication.UnicodeUTF8))
         self.groupTreeWidget1.headerItem().setText(1,QtGui.QApplication.translate("MainWindow", "2", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_20.setText(QtGui.QApplication.translate("MainWindow", "TextLabel", None, QtGui.QApplication.UnicodeUTF8))
         self.label_18.setText(QtGui.QApplication.translate("MainWindow", "Wavelet Tolerance:", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), QtGui.QApplication.translate("MainWindow", "Misc", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_File.setTitle(QtGui.QApplication.translate("MainWindow", "&File", None, QtGui.QApplication.UnicodeUTF8))

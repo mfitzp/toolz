@@ -87,14 +87,19 @@ class DataClass(object):
             if peakList != None:
                 if len(peakList)>0:
                     self.pkListOk = True#CHANGE ME True
-                    self.peakList = peakList
+                    if type(peakList[0]) == N.ndarray:
+                        self.peakList = peakList
+                    elif type(peakList[0]) == N.float64:
+                        self.peakList = N.array([peakList[0],peakList[1]])
         else:
             if peakList != None:
                 if len(peakList)>0:
                     self.pkListOk = True#CHANGE ME True
-                    self.peakList = peakList
-                    if type(self.peakList[0]) == N.ndarray:
+                    if type(peakList[0]) == N.ndarray:
+                        self.peakList = peakList
                         self.peakList[:,1] = SF.normalize(self.peakList[:,1])
+                    elif type(peakList[0]) == N.float64:
+                        self.peakList = N.array([[peakList[0],100.0]])
 
 
     def applyTopHat(self):
@@ -176,8 +181,10 @@ class DataClass(object):
                             print "Error plotting peak list"
 
                     except:
-                        print "Error plotting peak list"
-                        errorMsg = "Sorry: %s\n\n:%s\n"%(sys.exc_type, sys.exc_value)
+                        exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+                        traceback.print_exception(exceptionType, exceptionValue, exceptionTraceback, file=sys.stdout)
+                        errorMsg = "Peak Plot Error:\n\t %s\n\n:%s\n%s\n"%(exceptionType, exceptionValue, exceptionTraceback)
+                        print self.name
                         print errorMsg
 
 
