@@ -104,7 +104,7 @@
            <item>
             <widget class="QLineEdit" name="fpName_LE" >
              <property name="text" >
-              <string>Change me if you want to commit fingerprint!</string>
+              <string>Rename me!</string>
              </property>
             </widget>
            </item>
