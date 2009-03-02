@@ -158,7 +158,6 @@ def getCWTPeaks(scaledCWT, X, Y, noiseEst, minSNR = 3,\
 
                     #this screening assumes there is a low value to the first
                     #scale value e.g. 1 or 2
-
                     tempVals = Y[(xVal-pntPad):xVal]
                     if len(tempVals)>0:
                         localMaxInd = tempVals.argmax()
