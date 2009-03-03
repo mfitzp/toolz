@@ -12,7 +12,7 @@
   <property name="windowTitle" >
    <string>Fingerprint Plot</string>
   </property>
-  <layout class="QGridLayout" >
+  <layout class="QGridLayout" name="gridLayout_2" >
    <item row="0" column="0" >
     <widget class="QTabWidget" name="tabWidget" >
      <property name="currentIndex" >
@@ -22,11 +22,11 @@
       <attribute name="title" >
        <string>Fingerprint</string>
       </attribute>
-      <layout class="QVBoxLayout" >
-       <item>
+      <layout class="QGridLayout" name="gridLayout" >
+       <item row="0" column="0" >
         <widget class="MPL_Widget" native="1" name="plotWidget" />
        </item>
-       <item>
+       <item row="1" column="0" >
         <layout class="QGridLayout" >
          <item row="0" column="2" >
           <layout class="QHBoxLayout" >
@@ -150,7 +150,31 @@
            </property>
           </widget>
          </item>
-         <item row="1" column="1" >
+         <item row="2" column="1" >
+          <layout class="QHBoxLayout" >
+           <item>
+            <widget class="QLabel" name="label_7" >
+             <property name="text" >
+              <string>Min # of Spectra:</string>
+             </property>
+             <property name="alignment" >
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QSpinBox" name="minSpectra_SB" >
+             <property name="minimum" >
+              <number>1</number>
+             </property>
+             <property name="value" >
+              <number>3</number>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="2" column="0" >
           <layout class="QHBoxLayout" >
            <item>
             <widget class="QLabel" name="label_5" >
@@ -183,25 +207,31 @@
            </item>
           </layout>
          </item>
-         <item row="2" column="1" >
-          <layout class="QHBoxLayout" >
+         <item row="1" column="1" >
+          <layout class="QHBoxLayout" name="horizontalLayout_2" >
            <item>
-            <widget class="QLabel" name="label_7" >
-             <property name="text" >
-              <string>Min # of Spectra:</string>
+            <widget class="QPushButton" name="commitFP_Btn" >
+             <property name="toolTip" >
+              <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+p, li { white-space: pre-wrap; }
+&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
+&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;">Commits fingerprint to main window for future comparison with user selected spectra.&lt;/p>&lt;/body>&lt;/html></string>
              </property>
-             <property name="alignment" >
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             <property name="text" >
+              <string>Commit</string>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QSpinBox" name="minSpectra_SB" >
-             <property name="minimum" >
-              <number>1</number>
+            <widget class="QPushButton" name="saveFP_Btn" >
+             <property name="toolTip" >
+              <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+p, li { white-space: pre-wrap; }
+&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
+&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">Saves Fingerprint to Disk&lt;/p>&lt;/body>&lt;/html></string>
              </property>
-             <property name="value" >
-              <number>3</number>
+             <property name="text" >
+              <string>Save</string>
              </property>
             </widget>
            </item>
@@ -225,7 +255,7 @@
       <attribute name="title" >
        <string>Options</string>
       </attribute>
-      <widget class="QPushButton" name="saveFP_Btn" >
+      <widget class="QPushButton" name="saveFP_Btn_4" >
        <property name="geometry" >
         <rect>
          <x>20</x>
@@ -244,7 +274,7 @@ p, li { white-space: pre-wrap; }
         <string>Save Fingerprint</string>
        </property>
       </widget>
-      <widget class="QPushButton" name="commitFP_Btn" >
+      <widget class="QPushButton" name="commitFP_Btn_4" >
        <property name="geometry" >
         <rect>
          <x>20</x>

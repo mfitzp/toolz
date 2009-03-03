@@ -20,6 +20,7 @@ Keys:            GUI Elements:
 "plotlegend":self.plotLegendCB,
 "invertcomp":self.invertCompCB,
 "plotpeaklist":self.plotPkListCB,
+"labelpeaks":self.labelPeak_CB,
 "mzhi":self.mzHi_SB,
 "mzlo":self.mzLo_SB,
 "excludelift":self.excludeLIFTCB,
@@ -29,7 +30,7 @@ Keys:            GUI Elements:
 "datadir": #Not used
 }
 
-Load FP Table but not data--make that and option
+add updated pref for comboBox and label peaks
 
 PCA after peak pick
 
@@ -37,6 +38,9 @@ Setup Group Class
 Group Display
 
 Double check peakfind thread
+
+make fingerprint folder work
+Use Cutoffs for FP Comparison
 
 '''
 ###################################
@@ -125,14 +129,13 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.savePksAction = QtGui.QAction("Save Peak List", self)
         self.groupTreeWidget.addAction(self.savePksAction)
 
-        self.selectGroupAction = QtGui.QAction("Process Group(s)", self)
+        self.selectGroupAction = QtGui.QAction("Create FP(s)", self)
         self.groupTreeWidget.addAction(self.selectGroupAction)
 
         self.actionAutoScale = QtGui.QAction("AutoScale",  self)#self.MainWindow)
         self.actionAutoScale.setShortcut("Ctrl+A")
         self.plotWidget.addAction(self.actionAutoScale)
         QtCore.QObject.connect(self.actionAutoScale,QtCore.SIGNAL("triggered()"), self.autoscale_plot)
-
 
         self.reviewFPAction = QtGui.QAction("Review Fingerprint",  self)
         self.fpListWidget.addAction(self.reviewFPAction)
@@ -195,8 +198,30 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         QtCore.QObject.connect(self.savePref_Btn, QtCore.SIGNAL("clicked()"), self.savePrefs)
         QtCore.QObject.connect(self.revert_Btn, QtCore.SIGNAL("clicked()"), self.defaultRevert)
 
+        QtCore.QObject.connect(self.peakSetting_CB, QtCore.SIGNAL("currentIndexChanged(QString)"), self.peakComboChanged)
+
         self.useDefaultScale_CB.nextCheckState()
 
+    def peakComboChanged(self, selectedStr):
+        selectedStr = str(selectedStr)
+        settingsKey = {'Low SNR':0,
+                       'Med SNR':1,
+                       'High SNR':2
+                       }
+        selIndex = settingsKey[selectedStr]
+
+        defaultParams = {'minSNR':[1,3,10],
+                         'minRow':[1,1,2],
+                         'minClust':[3,4,4],
+                         'rowThresh':[4,3,3],
+                         'staticThresh':[50,100,200],
+                         }
+
+        self.snrNoiseEst_SB.setValue(defaultParams['minSNR'][selIndex])#default 3
+        self.minRow_SB.setValue(defaultParams['minRow'][selIndex])#default 1
+        self.minClust_SB.setValue(defaultParams['minClust'][selIndex]) #default is 4
+        self.waveletRowTol_SB.setValue(defaultParams['rowThresh'][selIndex])
+        self.staticCutoff_SB.setValue(defaultParams['staticThresh'][selIndex])
 
     def defaultRevert(self):
         try:
@@ -352,55 +377,71 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                 hdf = T.openFile(fileName, mode = 'r')
                 hdfRoot = hdf.root
                 try:
-
-                    specList = hdfRoot.Spectra._v_children
-                    peakLists = hdfRoot.PeakLists._v_children
-
                     self.curGroupName = fileName.split(os.path.sep)[-1]
-                    self.groupIndex.append(self.numGroups)
-                    self.groupList.append(self.curGroupName)
-                    self.numGroups+=1
+                    if self.loadRawFPData_CB.isChecked():
+                        specList = hdfRoot.Spectra._v_children
+                        peakLists = hdfRoot.PeakLists._v_children
 
-                    self.curTreeItem = QtGui.QTreeWidgetItem(self.groupTreeWidget)
-                    self.curTreeItem.setText(0,self.curGroupName)
-                    self.curTreeItem.setToolTip(0, fileName)
-                    self.groupTreeWidget.resizeColumnToContents(0)
+                        self.groupIndex.append(self.numGroups)
+                        self.groupList.append(self.curGroupName)
+                        self.numGroups+=1
 
-                    #Should we add a FP tree item?
-                    self.curFPTreeItem = QtGui.QTreeWidgetItem(self.fpSpecTreeWidget)
-                    self.curFPTreeItem.setText(0,self.curGroupName)
-                    self.curFPTreeItem.setToolTip(0, fileName)
-                    self.fpSpecTreeWidget.resizeColumnToContents(0)
+                        self.curTreeItem = QtGui.QTreeWidgetItem(self.groupTreeWidget)
+                        self.curTreeItem.setText(0,self.curGroupName)
+                        self.curTreeItem.setToolTip(0, fileName)
+                        self.groupTreeWidget.resizeColumnToContents(0)
 
-                    self.getTextColor()
+                        #Should we add a FP tree item?
+                        self.curFPTreeItem = QtGui.QTreeWidgetItem(self.fpSpecTreeWidget)
+                        self.curFPTreeItem.setText(0,self.curGroupName)
+                        self.curFPTreeItem.setToolTip(0, fileName)
+                        self.fpSpecTreeWidget.resizeColumnToContents(0)
 
-                    dataDict = {}
-                    for i, key in enumerate(specList.keys()):
+                        self.getTextColor()
 
-                        bName = os.path.basename(key.replace('*',os.path.sep))
-                        newName = os.path.join(self.curGroupName, bName)
-                        spec = specList[key].read()
-                        dataFile = DataClass(spec[:,0], spec[:,1],  name = bName, path = newName, interp = True)#should already by interpolated
-                        dataFile.mzPad = specList[key].attrs.mzPad
-                        pkList = peakLists[key].read()
-                        dataFile.setPeakList(pkList, normalized = True)#set to normalized as these values are by nature already normalized
-                        dataDict[newName] = dataFile#used to add to FP interface
-                        self.updateGUI(dataFile)
+                        dataDict = {}
+                        for i, key in enumerate(specList.keys()):
 
-                    peakStatDict = {}
-                    peakStats = hdfRoot.PeakStats._v_children
-                    for j, key in enumerate(peakStats.keys()):
-                        print key
-                        peakStatDict[key] = peakStats[key].read()
+                            bName = os.path.basename(key.replace('*',os.path.sep))
+                            newName = os.path.join(self.curGroupName, bName)
+                            spec = specList[key].read()
+                            dataFile = DataClass(spec[:,0], spec[:,1],  name = bName, path = newName, interp = True)#should already by interpolated
+                            dataFile.mzPad = specList[key].attrs.mzPad
+                            pkList = peakLists[key].read()
+                            dataFile.setPeakList(pkList, normalized = True)#set to normalized as these values are by nature already normalized
+                            dataDict[newName] = dataFile#used to add to FP interface
+                            self.updateGUI(dataFile)
 
 
-                    fpDict = {}
-                    fpDict[self.curGroupName] = {'dataDict':dataDict, 'peakStats':peakStatDict}
-                    self.commitFP(fpDict)
+                        peakStatDict = {}
+                        peakStats = hdfRoot.PeakStats._v_children
+                        for j, key in enumerate(peakStats.keys()):
+                            print key
+                            peakStatDict[key] = peakStats[key].read()
 
-                    hdf.close()
-                    self.loadOk = True
-                    self.readFinished(True)
+
+                        fpDict = {}
+                        fpDict[self.curGroupName] = {'dataDict':dataDict, 'peakStats':peakStatDict}
+                        self.commitFP(fpDict)
+
+                        hdf.close()
+                        self.loadOk = True
+                        self.readFinished(True)
+                    else:
+                        dataDict = {}
+                        peakStatDict = {}
+                        peakStats = hdfRoot.PeakStats._v_children
+                        for j, key in enumerate(peakStats.keys()):
+                            print key
+                            peakStatDict[key] = peakStats[key].read()
+
+
+                        fpDict = {}
+                        fpDict[self.curGroupName] = {'dataDict':dataDict, 'peakStats':peakStatDict}
+                        self.commitFP(fpDict)
+                        hdf.close()
+
+
                 except:
                     hdf.close()
                     exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
@@ -444,6 +485,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                 self.fingerPTable.addData(tableData)
                 self.fingerPTable.setSortingEnabled(True)
                 self.fingerPTable.setHorizontalHeaderLabels(tableHeaders)
+                self.fingerPTable.resizeColumnsToContents()
 
 
     def commitFP(self, fpDict):
@@ -548,6 +590,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                          'plotlegend':self.plotLegendCB,
                          'invertcomp':self.invertCompCB,
                          'plotpeaklist':self.plotPkListCB,
+                         'labelpeaks':self.labelPeak_CB,
                          'mzhi':self.mzHi_SB,
                          'mzlo':self.mzLo_SB,
                          'excludelift':self.excludeLIFTCB,
@@ -556,6 +599,10 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                          'fpdir':self.fpFolder_LE
                          }
         self.prefFileStruct ={}
+        self.peakSettingTypes = ['High SNR','Med SNR','Low SNR']
+        self.peakSetting_CB.addItems(self.peakSettingTypes)
+        peakFindInt = self.peakSetting_CB.findText('Med SNR')
+        self.peakSetting_CB.setCurrentIndex(peakFindInt)
 
 
     def setupGUI(self):
@@ -1215,14 +1262,14 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         #test to see if noise has been calculated, if not do it and then plot.
         if self.plotNoiseEst_CB.isChecked():
             if curData.noiseOK:
-                curData.plot(curAx, pColor = self.plotColor, plotNoise = True, plotPks = self.plotPkListCB.isChecked())#, labelPks = False)
+                curData.plot(curAx, pColor = self.plotColor, plotNoise = True, plotPks = self.plotPkListCB.isChecked(), labelPks = self.labelPeak_CB.isChecked())
             else:
                 numSegs = len(curData.x)/self.noiseFactor_SB.value()
                 minSNR = self.snrNoiseEst_SB.value()
                 curData.getNoise(numSegs,minSNR)
-                curData.plot(curAx, pColor = self.plotColor, plotNoise = True, plotPks = self.plotPkListCB.isChecked())#, labelPks = False)
+                curData.plot(curAx, pColor = self.plotColor, plotNoise = True, plotPks = self.plotPkListCB.isChecked(), labelPks = self.labelPeak_CB.isChecked())
         else:
-            curData.plot(curAx, pColor = self.plotColor)#, labelPks = False)
+            curData.plot(curAx, pColor = self.plotColor, plotPks = self.plotPkListCB.isChecked(), labelPks = self.labelPeak_CB.isChecked())
 
     def plotByIndex(self, plotIndex=None,  multiPlot = False):
         curDataName = None
