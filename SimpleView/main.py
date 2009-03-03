@@ -41,7 +41,6 @@ Double check peakfind thread
 
 make fingerprint folder work
 Use Cutoffs for FP Comparison
-
 '''
 ###################################
 import os, sys, traceback
@@ -122,6 +121,9 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.selectAllAction = QtGui.QAction("Select All", self)
         self.groupTreeWidget.addAction(self.selectAllAction)
 
+        self.selectGroupAction = QtGui.QAction("Select Group", self)
+        self.groupTreeWidget.addAction(self.selectGroupAction)
+
         self.saveCSVAction = QtGui.QAction("Save to CSV", self)
         self.saveCSVAction.setShortcut("Ctrl+Alt+S")
         self.plotWidget.addAction(self.saveCSVAction)
@@ -129,8 +131,8 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.savePksAction = QtGui.QAction("Save Peak List", self)
         self.groupTreeWidget.addAction(self.savePksAction)
 
-        self.selectGroupAction = QtGui.QAction("Create FP(s)", self)
-        self.groupTreeWidget.addAction(self.selectGroupAction)
+        self.initFPAction = QtGui.QAction("Create FP(s)", self)
+        self.groupTreeWidget.addAction(self.initFPAction)
 
         self.actionAutoScale = QtGui.QAction("AutoScale",  self)#self.MainWindow)
         self.actionAutoScale.setShortcut("Ctrl+A")
@@ -180,6 +182,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         QtCore.QObject.connect(self.findPeakAction,QtCore.SIGNAL("triggered()"),self.findPeaks)
         QtCore.QObject.connect(self.savePksAction,QtCore.SIGNAL("triggered()"),self.savePeaks)
         QtCore.QObject.connect(self.selectAllAction,QtCore.SIGNAL("triggered()"),self.selectAllLoaded)
+        QtCore.QObject.connect(self.selectGroupAction,QtCore.SIGNAL("triggered()"),self.selectAllInGroup)
 
         QtCore.QObject.connect(self.FPT, QtCore.SIGNAL("progress(int)"), self.threadProgress)
         QtCore.QObject.connect(self.FPT, QtCore.SIGNAL("finished(bool)"), self.PFTFinished)
@@ -187,7 +190,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
 #        QtCore.QObject.connect(self.groupTreeWidget, QtCore.SIGNAL("itemClicked(QTreeWidgetItem *,int)"), self.treeItemSelected)
         QtCore.QObject.connect(self.groupTreeWidget, QtCore.SIGNAL("itemClicked(QTreeWidgetItem *,int)"), self.treeViewSelect)
-        QtCore.QObject.connect(self.selectGroupAction,QtCore.SIGNAL("triggered()"),self.selectGroups)
+        QtCore.QObject.connect(self.initFPAction,QtCore.SIGNAL("triggered()"),self.initFP)
 
         #FingerPrint Related Connections:
         QtCore.QObject.connect(self.expand_Btn, QtCore.SIGNAL("clicked()"), self.expandFPSpectra)
@@ -197,6 +200,9 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         QtCore.QObject.connect(self.loadFP_Btn, QtCore.SIGNAL("clicked()"), self.loadFPfromHDF5)
         QtCore.QObject.connect(self.savePref_Btn, QtCore.SIGNAL("clicked()"), self.savePrefs)
         QtCore.QObject.connect(self.revert_Btn, QtCore.SIGNAL("clicked()"), self.defaultRevert)
+
+        QtCore.QObject.connect(self.doFP_Btn, QtCore.SIGNAL("clicked()"), self.compareFP)
+
 
         QtCore.QObject.connect(self.peakSetting_CB, QtCore.SIGNAL("currentIndexChanged(QString)"), self.peakComboChanged)
 
@@ -222,6 +228,17 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.minClust_SB.setValue(defaultParams['minClust'][selIndex]) #default is 4
         self.waveletRowTol_SB.setValue(defaultParams['rowThresh'][selIndex])
         self.staticCutoff_SB.setValue(defaultParams['staticThresh'][selIndex])
+
+
+    def compareFP(self):
+        print "Compare FP"
+        self.fpListWidget.selectAll()
+        selectItems = self.fpListWidget.selectedItems()
+        if len(selectItems) > 0:
+            for item in selectItems:
+                print item.text(), item.checkState()
+
+
 
     def defaultRevert(self):
         try:
@@ -352,21 +369,24 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             item = selectItems[0]#only select one FP at a time
             print str(item.text())
             tempDataDict = self.fpDict[str(item.text())]['dataDict']
-            peakStatDict = self.fpDict[str(item.text())]['peakStats']
-            curFingerPlot = Finger_Widget(parent = self)
-            curFingerPlot.updateDataDict(tempDataDict)
-            curFingerPlot.peakStatDict = peakStatDict
-            curFingerPlot.setupTable()
+            if len(tempDataDict) > 0:
+                peakStatDict = self.fpDict[str(item.text())]['peakStats']
+                curFingerPlot = Finger_Widget(parent = self)
+                curFingerPlot.updateDataDict(tempDataDict)
+                curFingerPlot.peakStatDict = peakStatDict
+                curFingerPlot.setupTable()
 
-            #set mzTol and the stdDev
-            curFingerPlot.mzTol_SB.setValue(peakStatDict['mzTol'].mean())
-            curFingerPlot.stdDev_SB.setValue(peakStatDict['stdDevTol'].mean())
+                #set mzTol and the stdDev
+                curFingerPlot.mzTol_SB.setValue(peakStatDict['mzTol'].mean())
+                curFingerPlot.stdDev_SB.setValue(peakStatDict['stdDevTol'].mean())
 
-            curFingerPlot.setupPlot()
-            curFingerPlot.getFPPeakList(resetDict = True)
-            curFingerPlot.show()
-            self.fingerPlots.append(curFingerPlot)
-
+                curFingerPlot.setupPlot()
+                curFingerPlot.getFPPeakList(resetDict = True)
+                curFingerPlot.show()
+                self.fingerPlots.append(curFingerPlot)
+            else:
+                errorMsg = "No raw data were loaded with this FP.\nPlease check the Load Raw Data From FP? box and reload."
+                return QtGui.QMessageBox.warning(self, "FP Review Error", errorMsg)
 
 #                self.fpDict
 
@@ -803,8 +823,8 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                 if item.childCount() == 0:#test to see if any of the items selected are leaves
                     groupBool = False
         if groupBool:
-            ct_menu.addAction(self.selectGroupAction)
-
+            ct_menu.addAction(self.initFPAction)
+        ct_menu.addAction(self.selectGroupAction)
         ct_menu.addAction(self.addFileAction)
 #        ct_menu.addAction(self.selectAllAction)
         ct_menu.exec_(self.groupTreeWidget.mapToGlobal(point))
@@ -918,6 +938,20 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.groupTreeWidget.selectAll()
         self.ignoreSignal = False
 
+    def selectAllInGroup(self):
+        selectItems = self.groupTreeWidget.selectedItems()
+        if len(selectItems) > 0:
+            item = selectItems[0]
+            if item.childCount() == 0:
+                self.curTreeItem = item.parent()
+            else:
+                self.curTreeItem = item
+            numChildren = self.curTreeItem.childCount()
+            self.ignoreSignal = True
+            for childIndex in xrange(numChildren):
+                self.groupTreeWidget.setItemSelected(self.curTreeItem.child(childIndex), True)
+            self.ignoreSignal = False
+
     def readFinished(self, finishedBool):
         print "File Load Finished"
 #        self.curTreeItem.sortChildren(0,QtCore.Qt.AscendingOrder)#sort column 0 in ascending order
@@ -928,7 +962,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.curTreeItem.sortChildren(0,QtCore.Qt.AscendingOrder)#sort column 0 in ascending order
 #        print self.groupDict
 
-    def selectGroups(self):
+    def initFP(self):
         selectItems = self.groupTreeWidget.selectedItems()
         if len(selectItems) > 0:
             curFingerPlot = Finger_Widget(parent = self)
@@ -951,8 +985,13 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             self.fingerPlots.append(curFingerPlot)
 
     def PFTFinished(self, finishedBool):
+
         self.setStatusLabel("Peak Fitting Completed!")
-        self.treeViewSelect()
+        selectItems = self.groupTreeWidget.selectedItems()
+        if len(selectItems) > 1:#this is so multiple files don't get plotted and overload the GUI
+            pass
+        else:
+            self.treeViewSelect()
         self.resetProgressBar()
 
     def treeViewSelect(self, widgetItem=None, index = None):
@@ -1051,11 +1090,8 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         selectItems = self.groupTreeWidget.selectedItems()
         #curRow
         if len(selectItems) > 0:
-            itemRows = []
             for item in selectItems:
-                curRow = self.groupTreeWidget.indexFromItem(item).row()
-                curDataName = self.dataList[curRow]
-                curData = self.dataDict[curDataName]
+                curData = self.dataDict[str(item.toolTip(0))]
                 curData.savePkList()
 
     def autoscale_plot(self):

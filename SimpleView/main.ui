@@ -13,11 +13,10 @@
    <string>SpectrumViewer</string>
   </property>
   <property name="windowIcon" >
-   <iconset resource="icons.qrc" >
-    <normaloff>:/new/prefix1/Retro Mario World_32.png</normaloff>:/new/prefix1/Retro Mario World_32.png</iconset>
+   <iconset resource="icons.qrc" >:/new/prefix1/Retro Mario World_32.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget" >
-   <layout class="QGridLayout" name="gridLayout_5" >
+   <layout class="QGridLayout" >
     <item row="0" column="0" >
      <widget class="QTabWidget" name="tabWidget" >
       <property name="currentIndex" >
@@ -91,11 +90,11 @@
                 <property name="sortingEnabled" >
                  <bool>true</bool>
                 </property>
-                <property name="headerHidden" >
-                 <bool>false</bool>
-                </property>
                 <property name="columnCount" >
                  <number>1</number>
+                </property>
+                <property name="headerHidden" stdset="0" >
+                 <bool>false</bool>
                 </property>
                 <column>
                  <property name="text" >
@@ -507,7 +506,7 @@
        <attribute name="title" >
         <string>Options</string>
        </attribute>
-       <layout class="QGridLayout" name="gridLayout" >
+       <layout class="QGridLayout" >
         <item row="0" column="0" >
          <widget class="QCheckBox" name="loadmzXMLCB" >
           <property name="text" >
@@ -562,7 +561,7 @@
             <property name="orientation" >
              <enum>Qt::Horizontal</enum>
             </property>
-            <property name="sizeHint" stdset="0" >
+            <property name="sizeHint" >
              <size>
               <width>40</width>
               <height>20</height>
@@ -677,7 +676,7 @@
               <property name="orientation" >
                <enum>Qt::Horizontal</enum>
               </property>
-              <property name="sizeHint" stdset="0" >
+              <property name="sizeHint" >
                <size>
                 <width>40</width>
                 <height>20</height>
@@ -694,7 +693,7 @@
           <property name="orientation" >
            <enum>Qt::Vertical</enum>
           </property>
-          <property name="sizeHint" stdset="0" >
+          <property name="sizeHint" >
            <size>
             <width>20</width>
             <height>40</height>
@@ -1030,7 +1029,7 @@ p, li { white-space: pre-wrap; }
               <property name="orientation" >
                <enum>Qt::Horizontal</enum>
               </property>
-              <property name="sizeHint" stdset="0" >
+              <property name="sizeHint" >
                <size>
                 <width>40</width>
                 <height>20</height>
@@ -1045,7 +1044,7 @@ p, li { white-space: pre-wrap; }
             <property name="orientation" >
              <enum>Qt::Vertical</enum>
             </property>
-            <property name="sizeHint" stdset="0" >
+            <property name="sizeHint" >
              <size>
               <width>20</width>
               <height>40</height>
@@ -1208,7 +1207,7 @@ p, li { white-space: pre-wrap; }
                 <property name="orientation" >
                  <enum>Qt::Vertical</enum>
                 </property>
-                <property name="sizeHint" stdset="0" >
+                <property name="sizeHint" >
                  <size>
                   <width>20</width>
                   <height>40</height>
@@ -1223,7 +1222,7 @@ p, li { white-space: pre-wrap; }
               <property name="orientation" >
                <enum>Qt::Horizontal</enum>
               </property>
-              <property name="sizeHint" stdset="0" >
+              <property name="sizeHint" >
                <size>
                 <width>40</width>
                 <height>20</height>
@@ -1278,7 +1277,7 @@ p, li { white-space: pre-wrap; }
               <property name="orientation" >
                <enum>Qt::Vertical</enum>
               </property>
-              <property name="sizeHint" stdset="0" >
+              <property name="sizeHint" >
                <size>
                 <width>20</width>
                 <height>40</height>
@@ -1293,7 +1292,7 @@ p, li { white-space: pre-wrap; }
             <property name="orientation" >
              <enum>Qt::Horizontal</enum>
             </property>
-            <property name="sizeHint" stdset="0" >
+            <property name="sizeHint" >
              <size>
               <width>40</width>
               <height>20</height>
@@ -1309,7 +1308,7 @@ p, li { white-space: pre-wrap; }
        <attribute name="title" >
         <string>Fingerprint</string>
        </attribute>
-       <layout class="QGridLayout" name="gridLayout_3" >
+       <layout class="QGridLayout" >
         <item row="0" column="0" >
          <widget class="QSplitter" name="splitter" >
           <property name="orientation" >
@@ -1334,9 +1333,9 @@ p, li { white-space: pre-wrap; }
                </widget>
               </item>
               <item>
-               <layout class="QGridLayout" name="gridLayout_2" >
+               <layout class="QGridLayout" >
                 <item row="0" column="0" >
-                 <layout class="QHBoxLayout" name="_21" >
+                 <layout class="QHBoxLayout" >
                   <item>
                    <widget class="QLabel" name="label_42" >
                     <property name="text" >
@@ -1369,7 +1368,7 @@ p, li { white-space: pre-wrap; }
                  </layout>
                 </item>
                 <item row="0" column="2" >
-                 <layout class="QHBoxLayout" name="_22" >
+                 <layout class="QHBoxLayout" >
                   <item>
                    <widget class="QLabel" name="label_43" >
                     <property name="text" >
@@ -1393,7 +1392,7 @@ p, li { white-space: pre-wrap; }
                  </layout>
                 </item>
                 <item row="0" column="1" >
-                 <layout class="QHBoxLayout" name="_20" >
+                 <layout class="QHBoxLayout" >
                   <item>
                    <widget class="QLabel" name="label_41" >
                     <property name="text" >
@@ -1454,7 +1453,7 @@ p, li { white-space: pre-wrap; }
                   <property name="orientation" >
                    <enum>Qt::Horizontal</enum>
                   </property>
-                  <property name="sizeHint" stdset="0" >
+                  <property name="sizeHint" >
                    <size>
                     <width>40</width>
                     <height>20</height>
@@ -1488,9 +1487,6 @@ p, li { white-space: pre-wrap; }
              <widget class="CustomTable" name="fingerPTable" />
             </item>
            </layout>
-           <zorder>fingerPTable</zorder>
-           <zorder></zorder>
-           <zorder>fpListWidget</zorder>
           </widget>
           <widget class="QWidget" name="layoutWidget" >
            <layout class="QHBoxLayout" >
@@ -1527,7 +1523,7 @@ p, li { white-space: pre-wrap; }
                 <property name="orientation" >
                  <enum>Qt::Vertical</enum>
                 </property>
-                <property name="sizeHint" stdset="0" >
+                <property name="sizeHint" >
                  <size>
                   <width>20</width>
                   <height>40</height>
@@ -1553,7 +1549,7 @@ p, li { white-space: pre-wrap; }
                   <property name="orientation" >
                    <enum>Qt::Horizontal</enum>
                   </property>
-                  <property name="sizeHint" stdset="0" >
+                  <property name="sizeHint" >
                    <size>
                     <width>40</width>
                     <height>20</height>
@@ -1577,11 +1573,11 @@ p, li { white-space: pre-wrap; }
                 <property name="sortingEnabled" >
                  <bool>true</bool>
                 </property>
-                <property name="headerHidden" >
-                 <bool>false</bool>
-                </property>
                 <property name="columnCount" >
                  <number>1</number>
+                </property>
+                <property name="headerHidden" stdset="0" >
+                 <bool>false</bool>
                 </property>
                 <column>
                  <property name="text" >
@@ -1649,7 +1645,7 @@ p, li { white-space: pre-wrap; }
                 <property name="orientation" >
                  <enum>Qt::Horizontal</enum>
                 </property>
-                <property name="sizeHint" stdset="0" >
+                <property name="sizeHint" >
                  <size>
                   <width>40</width>
                   <height>20</height>
@@ -1666,7 +1662,7 @@ p, li { white-space: pre-wrap; }
             <property name="orientation" >
              <enum>Qt::Horizontal</enum>
             </property>
-            <property name="sizeHint" stdset="0" >
+            <property name="sizeHint" >
              <size>
               <width>40</width>
               <height>20</height>
@@ -1679,7 +1675,7 @@ p, li { white-space: pre-wrap; }
             <property name="orientation" >
              <enum>Qt::Vertical</enum>
             </property>
-            <property name="sizeHint" stdset="0" >
+            <property name="sizeHint" >
              <size>
               <width>20</width>
               <height>40</height>
@@ -1695,7 +1691,7 @@ p, li { white-space: pre-wrap; }
        <attribute name="title" >
         <string>Misc</string>
        </attribute>
-       <layout class="QGridLayout" name="gridLayout_4" >
+       <layout class="QGridLayout" >
         <item row="0" column="0" >
          <layout class="QHBoxLayout" >
           <item>
@@ -1710,7 +1706,7 @@ p, li { white-space: pre-wrap; }
             <property name="orientation" >
              <enum>Qt::Horizontal</enum>
             </property>
-            <property name="sizeHint" stdset="0" >
+            <property name="sizeHint" >
              <size>
               <width>40</width>
               <height>20</height>
@@ -1730,7 +1726,7 @@ p, li { white-space: pre-wrap; }
         <item row="2" column="0" >
          <layout class="QHBoxLayout" >
           <item>
-           <layout class="QHBoxLayout" name="_5" >
+           <layout class="QHBoxLayout" >
             <item>
              <widget class="QLabel" name="label_29" >
               <property name="text" >
@@ -1763,7 +1759,7 @@ p, li { white-space: pre-wrap; }
            </layout>
           </item>
           <item>
-           <layout class="QHBoxLayout" name="_6" >
+           <layout class="QHBoxLayout" >
             <item>
              <widget class="QLabel" name="label_30" >
               <property name="text" >
@@ -1796,7 +1792,7 @@ p, li { white-space: pre-wrap; }
            </layout>
           </item>
           <item>
-           <layout class="QHBoxLayout" name="_7" >
+           <layout class="QHBoxLayout" >
             <item>
              <widget class="QLabel" name="label_31" >
               <property name="text" >
@@ -1881,7 +1877,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>864</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File" >

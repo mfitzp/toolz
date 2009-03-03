@@ -198,7 +198,7 @@ if __name__ == "__main__":
         'BSA_XY_Full.csv'
         'J15.csv'
         'Tryptone.csv'
-        ms = P.load('A4.csv', delimiter = ',')
+        ms = P.load('Tryptone.csv', delimiter = ',')
 
 #        x = ms[:,0]
 #        ms = ms[:,0]
