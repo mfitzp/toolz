@@ -5,19 +5,20 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>831</width>
-    <height>731</height>
+    <width>864</width>
+    <height>725</height>
    </rect>
   </property>
   <property name="windowTitle" >
    <string>SpectrumViewer</string>
   </property>
   <property name="windowIcon" >
-   <iconset resource="icons.qrc" >:/new/prefix1/Retro Mario World_32.png</iconset>
+   <iconset resource="icons.qrc" >
+    <normaloff>:/new/prefix1/Retro Mario World_32.png</normaloff>:/new/prefix1/Retro Mario World_32.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget" >
-   <layout class="QHBoxLayout" >
-    <item>
+   <layout class="QGridLayout" name="gridLayout_5" >
+    <item row="0" column="0" >
      <widget class="QTabWidget" name="tabWidget" >
       <property name="currentIndex" >
        <number>0</number>
@@ -90,11 +91,11 @@
                 <property name="sortingEnabled" >
                  <bool>true</bool>
                 </property>
+                <property name="headerHidden" >
+                 <bool>false</bool>
+                </property>
                 <property name="columnCount" >
                  <number>1</number>
-                </property>
-                <property name="headerHidden" stdset="0" >
-                 <bool>false</bool>
                 </property>
                 <column>
                  <property name="text" >
@@ -506,7 +507,7 @@
        <attribute name="title" >
         <string>Options</string>
        </attribute>
-       <layout class="QGridLayout" >
+       <layout class="QGridLayout" name="gridLayout" >
         <item row="0" column="0" >
          <widget class="QCheckBox" name="loadmzXMLCB" >
           <property name="text" >
@@ -524,6 +525,16 @@
           </property>
           <property name="checked" >
            <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2" >
+         <widget class="QCheckBox" name="labelPeak_CB" >
+          <property name="text" >
+           <string>Label Peaks?</string>
+          </property>
+          <property name="checked" >
+           <bool>false</bool>
           </property>
          </widget>
         </item>
@@ -551,7 +562,7 @@
             <property name="orientation" >
              <enum>Qt::Horizontal</enum>
             </property>
-            <property name="sizeHint" >
+            <property name="sizeHint" stdset="0" >
              <size>
               <width>40</width>
               <height>20</height>
@@ -666,7 +677,7 @@
               <property name="orientation" >
                <enum>Qt::Horizontal</enum>
               </property>
-              <property name="sizeHint" >
+              <property name="sizeHint" stdset="0" >
                <size>
                 <width>40</width>
                 <height>20</height>
@@ -683,7 +694,7 @@
           <property name="orientation" >
            <enum>Qt::Vertical</enum>
           </property>
-          <property name="sizeHint" >
+          <property name="sizeHint" stdset="0" >
            <size>
             <width>20</width>
             <height>40</height>
@@ -818,7 +829,7 @@ Higher numbers mean fewer peaks.</string>
             <item>
              <widget class="QLabel" name="label_19" >
               <property name="text" >
-               <string>Wavelet Tolerance:</string>
+               <string>Wavelet Row Tolerance:</string>
               </property>
               <property name="alignment" >
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -1019,7 +1030,7 @@ p, li { white-space: pre-wrap; }
               <property name="orientation" >
                <enum>Qt::Horizontal</enum>
               </property>
-              <property name="sizeHint" >
+              <property name="sizeHint" stdset="0" >
                <size>
                 <width>40</width>
                 <height>20</height>
@@ -1034,7 +1045,7 @@ p, li { white-space: pre-wrap; }
             <property name="orientation" >
              <enum>Qt::Vertical</enum>
             </property>
-            <property name="sizeHint" >
+            <property name="sizeHint" stdset="0" >
              <size>
               <width>20</width>
               <height>40</height>
@@ -1197,7 +1208,7 @@ p, li { white-space: pre-wrap; }
                 <property name="orientation" >
                  <enum>Qt::Vertical</enum>
                 </property>
-                <property name="sizeHint" >
+                <property name="sizeHint" stdset="0" >
                  <size>
                   <width>20</width>
                   <height>40</height>
@@ -1212,7 +1223,7 @@ p, li { white-space: pre-wrap; }
               <property name="orientation" >
                <enum>Qt::Horizontal</enum>
               </property>
-              <property name="sizeHint" >
+              <property name="sizeHint" stdset="0" >
                <size>
                 <width>40</width>
                 <height>20</height>
@@ -1230,6 +1241,18 @@ p, li { white-space: pre-wrap; }
            <layout class="QVBoxLayout" >
             <item>
              <widget class="QTableWidget" name="scalesTable" >
+              <property name="sizePolicy" >
+               <sizepolicy vsizetype="Expanding" hsizetype="Minimum" >
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="maximumSize" >
+               <size>
+                <width>250</width>
+                <height>16777215</height>
+               </size>
+              </property>
               <property name="frameShape" >
                <enum>QFrame::StyledPanel</enum>
               </property>
@@ -1255,7 +1278,7 @@ p, li { white-space: pre-wrap; }
               <property name="orientation" >
                <enum>Qt::Vertical</enum>
               </property>
-              <property name="sizeHint" >
+              <property name="sizeHint" stdset="0" >
                <size>
                 <width>20</width>
                 <height>40</height>
@@ -1270,7 +1293,7 @@ p, li { white-space: pre-wrap; }
             <property name="orientation" >
              <enum>Qt::Horizontal</enum>
             </property>
-            <property name="sizeHint" >
+            <property name="sizeHint" stdset="0" >
              <size>
               <width>40</width>
               <height>20</height>
@@ -1286,8 +1309,8 @@ p, li { white-space: pre-wrap; }
        <attribute name="title" >
         <string>Fingerprint</string>
        </attribute>
-       <layout class="QHBoxLayout" >
-        <item>
+       <layout class="QGridLayout" name="gridLayout_3" >
+        <item row="0" column="0" >
          <widget class="QSplitter" name="splitter" >
           <property name="orientation" >
            <enum>Qt::Horizontal</enum>
@@ -1309,6 +1332,100 @@ p, li { white-space: pre-wrap; }
                  <enum>QAbstractItemView::ExtendedSelection</enum>
                 </property>
                </widget>
+              </item>
+              <item>
+               <layout class="QGridLayout" name="gridLayout_2" >
+                <item row="0" column="0" >
+                 <layout class="QHBoxLayout" name="_21" >
+                  <item>
+                   <widget class="QLabel" name="label_42" >
+                    <property name="text" >
+                     <string>Freq Cutoff:</string>
+                    </property>
+                    <property name="alignment" >
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QDoubleSpinBox" name="freqCutoff_SB_6" >
+                    <property name="decimals" >
+                     <number>2</number>
+                    </property>
+                    <property name="minimum" >
+                     <double>0.010000000000000</double>
+                    </property>
+                    <property name="maximum" >
+                     <double>1.000000000000000</double>
+                    </property>
+                    <property name="singleStep" >
+                     <double>0.050000000000000</double>
+                    </property>
+                    <property name="value" >
+                     <double>0.500000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item row="0" column="2" >
+                 <layout class="QHBoxLayout" name="_22" >
+                  <item>
+                   <widget class="QLabel" name="label_43" >
+                    <property name="text" >
+                     <string>Min # of Spectra:</string>
+                    </property>
+                    <property name="alignment" >
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QSpinBox" name="minSpectra_SB_6" >
+                    <property name="minimum" >
+                     <number>1</number>
+                    </property>
+                    <property name="value" >
+                     <number>3</number>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item row="0" column="1" >
+                 <layout class="QHBoxLayout" name="_20" >
+                  <item>
+                   <widget class="QLabel" name="label_41" >
+                    <property name="text" >
+                     <string>Significance Level:</string>
+                    </property>
+                    <property name="alignment" >
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QDoubleSpinBox" name="sigLvl_SB_6" >
+                    <property name="decimals" >
+                     <number>2</number>
+                    </property>
+                    <property name="minimum" >
+                     <double>0.010000000000000</double>
+                    </property>
+                    <property name="maximum" >
+                     <double>1.000000000000000</double>
+                    </property>
+                    <property name="singleStep" >
+                     <double>0.050000000000000</double>
+                    </property>
+                    <property name="value" >
+                     <double>0.050000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+               </layout>
               </item>
               <item>
                <layout class="QHBoxLayout" >
@@ -1337,7 +1454,7 @@ p, li { white-space: pre-wrap; }
                   <property name="orientation" >
                    <enum>Qt::Horizontal</enum>
                   </property>
-                  <property name="sizeHint" >
+                  <property name="sizeHint" stdset="0" >
                    <size>
                     <width>40</width>
                     <height>20</height>
@@ -1371,6 +1488,9 @@ p, li { white-space: pre-wrap; }
              <widget class="CustomTable" name="fingerPTable" />
             </item>
            </layout>
+           <zorder>fingerPTable</zorder>
+           <zorder></zorder>
+           <zorder>fpListWidget</zorder>
           </widget>
           <widget class="QWidget" name="layoutWidget" >
            <layout class="QHBoxLayout" >
@@ -1407,7 +1527,7 @@ p, li { white-space: pre-wrap; }
                 <property name="orientation" >
                  <enum>Qt::Vertical</enum>
                 </property>
-                <property name="sizeHint" >
+                <property name="sizeHint" stdset="0" >
                  <size>
                   <width>20</width>
                   <height>40</height>
@@ -1433,7 +1553,7 @@ p, li { white-space: pre-wrap; }
                   <property name="orientation" >
                    <enum>Qt::Horizontal</enum>
                   </property>
-                  <property name="sizeHint" >
+                  <property name="sizeHint" stdset="0" >
                    <size>
                     <width>40</width>
                     <height>20</height>
@@ -1457,11 +1577,11 @@ p, li { white-space: pre-wrap; }
                 <property name="sortingEnabled" >
                  <bool>true</bool>
                 </property>
+                <property name="headerHidden" >
+                 <bool>false</bool>
+                </property>
                 <property name="columnCount" >
                  <number>1</number>
-                </property>
-                <property name="headerHidden" stdset="0" >
-                 <bool>false</bool>
                 </property>
                 <column>
                  <property name="text" >
@@ -1529,7 +1649,7 @@ p, li { white-space: pre-wrap; }
                 <property name="orientation" >
                  <enum>Qt::Horizontal</enum>
                 </property>
-                <property name="sizeHint" >
+                <property name="sizeHint" stdset="0" >
                  <size>
                   <width>40</width>
                   <height>20</height>
@@ -1546,7 +1666,7 @@ p, li { white-space: pre-wrap; }
             <property name="orientation" >
              <enum>Qt::Horizontal</enum>
             </property>
-            <property name="sizeHint" >
+            <property name="sizeHint" stdset="0" >
              <size>
               <width>40</width>
               <height>20</height>
@@ -1559,7 +1679,7 @@ p, li { white-space: pre-wrap; }
             <property name="orientation" >
              <enum>Qt::Vertical</enum>
             </property>
-            <property name="sizeHint" >
+            <property name="sizeHint" stdset="0" >
              <size>
               <width>20</width>
               <height>40</height>
@@ -1575,7 +1695,7 @@ p, li { white-space: pre-wrap; }
        <attribute name="title" >
         <string>Misc</string>
        </attribute>
-       <layout class="QGridLayout" >
+       <layout class="QGridLayout" name="gridLayout_4" >
         <item row="0" column="0" >
          <layout class="QHBoxLayout" >
           <item>
@@ -1590,7 +1710,7 @@ p, li { white-space: pre-wrap; }
             <property name="orientation" >
              <enum>Qt::Horizontal</enum>
             </property>
-            <property name="sizeHint" >
+            <property name="sizeHint" stdset="0" >
              <size>
               <width>40</width>
               <height>20</height>
@@ -1609,6 +1729,96 @@ p, li { white-space: pre-wrap; }
         </item>
         <item row="2" column="0" >
          <layout class="QHBoxLayout" >
+          <item>
+           <layout class="QHBoxLayout" name="_5" >
+            <item>
+             <widget class="QLabel" name="label_29" >
+              <property name="text" >
+               <string>Freq Cutoff:</string>
+              </property>
+              <property name="alignment" >
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QDoubleSpinBox" name="freqCutoff_SB_2" >
+              <property name="decimals" >
+               <number>2</number>
+              </property>
+              <property name="minimum" >
+               <double>0.010000000000000</double>
+              </property>
+              <property name="maximum" >
+               <double>1.000000000000000</double>
+              </property>
+              <property name="singleStep" >
+               <double>0.050000000000000</double>
+              </property>
+              <property name="value" >
+               <double>0.500000000000000</double>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="_6" >
+            <item>
+             <widget class="QLabel" name="label_30" >
+              <property name="text" >
+               <string>Significance Level:</string>
+              </property>
+              <property name="alignment" >
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QDoubleSpinBox" name="sigLvl_SB_2" >
+              <property name="decimals" >
+               <number>2</number>
+              </property>
+              <property name="minimum" >
+               <double>0.010000000000000</double>
+              </property>
+              <property name="maximum" >
+               <double>1.000000000000000</double>
+              </property>
+              <property name="singleStep" >
+               <double>0.050000000000000</double>
+              </property>
+              <property name="value" >
+               <double>0.050000000000000</double>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="_7" >
+            <item>
+             <widget class="QLabel" name="label_31" >
+              <property name="text" >
+               <string>Min # of Spectra:</string>
+              </property>
+              <property name="alignment" >
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="minSpectra_SB_2" >
+              <property name="minimum" >
+               <number>1</number>
+              </property>
+              <property name="value" >
+               <number>3</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
           <item>
            <widget class="QLabel" name="test" >
             <property name="text" >
@@ -1632,32 +1842,6 @@ p, li { white-space: pre-wrap; }
          </layout>
         </item>
         <item row="3" column="0" >
-         <widget class="QTreeWidget" name="groupTreeWidget1" >
-          <property name="selectionMode" >
-           <enum>QAbstractItemView::ExtendedSelection</enum>
-          </property>
-          <property name="sortingEnabled" >
-           <bool>true</bool>
-          </property>
-          <property name="columnCount" >
-           <number>2</number>
-          </property>
-          <property name="headerHidden" stdset="0" >
-           <bool>true</bool>
-          </property>
-          <column>
-           <property name="text" >
-            <string>1</string>
-           </property>
-          </column>
-          <column>
-           <property name="text" >
-            <string>2</string>
-           </property>
-          </column>
-         </widget>
-        </item>
-        <item row="4" column="0" >
          <layout class="QHBoxLayout" >
           <item>
            <widget class="QLabel" name="label_20" >
@@ -1671,7 +1855,7 @@ p, li { white-space: pre-wrap; }
           </item>
          </layout>
         </item>
-        <item row="6" column="0" >
+        <item row="4" column="0" >
          <layout class="QHBoxLayout" >
           <item>
            <widget class="QLabel" name="label_18" >
@@ -1696,8 +1880,8 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>831</width>
-     <height>21</height>
+     <width>864</width>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File" >
