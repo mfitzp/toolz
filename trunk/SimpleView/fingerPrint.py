@@ -152,9 +152,9 @@ class Finger_Widget(QtGui.QWidget, ui_fingerPrint.Ui_fingerPlotWidget):
                              'stdInt':[],
                              'numMembers':[],
                              'freq':[],
-                             'prob':[],
                              'mzTol':[],
-                             'stdDevTol':[]
+                             'stdDevTol':[],
+                             'numTot':[]
                              }
 
     def getFPPeakList(self, resetDict = False):
@@ -208,9 +208,9 @@ class Finger_Widget(QtGui.QWidget, ui_fingerPrint.Ui_fingerPlotWidget):
                 self.peakStatDict['stdInt'].append(curYStd)
                 self.peakStatDict['numMembers'].append(len(subInd))
                 self.peakStatDict['freq'].append(freq)
-                self.peakStatDict['prob'].append(freq)
                 self.peakStatDict['mzTol'].append(self.mzTol)
                 self.peakStatDict['stdDevTol'].append(self.stdDevTol)
+                self.peakStatDict['numTot'].append(self.numSpectra)
                 if len(subInd)>=2 and freq >= self.freqCutoff_SB.value():
                     self.mainAx.plot(self.xLoc[subInd], self.yLoc[subInd], ms = 4, marker = 'o', alpha = 0.5, color = self.plotColor)
                     #Rect((x,y),width, height)
@@ -230,7 +230,7 @@ class Finger_Widget(QtGui.QWidget, ui_fingerPrint.Ui_fingerPlotWidget):
         cmpVec +=1
         indx = N.where(foundList>0)[0]
         cmpVec[indx] = 0
-        probFp = fpStatDict['prob']*(1-alpha)
+        probFp = fpStatDict['freq']*(1-alpha)
         fpCmpProb = self.fpCompSig(cmpVec, probFp)
         return fpCmpProb
 
@@ -270,8 +270,9 @@ class Finger_Widget(QtGui.QWidget, ui_fingerPrint.Ui_fingerPlotWidget):
         cmpPeakInt = peakCompDict['aveInt']
         tol = 3*(1+(fpPeakLoc*sgmadivmu)**2)#not sure why this is the case need to find out
         #need to make an instance of peakCompDict that is for one spectrum
-        degF1 = fpStatDict['numMembers'][0]-1 #indexing first value as this is a list with the same values
-        degF2 = (N.round(peakCompDict['numMembers']*peakCompDict['prob']))-1 #indexing first value as this is a list with the same values
+        #Potential Problem FIX ME
+        degF1 = fpStatDict['numTot'][0]-1 #indexing first value as this is a list with the same values
+        degF2 = (N.round(peakCompDict['numTot']*peakCompDict['freq']))-1
         degF = degF1+degF2
         foundList = N.zeros_like(fpPeakLoc)
         foundIntList = N.zeros_like(fpPeakLoc)
@@ -490,9 +491,83 @@ def groupOneD(oneDVec, tol, origOrder):
 
     return groups, gNum
 
+#FINGERPRINTING MAGIC
+def fpCompare(fpStatDict, peakCompDict, alpha):
+    sgmadivmu = 0.0001
+    foundList, compList = fpextract(fpStatDict, peakCompDict, alpha, sgmadivmu)
+    numPeaks = fpStatDict['numMembers'][0]
+    cmpVec = N.zeros_like(foundList)
+    cmpVec +=1
+    indx = N.where(foundList>0)[0]
+    cmpVec[indx] = 0
+    probFp = fpStatDict['freq']*(1-alpha)
+    fpCmpProb = fpCompSig(cmpVec, probFp)
+    return fpCmpProb
+
+def fpCompSig(self, cmpVec, probFp):
+    probAll = N.prod(1-probFp)
+    numOnes = cmpVec.sum()
+    pctDrop = numOnes/len(cmpVec)
+    probs = 0
+    if pctDrop > 0.8:#is this a static value?
+       probs = 0
+    elif pctDrop == 0:
+       probs = 1
+    else:
+       missing = N.where(cmpVec == 1)[0]#find(zero1vec == 1);
+#           lenM = len(missing)
+       observed = N.where(cmpVec == 0)[0]#find(zero1vec==0);
+       prob1 = N.prod(1-probFp[missing])
+       prob2 = N.prod(probFp[observed])
+       probs = 1-prob2*(1-prob1)
+
+    return probs
 
 
-#    for
+def fpextract(self, fpStatDict, peakCompDict, alpha, sgmadivmu, minTolppm = 50):
+    '''
+    Variables needed:
+    number of spectra for each dictionary
+    df1 = numMembers - 1
+    df2 = numMembers - 1
+    dfe = df1+df2
+
+    '''
+    alpha = alpha/2#OK
+    fpPeakLoc = fpStatDict['aveLoc']#OK
+    fpStdLoc = fpStatDict['stdLoc']#OK
+    cmpPeakLoc = peakCompDict['aveLoc']
+    cmpPeakInt = peakCompDict['aveInt']
+    tol = 3*(1+(fpPeakLoc*sgmadivmu)**2)#not sure why this is the case need to find out
+    #need to make an instance of peakCompDict that is for one spectrum
+    #Potential Problem FIX ME
+    degF1 = fpStatDict['numTot'][0]-1 #indexing first value as this is a list with the same values
+    degF2 = (N.round(peakCompDict['numTot']*peakCompDict['freq']))-1
+    degF = degF1+degF2
+    foundList = N.zeros_like(fpPeakLoc)
+    foundIntList = N.zeros_like(fpPeakLoc)
+    compList = N.zeros_like(cmpPeakLoc)
+    for i,mz in enumerate(fpPeakLoc):
+        absDiff = N.abs(mz-cmpPeakLoc)#need to make arrays the same length#OK
+        pool = N.max([(minTolppm/1000000.)*mz, fpStdLoc[i]])
+        tstat = absDiff/pool
+        closest = N.argmin(absDiff)
+        sigLvl = 1 - stats.t.cdf(tstat[closest], degF[closest])#this is 1-alpha
+
+        if sigLvl > alpha:
+            rempt = 0
+        elif absDiff[closest]<tol[i]:
+            rempt = 0
+        else:
+            rempt = 1
+
+        if rempt == 0:
+            foundList[i]= cmpPeakLoc[closest]
+            foundIntList[i] = cmpPeakInt[closest]
+            compList[closest] = 1
+
+    return foundList, compList
+
 
 
 if __name__ == "__main__":
