@@ -201,17 +201,17 @@ class Finger_Widget(QtGui.QWidget, ui_fingerPrint.Ui_fingerPlotWidget):
                 curXStd = self.xLoc[subInd].std()
                 curYMean = self.yLoc[subInd].mean()
                 curYStd = self.yLoc[subInd].std()
-
+                freq = len(subInd)/self.numSpectra
                 self.peakStatDict['aveLoc'].append(curXMean)
                 self.peakStatDict['stdLoc'].append(curXStd)
                 self.peakStatDict['aveInt'].append(curYMean)
                 self.peakStatDict['stdInt'].append(curYStd)
                 self.peakStatDict['numMembers'].append(len(subInd))
-                self.peakStatDict['freq'].append(len(subInd)/self.numSpectra)
-                self.peakStatDict['prob'].append(len(subInd)/self.numSpectra)
+                self.peakStatDict['freq'].append(freq)
+                self.peakStatDict['prob'].append(freq)
                 self.peakStatDict['mzTol'].append(self.mzTol)
                 self.peakStatDict['stdDevTol'].append(self.stdDevTol)
-                if len(subInd)>=2:
+                if len(subInd)>=2 and freq >= self.freqCutoff_SB.value():
                     self.mainAx.plot(self.xLoc[subInd], self.yLoc[subInd], ms = 4, marker = 'o', alpha = 0.5, color = self.plotColor)
                     #Rect((x,y),width, height)
                     tempRect = Rect((curXMean-curXStd*self.stdDev_SB.value(),0),curXStd*2*self.stdDev_SB.value(),curYMean+curYStd, alpha = 0.5, facecolor = self.plotColor)

@@ -41,6 +41,7 @@ Double check peakfind thread
 
 make fingerprint folder work
 Use Cutoffs for FP Comparison
+fix topHat
 '''
 ###################################
 import os, sys, traceback

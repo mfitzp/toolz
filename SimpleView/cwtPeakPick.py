@@ -175,9 +175,31 @@ def getCWTPeaks(scaledCWT, X, Y, noiseEst, minSNR = 3,\
 #                else:
 #                    print "\n"
 #                    print x[xVal]
+    peakLoc = N.array(peakLoc)
+    peakInt = N.array(peakInt)
+    peakOrder = peakLoc.argsort()
+    peakLoc = peakLoc[peakOrder]
+    peakInt = peakInt[peakOrder]
+    peakLoc, peakInt = consolidatePeaks(peakLoc, peakInt)
+    return peakLoc, peakInt, cwtPeakLoc, cClass, True
 
-    return N.array(peakLoc), N.array(peakInt), cwtPeakLoc, cClass, True
 
+def consolidatePeaks(peakLoc, peakInt, diffCutoff = 2.20):
+    '''
+    This is a hack, not a good solution but it works for now
+    '''
+    xDiff = N.diff(peakLoc)
+    extraPeakInd = N.where(xDiff<diffCutoff)[0]
+    extraPeakInd+=1
+    validPeakInd = peakLoc.argsort().tolist()
+    j=0
+    for extra in extraPeakInd:
+        validPeakInd.pop(extra-j)
+        j+=1#need this because each time you pop the length gets shorter
+
+    validPeaks = peakLoc[validPeakInd]
+    validInt = peakInt[validPeakInd]
+    return validPeaks, validInt
 
 if __name__ == "__main__":
 
