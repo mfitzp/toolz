@@ -513,7 +513,7 @@ def fpCompSig(cmpVec, probFp):
     pctDrop = numOnes/len(cmpVec)
     print pctDrop
     probs = 0
-    if pctDrop > 0.9:#is this a static value?
+    if pctDrop > 0.9:#is this a static value? original was 0.8
        probs = 0
     elif pctDrop == 0:
        probs = 1
@@ -541,7 +541,7 @@ def fpextract(fpStatDict, peakCompDict, alpha, sgmadivmu, freqCutoff, minTolppm 
     fpFreq = fpFreq[validInd]
 
     fpPeakLoc = fpStatDict['aveLoc'][validInd]
-    print fpPeakLoc, freqCutoff
+#    print fpPeakLoc, freqCutoff
     if len(fpPeakLoc) == 0:
         return None, None, False
     fpStdLoc = fpStatDict['stdLoc'][validInd]
