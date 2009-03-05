@@ -1,6 +1,6 @@
 
 
-from os import walk,  path
+from os import walk, path
 import sys
 
 from PyQt4 import QtCore, QtGui

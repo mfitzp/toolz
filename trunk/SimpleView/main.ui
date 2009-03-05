@@ -1347,7 +1347,7 @@ p, li { white-space: pre-wrap; }
                    </widget>
                   </item>
                   <item>
-                   <widget class="QDoubleSpinBox" name="freqCutoff_SB_6" >
+                   <widget class="QDoubleSpinBox" name="freqCutoff_SB" >
                     <property name="decimals" >
                      <number>2</number>
                     </property>
@@ -1404,7 +1404,7 @@ p, li { white-space: pre-wrap; }
                    </widget>
                   </item>
                   <item>
-                   <widget class="QDoubleSpinBox" name="sigLvl_SB_6" >
+                   <widget class="QDoubleSpinBox" name="alphaLvl_SB" >
                     <property name="decimals" >
                      <number>2</number>
                     </property>

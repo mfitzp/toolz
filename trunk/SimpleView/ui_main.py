@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Documents and Settings\d3p483\workspace\SimpleView\main.ui'
 #
-# Created: Tue Mar 03 09:24:02 2009
+# Created: Wed Mar 04 17:13:04 2009
 #      by: PyQt4 UI code generator 4.3.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -723,14 +723,14 @@ class Ui_MainWindow(object):
         self.label_42.setObjectName("label_42")
         self.hboxlayout21.addWidget(self.label_42)
 
-        self.freqCutoff_SB_6 = QtGui.QDoubleSpinBox(self.layoutWidget)
-        self.freqCutoff_SB_6.setDecimals(2)
-        self.freqCutoff_SB_6.setMinimum(0.01)
-        self.freqCutoff_SB_6.setMaximum(1.0)
-        self.freqCutoff_SB_6.setSingleStep(0.05)
-        self.freqCutoff_SB_6.setProperty("value",QtCore.QVariant(0.5))
-        self.freqCutoff_SB_6.setObjectName("freqCutoff_SB_6")
-        self.hboxlayout21.addWidget(self.freqCutoff_SB_6)
+        self.freqCutoff_SB = QtGui.QDoubleSpinBox(self.layoutWidget)
+        self.freqCutoff_SB.setDecimals(2)
+        self.freqCutoff_SB.setMinimum(0.01)
+        self.freqCutoff_SB.setMaximum(1.0)
+        self.freqCutoff_SB.setSingleStep(0.05)
+        self.freqCutoff_SB.setProperty("value",QtCore.QVariant(0.5))
+        self.freqCutoff_SB.setObjectName("freqCutoff_SB")
+        self.hboxlayout21.addWidget(self.freqCutoff_SB)
         self.gridlayout7.addLayout(self.hboxlayout21,0,0,1,1)
 
         self.hboxlayout22 = QtGui.QHBoxLayout()
@@ -756,14 +756,14 @@ class Ui_MainWindow(object):
         self.label_41.setObjectName("label_41")
         self.hboxlayout23.addWidget(self.label_41)
 
-        self.sigLvl_SB_6 = QtGui.QDoubleSpinBox(self.layoutWidget)
-        self.sigLvl_SB_6.setDecimals(2)
-        self.sigLvl_SB_6.setMinimum(0.01)
-        self.sigLvl_SB_6.setMaximum(1.0)
-        self.sigLvl_SB_6.setSingleStep(0.05)
-        self.sigLvl_SB_6.setProperty("value",QtCore.QVariant(0.05))
-        self.sigLvl_SB_6.setObjectName("sigLvl_SB_6")
-        self.hboxlayout23.addWidget(self.sigLvl_SB_6)
+        self.alphaLvl_SB = QtGui.QDoubleSpinBox(self.layoutWidget)
+        self.alphaLvl_SB.setDecimals(2)
+        self.alphaLvl_SB.setMinimum(0.01)
+        self.alphaLvl_SB.setMaximum(1.0)
+        self.alphaLvl_SB.setSingleStep(0.05)
+        self.alphaLvl_SB.setProperty("value",QtCore.QVariant(0.05))
+        self.alphaLvl_SB.setObjectName("alphaLvl_SB")
+        self.hboxlayout23.addWidget(self.alphaLvl_SB)
         self.gridlayout7.addLayout(self.hboxlayout23,0,1,1,1)
         self.vboxlayout7.addLayout(self.gridlayout7)
 

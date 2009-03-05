@@ -72,7 +72,7 @@ import getBaseline as GB
 import cwtPeakPick as CWT
 
 import ui_main
-from fingerPrint import Finger_Widget
+import fingerPrint as FP
 
 COLORS = ['#297AA3','#A3293D','#3B9DCE','#293DA3','#5229A3','#8F29A3','#A3297A',
 '#7AA329','#3DA329','#29A352','#29A38F','#A38F29','#3B9DCE','#6CB6DA','#CE6C3B','#DA916C',
@@ -203,11 +203,29 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         QtCore.QObject.connect(self.revert_Btn, QtCore.SIGNAL("clicked()"), self.defaultRevert)
 
         QtCore.QObject.connect(self.doFP_Btn, QtCore.SIGNAL("clicked()"), self.compareFP)
+        QtCore.QObject.connect(self.fpFolder_Btn, QtCore.SIGNAL("clicked()"), self.setDefaultFPDir)
+
 
 
         QtCore.QObject.connect(self.peakSetting_CB, QtCore.SIGNAL("currentIndexChanged(QString)"), self.peakComboChanged)
 
         self.useDefaultScale_CB.nextCheckState()
+
+
+    def setDefaultFPDir(self):
+        if self.fpDir != None:
+            fpDir = self.fpDir
+        else:
+            fpDir = self.curDir
+        directory = QtGui.QFileDialog.getExistingDirectory(self, '', fpDir)
+        directory = str(directory)
+        if directory != None:
+            self.fpDir = os.path.abspath(directory)
+            self.fpFolder_LE.setText(self.fpDir)
+            return True
+        else:
+            self.fpDir = None
+            return False
 
     def peakComboChanged(self, selectedStr):
         selectedStr = str(selectedStr)
@@ -232,13 +250,27 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
 
     def compareFP(self):
-        print "Compare FP"
         self.fpListWidget.selectAll()
         selectItems = self.fpListWidget.selectedItems()
+        fpList = []
         if len(selectItems) > 0:
             for item in selectItems:
-                print item.text(), item.checkState()
+                if item.checkState() == 2:#Case when it is checked
+                    fpList.append(str(item.text()))
+        dataDict = {}
+        selectCompItems = self.fpSpecTreeWidget.selectedItems()
+        if len(selectCompItems) > 0:
+#            for item in selectCompItems:
+            item = selectCompItems[0]
+            if item.childCount() == 0:
+                dataDict[str(item.toolTip(0))] = self.dataDict[str(item.toolTip(0))]
 
+            usrFreqCutoff = self.freqCutoff_SB.value()
+            compDict = FP.createFPDict(dataDict)
+            for fpName in fpList:
+                curFPDict = self.fpDict[fpName]
+                curProb = FP.fpCompare(curFPDict['peakStats'],compDict, alpha = self.alphaLvl_SB.value(), freqCutoff = usrFreqCutoff)
+                print "%s vs. %s : %s"%(str(item.toolTip(0)), fpName, curProb)
 
 
     def defaultRevert(self):
@@ -248,11 +280,29 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         except:
             return QtGui.QMessageBox.warning(self, "Preferences File is Hosed", "Try Reinstalling to fix this!")
 
+    def autoLoadFP(self):
+        print self.fpDir
+        if self.fpDir != None:
+            fpList = []
+            i=0
+            for root, dirs, files in os.walk(self.fpDir):
+                for file in files:
+                    if 'h5' in file:
+                        fpPath = os.path.abspath(os.path.join(self.fpDir, file))
+                        if os.path.isfile(fpPath):
+                            fpList.append(fpPath)
+                            self.loadFPfromHDF5(fpPath)
+            print "Auto FP List",fpList
+
     def loadPrefs(self):
 #        try:
         if os.path.isfile(self.prefFileName):
             self._getPrefs_(self.prefFileName)
-            print self.prefFileName
+#                print self.prefFileName
+            if self.autoLoadFP_CB.isChecked():
+                self.fpDir = os.path.abspath(str(self.fpFolder_LE.text()))
+                self.autoLoadFP()
+
         else:
             return QtGui.QMessageBox.warning(self, "Load Preferences Error", "No Preference File Exists\nReverting to Defaults")
 #        except:
@@ -372,7 +422,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             tempDataDict = self.fpDict[str(item.text())]['dataDict']
             if len(tempDataDict) > 0:
                 peakStatDict = self.fpDict[str(item.text())]['peakStats']
-                curFingerPlot = Finger_Widget(parent = self)
+                curFingerPlot = FP.Finger_Widget(parent = self)
                 curFingerPlot.updateDataDict(tempDataDict)
                 curFingerPlot.peakStatDict = peakStatDict
                 curFingerPlot.setupTable()
@@ -386,13 +436,14 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                 curFingerPlot.show()
                 self.fingerPlots.append(curFingerPlot)
             else:
-                errorMsg = "No raw data were loaded with this FP.\nPlease check the Load Raw Data From FP? box and reload."
+                errorMsg = 'No raw data were loaded with this FP.\nPlease check the "Load Raw Data From FP?" box and reload.'
                 return QtGui.QMessageBox.warning(self, "FP Review Error", errorMsg)
 
 #                self.fpDict
 
-    def loadFPfromHDF5(self):
-        fileName = self.openFileDialog()
+    def loadFPfromHDF5(self, fileName = None):
+        if fileName == None:
+            fileName = self.openFileDialog()
         if fileName != None:
             if os.path.isfile(fileName):
                 hdf = T.openFile(fileName, mode = 'r')
@@ -542,7 +593,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         '''
         used to capture the top window focus
         '''
-        if isinstance(fpInstance, Finger_Widget):
+        if isinstance(fpInstance, FP.Finger_Widget):
             self.curFPWidget = fpInstance
 #            print "Got Finger Widget"
 
@@ -584,7 +635,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.curEIC = None
         self.eicPlots = []
         self.fingerPlots = []
-        self.curFPWidget = Finger_Widget(parent = self)
+        self.curFPWidget = FP.Finger_Widget(parent = self)
         self.fingerPlots.append(self.curFPWidget)
         self.peakParams = None
         self.setupPeakPick()
@@ -592,6 +643,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.expandFPBool = False
         self.fpDict = {}
         self.curFPName = None
+        self.fpDir = None
         ###Preference Variables
         self.prefFileName = 'svconfig.ini'
         self.orgPrefFileName = 'original_svconfig.ini'#Don't change this.
@@ -966,7 +1018,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
     def initFP(self):
         selectItems = self.groupTreeWidget.selectedItems()
         if len(selectItems) > 0:
-            curFingerPlot = Finger_Widget(parent = self)
+            curFingerPlot = FP.Finger_Widget(parent = self)
             for item in selectItems:
                 curGroupName = str(item.toolTip(0))
                 if self.groupDict.has_key(curGroupName):
@@ -1543,7 +1595,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                         pass
         if len(self.fingerPlots)>0:
             for plot in self.fingerPlots:
-                if isinstance(plot, Finger_Widget):
+                if isinstance(plot, FP.Finger_Widget):
                     try:
                         plot.close()
                     except:
