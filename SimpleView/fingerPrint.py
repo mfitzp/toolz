@@ -492,24 +492,28 @@ def groupOneD(oneDVec, tol, origOrder):
     return groups, gNum
 
 #FINGERPRINTING MAGIC
-def fpCompare(fpStatDict, peakCompDict, alpha):
+def fpCompare(fpStatDict, peakCompDict, alpha, freqCutoff):
     sgmadivmu = 0.0001
-    foundList, compList = fpextract(fpStatDict, peakCompDict, alpha, sgmadivmu)
-    numPeaks = fpStatDict['numMembers'][0]
-    cmpVec = N.zeros_like(foundList)
-    cmpVec +=1
-    indx = N.where(foundList>0)[0]
-    cmpVec[indx] = 0
-    probFp = fpStatDict['freq']*(1-alpha)
-    fpCmpProb = fpCompSig(cmpVec, probFp)
-    return fpCmpProb
+    foundList, compList, okBool = fpextract(fpStatDict, peakCompDict, alpha, sgmadivmu, freqCutoff)
+    if okBool:
+        numPeaks = fpStatDict['numMembers'][0]
+        cmpVec = N.zeros_like(foundList)
+        cmpVec +=1
+        indx = N.where(foundList>0)[0]
+        cmpVec[indx] = 0
+        probFp = fpStatDict['freq']*(1-alpha)
+        fpCmpProb = fpCompSig(cmpVec, probFp)
+        return fpCmpProb
+    else:
+        return 0
 
-def fpCompSig(self, cmpVec, probFp):
+def fpCompSig(cmpVec, probFp):
     probAll = N.prod(1-probFp)
     numOnes = cmpVec.sum()
     pctDrop = numOnes/len(cmpVec)
+    print pctDrop
     probs = 0
-    if pctDrop > 0.8:#is this a static value?
+    if pctDrop > 0.9:#is this a static value?
        probs = 0
     elif pctDrop == 0:
        probs = 1
@@ -523,26 +527,38 @@ def fpCompSig(self, cmpVec, probFp):
 
     return probs
 
-
-def fpextract(self, fpStatDict, peakCompDict, alpha, sgmadivmu, minTolppm = 50):
+def fpextract(fpStatDict, peakCompDict, alpha, sgmadivmu, freqCutoff, minTolppm = 50):
     '''
     Variables needed:
     number of spectra for each dictionary
     df1 = numMembers - 1
     df2 = numMembers - 1
     dfe = df1+df2
-
     '''
     alpha = alpha/2#OK
-    fpPeakLoc = fpStatDict['aveLoc']#OK
-    fpStdLoc = fpStatDict['stdLoc']#OK
+    fpFreq = fpStatDict['freq']
+    validInd = N.where(fpFreq>=freqCutoff)[0]
+    fpFreq = fpFreq[validInd]
+
+    fpPeakLoc = fpStatDict['aveLoc'][validInd]
+    print fpPeakLoc, freqCutoff
+    if len(fpPeakLoc) == 0:
+        return None, None, False
+    fpStdLoc = fpStatDict['stdLoc'][validInd]
+    fpNumTot = fpStatDict['numTot'][validInd]
+
+    cmpFreq = peakCompDict['freq']
+    if len(cmpFreq) == 0:
+        return None, None, False
+    cmpNumTot = peakCompDict['numTot']
     cmpPeakLoc = peakCompDict['aveLoc']
     cmpPeakInt = peakCompDict['aveInt']
+
     tol = 3*(1+(fpPeakLoc*sgmadivmu)**2)#not sure why this is the case need to find out
     #need to make an instance of peakCompDict that is for one spectrum
     #Potential Problem FIX ME
-    degF1 = fpStatDict['numTot'][0]-1 #indexing first value as this is a list with the same values
-    degF2 = (N.round(peakCompDict['numTot']*peakCompDict['freq']))-1
+    degF1 = fpNumTot[0]-1 #indexing first value as this is a list with the same values
+    degF2 = (N.round(cmpNumTot*cmpFreq))-1
     degF = degF1+degF2
     foundList = N.zeros_like(fpPeakLoc)
     foundIntList = N.zeros_like(fpPeakLoc)
@@ -566,7 +582,71 @@ def fpextract(self, fpStatDict, peakCompDict, alpha, sgmadivmu, minTolppm = 50):
             foundIntList[i] = cmpPeakInt[closest]
             compList[closest] = 1
 
-    return foundList, compList
+    return foundList, compList, True
+
+
+def createFPDict(dataDict, mzTolppm=500):
+    '''
+    Need to make this more modular so that one can plot the peak locations with circles and the window...
+    '''
+    peakStatDict = {'aveLoc':[],
+                    'stdLoc':[],
+                    'aveInt':[],
+                    'stdInt':[],
+                    'numMembers':[],
+                    'freq':[],
+                    'mzTol':[],
+                    'stdDevTol':[],
+                    'numTot':[]
+                    }
+    xLoc = N.zeros(1)
+    yLoc = N.zeros(1)
+    specNum = N.zeros(1)#this is a bookeeping array
+    curSpecNum = 0
+    numSpectra = len(dataDict)/1.0#used to turn into float
+    print "Number of Spectra: ", numSpectra
+    for curData in dataDict.itervalues():
+        if curData.pkListOk:
+            try:
+                pkList = curData.peakList
+                xLoc = N.append(xLoc, pkList[:,0])
+                yLoc = N.append(yLoc, pkList[:,1])
+                specNum = N.append(specNum, N.zeros_like(pkList[:,0])+curSpecNum)
+            except:
+                print "Peak List Error"
+                print curData.name
+                print curData.path
+                return False
+        curSpecNum +=1
+#                self.mainAx.scatter(pkList[:,0],pkList[:,1]*0, color = self.plotColor)
+    sortInd = xLoc.argsort()
+    xLoc = xLoc[sortInd]
+    yLoc = yLoc[sortInd]
+    specNum = specNum[sortInd]
+#            mainAx.plot(xLoc, yLoc, '--r')
+    mzTol = mzTolppm
+    groups, gNum = groupOneD(xLoc, mzTol, origOrder = specNum)
+    for g in xrange(gNum):
+        subInd = N.where(groups == g)[0]
+        curXMean = xLoc[subInd].mean()
+        curXStd = xLoc[subInd].std()
+        curYMean = yLoc[subInd].mean()
+        curYStd = yLoc[subInd].std()
+        freq = len(subInd)/numSpectra
+        peakStatDict['aveLoc'].append(curXMean)
+        peakStatDict['stdLoc'].append(curXStd)
+        peakStatDict['aveInt'].append(curYMean)
+        peakStatDict['stdInt'].append(curYStd)
+        peakStatDict['numMembers'].append(len(subInd))
+        peakStatDict['freq'].append(freq)
+        peakStatDict['mzTol'].append(mzTol)
+        peakStatDict['numTot'].append(numSpectra)
+    #convert peakStats to Numpy arrays
+    for key in peakStatDict.iterkeys():
+        #CHECK THIS
+        peakStatDict[key] = N.array(peakStatDict[key][1:])#we want to remove the first element as it is zero and just a place holder
+
+    return peakStatDict
 
 
 
