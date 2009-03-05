@@ -509,6 +509,15 @@
        <layout class="QGridLayout" >
         <item row="0" column="0" >
          <widget class="QCheckBox" name="loadmzXMLCB" >
+          <property name="toolTip" >
+           <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+p, li { white-space: pre-wrap; }
+&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
+&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">Uncheck to load Bruker fid files.&lt;/p>
+&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">Keep in mind that only LIFT files&lt;/p>
+&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">that have been converted to mzXML&lt;/p>
+&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">can be loaded.&lt;/p>&lt;/body>&lt;/html></string>
+          </property>
           <property name="text" >
            <string>Load mzXML</string>
           </property>
@@ -527,18 +536,14 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="2" >
-         <widget class="QCheckBox" name="labelPeak_CB" >
-          <property name="text" >
-           <string>Label Peaks?</string>
-          </property>
-          <property name="checked" >
-           <bool>false</bool>
-          </property>
-         </widget>
-        </item>
         <item row="1" column="0" >
          <widget class="QCheckBox" name="plotLegendCB" >
+          <property name="toolTip" >
+           <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+p, li { white-space: pre-wrap; }
+&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
+&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">Include plot legend by default?&lt;/p>&lt;/body>&lt;/html></string>
+          </property>
           <property name="text" >
            <string>Plot Legend</string>
           </property>
@@ -548,31 +553,29 @@
          </widget>
         </item>
         <item row="1" column="1" >
-         <layout class="QHBoxLayout" >
-          <item>
-           <widget class="QPushButton" name="loadDirBtn" >
-            <property name="text" >
-             <string>Load Directory</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <spacer>
-            <property name="orientation" >
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" >
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-         </layout>
+         <widget class="QCheckBox" name="labelPeak_CB" >
+          <property name="toolTip" >
+           <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+p, li { white-space: pre-wrap; }
+&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
+&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">Label picked peaks when plotting?&lt;/p>&lt;/body>&lt;/html></string>
+          </property>
+          <property name="text" >
+           <string>Label Peaks?</string>
+          </property>
+          <property name="checked" >
+           <bool>false</bool>
+          </property>
+         </widget>
         </item>
         <item row="2" column="0" >
          <widget class="QCheckBox" name="excludeLIFTCB" >
+          <property name="toolTip" >
+           <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+p, li { white-space: pre-wrap; }
+&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
+&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">Ignore LIFT files when loading data?&lt;/p>&lt;/body>&lt;/html></string>
+          </property>
           <property name="text" >
            <string>Exclude LIFT MS/MS Files</string>
           </property>
@@ -666,6 +669,12 @@
            <layout class="QHBoxLayout" >
             <item>
              <widget class="QPushButton" name="getEIC_Btn" >
+              <property name="toolTip" >
+               <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+p, li { white-space: pre-wrap; }
+&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
+&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">Create an EIC for all members within a selected group.&lt;/p>&lt;/body>&lt;/html></string>
+              </property>
               <property name="text" >
                <string>Fetch EIC</string>
               </property>
@@ -716,7 +725,14 @@
              </widget>
             </item>
             <item>
-             <widget class="QComboBox" name="peakSetting_CB" />
+             <widget class="QComboBox" name="peakSetting_CB" >
+              <property name="toolTip" >
+               <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+p, li { white-space: pre-wrap; }
+&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
+&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">Peak Picking Presets&lt;/p>&lt;/body>&lt;/html></string>
+              </property>
+             </widget>
             </item>
            </layout>
           </item>
@@ -1000,6 +1016,12 @@ p, li { white-space: pre-wrap; }
           </item>
           <item>
            <widget class="QCheckBox" name="autoSavePkList_CB" >
+            <property name="toolTip" >
+             <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+p, li { white-space: pre-wrap; }
+&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
+&lt;p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">&lt;/p>&lt;/body>&lt;/html></string>
+            </property>
             <property name="text" >
              <string>Auto-save Found Peaks?</string>
             </property>
@@ -1007,6 +1029,12 @@ p, li { white-space: pre-wrap; }
           </item>
           <item>
            <widget class="QCheckBox" name="plotNoiseEst_CB" >
+            <property name="toolTip" >
+             <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+p, li { white-space: pre-wrap; }
+&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
+&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">Include noise estimate when plotting?&lt;/p>&lt;/body>&lt;/html></string>
+            </property>
             <property name="text" >
              <string>Show Noise Estimate</string>
             </property>
@@ -1014,30 +1042,6 @@ p, li { white-space: pre-wrap; }
              <bool>false</bool>
             </property>
            </widget>
-          </item>
-          <item>
-           <layout class="QHBoxLayout" >
-            <item>
-             <widget class="QPushButton" name="showNoise_Btn" >
-              <property name="text" >
-               <string>Calculate and Show Noise (without Peak Picking)</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <spacer>
-              <property name="orientation" >
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" >
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
           </item>
           <item>
            <spacer>
@@ -1692,37 +1696,6 @@ p, li { white-space: pre-wrap; }
         <string>Misc</string>
        </attribute>
        <layout class="QGridLayout" >
-        <item row="0" column="0" >
-         <layout class="QHBoxLayout" >
-          <item>
-           <widget class="QPushButton" name="loadHDF5FP_Btn" >
-            <property name="text" >
-             <string>Load HDF5 FP</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <spacer>
-            <property name="orientation" >
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" >
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-         </layout>
-        </item>
-        <item row="1" column="0" >
-         <widget class="QPushButton" name="testFocus_Btn" >
-          <property name="text" >
-           <string>Test Focus</string>
-          </property>
-         </widget>
-        </item>
         <item row="2" column="0" >
          <layout class="QHBoxLayout" >
           <item>
@@ -1885,6 +1858,8 @@ p, li { white-space: pre-wrap; }
      <string>&amp;File</string>
     </property>
     <addaction name="action_Open" />
+    <addaction name="separator" />
+    <addaction name="actionExit_Program" />
    </widget>
    <widget class="QMenu" name="menuTools" >
     <property name="title" >
@@ -1906,6 +1881,7 @@ p, li { white-space: pre-wrap; }
     </property>
     <addaction name="actionRead_Me" />
     <addaction name="actionPeak_Picking" />
+    <addaction name="actionHelpFingerPrint" />
    </widget>
    <addaction name="menu_File" />
    <addaction name="menuTools" />
@@ -1940,7 +1916,7 @@ p, li { white-space: pre-wrap; }
   </action>
   <action name="actionCopy_to_Clipboard" >
    <property name="text" >
-    <string>Copy to Clipboard</string>
+    <string>Copy Plot to Clipboard</string>
    </property>
   </action>
   <action name="actionClear_Cursors" >
@@ -1958,12 +1934,22 @@ p, li { white-space: pre-wrap; }
   </action>
   <action name="actionPeak_Picking" >
    <property name="text" >
-    <string>Peak Picking</string>
+    <string>About Peak Picking</string>
    </property>
   </action>
   <action name="actionFind_Peaks" >
    <property name="text" >
     <string>Find Peaks</string>
+   </property>
+  </action>
+  <action name="actionExit_Program" >
+   <property name="text" >
+    <string>Exit Program</string>
+   </property>
+  </action>
+  <action name="actionHelpFingerPrint" >
+   <property name="text" >
+    <string>Finger Printing</string>
    </property>
   </action>
  </widget>

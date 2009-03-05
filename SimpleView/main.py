@@ -168,6 +168,9 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         #UI Action Slots
         QtCore.QObject.connect(self.actionLabel_Peak,QtCore.SIGNAL("triggered()"),self.labelPeak)
         QtCore.QObject.connect(self.actionCopy_to_Clipboard,QtCore.SIGNAL("triggered()"),self.mpl2Clip)
+        QtCore.QObject.connect(self.actionFind_Peaks,QtCore.SIGNAL("triggered()"),self.findPeaks)
+#        actionExit_Program
+#        actionRead_Me
         QtCore.QObject.connect(self.actionCursor_A,QtCore.SIGNAL("triggered()"),self.SelectPointsA)
         QtCore.QObject.connect(self.actionCursor_B,QtCore.SIGNAL("triggered()"),self.SelectPointsB)
         QtCore.QObject.connect(self.actionClear_Cursors,QtCore.SIGNAL("triggered()"),self.cursorClear)
@@ -176,7 +179,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
         QtCore.QObject.connect(self.useDefaultScale_CB,QtCore.SIGNAL("stateChanged (int)"),self.scaleSetup)
         QtCore.QObject.connect(self.makeScales_Btn, QtCore.SIGNAL("clicked()"), self.makeUserScale)
-#        QtCore.QObject.connect(self.showNoise_Btn, QtCore.SIGNAL("clicked()"), self.getCurDataNoise)
 
         QtCore.QObject.connect(self.getEIC_Btn, QtCore.SIGNAL("clicked()"), self.fetchEIC)
 
@@ -488,7 +490,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                         peakStatDict = {}
                         peakStats = hdfRoot.PeakStats._v_children
                         for j, key in enumerate(peakStats.keys()):
-                            print key
+#                            print key
                             peakStatDict[key] = peakStats[key].read()
 
 
@@ -504,7 +506,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                         peakStatDict = {}
                         peakStats = hdfRoot.PeakStats._v_children
                         for j, key in enumerate(peakStats.keys()):
-                            print key
+                            #print key
                             peakStatDict[key] = peakStats[key].read()
 
 
@@ -966,17 +968,17 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                 return QtGui.QMessageBox.warning(self, "No Data Found",  "Check selected folder, does it have any data?")
 
         else:
-            self._getDir_()
-            dirList, startDir = LFid(self.curDir)
-            dirList.sort()
-            if len(dirList) !=0:
-                self.dirList = dirList
-                self.loadOk = True
-                self.firstLoad = False
-                if self.readThread.updateThread(dirList):
-                    self.readThread.start()
-            elif startDir != None:
-                return QtGui.QMessageBox.warning(self, "No Data Found",  "Check selected folder, does it have any data?")
+            if self._getDir_():
+                dirList, startDir = LFid(self.curDir)
+                dirList.sort()
+                if len(dirList) !=0:
+                    self.dirList = dirList
+                    self.loadOk = True
+                    self.firstLoad = False
+                    if self.readThread.updateThread(dirList):
+                        self.readThread.start()
+                elif startDir != None:
+                    return QtGui.QMessageBox.warning(self, "No Data Found",  "Check selected folder, does it have any data?")
 
 
 #    def treeItemSelected(self, item = None, index = None):
