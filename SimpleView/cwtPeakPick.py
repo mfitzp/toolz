@@ -31,6 +31,8 @@ def cwtMS(Y, scales, sampleScale = 1.0, wlet = 'Mexican Hat', maxClip = 1000., s
     Static Thresh is to screen out the noise and is optional.  This is done for two reasons
     1: for speed
     2: so the algorithm doesn't try to pick peaks that are statistically meaningless from a MS perspective
+
+    staticThresh needs to be modified if the data is normalized or not
     '''
     try:
         if staticThresh != None:

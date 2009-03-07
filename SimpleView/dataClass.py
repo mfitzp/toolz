@@ -6,7 +6,7 @@ import time
 
 
 class DataClass(object):
-    def __init__(self, xdata,  ydata,  name = None, path = None, interp = False):
+    def __init__(self, xdata,  ydata,  name = None, path = None, interp = False, normOk = False):
         self.x = xdata
         if ydata != None:
             self.y = ydata
@@ -41,7 +41,13 @@ class DataClass(object):
             self.interpOk = True
         else:
             self.interpData()
+        self.normOk = normOk
+        if not self.normOk:
+            self.normalize()
 
+    def normalize(self):
+        self.y = SF.normalize(self.y)
+        self.normOk = True
 
     def savePkList(self):
         if self.pkListOk:
@@ -119,7 +125,7 @@ class DataClass(object):
 #            print "MZ Pad", self.mzPad
 
             self.x = newX
-            self.y = SF.normalize(newY)
+            self.y = newY
 
             self.interpOk = True
         except:
