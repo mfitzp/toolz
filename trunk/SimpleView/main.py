@@ -70,6 +70,7 @@ from dataClass import DataClass
 import supportFunc as SF
 import getBaseline as GB
 import cwtPeakPick as CWT
+import customTable as CT
 
 import ui_main
 import fingerPrint as FP
@@ -144,6 +145,10 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.fpListWidget.addAction(self.reviewFPAction)
         QtCore.QObject.connect(self.reviewFPAction,QtCore.SIGNAL("triggered()"), self.reviewFP)
 
+        self.viewFPMetaAction = QtGui.QAction("View FP Meta-data",  self)
+        self.fpListWidget.addAction(self.viewFPMetaAction)
+        QtCore.QObject.connect(self.viewFPMetaAction,QtCore.SIGNAL("triggered()"), self.viewFPMeta)
+
 
         QtCore.QObject.connect(self.saveCSVAction,QtCore.SIGNAL("triggered()"), self.save2CSV)
 
@@ -168,9 +173,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         #UI Action Slots
         QtCore.QObject.connect(self.actionLabel_Peak,QtCore.SIGNAL("triggered()"),self.labelPeak)
         QtCore.QObject.connect(self.actionCopy_to_Clipboard,QtCore.SIGNAL("triggered()"),self.mpl2Clip)
-        QtCore.QObject.connect(self.actionFind_Peaks,QtCore.SIGNAL("triggered()"),self.findPeaks)
-#        actionExit_Program
-#        actionRead_Me
         QtCore.QObject.connect(self.actionCursor_A,QtCore.SIGNAL("triggered()"),self.SelectPointsA)
         QtCore.QObject.connect(self.actionCursor_B,QtCore.SIGNAL("triggered()"),self.SelectPointsB)
         QtCore.QObject.connect(self.actionClear_Cursors,QtCore.SIGNAL("triggered()"),self.cursorClear)
@@ -179,6 +181,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
         QtCore.QObject.connect(self.useDefaultScale_CB,QtCore.SIGNAL("stateChanged (int)"),self.scaleSetup)
         QtCore.QObject.connect(self.makeScales_Btn, QtCore.SIGNAL("clicked()"), self.makeUserScale)
+#        QtCore.QObject.connect(self.showNoise_Btn, QtCore.SIGNAL("clicked()"), self.getCurDataNoise)
 
         QtCore.QObject.connect(self.getEIC_Btn, QtCore.SIGNAL("clicked()"), self.fetchEIC)
 
@@ -249,7 +252,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.minClust_SB.setValue(defaultParams['minClust'][selIndex]) #default is 4
         self.waveletRowTol_SB.setValue(defaultParams['rowThresh'][selIndex])
         self.staticCutoff_SB.setValue(defaultParams['staticThresh'][selIndex])
-
 
     def compareFP(self):
         self.fpListWidget.selectAll()
@@ -441,7 +443,66 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                 errorMsg = 'No raw data were loaded with this FP.\nPlease check the "Load Raw Data From FP?" box and reload.'
                 return QtGui.QMessageBox.warning(self, "FP Review Error", errorMsg)
 
-#                self.fpDict
+    def plotMetaPeaks(self,dTableInstance, peakData, dataLabels):
+        curAx = dTableInstance.plotWidget.canvas.ax
+        for i,peakList in enumerate(peakData):
+            x = peakList[1][:,0]
+            y = peakList[0][:,0]
+            intensity = peakList[1][:,1]
+            self._updatePlotColor_()
+#            curAx.plot(x, y, 'o', alpha = 0.6)
+            curAx.scatter(x,y,s = intensity, alpha = 0.6, color = self.plotColor, label = dataLabels[i])
+#            label = dataLabels[i]
+#            curAx.text(0,i,label)
+#            curAx.legend()
+
+        print "MetaPeaks"
+
+    def viewFPMeta(self):
+        '''
+        fpDict[self.curGroupName] = {'dataDict':dataDict, 'peakStats':peakStatDict, 'fileName':fileName, 'peakLists':peakListDict}
+        peakListDict[key] = {'peakList':peakListDict[key].read(), 'params':paramDict}
+        Need to add an instance where the full FP are loaded..
+        '''
+        selectItems = self.fpListWidget.selectedItems()
+        if len(selectItems) > 0:
+            item = selectItems[0]
+            curFP = self.fpDict[str(item.text())]
+            metaData = []
+            peakData = []
+            dataLabels = []
+            if curFP['peakLists'] != None:
+                peakListInfo = curFP['peakLists']
+                i = 0
+                for key in peakListInfo.iterkeys():
+                    curPeaks = peakListInfo[key]['peakList']
+                    peakData.append([N.zeros_like(curPeaks)+i,curPeaks])
+                    dataLabels.append(key.split(os.path.sep)[-1])
+#                    print curPeaks
+                    i+=1
+                    curMeta = []
+                    curMeta.append(key)
+                    headers = ['File Name']
+
+                    for paramItem in peakListInfo[key]['params'].iteritems():
+                        headers.append(paramItem[0])
+                        curMeta.append(str(paramItem[1]))
+#                    print curMeta
+                    metaData.append(curMeta)
+                peakData.append([N.zeros_like(curPeaks),N.zeros_like(curPeaks)])#add a dummy peakset to view last set
+                dataLabels.append('_nolegend_')#add another dummy to see the top level
+                dTable = CT.DataTable(metaData, headers)
+                self.plotMetaPeaks(dTable, peakData, dataLabels)
+                dTable.plotWidget.canvas.ytitle="DataFile"
+#                dTable.plotWidget.canvas.fig.subplots_adjust(left=0.2)
+#                dTable.plotWidget.canvas.ax.set_yticklabels(tickLabels, minor = True)
+                dTable.plotWidget.canvas.format_labels()
+                dTable.plotWidget.canvas.draw()
+                dTable.show()
+                self.fingerRevTabls.append(dTable)
+#            print metaData
+
+
 
     def loadFPfromHDF5(self, fileName = None):
         if fileName == None:
@@ -453,8 +514,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                 try:
                     self.curGroupName = fileName.split(os.path.sep)[-1]
                     if self.loadRawFPData_CB.isChecked():
-                        specList = hdfRoot.Spectra._v_children
-                        peakLists = hdfRoot.PeakLists._v_children
 
                         self.groupIndex.append(self.numGroups)
                         self.groupList.append(self.curGroupName)
@@ -473,6 +532,9 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
                         self.getTextColor()
 
+                        specList = hdfRoot.Spectra._v_children
+                        peakLists = hdfRoot.PeakLists._v_children
+
                         dataDict = {}
                         for i, key in enumerate(specList.keys()):
 
@@ -481,8 +543,31 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                             spec = specList[key].read()
                             dataFile = DataClass(spec[:,0], spec[:,1],  name = bName, path = newName, interp = True)#should already by interpolated
                             dataFile.mzPad = specList[key].attrs.mzPad
-                            pkList = peakLists[key].read()
-                            dataFile.setPeakList(pkList, normalized = True)#set to normalized as these values are by nature already normalized
+                            pkList = peakLists[key]
+
+                            paramDict = {'scales':None,
+                                         'minSNR':None,
+                                         'minRow':None,
+                                         'minClust':None,
+                                         'dbscanEPS':None,
+                                         'rowThresh':None,
+                                         'noiseFactor':None,
+                                         'staticThresh':None,
+                                         'autoSave':None
+                                         }
+                            if pkList.attrs.__contains__('minSNR'):
+                                paramDict['scales'] = pkList.attrs.scales
+                                paramDict['minSNR'] = pkList.attrs.minSNR
+                                paramDict['minRow'] = pkList.attrs.minRow
+                                paramDict['noiseFactor'] = pkList.attrs.noiseFactor
+                                paramDict['minClust'] = pkList.attrs.minClust
+                                paramDict['rowThresh'] = pkList.attrs.rowThresh
+                                paramDict['dbscanEPS'] = pkList.attrs.EPS
+                                paramDict['staticThresh'] = pkList.attrs.staticThresh
+
+
+                            dataFile.setPeakList(pkList.read(), normalized = True)#set to normalized as these values are by nature already normalized
+                            dataFile.setPeakParams(paramDict)
                             dataDict[newName] = dataFile#used to add to FP interface
                             self.updateGUI(dataFile)
 
@@ -495,7 +580,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
 
                         fpDict = {}
-                        fpDict[self.curGroupName] = {'dataDict':dataDict, 'peakStats':peakStatDict}
+                        fpDict[self.curGroupName] = {'dataDict':dataDict, 'peakStats':peakStatDict, 'fileName':fileName, 'peakLists':None}
                         self.commitFP(fpDict)
 
                         hdf.close()
@@ -505,13 +590,32 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                         dataDict = {}
                         peakStatDict = {}
                         peakStats = hdfRoot.PeakStats._v_children
+                        peakLists = hdfRoot.PeakLists._v_children
                         for j, key in enumerate(peakStats.keys()):
-                            #print key
+#                            print key
                             peakStatDict[key] = peakStats[key].read()
 
+                        peakListDict = {}
+                        for j, key in enumerate(peakLists.keys()):
+                            bName = os.path.basename(key.replace('*',os.path.sep))
+                            newName = os.path.join(self.curGroupName, bName)
+#                            print key
+                            pkList = peakLists[key]
+                            paramDict = {}
+                            if pkList.attrs.__contains__('minSNR'):
+                                paramDict['scales'] = pkList.attrs.scales
+                                paramDict['minSNR'] = pkList.attrs.minSNR
+                                paramDict['minRow'] = pkList.attrs.minRow
+                                paramDict['noiseFactor'] = pkList.attrs.noiseFactor
+                                paramDict['minClust'] = pkList.attrs.minClust
+                                paramDict['rowThresh'] = pkList.attrs.rowThresh
+                                paramDict['dbscanEPS'] = pkList.attrs.EPS
+                                paramDict['staticThresh'] = pkList.attrs.staticThresh
+
+                            peakListDict[newName] = {'peakList':pkList.read(), 'params':paramDict}
 
                         fpDict = {}
-                        fpDict[self.curGroupName] = {'dataDict':dataDict, 'peakStats':peakStatDict}
+                        fpDict[self.curGroupName] = {'dataDict':dataDict, 'peakStats':peakStatDict, 'fileName':fileName, 'peakLists':peakListDict}
                         self.commitFP(fpDict)
                         hdf.close()
 
@@ -637,6 +741,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.curEIC = None
         self.eicPlots = []
         self.fingerPlots = []
+        self.fingerRevTabls = []
         self.curFPWidget = FP.Finger_Widget(parent = self)
         self.fingerPlots.append(self.curFPWidget)
         self.peakParams = None
@@ -673,7 +778,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                          'autoloadfp':self.autoLoadFP_CB,
                          'fpdir':self.fpFolder_LE
                          }
-        self.prefFileStruct ={}
+        self.prefFileStruct = {}
         self.peakSettingTypes = ['High SNR','Med SNR','Low SNR']
         self.peakSetting_CB.addItems(self.peakSettingTypes)
         peakFindInt = self.peakSetting_CB.findText('Med SNR')
@@ -856,6 +961,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         '''Create a menu for the FingerPrint list widget'''
         ct_menu = QtGui.QMenu("Fingerprint Menu", self.fpListWidget)
         ct_menu.addAction(self.reviewFPAction)
+        ct_menu.addAction(self.viewFPMetaAction)
 #        ct_menu.addAction(self.topHatAction)
 #        ct_menu.addAction(self.findPeakAction)
 #        ct_menu.addAction(self.savePksAction)
@@ -968,17 +1074,17 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                 return QtGui.QMessageBox.warning(self, "No Data Found",  "Check selected folder, does it have any data?")
 
         else:
-            if self._getDir_():
-                dirList, startDir = LFid(self.curDir)
-                dirList.sort()
-                if len(dirList) !=0:
-                    self.dirList = dirList
-                    self.loadOk = True
-                    self.firstLoad = False
-                    if self.readThread.updateThread(dirList):
-                        self.readThread.start()
-                elif startDir != None:
-                    return QtGui.QMessageBox.warning(self, "No Data Found",  "Check selected folder, does it have any data?")
+            self._getDir_()
+            dirList, startDir = LFid(self.curDir)
+            dirList.sort()
+            if len(dirList) !=0:
+                self.dirList = dirList
+                self.loadOk = True
+                self.firstLoad = False
+                if self.readThread.updateThread(dirList):
+                    self.readThread.start()
+            elif startDir != None:
+                return QtGui.QMessageBox.warning(self, "No Data Found",  "Check selected folder, does it have any data?")
 
 
 #    def treeItemSelected(self, item = None, index = None):
@@ -1600,6 +1706,13 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                 if isinstance(plot, FP.Finger_Widget):
                     try:
                         plot.close()
+                    except:
+                        pass
+        if len(self.fingerRevTabls)>0:
+            for tbl in self.fingerRevTabls:
+                if isinstance(tbl, CT.DataTable):
+                    try:
+                        tbl.close()
                     except:
                         pass
 

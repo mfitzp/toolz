@@ -390,7 +390,7 @@ class Finger_Widget(QtGui.QWidget, ui_fingerPrint.Ui_fingerPlotWidget):
             natName = item[0].replace(os.path.sep, '*')#natural Name
             if isinstance(item[1], DataClass):
                 specX = item[1].x
-                specY = item[1].y
+                specY = item[1].y*item[1].normFactor
                 data = N.column_stack((specX,specY))
                 pkList = item[1].peakList
                 pkParams = item[1].peakParams
@@ -401,7 +401,6 @@ class Finger_Widget(QtGui.QWidget, ui_fingerPrint.Ui_fingerPlotWidget):
                     ca[0:shape[0]] = pkList
                     if pkParams != None:
                         ca._v_attrs.scales = pkParams['scales']
-                        ca._v_attrs.minSNR = pkParams['minSNR']
                         ca._v_attrs.minSNR = pkParams['minSNR']
                         ca._v_attrs.minRow = pkParams['minRow']
                         ca._v_attrs.minClust = pkParams['minClust']

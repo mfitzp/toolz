@@ -1,12 +1,12 @@
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from PyQt4 import QtCore, QtGui
 import os, sys, traceback
 import time
 
 from pylab import load as L
 import numpy as N
+from mpl_pyqt4_widget import MPL_Widget
 
-my_array = [['00','01','02'],
+my_array = [['00','01','50'],
             ['10','11','12'],
             ['20','21','22'],
             ['30','31','32']]
@@ -14,67 +14,77 @@ my_array = [['00','01','02'],
 
 
 def main():
-    app = QApplication(sys.argv)
-    w = DBTable()
-    #w.show()
+    app = QtGui.QApplication(sys.argv)
+    w = DataTable()
+    w.show()
     sys.exit(app.exec_())
 
-class DBTable(QWidget):
-#            super(Plot_Widget, self).__init__(None)#new  new^2:changed from parent
-#        self.setAttribute(Qt.WA_DeleteOnClose)
-
-    def __init__(self, dataList = None,  colHeaderList = None):
-        QWidget.__init__(self)
-        self.setAttribute(Qt.WA_DeleteOnClose)
-        self.setWindowTitle('Database Result')
-        self.resize(900, 400)
-        self.tableWidget = CustomTable(self)
-        if dataList:
-            self.data = dataList
+class DataTable(QtGui.QWidget):
+    def __init__(self, data = None,  colHeaderList = None, parent = None):
+        QtGui.QWidget.__init__(self, parent)
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+        self.setWindowTitle('Fingerprint Meta Data')
+        self.resize(650, 500)
+        if data:
+            self.data = data
         else:
-            self.data = my_data
-            print my_data[0]
-            self.numRows = my_data.shape[0]
-            self.numCols = my_data.shape[1]
+            self.data = my_array
+            print my_array[0]
+#            self.numRows = my_array.shape[0]
+#            self.numCols = my_array.shape[1]
 
 
-        self.tableWidget.setRowCount(self.numRows)
-        self.tableWidget.setColumnCount(self.numCols)
+#        self.tableWidget.setRowCount(self.numRows)
+#        self.tableWidget.setColumnCount(self.numCols)
 
+
+
+        self.vLayout = QtGui.QVBoxLayout(self)
+        self.tabWidget = QtGui.QTabWidget(self)
+        self.tab = QtGui.QWidget()
+
+        self.tableWidget = CustomTable(self.tab)
+        self.tabLayout = QtGui.QHBoxLayout(self.tab)
+        self.tabLayout.addWidget(self.tableWidget)
 
         self.tableWidget.addData(self.data)
         if type(colHeaderList) == list:
             self.tableWidget.setHorizontalHeaderLabels(colHeaderList)
         self.tableWidget.resizeColumnsToContents()
         self.tableWidget.setSortingEnabled(True)
-
         self.tableWidget.setCurrentCell(0, 0)#needed so selectedRanges does not fail initially
 
-        layout = QVBoxLayout(self)
-        layout.addWidget(self.tableWidget)
-        self.setLayout(layout)
-        self.show()
+        self.tabWidget.addTab(self.tab, "MetaData Table")
 
-class CustomTable(QTableWidget):
+        self.tab2 = QtGui.QWidget()
+        self.plotWidget = MPL_Widget(self.tab2)
+        self.tab2Layout = QtGui.QHBoxLayout(self.tab2)
+        self.tab2Layout.addWidget(self.plotWidget)
+
+        self.tabWidget.addTab(self.tab2, "MetaData Plot")
+
+        self.vLayout.addWidget(self.tabWidget)
+
+class CustomTable(QtGui.QTableWidget):
     def __init__(self, parent = None):
-        QTableWidget.__init__(self, parent)
+        QtGui.QTableWidget.__init__(self, parent)
         if parent:
             self.parent = parent
         self.__initActions__()
         self.__initContextMenus__()
 
     def __initContextMenus__(self):
-        self.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.connect(self, SIGNAL("customContextMenuRequested(QPoint)"), self.tableWidgetContext)
+        self.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.connect(self, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self.tableWidgetContext)
 
     def tableWidgetContext(self, point):
         '''Create a menu for the tableWidget and associated actions'''
-        tw_menu = QMenu("Menu", self)
+        tw_menu = QtGui.QMenu("Menu", self)
         tw_menu.addAction(self.pasteAction)
-        tw_menu.addAction(self.copyAction)
-        tw_menu.addAction(self.insRowAction)
-        tw_menu.addAction(self.insColAction)
-        tw_menu.addAction(self.testAction)
+#        tw_menu.addAction(self.copyAction)
+#        tw_menu.addAction(self.insRowAction)
+#        tw_menu.addAction(self.insColAction)
+#        tw_menu.addAction(self.testAction)
         tw_menu.exec_(self.mapToGlobal(point))
 
     def addData(self, data, startrow=None,  startcol = None):
@@ -101,8 +111,8 @@ class CustomTable(QTableWidget):
                         n = sc
                         for item in row:
                             #print repr(str(item))
-                            newitem = QTableWidgetItem(0)#'%.3f'%item)
-                            newitem.setData(0,QVariant(item))
+                            newitem = QtGui.QTableWidgetItem(0)#'%.3f'%item)
+                            newitem.setData(0,QtCore.QVariant(item))
                             self.setItem(m,  n,  newitem)
                             n+=1
                         m+=1
@@ -112,8 +122,8 @@ class CustomTable(QTableWidget):
                         n = sc
                         for item in row:
                             #print repr(str(item))
-                            newitem = QTableWidgetItem(0)#'%.3f'%item)
-                            newitem.setData(0,QVariant(item))
+                            newitem = QtGui.QTableWidgetItem(0)#'%.3f'%item)
+                            newitem.setData(0,QtCore.QVariant(item))
                             self.setItem(m,  n,  newitem)
                             n+=1
                         m+=1
@@ -138,32 +148,32 @@ class CustomTable(QTableWidget):
 
 
     def __initActions__(self):
-        self.pasteAction = QAction("Paste",  self)
+        self.pasteAction = QtGui.QAction("Paste",  self)
         self.pasteAction.setShortcut("Ctrl+V")
         self.addAction(self.pasteAction)
-        self.connect(self.pasteAction, SIGNAL("triggered()"), self.pasteClip)
+        self.connect(self.pasteAction, QtCore.SIGNAL("triggered()"), self.pasteClip)
 
-        self.copyAction = QAction("Copy",  self)
+        self.copyAction = QtGui.QAction("Copy",  self)
         self.copyAction.setShortcut("Ctrl+C")
         self.addAction(self.copyAction)
-        self.connect(self.copyAction, SIGNAL("triggered()"), self.copyCells)
+        self.connect(self.copyAction, QtCore.SIGNAL("triggered()"), self.copyCells)
 
-        self.insColAction = QAction("Insert Column",  self)
+        self.insColAction = QtGui.QAction("Insert Column",  self)
         self.addAction(self.insColAction)
-        self.connect(self.insColAction, SIGNAL("triggered()"), self.addColumns)
+        self.connect(self.insColAction, QtCore.SIGNAL("triggered()"), self.addColumns)
 
-        self.insRowAction = QAction("Insert Row",  self)
+        self.insRowAction = QtGui.QAction("Insert Row",  self)
         self.addAction(self.insRowAction)
-        self.connect(self.insRowAction, SIGNAL("triggered()"), self.addRows)
+        self.connect(self.insRowAction, QtCore.SIGNAL("triggered()"), self.addRows)
 
-        self.testAction = QAction("Test Action",  self)
+        self.testAction = QtGui.QAction("Test Action",  self)
         self.addAction(self.testAction)
-        self.connect(self.testAction, SIGNAL("triggered()"), self.testFunc)
+        self.connect(self.testAction, QtCore.SIGNAL("triggered()"), self.testFunc)
 
     def testFunc(self):
         if self.cb:
             #print sizeof(self.cb)
-            self.cb.clear(QClipboard.Clipboard)
+            self.cb.clear(QtGui.QClipboard.Clipboard)
     ###############################
 
     def addRows(self):
@@ -201,7 +211,7 @@ class CustomTable(QTableWidget):
 
     def pasteClip(self):
 
-        self.cb = QApplication.clipboard()
+        self.cb = QtGui.QApplication.clipboard()
         clipText = self.cb.text()
         t0 = time.time()
         clip2paste = self.splitClipboard(clipText)
@@ -227,7 +237,7 @@ class CustomTable(QTableWidget):
         self.addData(clip2paste, topRow,  leftColumn)
         print "Data Add Time:", (time.time()-t3)
 
-    def splitClipboard(self,  clipText):
+    def splitClipboard(self, clipText):
         #create list to be returned
         returnClip = []
         #split by carriage return which makes the rows
@@ -247,21 +257,21 @@ class CustomTable(QTableWidget):
         rightColumn = selRange.rightColumn()
         leftColumn = selRange.leftColumn()
         #item = self.tableWidget.item(topRow, leftColumn)
-        clipStr = QString()
+        clipStr = QtCore.QString()
         for row in xrange(topRow, bottomRow+1):
             for col in xrange(leftColumn, rightColumn+1):
                 cell = self.item(row, col)
                 if cell:
                     clipStr.append(cell.text())
                 else:
-                    clipStr.append(QString(""))
-                clipStr.append(QString("\t"))
+                    clipStr.append(QtCore.QString(""))
+                clipStr.append(QtCore.QString("\t"))
             clipStr.chop(1)
-            clipStr.append(QString("\r\n"))
+            clipStr.append(QtCore.QString("\r\n"))
 
 #        if self.cb:
 #            self.cb.clear()
-        self.cb = QApplication.clipboard()
+        self.cb = QtGui.QApplication.clipboard()
         self.cb.setText(clipStr)
 
 

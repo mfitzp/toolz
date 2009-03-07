@@ -251,12 +251,6 @@ def getHomeDir():
     return homeDir
 
 
-
-
-
-
-
-
 def main():
     import sys
     app = QtGui.QApplication(sys.argv)
