@@ -12,7 +12,7 @@ from PyQt4 import QtCore, QtGui
 class Ui_fingerPlotWidget(object):
     def setupUi(self, fingerPlotWidget):
         fingerPlotWidget.setObjectName("fingerPlotWidget")
-        fingerPlotWidget.resize(633, 524)
+        fingerPlotWidget.resize(650, 525)
         self.gridLayout_2 = QtGui.QGridLayout(fingerPlotWidget)
         self.gridLayout_2.setObjectName("gridLayout_2")
         self.tabWidget = QtGui.QTabWidget(fingerPlotWidget)
