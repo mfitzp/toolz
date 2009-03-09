@@ -40,8 +40,7 @@ Group Display
 Double check peakfind thread
 
 make fingerprint folder work
-Use Cutoffs for FP Comparison
-fix topHat
+fix topHat, threadit?
 '''
 ###################################
 import os, sys, traceback
@@ -54,6 +53,7 @@ from PyQt4 import QtCore,  QtGui
 
 import numpy as N
 import scipy as S
+import scipy.stats as stats
 import tables as T
 
 from matplotlib.lines import Line2D
@@ -80,6 +80,8 @@ COLORS = ['#297AA3','#A3293D','#3B9DCE','#293DA3','#5229A3','#8F29A3','#A3297A',
 '#0080FF','#0000FF','#7ABDFF','#8000FF','#FF0080','#FF0000','#FF8000','#FFFF00','#A35229','#80FF00',
 '#00FF00','#00FF80','#00FFFF','#3D9EFF','#FF9E3D','#FFBD7A']
 
+MARKERS = ['o', 'd','>', 's', '^',  'p', '<', 'h', 'v']
+
 class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
     def __init__(self, parent = None):
         super(Plot_Widget,  self).__init__(parent)
@@ -96,6 +98,9 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
 
     def initConnections(self):
+        '''
+        Initiates all of the GUI connections
+        '''
         self.handleActionA = QtGui.QAction("Cursor A", self)
         self.plotWidget.addAction(self.handleActionA)
 
@@ -207,6 +212,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         QtCore.QObject.connect(self.revert_Btn, QtCore.SIGNAL("clicked()"), self.defaultRevert)
 
         QtCore.QObject.connect(self.doFP_Btn, QtCore.SIGNAL("clicked()"), self.compareFP)
+        QtCore.QObject.connect(self.doPCA_Btn, QtCore.SIGNAL("clicked()"), self.fpPCA)
         QtCore.QObject.connect(self.fpFolder_Btn, QtCore.SIGNAL("clicked()"), self.setDefaultFPDir)
 
 
@@ -216,7 +222,14 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.useDefaultScale_CB.nextCheckState()
 
 
+
+
     def setDefaultFPDir(self):
+        '''
+        Sets the default directory for where the fingerprints are stored. An attempt is made to load the fingerprints
+        into memory.  Be careful how the preferences are set.  If the load RAW FP check box is activated then
+        a whole lotta memory could be used up fast!
+        '''
         if self.fpDir != None:
             fpDir = self.fpDir
         else:
@@ -232,6 +245,9 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             return False
 
     def peakComboChanged(self, selectedStr):
+        '''
+        Changes to pre-set values for peak picking
+        '''
         selectedStr = str(selectedStr)
         settingsKey = {'Low SNR':0,
                        'Med SNR':1,
@@ -252,7 +268,126 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.waveletRowTol_SB.setValue(defaultParams['rowThresh'][selIndex])
         self.staticCutoff_SB.setValue(defaultParams['staticThresh'][selIndex])
 
+
+    def fpPCA(self):
+        '''
+        Perform a PCA for the selected fingerprints.
+
+            peakStatDict = {'aveLoc':[],
+                    'stdLoc':[],
+                    'aveInt':[],
+                    'stdInt':[],
+                    'numMembers':[],
+                    'freq':[],
+                    'mzTol':[],
+                    'stdDevTol':[],
+                    'numTot':[]
+        '''
+        self.fpListWidget.selectAll()
+        selectItems = self.fpListWidget.selectedItems()
+        fpList = []
+        if len(selectItems) > 0:
+            for item in selectItems:
+                if item.checkState() == 2:#Case when it is checked
+                    fpList.append(str(item.text()))
+
+            mzXVals = []
+            mzStd = []
+            mzYVals = []
+            numVals = []
+            freqCutoff = self.freqCutoff_SB.value()
+            for fpName in fpList:
+#                print fpName
+                curFPDict = self.fpDict[fpName]
+                curStats = curFPDict['peakStats']
+                fpFreq = curStats['freq']
+                validInd = N.where(fpFreq>=freqCutoff)[0]
+                fpFreq = fpFreq[validInd]
+                fpPeakLoc = curStats['aveLoc'][validInd]
+                fpPeakInt = curStats['aveInt'][validInd]
+                fpStdLoc = curStats['stdLoc'][validInd]
+                fpNum = curStats['numTot'][validInd]
+                mzXVals.append(fpPeakLoc)
+                mzYVals.append(SF.normalize(fpPeakInt))
+                mzStd.append(fpStdLoc)
+                numVals.append(fpNum)
+
+            self._testPlot_([mzXVals, mzYVals])
+            mzXVals = N.array(SF.flattenX(mzXVals))
+            mzYVals = N.array(SF.flattenX(mzYVals))
+            mzStd = N.array(SF.flattenX(mzStd))
+            numVals = N.array(SF.flattenX(numVals))
+
+            mzOrder = mzXVals.argsort()
+            mzXVals = mzXVals[mzOrder]
+            mzYVals = mzYVals[mzOrder]
+            mzStd = mzStd[mzOrder]
+            numVals = numVals[mzOrder]
+
+            self.contstructPCAMtx(mzXVals, mzStd, mzYVals, numVals)
+
+    def contstructPCAMtx(self, xVals, xStd, yVals, numVals, yStd = None):
+        print "Construct PCA Mtx"
+        mzTolPPM = 500/1000000
+        xStd *= 3
+
+        mzMTX = []
+
+        for i,x in enumerate(xVals[:-1]):#don't want to exceed the array limits
+            tErr = N.sqrt((xStd[i]**2/numVals[i])+(xStd[i+1]**2/numVals[i+1]))
+            xDiff = N.max(xVals[i+1]-x, mzTolPPM*x)
+            tVal = N.abs(xDiff/tErr)
+            tCrit = stats.t.ppf(0.99, (numVals[i]+numVals[i+1]-2))
+            if tVal < tCrit:
+                pass
+            else:
+                mzMTX.append(x)
+
+            print x, xStd[i], yVals[i], numVals[i], tVal, tCrit
+
+        #handle last value in array
+        if tVal < tCrit:
+            pass
+        else:
+            mzMTX.append(xVals[i+1])
+
+
+        print mzMTX
+
+    def _testPlot_(self, data2plot):
+        '''
+        Misc function for plotting data
+        '''
+#        print "Test Plot Go"
+
+        testPlot = MPL_Widget()
+        testPlot.setWindowTitle('Test Plot')
+
+        ax1 = testPlot.canvas.ax
+        plotTitle = 'Composite Plot'
+        ax1.set_title(plotTitle)
+        ax1.title.set_fontsize(10)
+        ax1.set_xlabel('m/z', fontstyle = 'italic')
+        ax1.set_ylabel('Intensity')
+
+        xValList = data2plot[0]
+        yValList = data2plot[1]
+        for i,xVal in enumerate(xValList):
+            self._updatePlotColor_()
+            yVal = yValList[i]
+#            ax1.plot(self.curEIC)
+            ax1.vlines(xVal, 0, yVal, color = self.plotColor)
+
+
+        testPlot.show()
+        self.eicPlots.append(testPlot)
+
+
     def compareFP(self):
+        '''
+        Compares the checked fingerprints loaded into memory with raw data loaded selected on the right
+        TreeView GUI object.  See the fingerprint.py for more info on the alogorithm
+        '''
         self.fpListWidget.selectAll()
         selectItems = self.fpListWidget.selectedItems()
         fpList = []
@@ -277,6 +412,9 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
 
     def defaultRevert(self):
+        '''
+        Load default preferences
+        '''
         try:
             if os.path.isfile(self.orgPrefFileName):
                 self._getPrefs_(self.orgPrefFileName)
@@ -284,6 +422,9 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             return QtGui.QMessageBox.warning(self, "Preferences File is Hosed", "Try Reinstalling to fix this!")
 
     def autoLoadFP(self):
+        '''
+        Recursively parse through the user specified directory and load all FP
+        '''
         print self.fpDir
         if self.fpDir != None:
             fpList = []
@@ -295,7 +436,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                         if os.path.isfile(fpPath):
                             fpList.append(fpPath)
                             self.loadFPfromHDF5(fpPath)
-            print "Auto FP List",fpList
+#            print "Auto FP List",fpList
 
     def loadPrefs(self):
 #        try:
@@ -800,6 +941,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.plotPks = False
         self.txtColor = None
         self.colorIndex = 0
+        self.markerIndex = 0
         self.plotColor = None
         self.plotColorIndex = 0
         self.curEIC = None
@@ -1011,6 +1153,14 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         else:
             self.plotColor = COLORS[self.plotColorIndex]
             self.plotColorIndex +=1
+
+    def _getPlotMarker_(self):
+        marker = markers[self.markerIndex]
+        if self.markerIndex is len(markers)-1:
+            self.markerIndex = 0
+        else:
+            self.markerIndex+=1
+        return marker
 
     def initContextMenus(self):
         self.plotWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
@@ -1491,33 +1641,44 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             QtCore.QTimer.singleShot(500,  self.plotByIndex)
 
     def fetchEIC(self):
-        if len(self.dataList) == 0:
-            return QtGui.QMessageBox.warning(self, "No Data Are Loaded",  "Try Loading a Data Set Again!")
-        mzLo = self.mzLo_SB.value()
-        mzHi = self.mzHi_SB.value()
-        if mzHi != -1 and mzHi < mzLo:
-            return QtGui.QMessageBox.warning(self, "EIC Range Error",  "m/z Hi is larger than m/z Lo\nCheck the ranges!")
-        else:
-            self.curEIC = []
-            for curDataName in self.dataList:
-                tempData = self.dataDict[curDataName]
-                eicVal = tempData.getEICVal(mzLo, mzHi)
-                self.curEIC.append(eicVal)
+        selectItems = self.groupTreeWidget.selectedItems()
+        if len(selectItems) > 0:
+            item = selectItems[0]
+            if item.childCount() == 0:
+                self.curTreeItem = item.parent()
+            else:
+                self.curTreeItem = item
+            numChildren = self.curTreeItem.childCount()
+            mzLo = self.mzLo_SB.value()
+            mzHi = self.mzHi_SB.value()
+            if len(self.dataList) == 0:
+                return QtGui.QMessageBox.warning(self, "No Data Are Loaded",  "Try Loading a Data Set Again!")
 
-            if len(self.curEIC) != 0:
-                eicPlot = MPL_Widget()
-                eicPlot.setWindowTitle('Loaded Data EIC')
+            if mzHi != -1 and mzHi < mzLo:
+                return QtGui.QMessageBox.warning(self, "EIC Range Error",  "m/z Hi is larger than m/z Lo\nCheck the ranges!")
+            else:
+                dataNameList = []
+                self.curEIC = []
+                for childIndex in xrange(numChildren):
+                    curDataName = str(self.curTreeItem.child(childIndex).toolTip(0))
+                    tempData = self.dataDict[curDataName]
+                    eicVal = tempData.getEICVal(mzLo, mzHi)
+                    self.curEIC.append(eicVal)
 
-                ax1 = eicPlot.canvas.ax
-                plotTitle = 'EIC from %.2f to %.2f'%(mzLo, mzHi)
-                ax1.set_title(plotTitle)
-                ax1.title.set_fontsize(10)
-                ax1.set_xlabel('Data Index', fontstyle = 'italic')
-                ax1.set_ylabel('Intensity')
-                ax1.plot(self.curEIC)
+                if len(self.curEIC) != 0:
+                    eicPlot = MPL_Widget()
+                    eicPlot.setWindowTitle('Loaded Data EIC')
 
-                eicPlot.show()
-                self.eicPlots.append(eicPlot)
+                    ax1 = eicPlot.canvas.ax
+                    plotTitle = 'EIC from %.2f to %.2f'%(mzLo, mzHi)
+                    ax1.set_title(plotTitle)
+                    ax1.title.set_fontsize(10)
+                    ax1.set_xlabel('Data Index', fontstyle = 'italic')
+                    ax1.set_ylabel('Intensity')
+                    ax1.plot(self.curEIC)
+
+                    eicPlot.show()
+                    self.eicPlots.append(eicPlot)
 
     def plotCurData(self, curData, curAx):
         #test to see if noise has been calculated, if not do it and then plot.
