@@ -20,12 +20,12 @@ def main():
     sys.exit(app.exec_())
 
 class DataTable(QtGui.QWidget):
-    def __init__(self, data = None,  colHeaderList = None, parent = None):
+    def __init__(self, data = None,  colHeaderList = None, rowHeaderList = None, parent = None):
         QtGui.QWidget.__init__(self, parent)
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.setWindowTitle('Fingerprint Meta Data')
         self.resize(650, 500)
-        if data:
+        if data != None:
             self.data = data
         else:
             self.data = my_array
@@ -50,6 +50,8 @@ class DataTable(QtGui.QWidget):
         self.tableWidget.addData(self.data)
         if type(colHeaderList) == list:
             self.tableWidget.setHorizontalHeaderLabels(colHeaderList)
+        if type(rowHeaderList) == list:
+            self.tableWidget.setVerticalHeaderLabels(rowHeaderList)
         self.tableWidget.resizeColumnsToContents()
         self.tableWidget.setSortingEnabled(True)
         self.tableWidget.setCurrentCell(0, 0)#needed so selectedRanges does not fail initially
