@@ -72,6 +72,8 @@ import getBaseline as GB
 import cwtPeakPick as CWT
 import customTable as CT
 
+import pca_module as pca#courtesy of Henning Risvik http://folk.uio.no/henninri/pca_module/
+
 import ui_main
 import fingerPrint as FP
 
@@ -283,76 +285,222 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                     'stdDevTol':[],
                     'numTot':[]
         '''
-        self.fpListWidget.selectAll()
-        selectItems = self.fpListWidget.selectedItems()
-        fpList = []
-        if len(selectItems) > 0:
-            for item in selectItems:
-                if item.checkState() == 2:#Case when it is checked
-                    fpList.append(str(item.text()))
+        try:
+            self.fpListWidget.selectAll()
+            selectItems = self.fpListWidget.selectedItems()
+            fpList = []
+            if len(selectItems) > 0:
+                for item in selectItems:
+                    if item.checkState() == 2:#Case when it is checked
+                        fpList.append(str(item.text()))
 
-            mzXVals = []
-            mzStd = []
-            mzYVals = []
-            numVals = []
-            freqCutoff = self.freqCutoff_SB.value()
-            for fpName in fpList:
-#                print fpName
-                curFPDict = self.fpDict[fpName]
-                curStats = curFPDict['peakStats']
-                fpFreq = curStats['freq']
-                validInd = N.where(fpFreq>=freqCutoff)[0]
-                fpFreq = fpFreq[validInd]
-                fpPeakLoc = curStats['aveLoc'][validInd]
-                fpPeakInt = curStats['aveInt'][validInd]
-                fpStdLoc = curStats['stdLoc'][validInd]
-                fpNum = curStats['numTot'][validInd]
-                mzXVals.append(fpPeakLoc)
-                mzYVals.append(SF.normalize(fpPeakInt))
-                mzStd.append(fpStdLoc)
-                numVals.append(fpNum)
+                mzXVals = []
+                mzStd = []
+                mzYVals = []
+                numVals = []
+                freqCutoff = self.freqCutoff_SB.value()
+                if len(fpList) < 3:
+                    errMsg = "You are attempting to compare too few categories!\nTry selecting more fingerprints or plot these data\n in a different manner."
+                    return QtGui.QMessageBox.warning(self, "PCA Not Advised", errMsg)
+                for fpName in fpList:
+                    curFPDict = self.fpDict[fpName]
+                    curStats = curFPDict['peakStats']
+                    fpFreq = curStats['freq']
+                    validInd = N.where(fpFreq>=freqCutoff)[0]
+                    fpFreq = fpFreq[validInd]
+                    fpPeakLoc = curStats['aveLoc'][validInd]
+                    fpPeakInt = curStats['aveInt'][validInd]
+                    fpStdLoc = curStats['stdLoc'][validInd]
+                    fpNum = curStats['numTot'][validInd]
+                    if len(fpPeakLoc)>1:
+                        mzXVals.append(fpPeakLoc)
+                        mzYVals.append(SF.normalize(fpPeakInt))
+                        mzStd.append(fpStdLoc)
+                        numVals.append(fpNum)
 
-            self._testPlot_([mzXVals, mzYVals])
-            mzXVals = N.array(SF.flattenX(mzXVals))
-            mzYVals = N.array(SF.flattenX(mzYVals))
-            mzStd = N.array(SF.flattenX(mzStd))
-            numVals = N.array(SF.flattenX(numVals))
+                mzXVals = N.array(SF.flattenX(mzXVals))
+                mzYVals = N.array(SF.flattenX(mzYVals))
+                mzStd = N.array(SF.flattenX(mzStd))
+                numVals = N.array(SF.flattenX(numVals))
 
-            mzOrder = mzXVals.argsort()
-            mzXVals = mzXVals[mzOrder]
-            mzYVals = mzYVals[mzOrder]
-            mzStd = mzStd[mzOrder]
-            numVals = numVals[mzOrder]
+                mzOrder = mzXVals.argsort()
+                mzXVals = mzXVals[mzOrder]
+                mzYVals = mzYVals[mzOrder]
+                mzStd = mzStd[mzOrder]
+                numVals = numVals[mzOrder]
 
-            self.contstructPCAMtx(mzXVals, mzStd, mzYVals, numVals)
+    #            pcaXCrit, pcaStdCrit, pcaNum = self.makePCACrit(mzXVals, xStdTest, yTest, numTest)
+                pcaXCrit, pcaStdCrit, pcaNum = self.makePCACrit(mzXVals, mzStd, mzYVals, numVals)
+                self.makePCAMtx(pcaXCrit, pcaStdCrit, pcaNum, fpList)
+        except:
+            exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+            traceback.print_exception(exceptionType, exceptionValue, exceptionTraceback, file=sys.stdout)
+            errorMsg = "Sorry: %s\n\n:%s\n%s\n"%(exceptionType, exceptionValue, exceptionTraceback)
+            return QtGui.QMessageBox.warning(self, "FP PCA", errorMsg)
+            print errorMsg
 
-    def contstructPCAMtx(self, xVals, xStd, yVals, numVals, yStd = None):
-        print "Construct PCA Mtx"
+
+    def makePCAMtx(self, pcaXCrit, pcaStdCrit, pcaNum, fpNameList):
+        '''
+        make matrix for PCA
+
+                      x1   x2   x3   x4  --m/z Values
+        FP Names
+
+        item 1        0    1    0    0
+        item 2        1    0    1    1
+        item 3        0    1    0    0
+        item 4        0    0    0    1
+
+        1-present
+        0-absent
+
+        '''
+        mzTolPPM = 500/1000000#500ppm cutoff
+        freqCutoff = self.freqCutoff_SB.value()
+
+        numCrit = len(pcaXCrit)
+        numItems = len(fpNameList)
+        pcaStdCrit*=3#3 times the stdev
+
+        pcaMtx = N.zeros((numItems,numCrit))
+
+        for i,fpName in enumerate(fpNameList):
+            curFPDict = self.fpDict[fpName]
+            curStats = curFPDict['peakStats']
+            fpFreq = curStats['freq']
+            validInd = N.where(fpFreq>=freqCutoff)[0]
+            fpFreq = fpFreq[validInd]
+            fpPeakLoc = curStats['aveLoc'][validInd]
+            fpPeakInt = curStats['aveInt'][validInd]
+            fpStdLoc = curStats['stdLoc'][validInd]
+            fpNum = curStats['numTot'][validInd]
+
+            print "Comp Loc", fpPeakLoc
+            for j,xVal in enumerate(fpPeakLoc):
+                xStd = fpStdLoc[j]
+                xNum = fpNum[j]
+                for m,pcaXVal in enumerate(pcaXCrit):
+                    pcaXStd = pcaStdCrit[m]
+                    diff = N.abs(pcaXVal-xVal)
+                    tErr = N.sqrt((xStd**2/xNum)+(pcaXStd**2/pcaNum[m]))
+                    maxDiff = N.max(diff, mzTolPPM*xVal)
+                    tVal = N.abs(maxDiff/tErr)
+                    tCrit = stats.t.ppf(0.99, (xNum+pcaNum[m]-2))
+                    if tVal < tCrit:
+#                        print tVal, tCrit, xVal, pcaXVal
+                        pcaMtx[i][m] = 1
+
+        print pcaMtx
+        self.plotPCA(pcaMtx, fpNameList)
+
+
+    def plotPCA(self, dataMatrix, pcaLabels=None):
+        scores, loading, explanation = pca.PCA_nipals2(dataMatrix, standardize=False)
+
+        pc1 = scores[:, 0]
+        pc2 = scores[:, 1]
+#        pc3 = scores[:, 2]
+
+        testPlot = MPL_Widget()
+        testPlot.setWindowTitle('PCA Plot')
+
+        ax1 = testPlot.canvas.ax
+        plotTitle = 'PCA Comparison Plot'
+        ax1.set_title(plotTitle)
+        ax1.title.set_fontsize(10)
+        ax1.set_xlabel('PCA 1')
+        ax1.set_ylabel('PCA 2')
+
+        for i,val in enumerate(pc1):
+#            print val, pc2[i]
+            self._updatePlotColor_()
+            curMarker = self._getPlotMarker_()
+            ax1.plot([val], [pc2[i]], alpha = 0.5, color = self.plotColor, marker = curMarker, ms = 10)
+#        ax1.scatter(pc1, pc2, color = 'b', s = 25, alpha = 0.3)
+        for label, x, y in map(None, pcaLabels, pc1, pc2):
+            ax1.annotate(label, xy=(x, y),  size = 10)
+
+        testPlot.show()
+        self.eicPlots.append(testPlot)
+
+
+
+    def weightedStats(self, vals, stds, numVals):
+        '''
+        Calculates the weighted mean and standard deviation
+        of the passes arrays
+        Returns:
+        weighted value and weighted stdev
+        '''
+        stdErr = (1/stds**2).sum()
+        valNumerator = vals/stds**2
+        wX = valNumerator.sum()/stdErr
+        wStd = N.sqrt(1/stdErr)
+        wNum = numVals.sum()
+        return wX, wStd, wNum
+
+
+    def makePCACrit(self, xVals, xStd, yVals, numVals, yStd = None):
+        '''
+        Groups peaks together in order to make a standard list by which
+        all of the peaks for each fingerprint will be compared.
+        '''
         mzTolPPM = 500/1000000
         xStd *= 3
 
-        mzMTX = []
+        xVals = N.array(xVals)
+        xStd = N.array(xStd)
+        yVals = N.array(yVals)
+        numVals = N.array(numVals)
 
-        for i,x in enumerate(xVals[:-1]):#don't want to exceed the array limits
+        xDiff = N.diff(xVals)
+        groups = []
+        tVals = N.zeros_like(xDiff)
+        tCrits = N.zeros_like(xDiff)
+        gNum = 0
+        origNum = 0
+        for i,diffVal in enumerate(xDiff):
             tErr = N.sqrt((xStd[i]**2/numVals[i])+(xStd[i+1]**2/numVals[i+1]))
-            xDiff = N.max(xVals[i+1]-x, mzTolPPM*x)
-            tVal = N.abs(xDiff/tErr)
+            maxDiff = N.max(diffVal, mzTolPPM*xVals[i])
+            tVal = N.abs(maxDiff/tErr)
             tCrit = stats.t.ppf(0.99, (numVals[i]+numVals[i+1]-2))
             if tVal < tCrit:
-                pass
+#                if ppmDiff <= mzTolPPM:
+                groups.append(gNum)
             else:
-                mzMTX.append(x)
+                groups.append(gNum)
+                gNum+=1
+            tVals[i] =tVal
+            tCrits[i] = tCrit
 
-            print x, xStd[i], yVals[i], numVals[i], tVal, tCrit
-
-        #handle last value in array
-        if tVal < tCrit:
-            pass
-        else:
-            mzMTX.append(xVals[i+1])
+        groups.append(gNum)#handle last element of xVal array
 
 
-        print mzMTX
+#        print xVals
+#        print groups
+#        print tVals
+#        print tCrits
+        groups = N.array(groups)
+        pcaXCrit = N.zeros(groups.max()+1)
+        pcaStdCrit = N.zeros(groups.max()+1)
+        pcaNum = N.zeros(groups.max()+1)
+        for i in xrange(groups.max()+1):
+            gIndex = N.where(groups == i)[0]
+            gXVals = xVals[gIndex]
+            gXStds = xStd[gIndex]
+            gNumVals = numVals[gIndex]
+
+            wX, wStd, wNum = self.weightedStats(gXVals, gXStds, gNumVals)
+            pcaXCrit[i] = wX
+            pcaStdCrit[i] = wStd
+            pcaNum[i] = wNum
+
+        print "PCA X Crit",pcaXCrit
+#        print pcaStdCrit
+
+        return pcaXCrit, pcaStdCrit, pcaNum
+
 
     def _testPlot_(self, data2plot):
         '''
@@ -1155,8 +1303,8 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             self.plotColorIndex +=1
 
     def _getPlotMarker_(self):
-        marker = markers[self.markerIndex]
-        if self.markerIndex is len(markers)-1:
+        marker = MARKERS[self.markerIndex]
+        if self.markerIndex is len(MARKERS)-1:
             self.markerIndex = 0
         else:
             self.markerIndex+=1
