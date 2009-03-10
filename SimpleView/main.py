@@ -392,20 +392,26 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                         pcaMtx[i][m] = 1
 
         print pcaMtx
-        self.plotPCA(pcaMtx, fpNameList)
+        critLabels = []
+        for val in pcaXCrit:
+            critLabels.append('%.2f'%val)
+        self.plotPCA(pcaMtx, fpNameList, critLabels)
 
 
-    def plotPCA(self, dataMatrix, pcaLabels=None):
+    def plotPCA(self, dataMatrix, pcaLabels=None, critLabels = None):
         scores, loading, explanation = pca.PCA_nipals2(dataMatrix, standardize=False)
 
         pc1 = scores[:, 0]
         pc2 = scores[:, 1]
 #        pc3 = scores[:, 2]
+        pcaPlot = CT.DataTable(dataMatrix.transpose(), pcaLabels,critLabels)
+        pcaPlot.setWindowTitle('PCA Plot')
+        pcaPlot.tabWidget.setTabText(0,"PCA Matrix")
+        pcaPlot.tabWidget.setTabText(1,"PCA Plot")
+        pcaPlot.tabWidget.setCurrentIndex(1)
+        pcaPlot.plotWidget.canvas.ytitle="DataFile"
+        ax1 = pcaPlot.plotWidget.canvas.ax
 
-        testPlot = MPL_Widget()
-        testPlot.setWindowTitle('PCA Plot')
-
-        ax1 = testPlot.canvas.ax
         plotTitle = 'PCA Comparison Plot'
         ax1.set_title(plotTitle)
         ax1.title.set_fontsize(10)
@@ -420,9 +426,16 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 #        ax1.scatter(pc1, pc2, color = 'b', s = 25, alpha = 0.3)
         for label, x, y in map(None, pcaLabels, pc1, pc2):
             ax1.annotate(label, xy=(x, y),  size = 10)
+#        dTable.plotWidget.canvas.fig.subplots_adjust(left=0.2)
+#        dTable.plotWidget.canvas.ax.set_yticks(N.arange(len(dataLabels)))
+#        dTable.plotWidget.canvas.ax.set_yticklabels(dataLabels)#, minor = True)
+        pcaPlot.plotWidget.canvas.format_labels()
+        pcaPlot.plotWidget.canvas.draw()
+        pcaPlot.show()
+        self.fingerRevTabls.append(pcaPlot)
 
-        testPlot.show()
-        self.eicPlots.append(testPlot)
+#        testPlot.show()
+#        self.eicPlots.append(testPlot)
 
 
 
