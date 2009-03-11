@@ -5,6 +5,7 @@ PCA example using python.  Very simplified
 import pca_module as pca
 import numpy as N
 import pylab as P
+import cluster_bhc as H
 '''
 Adapted from:
 
@@ -47,7 +48,7 @@ pc2 = scores[:, 1]
 pc3 = scores[:, 2]
 
 fig=P.figure()#create pylab figure
-ax = fig.add_subplot(111)#create an ax
+ax = fig.add_subplot(211)#create an ax
 
 #add scatter plot and size based upon distance from sun
 ax.scatter(pc1, pc2, color = 'b', s = dataMatrix[:,1]**4, alpha = 0.3)
@@ -61,5 +62,15 @@ labels = ['Mercury','Venus', 'Earth', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Ne
 #add labels to each marker
 for label, x, y in map(None, labels, pc1, pc2):
     ax.annotate(label, xy=(x, y),  size = 12)
+
+ax2 = fig.add_subplot(212)
+
+print 'pdist'
+Y = H.pdist(dataMatrix)#, 'seuclidean')
+print 'linkage'
+Z = H.linkage(Y,'single')
+print 'dendro'
+H.dendrogram(Z, truncate_mode='level', show_contracted=True, customMPL = ax2)#, orientation='left')
+print 'dendro end'
 
 P.show()

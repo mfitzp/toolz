@@ -73,6 +73,7 @@ import cwtPeakPick as CWT
 import customTable as CT
 
 import pca_module as pca#courtesy of Henning Risvik http://folk.uio.no/henninri/pca_module/
+import cluster_bhc as H#courtesy of Damian Eads, and modified by YT to accept a custom MPL axis
 
 import ui_main
 import fingerPrint as FP
@@ -172,7 +173,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         QtCore.QObject.connect(self.readThread, QtCore.SIGNAL("itemLoaded(PyQt_PyObject)"), self.updateGUI)
         QtCore.QObject.connect(self.readThread, QtCore.SIGNAL("terminated()"), self.updateGUI)
         QtCore.QObject.connect(self.readThread, QtCore.SIGNAL("finished()"), self.updateGUI)
-        QtCore.QObject.connect(self.loadDirBtn, QtCore.SIGNAL("clicked()"), self.initDataList)
+#        QtCore.QObject.connect(self.loadDirBtn, QtCore.SIGNAL("clicked()"), self.initDataList)
         QtCore.QObject.connect(self.action_Open,QtCore.SIGNAL("triggered()"),self.initDataList)
 #        QtCore.QObject.connect(self.specListWidget, QtCore.SIGNAL("itemClicked (QListWidgetItem *)"), self.specListSelect)
 
@@ -206,7 +207,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
         #FingerPrint Related Connections:
         QtCore.QObject.connect(self.expand_Btn, QtCore.SIGNAL("clicked()"), self.expandFPSpectra)
-        QtCore.QObject.connect(self.testFocus_Btn, QtCore.SIGNAL("clicked()"), self.testFocus)
+#        QtCore.QObject.connect(self.testFocus_Btn, QtCore.SIGNAL("clicked()"), self.testFocus)
         QtCore.QObject.connect(self.fpListWidget, QtCore.SIGNAL("itemClicked (QListWidgetItem *)"), self.fpListSelect)
 
         QtCore.QObject.connect(self.loadFP_Btn, QtCore.SIGNAL("clicked()"), self.loadFPfromHDF5)
@@ -409,26 +410,24 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         pcaPlot.tabWidget.setTabText(0,"PCA Matrix")
         pcaPlot.tabWidget.setTabText(1,"PCA Plot")
         pcaPlot.tabWidget.setCurrentIndex(1)
-        pcaPlot.plotWidget.canvas.ytitle="DataFile"
+
         ax1 = pcaPlot.plotWidget.canvas.ax
 
         plotTitle = 'PCA Comparison Plot'
         ax1.set_title(plotTitle)
         ax1.title.set_fontsize(10)
-        ax1.set_xlabel('PCA 1')
-        ax1.set_ylabel('PCA 2')
+        pcaPlot.plotWidget.canvas.xtitle='PCA 1'
+        pcaPlot.plotWidget.canvas.ytitle='PCA 2'
 
         for i,val in enumerate(pc1):
-#            print val, pc2[i]
+
             self._updatePlotColor_()
             curMarker = self._getPlotMarker_()
             ax1.plot([val], [pc2[i]], alpha = 0.5, color = self.plotColor, marker = curMarker, ms = 10)
-#        ax1.scatter(pc1, pc2, color = 'b', s = 25, alpha = 0.3)
+
         for label, x, y in map(None, pcaLabels, pc1, pc2):
             ax1.annotate(label, xy=(x, y),  size = 10)
-#        dTable.plotWidget.canvas.fig.subplots_adjust(left=0.2)
-#        dTable.plotWidget.canvas.ax.set_yticks(N.arange(len(dataLabels)))
-#        dTable.plotWidget.canvas.ax.set_yticklabels(dataLabels)#, minor = True)
+
         pcaPlot.plotWidget.canvas.format_labels()
         pcaPlot.plotWidget.canvas.draw()
         pcaPlot.show()
@@ -551,12 +550,14 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         '''
         self.fpListWidget.selectAll()
         selectItems = self.fpListWidget.selectedItems()
+        usrFreqCutoff = self.freqCutoff_SB.value()
         fpList = []
         if len(selectItems) > 0:
             for item in selectItems:
                 if item.checkState() == 2:#Case when it is checked
                     fpList.append(str(item.text()))
         dataDict = {}
+        prob = None#will be used to store comparison probability
         selectCompItems = self.fpSpecTreeWidget.selectedItems()
         if len(selectCompItems) > 0:
 #            for item in selectCompItems:
@@ -564,13 +565,75 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             if item.childCount() == 0:
                 dataDict[str(item.toolTip(0))] = self.dataDict[str(item.toolTip(0))]
 
-            usrFreqCutoff = self.freqCutoff_SB.value()
             compDict = FP.createFPDict(dataDict)
+            prob = {}
             for fpName in fpList:
                 curFPDict = self.fpDict[fpName]
                 curProb = FP.fpCompare(curFPDict['peakStats'],compDict, alpha = self.alphaLvl_SB.value(), freqCutoff = usrFreqCutoff)
+                prob[fpName]= curProb
                 print "%s vs. %s : %s"%(str(item.toolTip(0)), fpName, curProb)
 
+        if len(fpList)>1:
+            simMtx = N.eye(len(fpList))
+            for i in xrange(len(fpList)):
+                fp1 = self.fpDict[fpList[i]]
+                for m in xrange(i,len(fpList)):
+                    fp2 = self.fpDict[fpList[m]]
+                    sim1 = FP.fpCompare(fp1['peakStats'],fp2['peakStats'], alpha = self.alphaLvl_SB.value(), freqCutoff = usrFreqCutoff)
+                    sim2 = FP.fpCompare(fp2['peakStats'],fp1['peakStats'], alpha = self.alphaLvl_SB.value(), freqCutoff = usrFreqCutoff)
+                    simVal = N.min(sim1, sim2)
+                    simMtx[i,m] = simVal
+                    simMtx[m,i] = simVal
+
+#            print simMtx
+            self.plotFPDendro(simMtx, fpList, prob)
+
+    def plotFPDendro(self, dataMatrix, dataLabels = None, probDict = None):
+        simPlot = CT.DataTable(dataMatrix.transpose(),dataLabels, dataLabels)
+        simPlot.plotWidget.canvas.fig.subplots_adjust(right=0.7, left = 0.1)
+        simPlot.setWindowTitle('Fingerprint Comparison')
+        simPlot.tableWidget.setSortingEnabled(False)
+        simPlot.tabWidget.setTabText(0,"DA Matrix")
+        simPlot.tabWidget.setTabText(1,"Dendrogram Plot")
+        simPlot.tabWidget.setCurrentIndex(1)
+
+        ax1 = simPlot.plotWidget.canvas.ax
+
+        plotTitle = 'FP Comparison Plot'
+        ax1.set_title(plotTitle)
+        ax1.title.set_fontsize(10)
+        simPlot.plotWidget.canvas.ytitle='Fingerprint File'
+        simPlot.plotWidget.canvas.xtitle='Degree of Association'
+
+
+#        Y = H.pdist(dataMatrix)#, 'seuclidean')
+        dataMatrix+=0.1
+        Z = H.linkage(dataMatrix,'single')
+
+        R = H.dendrogram(Z, truncate_mode='none', show_contracted=False, customMPL = ax1, orientation='right', labels = dataLabels)
+        lvlOrder = R['ivl']
+        print R
+        if probDict != None:
+            if len(probDict)>0:
+                for i,dLabel in enumerate(lvlOrder):
+                    val = probDict[dLabel]
+                    if val > 0.5:
+                        color = 'r'
+                    else:
+                        color = 'k'
+                    label = '%.3f'%val
+                    x = 5+10*i
+#                    print label
+                    ax1.annotate(label, xy = (-0.05,x), size = 8, color = color)
+
+#                for label, x, y in map(None, pcaLabels, pc1, pc2):
+#                    ax1.annotate(label, xy=(x, y),  size = 10)
+
+        ax1.set_xlim(xmin = 2, xmax = -0.3)#need to reverse based upon the flow of the dendrogram
+        simPlot.plotWidget.canvas.format_labels()
+        simPlot.plotWidget.canvas.draw()
+        simPlot.show()
+        self.fingerRevTabls.append(simPlot)
 
     def defaultRevert(self):
         '''
