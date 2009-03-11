@@ -12,7 +12,7 @@
   <property name="windowTitle" >
    <string>Fingerprint Plot</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_2" >
+  <layout class="QGridLayout" >
    <item row="0" column="0" >
     <widget class="QTabWidget" name="tabWidget" >
      <property name="currentIndex" >
@@ -22,7 +22,7 @@
       <attribute name="title" >
        <string>Fingerprint</string>
       </attribute>
-      <layout class="QGridLayout" name="gridLayout" >
+      <layout class="QGridLayout" >
        <item row="0" column="0" >
         <widget class="MPL_Widget" native="1" name="plotWidget" />
        </item>
@@ -164,6 +164,9 @@
            </item>
            <item>
             <widget class="QSpinBox" name="minSpectra_SB" >
+             <property name="enabled" >
+              <bool>false</bool>
+             </property>
              <property name="minimum" >
               <number>1</number>
              </property>
@@ -208,7 +211,7 @@
           </layout>
          </item>
          <item row="1" column="1" >
-          <layout class="QHBoxLayout" name="horizontalLayout_2" >
+          <layout class="QHBoxLayout" >
            <item>
             <widget class="QPushButton" name="commitFP_Btn" >
              <property name="toolTip" >
