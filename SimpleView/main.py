@@ -612,7 +612,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
         R = H.dendrogram(Z, truncate_mode='none', show_contracted=False, customMPL = ax1, orientation='right', labels = dataLabels)
         lvlOrder = R['ivl']
-        print R
+#        print R
         if probDict != None:
             if len(probDict)>0:
                 for i,dLabel in enumerate(lvlOrder):
