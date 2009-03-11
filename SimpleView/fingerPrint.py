@@ -510,9 +510,9 @@ def fpCompSig(cmpVec, probFp):
     probAll = N.prod(1-probFp)
     numOnes = cmpVec.sum()
     pctDrop = numOnes/len(cmpVec)
-    print pctDrop
+#    print pctDrop
     probs = 0
-    if pctDrop > 0.9:#is this a static value? original was 0.8
+    if pctDrop > 0.8:#is this a static value? original was 0.8
        probs = 0
     elif pctDrop == 0:
        probs = 1
@@ -603,7 +603,7 @@ def createFPDict(dataDict, mzTolppm=500):
     specNum = N.zeros(1)#this is a bookeeping array
     curSpecNum = 0
     numSpectra = len(dataDict)/1.0#used to turn into float
-    print "Number of Spectra: ", numSpectra
+#    print "Number of Spectra: ", numSpectra
     for curData in dataDict.itervalues():
         if curData.pkListOk:
             try:
