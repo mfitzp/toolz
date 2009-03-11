@@ -19,6 +19,9 @@
    <layout class="QGridLayout" >
     <item row="0" column="0" >
      <widget class="QTabWidget" name="tabWidget" >
+      <property name="enabled" >
+       <bool>true</bool>
+      </property>
       <property name="currentIndex" >
        <number>0</number>
       </property>
@@ -1385,6 +1388,9 @@ p, li { white-space: pre-wrap; }
                   </item>
                   <item>
                    <widget class="QSpinBox" name="minSpectra_SB_6" >
+                    <property name="enabled" >
+                     <bool>false</bool>
+                    </property>
                     <property name="minimum" >
                      <number>1</number>
                     </property>
@@ -1691,155 +1697,6 @@ p, li { white-space: pre-wrap; }
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="tab" >
-       <attribute name="title" >
-        <string>Misc</string>
-       </attribute>
-       <layout class="QGridLayout" >
-        <item row="2" column="0" >
-         <layout class="QHBoxLayout" >
-          <item>
-           <layout class="QHBoxLayout" >
-            <item>
-             <widget class="QLabel" name="label_29" >
-              <property name="text" >
-               <string>Freq Cutoff:</string>
-              </property>
-              <property name="alignment" >
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QDoubleSpinBox" name="freqCutoff_SB_2" >
-              <property name="decimals" >
-               <number>2</number>
-              </property>
-              <property name="minimum" >
-               <double>0.010000000000000</double>
-              </property>
-              <property name="maximum" >
-               <double>1.000000000000000</double>
-              </property>
-              <property name="singleStep" >
-               <double>0.050000000000000</double>
-              </property>
-              <property name="value" >
-               <double>0.500000000000000</double>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item>
-           <layout class="QHBoxLayout" >
-            <item>
-             <widget class="QLabel" name="label_30" >
-              <property name="text" >
-               <string>Significance Level:</string>
-              </property>
-              <property name="alignment" >
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QDoubleSpinBox" name="sigLvl_SB_2" >
-              <property name="decimals" >
-               <number>2</number>
-              </property>
-              <property name="minimum" >
-               <double>0.010000000000000</double>
-              </property>
-              <property name="maximum" >
-               <double>1.000000000000000</double>
-              </property>
-              <property name="singleStep" >
-               <double>0.050000000000000</double>
-              </property>
-              <property name="value" >
-               <double>0.050000000000000</double>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item>
-           <layout class="QHBoxLayout" >
-            <item>
-             <widget class="QLabel" name="label_31" >
-              <property name="text" >
-               <string>Min # of Spectra:</string>
-              </property>
-              <property name="alignment" >
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QSpinBox" name="minSpectra_SB_2" >
-              <property name="minimum" >
-               <number>1</number>
-              </property>
-              <property name="value" >
-               <number>3</number>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item>
-           <widget class="QLabel" name="test" >
-            <property name="text" >
-             <string>Static Cutoff:</string>
-            </property>
-            <property name="alignment" >
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QSpinBox" name="test2" >
-            <property name="toolTip" >
-             <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
-p, li { white-space: pre-wrap; }
-&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
-&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">This is the minimum value in absolute counts (i.e. not normalized) to be considered for peak picking.&lt;/p>&lt;/body>&lt;/html></string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item row="3" column="0" >
-         <layout class="QHBoxLayout" >
-          <item>
-           <widget class="QLabel" name="label_20" >
-            <property name="text" >
-             <string>TextLabel</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QComboBox" name="comboBox_2" />
-          </item>
-         </layout>
-        </item>
-        <item row="4" column="0" >
-         <layout class="QHBoxLayout" >
-          <item>
-           <widget class="QLabel" name="label_18" >
-            <property name="text" >
-             <string>Wavelet Tolerance:</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QSpinBox" name="spinBox" />
-          </item>
-         </layout>
-        </item>
-       </layout>
-      </widget>
      </widget>
     </item>
    </layout>
@@ -1880,8 +1737,6 @@ p, li { white-space: pre-wrap; }
      <string>&amp;Help</string>
     </property>
     <addaction name="actionRead_Me" />
-    <addaction name="actionPeak_Picking" />
-    <addaction name="actionHelpFingerPrint" />
    </widget>
    <addaction name="menu_File" />
    <addaction name="menuTools" />

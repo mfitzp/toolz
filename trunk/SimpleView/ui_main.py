@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Documents and Settings\d3p483\workspace\SimpleView\main.ui'
 #
-# Created: Tue Mar 10 16:19:22 2009
+# Created: Wed Mar 11 11:01:31 2009
 #      by: PyQt4 UI code generator 4.3.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -22,6 +22,7 @@ class Ui_MainWindow(object):
         self.gridlayout.setObjectName("gridlayout")
 
         self.tabWidget = QtGui.QTabWidget(self.centralwidget)
+        self.tabWidget.setEnabled(True)
         self.tabWidget.setObjectName("tabWidget")
 
         self.plotTab = QtGui.QWidget()
@@ -720,6 +721,7 @@ class Ui_MainWindow(object):
         self.hboxlayout20.addWidget(self.label_43)
 
         self.minSpectra_SB_6 = QtGui.QSpinBox(self.layoutWidget)
+        self.minSpectra_SB_6.setEnabled(False)
         self.minSpectra_SB_6.setMinimum(1)
         self.minSpectra_SB_6.setProperty("value",QtCore.QVariant(3))
         self.minSpectra_SB_6.setObjectName("minSpectra_SB_6")
@@ -876,101 +878,6 @@ class Ui_MainWindow(object):
         self.gridlayout8.addItem(spacerItem12,1,0,1,1)
         self.vboxlayout10.addLayout(self.gridlayout8)
         self.tabWidget.addTab(self.tab_3,"")
-
-        self.tab = QtGui.QWidget()
-        self.tab.setObjectName("tab")
-
-        self.gridlayout9 = QtGui.QGridLayout(self.tab)
-        self.gridlayout9.setObjectName("gridlayout9")
-
-        self.hboxlayout28 = QtGui.QHBoxLayout()
-        self.hboxlayout28.setObjectName("hboxlayout28")
-
-        self.hboxlayout29 = QtGui.QHBoxLayout()
-        self.hboxlayout29.setObjectName("hboxlayout29")
-
-        self.label_29 = QtGui.QLabel(self.tab)
-        self.label_29.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
-        self.label_29.setObjectName("label_29")
-        self.hboxlayout29.addWidget(self.label_29)
-
-        self.freqCutoff_SB_2 = QtGui.QDoubleSpinBox(self.tab)
-        self.freqCutoff_SB_2.setDecimals(2)
-        self.freqCutoff_SB_2.setMinimum(0.01)
-        self.freqCutoff_SB_2.setMaximum(1.0)
-        self.freqCutoff_SB_2.setSingleStep(0.05)
-        self.freqCutoff_SB_2.setProperty("value",QtCore.QVariant(0.5))
-        self.freqCutoff_SB_2.setObjectName("freqCutoff_SB_2")
-        self.hboxlayout29.addWidget(self.freqCutoff_SB_2)
-        self.hboxlayout28.addLayout(self.hboxlayout29)
-
-        self.hboxlayout30 = QtGui.QHBoxLayout()
-        self.hboxlayout30.setObjectName("hboxlayout30")
-
-        self.label_30 = QtGui.QLabel(self.tab)
-        self.label_30.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
-        self.label_30.setObjectName("label_30")
-        self.hboxlayout30.addWidget(self.label_30)
-
-        self.sigLvl_SB_2 = QtGui.QDoubleSpinBox(self.tab)
-        self.sigLvl_SB_2.setDecimals(2)
-        self.sigLvl_SB_2.setMinimum(0.01)
-        self.sigLvl_SB_2.setMaximum(1.0)
-        self.sigLvl_SB_2.setSingleStep(0.05)
-        self.sigLvl_SB_2.setProperty("value",QtCore.QVariant(0.05))
-        self.sigLvl_SB_2.setObjectName("sigLvl_SB_2")
-        self.hboxlayout30.addWidget(self.sigLvl_SB_2)
-        self.hboxlayout28.addLayout(self.hboxlayout30)
-
-        self.hboxlayout31 = QtGui.QHBoxLayout()
-        self.hboxlayout31.setObjectName("hboxlayout31")
-
-        self.label_31 = QtGui.QLabel(self.tab)
-        self.label_31.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
-        self.label_31.setObjectName("label_31")
-        self.hboxlayout31.addWidget(self.label_31)
-
-        self.minSpectra_SB_2 = QtGui.QSpinBox(self.tab)
-        self.minSpectra_SB_2.setMinimum(1)
-        self.minSpectra_SB_2.setProperty("value",QtCore.QVariant(3))
-        self.minSpectra_SB_2.setObjectName("minSpectra_SB_2")
-        self.hboxlayout31.addWidget(self.minSpectra_SB_2)
-        self.hboxlayout28.addLayout(self.hboxlayout31)
-
-        self.test = QtGui.QLabel(self.tab)
-        self.test.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
-        self.test.setObjectName("test")
-        self.hboxlayout28.addWidget(self.test)
-
-        self.test2 = QtGui.QSpinBox(self.tab)
-        self.test2.setObjectName("test2")
-        self.hboxlayout28.addWidget(self.test2)
-        self.gridlayout9.addLayout(self.hboxlayout28,2,0,1,1)
-
-        self.hboxlayout32 = QtGui.QHBoxLayout()
-        self.hboxlayout32.setObjectName("hboxlayout32")
-
-        self.label_20 = QtGui.QLabel(self.tab)
-        self.label_20.setObjectName("label_20")
-        self.hboxlayout32.addWidget(self.label_20)
-
-        self.comboBox_2 = QtGui.QComboBox(self.tab)
-        self.comboBox_2.setObjectName("comboBox_2")
-        self.hboxlayout32.addWidget(self.comboBox_2)
-        self.gridlayout9.addLayout(self.hboxlayout32,3,0,1,1)
-
-        self.hboxlayout33 = QtGui.QHBoxLayout()
-        self.hboxlayout33.setObjectName("hboxlayout33")
-
-        self.label_18 = QtGui.QLabel(self.tab)
-        self.label_18.setObjectName("label_18")
-        self.hboxlayout33.addWidget(self.label_18)
-
-        self.spinBox = QtGui.QSpinBox(self.tab)
-        self.spinBox.setObjectName("spinBox")
-        self.hboxlayout33.addWidget(self.spinBox)
-        self.gridlayout9.addLayout(self.hboxlayout33,4,0,1,1)
-        self.tabWidget.addTab(self.tab,"")
         self.gridlayout.addWidget(self.tabWidget,0,0,1,1)
         MainWindow.setCentralWidget(self.centralwidget)
 
@@ -1037,8 +944,6 @@ class Ui_MainWindow(object):
         self.menuTools.addSeparator()
         self.menuTools.addAction(self.actionCopy_to_Clipboard)
         self.menu_Help.addAction(self.actionRead_Me)
-        self.menu_Help.addAction(self.actionPeak_Picking)
-        self.menu_Help.addAction(self.actionHelpFingerPrint)
         self.menubar.addAction(self.menu_File.menuAction())
         self.menubar.addAction(self.menuTools.menuAction())
         self.menubar.addAction(self.menu_Help.menuAction())
@@ -1235,17 +1140,6 @@ class Ui_MainWindow(object):
         self.savePref_Btn.setText(QtGui.QApplication.translate("MainWindow", "Save Preferences", None, QtGui.QApplication.UnicodeUTF8))
         self.revert_Btn.setText(QtGui.QApplication.translate("MainWindow", "Revert to Defaults", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), QtGui.QApplication.translate("MainWindow", "Preferences", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_29.setText(QtGui.QApplication.translate("MainWindow", "Freq Cutoff:", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_30.setText(QtGui.QApplication.translate("MainWindow", "Significance Level:", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_31.setText(QtGui.QApplication.translate("MainWindow", "Min # of Spectra:", None, QtGui.QApplication.UnicodeUTF8))
-        self.test.setText(QtGui.QApplication.translate("MainWindow", "Static Cutoff:", None, QtGui.QApplication.UnicodeUTF8))
-        self.test2.setToolTip(QtGui.QApplication.translate("MainWindow", "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
-        "p, li { white-space: pre-wrap; }\n"
-        "</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:8.25pt; font-weight:400; font-style:normal;\">\n"
-        "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">This is the minimum value in absolute counts (i.e. not normalized) to be considered for peak picking.</p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_20.setText(QtGui.QApplication.translate("MainWindow", "TextLabel", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_18.setText(QtGui.QApplication.translate("MainWindow", "Wavelet Tolerance:", None, QtGui.QApplication.UnicodeUTF8))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), QtGui.QApplication.translate("MainWindow", "Misc", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_File.setTitle(QtGui.QApplication.translate("MainWindow", "&File", None, QtGui.QApplication.UnicodeUTF8))
         self.menuTools.setTitle(QtGui.QApplication.translate("MainWindow", "Tools", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_Help.setTitle(QtGui.QApplication.translate("MainWindow", "&Help", None, QtGui.QApplication.UnicodeUTF8))
