@@ -93,11 +93,28 @@ class Finger_Widget(QtGui.QWidget, ui_fingerPrint.Ui_fingerPlotWidget):
                 return QtGui.QMessageBox.warning(self, "Fingerprint Name Error", "Please give a name to the current FP" )
             else:
                 self.fpDict = {}
-                self.fpDict[fpName] = {'dataDict':self.dataDict, 'peakStats':self.peakStatDict}
+                self.fpDict[fpName] = {'dataDict':self.dataDict, 'peakStats':self.peakStatDict, 'fileName':fpName, 'peakLists':self.peakListDict}
+#                fpDict[self.curGroupName] = {'dataDict':dataDict, 'peakStats':peakStatDict, 'fileName':fileName, 'peakLists':peakListDict}
                 self.parent.commitFP(self.fpDict)
 #                self.emit(QtCore.SIGNAL("commitFP(dict)"),self.fpDict)
         else:
             return QtGui.QMessageBox.warning(self, "CRAP!", "No Parent Window Exists:\nBIG ERROR: Contact Clowers" )
+
+    def setPeakListDict(self):
+#        print "Setup Peak LIst Dict"
+        for item in self.dataDict.iteritems():
+            key = item[0]
+            curData = item[1]
+            paramDict = {}
+            pkList = None
+            if curData.pkListOk:
+                pkList = curData.peakList
+
+            paramDict = {}
+            if curData.peakParams != None:
+                paramDict = curData.peakParams
+
+            self.peakListDict[key] = {'peakList':pkList, 'params':paramDict}
 
 
     def updateDataDict(self, dataDict):
@@ -109,7 +126,10 @@ class Finger_Widget(QtGui.QWidget, ui_fingerPrint.Ui_fingerPlotWidget):
         self.plotColor = None
         self.plotColorIndex = 0
         self.compositePeakList = []
+        self.peakStatDict = None
         self.resetPeakStatDict()
+        self.peakListDict = None
+        self.setPeakListDict()
         self.xLoc = None
         self.yLoc = None
         self.mzTol = self.mzTol_SB.value()

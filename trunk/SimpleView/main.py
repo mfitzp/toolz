@@ -587,6 +587,10 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
 #            print simMtx
             self.plotFPDendro(simMtx, fpList, prob)
+        else:
+            if len(fpList) == 1:
+                infoMsg = "The degree of association between%s and %s is:\n\n%s"%(fpList[0],str(item.toolTip(0)),curProb)
+                return QtGui.QMessageBox.information(self, "Degree of Association", infoMsg)
 
     def plotFPDendro(self, dataMatrix, dataLabels = None, probDict = None):
         simPlot = CT.DataTable(dataMatrix.transpose(),dataLabels, dataLabels)
