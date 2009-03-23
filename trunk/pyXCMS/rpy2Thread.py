@@ -1,4 +1,4 @@
-import os,sys
+import os,sys, traceback
 import rpy2
 import rpy2.robjects as ro
 import rpy2.rinterface as ri
@@ -21,6 +21,9 @@ class XCMSThread(QtCore.QThread):
     def __init__(self, parent = None):
         QtCore.QThread.__init__(self, parent)
 
+        self.parent = None
+        if parent != None:
+            self.parent = parent
         self.finished = False
         self.stopped = False
         self.mutex = QtCore.QMutex()
@@ -130,6 +133,14 @@ class XCMSThread(QtCore.QThread):
             self.emitUpdate(item)
         self.emitUpdate('_\n')
 
+    def setRString(self, xStr = None):
+        self.buf = []
+        if xStr != None:
+            # function that append its argument to the list 'buf'
+            self.buf.append(xStr)
+            #print buf
+
+
     def emitUpdate(self, updateStr):
 #        print "OK"
         self.emit(QtCore.SIGNAL("xcmsOutUpdate(PyQt_PyObject)"),updateStr)
@@ -163,6 +174,8 @@ class XCMSThread(QtCore.QThread):
 
                 self.emitUpdate('\n\nXSET')
                 self.emitUpdate(str(xset)+'\n')
+                #ri.setWriteConsole(self.setRString)
+
                 time.sleep(0.5)
 #                if self.retcorParams['plottype'] != None:
 ##                    print self.retcorParams['plottype']self.retcorParams['plottype']
@@ -176,7 +189,7 @@ class XCMSThread(QtCore.QThread):
                                  extra=self.retcorParams['extra'],
                                  span=self.retcorParams['span'])
 
-
+#                r.goJoe
                 if self.retcorParams['plottype'] == 'mdevden':
                     r.savePlot(file=self.imageName, type = 'png')
                     r('dev.off()')
@@ -205,6 +218,7 @@ class XCMSThread(QtCore.QThread):
                 ri.globalEnv["tsidx"] = tsidx
                 eicmax = r.length(tsidx)
                 eic = r.getEIC(xset3, rtrange = self.rtWidth, groupidx = tsidx, rt = self.corType)
+#                print self.buf
                 eicClass = EIC(eic)
                 self.emit(QtCore.SIGNAL("xcmsGetEIC(PyQt_PyObject)"),eicClass)
                 #if this is False then the peak table without the filled peaks will be returned and written to csv
@@ -219,6 +233,14 @@ class XCMSThread(QtCore.QThread):
 #                ri.endr()
             except:
                 sys.stdout=sys.__stdout__
+                exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+                traceback.print_exception(exceptionType, exceptionValue, exceptionTraceback, file=sys.stdout)
+    #                    print 'Error saving figure data'
+                errorMsg = "Sorry: %s\n\n:%s\n%s\n"%(exceptionType, exceptionValue, exceptionTraceback)
+                if self.parent != None:
+                    return QtGui.QMessageBox.warning(self.parent, "R Source Error", errorMsg)
+                print errorMsg
+
         else:
             print "Parameters not set or there is an error"
 
