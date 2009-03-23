@@ -96,7 +96,7 @@ class pyXCMSWindow(QtGui.QMainWindow, ui_main.Ui_MainWindow):
         self.highlighter = PH(self.batchScriptTE.document())
 
 
-        self.rThread = XCMSThread()
+        self.rThread = XCMSThread(self)
 
 #        self.rProcess = QtCore.QProcess()
 
