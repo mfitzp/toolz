@@ -155,21 +155,50 @@ def getCWTPeaks(scaledCWT, X, Y, noiseEst, minSNR = 3,\
                         i+=-1
 #                if i >= rowThresh:
                 if tempDiffY.mean() <= rowThresh:
+
                     maxInd = temp[:,1].argmin()
                     xVal = temp[maxInd][0]
 
                     #this screening assumes there is a low value to the first
                     #scale value e.g. 1 or 2
-                    tempVals = Y[(xVal-pntPad):xVal]
+                    if (xVal-pntPad) > 0:
+                        xStart = xVal-pntPad
+                    else:
+                        xStart = 0
+
+                    if (xVal+pntPad) < len(Y):
+                        xStop = xVal+pntPad
+                    else:
+                        xStop = len(Y)
+
+
+                    tempVals = Y[xStart:xStop]#BHC added 3/25/09
                     if len(tempVals)>0:
                         localMaxInd = tempVals.argmax()
     #                    print localMaxInd
                         yMaxInd = xVal-pntPad+localMaxInd
     #                    if Y[xVal] >= noiseEst[xVal]:
-                        if Y[yMaxInd] >= noiseEst[yMaxInd]*minSNR:# and Y[yMaxInd] >= staticCut:
-    #                    if Y[xVal]>=scaledCWT[0][xVal]*minSNR/2 and Y[xVal] >= noiseEst[xVal]*minSNR/2:
-                            peakLoc.append(X[yMaxInd])
-                            peakInt.append(Y[yMaxInd])
+                        if int(yMaxInd-pntPad/2) >= 0:#case where peak is close to the beginning of the spectrum
+                            noiseStart = int(yMaxInd-pntPad/2)
+                        else:
+                            noiseStart = 0
+
+                        if int(yMaxInd+pntPad/2) < len(Y):#case where peak is close to the end of the spectrum
+                            noiseEnd = int(yMaxInd+pntPad/2)
+                        else:
+                            noiseEnd = len(Y)
+#                        noiseStart = noiseEnd
+                        if noiseStart < noiseEnd:
+
+                            if Y[yMaxInd] >= noiseEst[noiseStart:noiseEnd].mean()*minSNR:# and Y[yMaxInd] >= staticCut:
+        #                    if Y[xVal]>=scaledCWT[0][xVal]*minSNR/2 and Y[xVal] >= noiseEst[xVal]*minSNR/2:
+                                peakLoc.append(X[yMaxInd])
+                                peakInt.append(Y[yMaxInd])
+                        else:
+                            if Y[yMaxInd] >= noiseEst[yMaxInd]*minSNR:# and Y[yMaxInd] >= staticCut:
+        #                    if Y[xVal]>=scaledCWT[0][xVal]*minSNR/2 and Y[xVal] >= noiseEst[xVal]*minSNR/2:
+                                peakLoc.append(X[yMaxInd])
+                                peakInt.append(Y[yMaxInd])
 
 #                            print "Appended, %s\n"%x[yMaxInd]
 #                        else:
@@ -186,8 +215,9 @@ def getCWTPeaks(scaledCWT, X, Y, noiseEst, minSNR = 3,\
     return peakLoc, peakInt, cwtPeakLoc, cClass, True
 
 
-def consolidatePeaks(peakLoc, peakInt, diffCutoff = 2.20):
+def consolidatePeaks(peakLoc, peakInt, diffCutoff = 2.50):
     '''
+    Designed to find the monoisotopic peak
     This is a hack, not a good solution but it works for now
     '''
     xDiff = N.diff(peakLoc)
