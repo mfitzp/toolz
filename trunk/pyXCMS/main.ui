@@ -13,7 +13,8 @@
    <string>pyXCMS</string>
   </property>
   <property name="windowIcon" >
-   <iconset>games.png</iconset>
+   <iconset>
+    <normaloff>games.png</normaloff>games.png</iconset>
   </property>
   <property name="iconSize" >
    <size>
@@ -54,7 +55,7 @@
                 <property name="orientation" >
                  <enum>Qt::Horizontal</enum>
                 </property>
-                <property name="sizeHint" >
+                <property name="sizeHint" stdset="0" >
                  <size>
                   <width>40</width>
                   <height>20</height>
@@ -132,6 +133,13 @@ p, li { white-space: pre-wrap; }
              </layout>
             </item>
             <item>
+             <widget class="QCheckBox" name="useRetcor_CB" >
+              <property name="text" >
+               <string>Use Retention Time Alignment?</string>
+              </property>
+             </widget>
+            </item>
+            <item>
              <layout class="QVBoxLayout" >
               <item>
                <widget class="QLabel" name="label_2" >
@@ -177,7 +185,7 @@ p, li { white-space: pre-wrap; }
               <property name="orientation" >
                <enum>Qt::Horizontal</enum>
               </property>
-              <property name="sizeHint" >
+              <property name="sizeHint" stdset="0" >
                <size>
                 <width>40</width>
                 <height>20</height>
@@ -197,7 +205,8 @@ p, li { white-space: pre-wrap; }
                <string>...</string>
               </property>
               <property name="icon" >
-               <iconset>applications.png</iconset>
+               <iconset>
+                <normaloff>applications.png</normaloff>applications.png</iconset>
               </property>
               <property name="iconSize" >
                <size>
@@ -493,7 +502,7 @@ p, li { white-space: pre-wrap; }
               <property name="orientation" >
                <enum>Qt::Vertical</enum>
               </property>
-              <property name="sizeHint" >
+              <property name="sizeHint" stdset="0" >
                <size>
                 <width>20</width>
                 <height>40</height>
@@ -529,7 +538,7 @@ p, li { white-space: pre-wrap; }
             <property name="orientation" >
              <enum>Qt::Horizontal</enum>
             </property>
-            <property name="sizeHint" >
+            <property name="sizeHint" stdset="0" >
              <size>
               <width>40</width>
               <height>20</height>
@@ -553,7 +562,7 @@ p, li { white-space: pre-wrap; }
             <property name="orientation" >
              <enum>Qt::Horizontal</enum>
             </property>
-            <property name="sizeHint" >
+            <property name="sizeHint" stdset="0" >
              <size>
               <width>40</width>
               <height>20</height>
@@ -598,6 +607,9 @@ p, li { white-space: pre-wrap; }
               </item>
               <item row="1" column="0" >
                <widget class="QCheckBox" name="useMaxMZ_CB" >
+                <property name="enabled" >
+                 <bool>false</bool>
+                </property>
                 <property name="text" >
                  <string>Limit Peaks below a certain m/z?</string>
                 </property>
@@ -609,6 +621,9 @@ p, li { white-space: pre-wrap; }
              <layout class="QHBoxLayout" >
               <item>
                <widget class="QLabel" name="label_8" >
+                <property name="enabled" >
+                 <bool>false</bool>
+                </property>
                 <property name="text" >
                  <string>Maximum m/z Value for XCMS Processing</string>
                 </property>
@@ -616,6 +631,9 @@ p, li { white-space: pre-wrap; }
               </item>
               <item>
                <widget class="QDoubleSpinBox" name="mzMZCutoff_SB" >
+                <property name="enabled" >
+                 <bool>false</bool>
+                </property>
                 <property name="decimals" >
                  <number>3</number>
                 </property>
@@ -639,7 +657,7 @@ p, li { white-space: pre-wrap; }
             <property name="orientation" >
              <enum>Qt::Horizontal</enum>
             </property>
-            <property name="sizeHint" >
+            <property name="sizeHint" stdset="0" >
              <size>
               <width>40</width>
               <height>20</height>
@@ -652,7 +670,7 @@ p, li { white-space: pre-wrap; }
             <property name="orientation" >
              <enum>Qt::Vertical</enum>
             </property>
-            <property name="sizeHint" >
+            <property name="sizeHint" stdset="0" >
              <size>
               <width>20</width>
               <height>40</height>
@@ -674,7 +692,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>987</width>
-     <height>21</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File" >

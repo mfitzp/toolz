@@ -33,6 +33,8 @@ class XCMSThread(QtCore.QThread):
         self.Rlibs = self.initRlibs(self.Rliblist)
         self.rtWidth = 200
         self.corType = 'corrected'
+        self.useRetCor = False#perform retention time alignment
+        self.maxMZ = None#use to truncate the range of peaks extracted
         self.fillPeaksOK = False
         self.curDir = os.getcwd()
         retcorImageName = 'image.png'
@@ -118,7 +120,8 @@ class XCMSThread(QtCore.QThread):
             for key in threadDict.iterkeys():
                 threadDict[key] = parentDict[key]
 
-    def updateThread(self, fileList, paramDict, rtWidth, fillPeaksBool, corType = 'corrected'):
+    def updateThread(self, fileList, paramDict, rtWidth, fillPeaksBool, corType = 'corrected',\
+                     useRetcor = False, maxMZ = None):
         self.fileList = fileList
         self.updateParamDict(paramDict)
         self.rtWidth = rtWidth
@@ -126,6 +129,8 @@ class XCMSThread(QtCore.QThread):
         self.ready = True
         self.corType = corType
         self.fillPeaksOK = fillPeaksBool
+        self.useRetCor = useRetcor
+        self.maxMZ = maxMZ
         return True
 
     def add2ROutput(self, rVector):
@@ -167,10 +172,16 @@ class XCMSThread(QtCore.QThread):
                                  mzdiff=self.matchedFilterParams['mzdiff'],
                                  snthresh=self.matchedFilterParams['snthresh'])
                 ri.globalEnv["xset"] = xset
+#                if self.maxMZ != None:
+#                    print type(self.maxMZ)
+#                    r('xset@peaks <- xset@peaks[xset@peaks[,"mz"] < %.2f, ]'%self.maxMZ)
+#                    self.emitUpdate('max m/z truncated at %.2f\n'%self.maxMZ)
+
                 xset = r.group(xset, bw=self.groupParams['bw'],
                                mzwid=self.groupParams['mzwid'],
                                minfrac=self.groupParams['minfrac'],
                                max=self.groupParams['max'])
+
 
                 self.emitUpdate('\n\nXSET')
                 self.emitUpdate(str(xset)+'\n')
@@ -182,20 +193,26 @@ class XCMSThread(QtCore.QThread):
 #                    r.png(file=self.imageName)
 #                    r('dev.off')
 
-                xset2 = r.retcor(xset,
-                                 family=self.retcorParams['f'],
-                                 plottype=self.retcorParams['plottype'],
-                                 missing=self.retcorParams['missing'],
-                                 extra=self.retcorParams['extra'],
-                                 span=self.retcorParams['span'])
 
-#                r.goJoe
-                if self.retcorParams['plottype'] == 'mdevden':
-                    r.savePlot(file=self.imageName, type = 'png')
-                    r('dev.off()')
-                elif self.retcorParams['plottype'] == 'deviation':
-                    r.savePlot(file=self.imageName, type = 'png')
-                    r('dev.off()')
+                if self.useRetCor:
+
+                    xset2 = r.retcor(xset,
+                                     family=self.retcorParams['f'],
+                                     plottype=self.retcorParams['plottype'],
+                                     missing=self.retcorParams['missing'],
+                                     extra=self.retcorParams['extra'],
+                                     span=self.retcorParams['span'])
+
+                    if self.retcorParams['plottype'] == 'mdevden':
+                        r.savePlot(file=self.imageName, type = 'png')
+                        r('dev.off()')
+                    elif self.retcorParams['plottype'] == 'deviation':
+                        r.savePlot(file=self.imageName, type = 'png')
+                        r('dev.off()')
+                else:
+                    xset2 = xset
+                    retCorStr = "Retention Time Alignment Not Used in Processing!\n"
+                    self.emitUpdate(retCorStr)
 
                 ri.globalEnv["xset2"] = xset2
                 self.emitUpdate('\n\nXSET2')
@@ -210,10 +227,10 @@ class XCMSThread(QtCore.QThread):
                 self.emitUpdate(str(xset3)+'\n')
                 time.sleep(0.5)
                 ri.globalEnv["xset3"] = xset3
-                gt = r.group(xset3, bw=self.groupParams['bw'],
-                               mzwid=self.groupParams['mzwid'],
-                               minfrac=self.groupParams['minfrac'],
-                               max=self.groupParams['max'])
+#                gt = r.group(xset3, bw=self.groupParams['bw'],
+#                               mzwid=self.groupParams['mzwid'],
+#                               minfrac=self.groupParams['minfrac'],
+#                               max=self.groupParams['max'])
                 tsidx = r.groupnames(xset3)
                 ri.globalEnv["tsidx"] = tsidx
                 eicmax = r.length(tsidx)
@@ -221,6 +238,7 @@ class XCMSThread(QtCore.QThread):
 #                print self.buf
                 eicClass = EIC(eic)
                 self.emit(QtCore.SIGNAL("xcmsGetEIC(PyQt_PyObject)"),eicClass)
+#                self.emit(QtCore.SIGNAL("xcmsSet(PyQt_PyObject)"),xset2)
                 #if this is False then the peak table without the filled peaks will be returned and written to csv
                 if self.fillPeaksOK:
                     self.emit(QtCore.SIGNAL("xcmsSet(PyQt_PyObject)"),xset3)
@@ -232,14 +250,16 @@ class XCMSThread(QtCore.QThread):
                 sys.stdout=sys.__stdout__
 #                ri.endr()
             except:
+                self.stop()
                 sys.stdout=sys.__stdout__
                 exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
                 traceback.print_exception(exceptionType, exceptionValue, exceptionTraceback, file=sys.stdout)
     #                    print 'Error saving figure data'
                 errorMsg = "Sorry: %s\n\n:%s\n%s\n"%(exceptionType, exceptionValue, exceptionTraceback)
-                if self.parent != None:
-                    return QtGui.QMessageBox.warning(self.parent, "R Source Error", errorMsg)
+#                if self.parent != None:
+#                    return QtGui.QMessageBox.warning(self.parent, "R Source Error", errorMsg)
                 print errorMsg
+                self.emitUpdate(errorMsg)
 
         else:
             print "Parameters not set or there is an error"
