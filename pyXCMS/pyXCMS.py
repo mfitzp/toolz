@@ -260,7 +260,6 @@ class pyXCMSWindow(QtGui.QMainWindow, ui_main.Ui_MainWindow):
         self.dirList.pop(curRow)
         print len(self.dirList)
 
-
     def _setContext_(self):
         self.plotWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.plotWidget.connect(self.plotWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self._plotContext_)
@@ -282,7 +281,6 @@ class pyXCMSWindow(QtGui.QMainWindow, ui_main.Ui_MainWindow):
         ct_menu.addSeparator()
         ct_menu.addAction(self.removeEICAction)
         ct_menu.exec_(self.plotWidget.mapToGlobal(point))
-
 
     def setupR(self):
         peakTableName = 'tempPeakTable.csv'
@@ -352,7 +350,6 @@ class pyXCMSWindow(QtGui.QMainWindow, ui_main.Ui_MainWindow):
             return QtGui.QMessageBox.warning(self, "No xset. No EIC.", Msg )
 
 
-
     def SaveCSVDialog(self):
         fileName = QtGui.QFileDialog.getSaveFileName(self, "Select File to Save", self.curDir,"csv (*.csv)")
         if not fileName.isEmpty():
@@ -360,7 +357,6 @@ class pyXCMSWindow(QtGui.QMainWindow, ui_main.Ui_MainWindow):
             return fileName
         else:
             return None
-
 
     def SFDialog(self):
         fileName = QtGui.QFileDialog.getSaveFileName(self, "Select File to Save", self.curDir,"HDF5 Files (*.h5)")
@@ -456,7 +452,6 @@ class pyXCMSWindow(QtGui.QMainWindow, ui_main.Ui_MainWindow):
         self.plotWidget.canvas.draw()
         self.plotWidget.setFocus()
 
-
     def updateROutput(self, StrOutput):
         if  len(StrOutput)>5:
             self.RoutputTE.append(StrOutput)
@@ -473,15 +468,18 @@ class pyXCMSWindow(QtGui.QMainWindow, ui_main.Ui_MainWindow):
     def startXCMSRun(self):
         self.dirListWidget.selectAll()
         fileList = self.dirListWidget.selectedItems()
+        maxMZ = None
+        if self.useRetcor_CB.isChecked():
+            maxMZ = self.mzMZCutoff_SB.value()
         if len(fileList)>0:
             self.fileList = []
             for entry in fileList:
                 self.fileList.append(str(entry.toolTip()))#we use the tooltip as it contains the full path
             if self.rtTypeCB.isChecked():
-                if self.rThread.updateThread(self.fileList, self.xcmsParamDict, self.rtWidthSB.value(), self.fillPeaks_CB.isChecked()):
+                if self.rThread.updateThread(self.fileList, self.xcmsParamDict, self.rtWidthSB.value(), self.fillPeaks_CB.isChecked(), useRetcor = self.useRetcor_CB.isChecked(), maxMZ = maxMZ):
                     self.rThread.start()
             else:
-                if self.rThread.updateThread(self.fileList, self.xcmsParamDict, self.rtWidthSB.value(), self.fillPeaks_CB.isChecked(), corType = 'raw'):
+                if self.rThread.updateThread(self.fileList, self.xcmsParamDict, self.rtWidthSB.value(), self.fillPeaks_CB.isChecked(), corType = 'raw', useRetcor = self.useRetcor_CB.isChecked(), maxMZ = maxMZ):
                     self.rThread.start()
 #            print fileList
         print 'Start XCMS'
@@ -494,11 +492,14 @@ class pyXCMSWindow(QtGui.QMainWindow, ui_main.Ui_MainWindow):
         r('cdffiles = cdffiles[1:3]')
         cdffiles = ri.globalEnv.get("cdffiles")
         cdfList = list(cdffiles)
+        maxMZ = None
+        if self.useRetcor_CB.isChecked():
+            maxMZ = self.mzMZCutoff_SB.value()
 
         if len(cdffiles) == 0:
             rMsg = 'Open R and enter the following:\nsource("http://bioconductor.org/biocLite.R")\nbiocLite("faahKO")'
             return QtGui.QMessageBox.warning(self, "Error with Test Data", rMsg )
-        if self.rThread.updateThread(cdfList, self.xcmsParamDict, self.rtWidthSB.value(), self.fillPeaks_CB.isChecked()):
+        if self.rThread.updateThread(cdfList, self.xcmsParamDict, self.rtWidthSB.value(), self.fillPeaks_CB.isChecked(), useRetcor = self.useRetcor_CB.isChecked(), maxMZ = maxMZ):
             self.rThread.start()
 
     def showParamHelp(self, emitString):
