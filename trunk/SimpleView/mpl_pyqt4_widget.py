@@ -13,7 +13,6 @@ from matplotlib.figure import Figure
 
 from matplotlib.widgets import SpanSelector
 #from matplotlib.pyplot import savefig
-
 import numpy as N
 
 

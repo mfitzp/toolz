@@ -58,6 +58,7 @@ import tables as T
 
 from matplotlib.lines import Line2D
 from matplotlib.mlab import rec2csv
+import matplotlib.pyplot as P
 
 from FolderParse import Load_FID_Folder as LFid
 from FolderParse import Load_mzXML_Folder as LmzXML
@@ -65,6 +66,7 @@ from flexReader import brukerFlexDoc as FR
 from mzXML_reader import mzXMLDoc as mzXMLR
 
 from mpl_pyqt4_widget import MPL_Widget
+from mpl_image_widget import MPL_Widget as MPL_CWT
 from dataClass import DataClass
 
 import supportFunc as SF
@@ -199,6 +201,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
         QtCore.QObject.connect(self.FPT, QtCore.SIGNAL("progress(int)"), self.threadProgress)
         QtCore.QObject.connect(self.FPT, QtCore.SIGNAL("finished(bool)"), self.PFTFinished)
+        QtCore.QObject.connect(self.FPT, QtCore.SIGNAL("returnCWT(PyQt_PyObject)"), self.plotCWTPeaks)
         QtCore.QObject.connect(self.readThread, QtCore.SIGNAL("finished(bool)"), self.readFinished)
 
 #        QtCore.QObject.connect(self.groupTreeWidget, QtCore.SIGNAL("itemClicked(QTreeWidgetItem *,int)"), self.treeItemSelected)
@@ -639,6 +642,43 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         simPlot.show()
         self.fingerRevTabls.append(simPlot)
 
+    def plotCWTPeaks(self, dataList):#massSpecX, massSpecY, cwtMTX, peakLoc, peakInt, cwtPeakLoc, peakClass):
+        cwtMTX, cwtResult = dataList
+        peakLoc, peakInt, rawPeakInd, cwtPeakLoc, peakClass, boolAns = cwtResult
+        if boolAns:
+            if self.curDataName != None:
+                curData = self.dataDict[self.curDataName]
+#                massSpecX = curData.x
+                massSpecY = curData.y
+            else:
+                return False
+
+            cwtPlot = MPL_CWT()
+            cwtPlot.setWindowTitle('CWT Plot')
+            cwtPlot.canvas.setupSub(2)
+            ax1 = cwtPlot.canvas.axDict['ax1']
+            ax2 = cwtPlot.canvas.axDict['ax2']
+
+            ax1.plot(SF.normalize(massSpecY), 'g', alpha = 0.7, label = 'ms')
+            intMax = cwtMTX.max(axis=0).max()*0.05
+            im=ax2.imshow(cwtMTX,vmax = intMax, cmap=P.cm.jet,aspect='auto')
+            ax2.plot(cwtPeakLoc[:,0], cwtPeakLoc[:,1], 'oy', ms = 3, alpha = 0.4)
+            if peakClass != None:
+                i = peakClass.max()
+                for m in xrange(int(i)+1):
+                    ind = N.where(m == peakClass)
+                    temp = cwtPeakLoc[ind]
+                    ax2.plot(temp[:,0],temp[:,1],'-s', alpha = 0.7, ms = 3)
+                if len(peakLoc) != 0:
+                    ax1.vlines(rawPeakInd, 0, 100, 'r', linestyle = 'dashed', alpha = 0.5)
+
+            cwtPlot.show()
+            self.appendMPLPlot(cwtPlot)
+
+
+    def appendMPLPlot(self, mplWidgetInstance):
+        self.eicPlots.append(mplWidgetInstance)
+
     def defaultRevert(self):
         '''
         Load default preferences
@@ -853,7 +893,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 #            print metaData
 
 
-    def plotMetaPeaks(self,dTableInstance, peakData, dataLabels):
+    def plotMetaPeaks(self, dTableInstance, peakData, dataLabels):
         curAx = dTableInstance.plotWidget.canvas.ax
         for i,peakList in enumerate(peakData):
             x = peakList[1][:,0]
@@ -2101,12 +2141,22 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                                   'autoSave':self.autoSavePks
                                   }
 #                for # need to get dataItemList self.dataDict[curDataName]
-                print self.peakParams
-                if self.FPT.updateThread(dataItemList, self.peakParams):
-                    self.toggleProgressBar(True)
-                    self.progressMax = N.float(len(dataItemList))
-                    print self.progressMax
-                    self.FPT.start()
+#                print self.peakParams
+                if len(dataItemList) == 1:
+                    if self.FPT.updateThread(dataItemList, self.peakParams, plotCWT = self.showCWT_CB.isChecked(), parent = self):
+                        self.toggleProgressBar(True)
+                        self.progressMax = N.float(len(dataItemList))
+                        print self.progressMax
+                        self.FPT.start()
+                else:
+                    self.showCWT_CB.isChecked()
+                    if self.FPT.updateThread(dataItemList, self.peakParams):
+                        self.toggleProgressBar(True)
+                        self.progressMax = N.float(len(dataItemList))
+                        print self.progressMax
+                        self.FPT.start()
+
+
 
 
     def findPeaks(self):
@@ -2149,11 +2199,11 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
     def closeEvent(self,  event = None):
         if len(self.eicPlots) > 0:
             for plot in self.eicPlots:
-                if isinstance(plot, MPL_Widget):
-                    try:
-                        plot.close()
-                    except:
-                        pass
+#                if isinstance(plot, MPL_Widget):
+                try:
+                    plot.close()
+                except:
+                    pass
         if len(self.fingerPlots)>0:
             for plot in self.fingerPlots:
                 if isinstance(plot, FP.Finger_Widget):
@@ -2486,6 +2536,7 @@ class FindPeaksThread(QtCore.QThread):
         def __init__(self, parent = None):
             QtCore.QThread.__init__(self, parent)
 
+            self.parent = None
             self.finished = False
             self.ready = False
             self.cwt = None
@@ -2507,7 +2558,7 @@ class FindPeaksThread(QtCore.QThread):
                               'autoSave':None
                               }
 
-        def updateThread(self, dataItemList, paramDict):
+        def updateThread(self, dataItemList, paramDict, plotCWT = False, parent = None):
             self.iteration = 0
             self.dataItemList = dataItemList
 #            self.dataItemDict = dataItemDict
@@ -2522,6 +2573,8 @@ class FindPeaksThread(QtCore.QThread):
             self.EPS = self.paramDict['dbscanEPS']
             self.staticThresh = self.paramDict['staticThresh']
             self.autoSave = self.paramDict['autoSave']
+            self.parent = parent
+            self.plotCWT = plotCWT
             self.ready = True
             return True
 
@@ -2553,7 +2606,7 @@ class FindPeaksThread(QtCore.QThread):
 #                                        pntPad = 50, staticThresh = 0.2, minNoiseEst = 0.025,
 #                                        EPS = None):
 
-                        peakLoc, peakInt, cwtPeakLoc, cClass, boolAns = cwtResult
+                        peakLoc, peakInt, rawPeakInd, cwtPeakLoc, cClass, boolAns = cwtResult
 
                         if boolAns:
                             if cClass != None:
@@ -2570,15 +2623,17 @@ class FindPeaksThread(QtCore.QThread):
                                     self.ready = False
                             else:
                                 print "Error with Peak Picking"
-                                self.emit(QtCore.SIGNAL("returnPeakList(PyQt_PyObject)"),None)
+#                                self.emit(QtCore.SIGNAL("returnPeakList(PyQt_PyObject)"),None)
                     ##############
                     #need to emit a signal that the process is finished here
                     #which tells the program which item to replot
                     ##############
-
+                    if self.parent != None and self.plotCWT:
+                        self.emit(QtCore.SIGNAL("returnCWT(PyQt_PyObject)"),[self.cwt, cwtResult])
+#                        self.parent.plotCWTPeaks(dataItem.x, dataItem.y, self.cwt, peakLoc, peakInt, cwtPeakLoc, cClass)
                     else:
                         print "Error with CWT"
-                        self.emit(QtCore.SIGNAL("returnPeakList(PyQt_PyObject)"),None)
+#                        self.emit(QtCore.SIGNAL("returnPeakList(PyQt_PyObject)"),None)
                 #emit finished signal
                 print "Peak Find Time: ", time.clock()-t0
                 self.emit(QtCore.SIGNAL("finished(bool)"),True)

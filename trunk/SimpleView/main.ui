@@ -1047,6 +1047,13 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item>
+           <widget class="QCheckBox" name="showCWT_CB" >
+            <property name="text" >
+             <string>Show CWT with Peak Picking?</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <spacer>
             <property name="orientation" >
              <enum>Qt::Vertical</enum>
@@ -1810,15 +1817,15 @@ p, li { white-space: pre-wrap; }
  </widget>
  <customwidgets>
   <customwidget>
+   <class>CustomTable</class>
+   <extends>QTableWidget</extends>
+   <header>customTable</header>
+  </customwidget>
+  <customwidget>
    <class>MPL_Widget</class>
    <extends>QWidget</extends>
    <header>mpl_pyqt4_widget</header>
    <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>CustomTable</class>
-   <extends>QTableWidget</extends>
-   <header>customTable</header>
   </customwidget>
  </customwidgets>
  <resources>
