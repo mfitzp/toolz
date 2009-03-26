@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Documents and Settings\d3p483\workspace\SimpleView\main.ui'
 #
-# Created: Wed Mar 11 11:01:31 2009
+# Created: Thu Mar 26 12:11:42 2009
 #      by: PyQt4 UI code generator 4.3.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -557,6 +557,10 @@ class Ui_MainWindow(object):
         self.plotNoiseEst_CB.setObjectName("plotNoiseEst_CB")
         self.vboxlayout2.addWidget(self.plotNoiseEst_CB)
 
+        self.showCWT_CB = QtGui.QCheckBox(self.optionsTab)
+        self.showCWT_CB.setObjectName("showCWT_CB")
+        self.vboxlayout2.addWidget(self.showCWT_CB)
+
         spacerItem2 = QtGui.QSpacerItem(20,40,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
         self.vboxlayout2.addItem(spacerItem2)
         self.gridlayout5.addLayout(self.vboxlayout2,5,0,1,2)
@@ -1076,6 +1080,7 @@ class Ui_MainWindow(object):
         "</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:8.25pt; font-weight:400; font-style:normal;\">\n"
         "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Include noise estimate when plotting?</p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
         self.plotNoiseEst_CB.setText(QtGui.QApplication.translate("MainWindow", "Show Noise Estimate", None, QtGui.QApplication.UnicodeUTF8))
+        self.showCWT_CB.setText(QtGui.QApplication.translate("MainWindow", "Show CWT with Peak Picking?", None, QtGui.QApplication.UnicodeUTF8))
         self.useDefaultScale_CB.setText(QtGui.QApplication.translate("MainWindow", "Used Default Scales for CWT", None, QtGui.QApplication.UnicodeUTF8))
         self.scaleStartLbl.setToolTip(QtGui.QApplication.translate("MainWindow", "Factor by which the spectrum will be split in order to estimate local noise", None, QtGui.QApplication.UnicodeUTF8))
         self.scaleStartLbl.setText(QtGui.QApplication.translate("MainWindow", "Scale Start:", None, QtGui.QApplication.UnicodeUTF8))

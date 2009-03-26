@@ -18,6 +18,9 @@ import getBaseline as GB
 from dbscan import dbscan
 
 import supportFunc as SF
+
+from mpl_image_widget import MPL_Widget as MPL_CWT
+
 #try:
 #    import psyco
 #    psyco.full()
@@ -63,10 +66,34 @@ def cwtMS(Y, scales, sampleScale = 1.0, wlet = 'Mexican Hat', maxClip = 1000., s
         return None
 
 
+def plotCWTPeaks(parent, massSpecX, massSpecY, cwtMTX, peakLoc, peakInt, cwtPeakLoc, peakClass):
+    w = MPL_CWT()
+    w.canvas.setupSub(2)
+    ax1 = w.canvas.axDict['ax1']
+    ax2 = w.canvas.axDict['ax2']
+
+    ax1.plot(massSpecX, SF.normalize(massSpecY), 'g',alpha = 0.7, label = 'ms')
+#    peakLoc, peakInt, cwtPeakLoc, cClass = 0
+    intMax = cwtMTX.max(axis=0).max()*0.05
+    im=ax2.imshow(cwtMTX,vmax = intMax, cmap=P.cm.jet,aspect='auto')
+    ax2.plot(cwtPeakLoc[:,0], cwtPeakLoc[:,1], 'oy', ms = 3, alpha = 0.4)
+    if peakClass != None:
+        i = peakClass.max()
+        for m in xrange(int(i)+1):
+            ind = N.where(m == peakClass)
+            temp = cwtPeakLoc[ind]
+            ax2.plot(temp[:,0],temp[:,1],'-s', alpha = 0.7, ms = 3)
+        if len(peakLoc) != 0:
+            ax1.vlines(peakLoc, 0, 100, 'r', linestyle = 'dashed', alpha = 0.5)
+
+    parent.appendMPLPlot(w)
+#    w.show()
+
+
 def getCWTPeaks(scaledCWT, X, Y, noiseEst, minSNR = 3,\
                 minRow = 3, minClust = 4, rowThresh = 3,\
                 pntPad = 50, staticThresh = 0.1, minNoiseEst = 0.025,
-                EPS = None, debug = False):
+                EPS = None, debug = False, plotCWT = False, parent = None):
     '''
     returns: N.array(peakLoc), cwtPeakLoc, cClass, boolean
 
@@ -115,6 +142,7 @@ def getCWTPeaks(scaledCWT, X, Y, noiseEst, minSNR = 3,\
 
     peakLoc = []
     peakInt = []
+    rawPeakInd = []
 
     t3 = time.clock()
     try:
@@ -177,6 +205,7 @@ def getCWTPeaks(scaledCWT, X, Y, noiseEst, minSNR = 3,\
                         localMaxInd = tempVals.argmax()
     #                    print localMaxInd
                         yMaxInd = xVal-pntPad+localMaxInd
+                        rawPeakInd.append(yMaxInd)
     #                    if Y[xVal] >= noiseEst[xVal]:
                         if int(yMaxInd-pntPad/2) >= 0:#case where peak is close to the beginning of the spectrum
                             noiseStart = int(yMaxInd-pntPad/2)
@@ -200,6 +229,7 @@ def getCWTPeaks(scaledCWT, X, Y, noiseEst, minSNR = 3,\
                                 peakLoc.append(X[yMaxInd])
                                 peakInt.append(Y[yMaxInd])
 
+
 #                            print "Appended, %s\n"%x[yMaxInd]
 #                        else:
 #                            print "too low @ %s\n"%x[xVal]
@@ -208,17 +238,22 @@ def getCWTPeaks(scaledCWT, X, Y, noiseEst, minSNR = 3,\
 #                    print x[xVal]
     peakLoc = N.array(peakLoc)
     peakInt = N.array(peakInt)
+    rawPeakInd = N.array(rawPeakInd)
     peakOrder = peakLoc.argsort()
     peakLoc = peakLoc[peakOrder]
     peakInt = peakInt[peakOrder]
+    rawPeakInd = rawPeakInd[peakOrder]
     peakLoc, peakInt = consolidatePeaks(peakLoc, peakInt)
-    return peakLoc, peakInt, cwtPeakLoc, cClass, True
+
+    return peakLoc, peakInt, rawPeakInd, cwtPeakLoc, cClass, True
 
 
 def consolidatePeaks(peakLoc, peakInt, diffCutoff = 2.50):
     '''
     Designed to find the monoisotopic peak
     This is a hack, not a good solution but it works for now
+
+    Need to find a way to grab the peak based upon intensity too
     '''
     xDiff = N.diff(peakLoc)
     extraPeakInd = N.where(xDiff<diffCutoff)[0]
@@ -226,7 +261,10 @@ def consolidatePeaks(peakLoc, peakInt, diffCutoff = 2.50):
     validPeakInd = peakLoc.argsort().tolist()
     j=0
     for extra in extraPeakInd:
+#        if peakInt[extra] < peakInt[extra-j]:
         validPeakInd.pop(extra-j)
+#        else:
+#            validPeakInd.pop(j)
         j+=1#need this because each time you pop the length gets shorter
 
     validPeaks = peakLoc[validPeakInd]
@@ -331,7 +369,7 @@ if __name__ == "__main__":
         stdNoise = cwt[0].std()
         mNoise = 3*stdNoise+mNoise
     print "minNoiseEst: ", minNoise
-    peakLoc, peakInt, cwtPeakLoc, cClass, boolAns = getCWTPeaks(cwt, x, ms, noiseEst, minRow = 1, minClust = 4, minNoiseEst = minNoise, EPS = None, debug = True)
+    peakLoc, peakInt, rawPeakInd, cwtPeakLoc, cClass, boolAns = getCWTPeaks(cwt, x, ms, noiseEst, minRow = 1, minClust = 4, minNoiseEst = minNoise, EPS = None, debug = True)
     if boolAns:
         ax2.plot(cwtPeakLoc[:,0], cwtPeakLoc[:,1], 'oy', ms = 3, alpha = 0.4)
         if cClass != None:
