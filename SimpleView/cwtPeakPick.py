@@ -93,7 +93,7 @@ def plotCWTPeaks(parent, massSpecX, massSpecY, cwtMTX, peakLoc, peakInt, cwtPeak
 def getCWTPeaks(scaledCWT, X, Y, noiseEst, minSNR = 3,\
                 minRow = 3, minClust = 4, rowThresh = 3,\
                 pntPad = 50, staticThresh = 0.1, minNoiseEst = 0.025,
-                EPS = None, debug = False, plotCWT = False, parent = None):
+                EPS = None, debug = False):
     '''
     returns: N.array(peakLoc), cwtPeakLoc, cClass, boolean
 
@@ -182,73 +182,73 @@ def getCWTPeaks(scaledCWT, X, Y, noiseEst, minSNR = 3,\
                     else:
                         i+=-1
 #                if i >= rowThresh:
-                if tempDiffY.mean() <= rowThresh:
+#                if tempDiffY.mean() <= rowThresh:
 
-                    maxInd = temp[:,1].argmin()
-                    xVal = temp[maxInd][0]
+#                    tempInd = temp[:,1].argsort()
+#                    if len(tempInd) > 1:
+#                        maxInd = tempInd[1]
+#                    else:
+                maxInd = temp[:,1].argmin()#temp[:,1].argmin()
+                xVal = temp[maxInd][0]
 
-                    #this screening assumes there is a low value to the first
-                    #scale value e.g. 1 or 2
-                    if (xVal-pntPad) > 0:
-                        xStart = xVal-pntPad
+                #this screening assumes there is a low value to the first
+                #scale value e.g. 1 or 2
+                if (xVal-pntPad) > 0:
+                    xStart = xVal-pntPad
+                else:
+                    xStart = 0
+
+                if (xVal+pntPad) < len(Y):
+                    xStop = xVal+pntPad
+                else:
+                    xStop = len(Y)
+
+
+                tempVals = Y[xStart:xStop]#BHC added 3/25/09
+                if len(tempVals)>0:
+                    localMaxInd = tempVals.argmax()
+
+#                    print localMaxInd
+                    yMaxInd = xVal-pntPad+localMaxInd
+                    print X[yMaxInd], Y[yMaxInd], noiseEst[yMaxInd]
+                    rawPeakInd.append(yMaxInd)
+#                    if Y[xVal] >= noiseEst[xVal]:
+                    if int(yMaxInd-pntPad/2) >= 0:#case where peak is close to the beginning of the spectrum
+                        noiseStart = int(yMaxInd-pntPad/2)
                     else:
-                        xStart = 0
+                        noiseStart = 0
 
-                    if (xVal+pntPad) < len(Y):
-                        xStop = xVal+pntPad
+                    if int(yMaxInd+pntPad/2) < len(Y):#case where peak is close to the end of the spectrum
+                        noiseEnd = int(yMaxInd+pntPad/2)
                     else:
-                        xStop = len(Y)
-
-
-                    tempVals = Y[xStart:xStop]#BHC added 3/25/09
-                    if len(tempVals)>0:
-                        localMaxInd = tempVals.argmax()
-    #                    print localMaxInd
-                        yMaxInd = xVal-pntPad+localMaxInd
-                        rawPeakInd.append(yMaxInd)
-    #                    if Y[xVal] >= noiseEst[xVal]:
-                        if int(yMaxInd-pntPad/2) >= 0:#case where peak is close to the beginning of the spectrum
-                            noiseStart = int(yMaxInd-pntPad/2)
-                        else:
-                            noiseStart = 0
-
-                        if int(yMaxInd+pntPad/2) < len(Y):#case where peak is close to the end of the spectrum
-                            noiseEnd = int(yMaxInd+pntPad/2)
-                        else:
-                            noiseEnd = len(Y)
+                        noiseEnd = len(Y)
 #                        noiseStart = noiseEnd
-                        if noiseStart < noiseEnd:
+                    if noiseStart < noiseEnd:
 
-                            if Y[yMaxInd] >= noiseEst[noiseStart:noiseEnd].mean()*minSNR:# and Y[yMaxInd] >= staticCut:
-        #                    if Y[xVal]>=scaledCWT[0][xVal]*minSNR/2 and Y[xVal] >= noiseEst[xVal]*minSNR/2:
-                                peakLoc.append(X[yMaxInd])
-                                peakInt.append(Y[yMaxInd])
-                        else:
-                            if Y[yMaxInd] >= noiseEst[yMaxInd]*minSNR:# and Y[yMaxInd] >= staticCut:
-        #                    if Y[xVal]>=scaledCWT[0][xVal]*minSNR/2 and Y[xVal] >= noiseEst[xVal]*minSNR/2:
-                                peakLoc.append(X[yMaxInd])
-                                peakInt.append(Y[yMaxInd])
+                        if Y[yMaxInd] >= noiseEst[noiseStart:noiseEnd].mean()*minSNR:# and Y[yMaxInd] >= staticCut:
+    #                    if Y[xVal]>=scaledCWT[0][xVal]*minSNR/2 and Y[xVal] >= noiseEst[xVal]*minSNR/2:
+                            peakLoc.append(X[yMaxInd])
+                            peakInt.append(Y[yMaxInd])
 
+                    else:
+                        if Y[yMaxInd] >= noiseEst[yMaxInd]*minSNR:# and Y[yMaxInd] >= staticCut:
+    #                    if Y[xVal]>=scaledCWT[0][xVal]*minSNR/2 and Y[xVal] >= noiseEst[xVal]*minSNR/2:
+                            peakLoc.append(X[yMaxInd])
+                            peakInt.append(Y[yMaxInd])
 
-#                            print "Appended, %s\n"%x[yMaxInd]
-#                        else:
-#                            print "too low @ %s\n"%x[xVal]
-#                else:
-#                    print "\n"
-#                    print x[xVal]
     peakLoc = N.array(peakLoc)
     peakInt = N.array(peakInt)
     rawPeakInd = N.array(rawPeakInd)
     peakOrder = peakLoc.argsort()
     peakLoc = peakLoc[peakOrder]
     peakInt = peakInt[peakOrder]
-    rawPeakInd = rawPeakInd[peakOrder]
-    peakLoc, peakInt = consolidatePeaks(peakLoc, peakInt)
+#    rawPeakInd = rawPeakInd[peakOrder]
+    peakLoc, peakInt, rawPeakInd = consolidatePeaks(peakLoc, peakInt, rawPeakInd)
 
     return peakLoc, peakInt, rawPeakInd, cwtPeakLoc, cClass, True
 
 
-def consolidatePeaks(peakLoc, peakInt, diffCutoff = 2.50):
+def consolidatePeaks(peakLoc, peakInt, rawPeakInd, diffCutoff = 2.50):
     '''
     Designed to find the monoisotopic peak
     This is a hack, not a good solution but it works for now
@@ -269,7 +269,8 @@ def consolidatePeaks(peakLoc, peakInt, diffCutoff = 2.50):
 
     validPeaks = peakLoc[validPeakInd]
     validInt = peakInt[validPeakInd]
-    return validPeaks, validInt
+    validRawPeaks = rawPeakInd[validPeakInd]
+    return validPeaks, validInt, validRawPeaks
 
 if __name__ == "__main__":
 
@@ -290,11 +291,11 @@ if __name__ == "__main__":
         'BSA_XY_Full.csv'
         'J15.csv'
         'Tryptone.csv'
-        ms = P.load('Tryptone.csv', delimiter = ',')
+        ms = P.load('LIFT2.csv', delimiter = ',')
 
-#        x = ms[:,0]
-#        ms = ms[:,0]
-        x, ms = interpolate_spectrum(ms)
+        x = ms[:,0]
+        ms = ms[:,1]
+#        x, ms = interpolate_spectrum(ms)
         msMax = ms.max()
         print len(ms)
         print "MS Max", msMax
