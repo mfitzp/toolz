@@ -670,6 +670,8 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                     temp = cwtPeakLoc[ind]
                     ax2.plot(temp[:,0],temp[:,1],'-s', alpha = 0.7, ms = 3)
                 if len(peakLoc) != 0:
+#                    print peakLoc
+#                    print rawPeakInd
                     ax1.vlines(rawPeakInd, 0, 100, 'r', linestyle = 'dashed', alpha = 0.5)
 
             cwtPlot.show()
@@ -1672,6 +1674,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                         for curDataName in self.multiPlotList:
                             self._updatePlotColor_()
                             curData = self.dataDict[curDataName]
+                            print curData.peakList
                             self.plotCurData(curData, curAx)
     #                        curData.plot(curAx, pColor = self.plotColor)
                         #the following makes it so the change is ignored and the plot does not update
@@ -2611,7 +2614,10 @@ class FindPeaksThread(QtCore.QThread):
                         if boolAns:
                             if cClass != None:
                                 if len(peakLoc) != 0:
-                                    print peakLoc
+#                                    print "Peak Locations", peakLoc
+#                                    print "Peak Intensity", peakInt
+#                                    print "Raw Peak Index", rawPeakInd
+#                                    print "Peaks from DataItem.x", dataItem.x[rawPeakInd]
                                     dataItem.setPeakList(N.column_stack((peakLoc,peakInt)))
                                     dataItem.setPeakParams(self.paramDict)
                                     dataItem.pkListOk = boolAns
@@ -2628,11 +2634,11 @@ class FindPeaksThread(QtCore.QThread):
                     #need to emit a signal that the process is finished here
                     #which tells the program which item to replot
                     ##############
-                    if self.parent != None and self.plotCWT:
-                        self.emit(QtCore.SIGNAL("returnCWT(PyQt_PyObject)"),[self.cwt, cwtResult])
+                            if self.parent != None and self.plotCWT:
+                                self.emit(QtCore.SIGNAL("returnCWT(PyQt_PyObject)"),[self.cwt, cwtResult])
 #                        self.parent.plotCWTPeaks(dataItem.x, dataItem.y, self.cwt, peakLoc, peakInt, cwtPeakLoc, cClass)
-                    else:
-                        print "Error with CWT"
+#                    else:
+#                        print "Error with CWT"
 #                        self.emit(QtCore.SIGNAL("returnPeakList(PyQt_PyObject)"),None)
                 #emit finished signal
                 print "Peak Find Time: ", time.clock()-t0
