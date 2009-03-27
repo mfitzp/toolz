@@ -261,7 +261,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                        }
         selIndex = settingsKey[selectedStr]
 
-        defaultParams = {'minSNR':[1,3,10],
+        defaultParams = {'minSNR':[1.5,3,10],
                          'minRow':[1,1,2],
                          'minClust':[3,4,4],
                          'rowThresh':[4,3,3],
@@ -1674,7 +1674,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                         for curDataName in self.multiPlotList:
                             self._updatePlotColor_()
                             curData = self.dataDict[curDataName]
-                            print curData.peakList
+#                            print curData.peakList
                             self.plotCurData(curData, curAx)
     #                        curData.plot(curAx, pColor = self.plotColor)
                         #the following makes it so the change is ignored and the plot does not update

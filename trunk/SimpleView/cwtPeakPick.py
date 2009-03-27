@@ -210,7 +210,7 @@ def getCWTPeaks(scaledCWT, X, Y, noiseEst, minSNR = 3,\
 
 #                    print localMaxInd
                     yMaxInd = xVal-pntPad+localMaxInd
-                    print X[yMaxInd], Y[yMaxInd], noiseEst[yMaxInd]
+#                    print X[yMaxInd], Y[yMaxInd], noiseEst[yMaxInd]
                     rawPeakInd.append(yMaxInd)
 #                    if Y[xVal] >= noiseEst[xVal]:
                     if int(yMaxInd-pntPad/2) >= 0:#case where peak is close to the beginning of the spectrum
@@ -253,24 +253,67 @@ def consolidatePeaks(peakLoc, peakInt, rawPeakInd, diffCutoff = 2.50):
     Designed to find the monoisotopic peak
     This is a hack, not a good solution but it works for now
 
-    Need to find a way to grab the peak based upon intensity too
     '''
-    xDiff = N.diff(peakLoc)
-    extraPeakInd = N.where(xDiff<diffCutoff)[0]
-    extraPeakInd+=1
-    validPeakInd = peakLoc.argsort().tolist()
-    j=0
-    for extra in extraPeakInd:
-#        if peakInt[extra] < peakInt[extra-j]:
-        validPeakInd.pop(extra-j)
-#        else:
-#            validPeakInd.pop(j)
-        j+=1#need this because each time you pop the length gets shorter
+    #need to make the input vector 2D
+    #remember for cClass, -1 is an outlier (i.e. a stand alone peak), and other numbers are the groups
+    cClass, tType, Eps, boolAns = dbscan(N.column_stack((N.zeros_like(peakLoc),peakLoc)), 1, Eps = diffCutoff)
+#    print peakLoc
+#    print cClass
+    print "Consolidate Bool", boolAns
+    newPeakLoc = []
+    newIntLoc = []
+    newPointLoc = []
+    if boolAns:
+        singlePnts = N.where(cClass == -1)[0]
+        for pnt in singlePnts:
+            newPeakLoc.append(peakLoc[pnt])
+            newIntLoc.append(peakInt[pnt])
+            newPointLoc.append(rawPeakInd[pnt])
 
-    validPeaks = peakLoc[validPeakInd]
-    validInt = peakInt[validPeakInd]
-    validRawPeaks = rawPeakInd[validPeakInd]
-    return validPeaks, validInt, validRawPeaks
+        if cClass.max() > 0:#otherwise there is just one outlier
+            for i in xrange(1,int(cClass.max())+1):
+                tempInd = N.where(i == cClass)[0]
+                if len(tempInd)>0:
+#                    print tempInd
+                    maxLoc = peakInt[tempInd].argmax()
+    #                intSort = peakInt[tempInd].argsort()
+
+    #                maxLoc = intSort[0]
+
+    #                print peakLoc[maxLoc+tempInd[0]], peakInt[maxLoc+tempInd[0]], rawPeakInd[maxLoc+tempInd[0]]
+                    newPeakLoc.append(peakLoc[maxLoc+tempInd[0]])
+                    newIntLoc.append(peakInt[maxLoc+tempInd[0]])
+                    newPointLoc.append(rawPeakInd[maxLoc+tempInd[0]])
+
+#            print newPeakLoc
+#            print newIntLoc
+#            print newPointLoc
+        return newPeakLoc, newIntLoc, newPointLoc
+#        else:
+#            print "Error with Consolidation--using raw peaks"
+#            return peakLoc, peakInt, rawPeakInd
+    else:
+        print "Error with Consolidation--using raw peaks"
+        return peakLoc, peakInt, rawPeakInd
+
+
+
+#    xDiff = N.diff(peakLoc)
+#    extraPeakInd = N.where(xDiff<diffCutoff)[0]
+#    extraPeakInd+=1
+#    validPeakInd = peakLoc.argsort().tolist()
+#    j=0
+#    for extra in extraPeakInd:
+##        if peakInt[extra] < peakInt[extra-j]:
+#        validPeakInd.pop(extra-j)
+##        else:
+##            validPeakInd.pop(j)
+#        j+=1#need this because each time you pop the length gets shorter
+#
+#    validPeaks = peakLoc[validPeakInd]
+#    validInt = peakInt[validPeakInd]
+#    validRawPeaks = rawPeakInd[validPeakInd]
+#    return validPeaks, validInt, validRawPeaks
 
 if __name__ == "__main__":
 
