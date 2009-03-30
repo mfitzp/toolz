@@ -116,7 +116,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         self.linkagePlot = None
         self.mzPlots = []
         ###############################
-        self.chromStyles = ['BPC','TIC']#,'SIC']
+        self.chromStyles = ['BPC','TIC','SIC']
         ###############################
 
         self.showImPickers = True
@@ -247,7 +247,8 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         QtCore.QObject.connect(self.dbAutoCalcCB,QtCore.SIGNAL("stateChanged(int)"),self.toggleAutoDBDist)
 
         QtCore.QObject.connect(self.indexSpinBox, QtCore.SIGNAL("valueChanged (int)"), self.spinIndexChanged)
-#        self.updatePlot(
+        QtCore.QObject.connect(self.sicGO_Btn, QtCore.SIGNAL("clicked()"), self.initSIC)
+
 
 #        print self.imLasso, type(self.imLasso)
 #        QtCore.QObject.connect(self.imLasso,QtCore.SIGNAL("LassoUpdate(PyQt_PyObject)"),self.lassoHandler)
@@ -364,7 +365,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
                 self.colorIndex +=1
             #sets up a new GCDATA File instance and adds it to a dictionary
             #the key to that dictionary is the full file path, not simply the name
-            self.dataDict[dataFileName] = GCDATA(dataFileName)
+            self.dataDict[dataFileName] = GCDATA(dataFileName, self)
             self.dataList.append(dataFileName)
             tempData = self.dataDict[dataFileName]
             tempItem = QtGui.QListWidgetItem(tempData.name)
@@ -602,6 +603,19 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
 
                 self.PCT.start()
 
+    def initSIC(self):
+#        print "GO SIC"
+        #changes plotType ComboBox which triggers a signal to calc the SIC
+        self.chromStyleCB.setCurrentIndex(self.chromStyleCB.findText('SIC'))
+        self.plotType = str(self.chromStyleCB.currentText())
+
+    def setSIC(self, finishedBool):
+        if finishedBool:
+            #this call tells the process to repeat
+            #specListSelect calls update plot
+            self.specListSelect()
+        else:
+            return QtGui.QMessageBox.warning(self, "EIC Error",  'Huh?!')
 
     def updatePlot(self, plotIndex):#, plotType = 'TIC'):
         self.peakInfo = None
@@ -630,6 +644,19 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
             self.mainIm = self.curData.bpcLayer
             self.curIm = self.curData.bpcLayer
             self.curChrom = self.curData.getBPC()
+        elif self.plotType == 'SIC':
+            if self.mzSIC_SB.value() == self.curData.SICmz:
+                self.mainIm = self.curData.sicLayer
+                self.curIm = self.curData.sicLayer
+                self.curChrom = self.curData.getSIC()
+            else:
+#                QtCore.QObject.connect(self.curData,QtCore.SIGNAL("finished(bool)"),self.setSIC)
+                self.curData._setSIC_([self.mzSIC_SB.value()])
+                return
+#        self.chromStyleCB.addItems(self.chromStyles)
+#        self.chromStyleCB.setCurrentIndex(self.chromStyleCB.findText('BPC'))
+#        self.plotType = str(self.chromStyleCB.currentText())
+
 #            self.curImPlot = self.imageAxis.imshow(self.curIm, alpha = 1,  aspect = 'auto',\
 #                                                   origin = 'lower',  cmap = my_cmap, label = 'R')
         self.curChromPlot, = self.chromAxis.plot(self.curChrom, 'b', label = self.curData.name, picker = 5)
@@ -676,6 +703,8 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
             self.curIm = self.curData.ticLayer
         elif self.plotType == 'BPC':
             self.curIm = self.curData.bpcLayer
+        elif self.plotType == 'SIC':
+            self.curIm = self.curData.sicLayer
 
         self.cur2DPeakLoc = self.peakLoc2D
         self.curImPlot = self.imageAxis.imshow(self.mainIm, alpha = 1,  aspect = 'auto',\

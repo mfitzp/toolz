@@ -15,10 +15,11 @@ import scipy as S
 import tables as T
 
 class GC_GC_MS_CLASS(QtCore.QObject):
-    def __init__(self, filePath):
+    def __init__(self, filePath, parent = None):
         '''
         filePath is an HDF5 file that has been converted from a LECO netCDF file
         '''
+        self.parent = parent
         self.filePath = filePath
         self.name = os.path.basename(filePath)
         self.loadOK = False
@@ -35,14 +36,15 @@ class GC_GC_MS_CLASS(QtCore.QObject):
         self.colPoints = None
         self.rowPoints = None
         self.ticLayer = None
-        self.eicLayer = None
+        self.sicLayer = None
         self.curMZ = None
-        self.EIC = None
+        self.SIC = None
+        self.SICmz = None
         self.TIC = None
         self.BPC = None
         self.BPCmz = None#the mz values making up each BPC point
 
-        self.eicOK = False
+        self.sicOK = False
         self.ticOK = False
         self.bpcOK = False
 
@@ -82,13 +84,17 @@ class GC_GC_MS_CLASS(QtCore.QObject):
     def setupThreads(self):
         self.ReadThread = ReadThread(self.filePath, self)
 
-    def updateEIC(self, finishedBool):
-        self.eicOK = finishedBool
+    def updateSIC(self, finishedBool):
+        self.sicOK = finishedBool
         if finishedBool:
-            self.EIC = self.ReadThread.getEIC()
-            print "EIC finished processing"
+            self.SIC = self.ReadThread.getSIC()
+            self.sicLayer = self.make2DLayer(self.SIC, self.colPoints)
+            msg = "SIC finished processing"
+            print msg
+            if self.parent != None:
+                self.parent.setSIC(finishedBool)
         else:
-            print "Please wait, EIC not finished processing"
+            print "Please wait, SIC not finished processing"
 
     def updateBPC(self, finishedBool):
         self.bpcOK = finishedBool
@@ -107,6 +113,8 @@ class GC_GC_MS_CLASS(QtCore.QObject):
             self.peakInfo1D = {}
             for arrayName in self.peakArrayNames:
                 self.peakInfo1D[arrayName] = childDict[arrayName].read()
+                #Need to add which type of peaks these are
+                #What m/z if appropriate
             self.peakPickOk = True
         self.closeHandle()
 
@@ -182,13 +190,14 @@ class GC_GC_MS_CLASS(QtCore.QObject):
         self.closeHandle()
         return mzList
 
-    def _setEIC_(self, mzVals):
-        self.ReadThread.setType('EIC')
-        self.ReadThread.initEICVals(mzVals)
+    def _setSIC_(self, mzVals):
+        self.SICmz = mzVals[-1]#get the last m/z passed and set this to SIC value
+        self.ReadThread.setType('SIC')
+        self.ReadThread.initSICVals(mzVals)
         self.ReadThread.start()
         '''
         mzVals is a list of integers. If the list has a length greater than 1 ,
-        a summed EIC of all numbers in the list will be returned.
+        a summed SIC of all numbers in the list will be returned.
         '''
 #        self.getHandle()
 #        if self.fileOpen and len(mzVals)>0:
@@ -196,21 +205,23 @@ class GC_GC_MS_CLASS(QtCore.QObject):
 #
 #            rows = len(self.TIC)
 #            eic = N.zeros(rows)
-#
+#            t1 = time.clock()
 #            for mz in mzVals:
 #                eic +=mzCube[:,mz]
 #
-#            self.EIC = eic
+#            self.SIC = eic
+#            self.sicLayer = self.make2DLayer(self.SIC, self.colPoints)
 #            self.closeHandle()
-#            self.eicOK = True
+#            self.sicOK = True
+#            print t1-time.clock()
 #        else:
 #            print "Error opening HDF5 data file"
 
-    def getEIC(self):
-        if self.eicOK:
-            return self.EIC
+    def getSIC(self):
+        if self.sicOK:
+            return self.SIC
         else:
-            print "No EIC generated--try _setEIC_(mzValList)"
+            print "No SIC generated--try _setSIC_(mzValList)"
 
     def setTIC(self):
         self.getHandle()
@@ -315,8 +326,8 @@ class ReadThread(QtCore.QThread):
 
         self.ready = False
 
-        self.eicOK = False
-        self.EIC = None
+        self.sicOK = False
+        self.SIC = None
         self.mzVals = None
         self.specType = None
 
@@ -358,19 +369,19 @@ class ReadThread(QtCore.QThread):
         if self.bpcOK:
             return self.BPC
 
-    def getEIC(self):
-        if self.eicOK:
-            return self.EIC
+    def getSIC(self):
+        if self.sicOK:
+            return self.SIC
 
-    def initEICVals(self, mzList):
+    def initSICVals(self, mzList):
             '''
-            Accepts a list of mzValues to get an EIC for
+            Accepts a list of mzValues to get an SIC for
             '''
             if type(mzList) is list and len(mzList)>0:
                 self.mzVals = mzList
                 self.ready = True
 
-    def setEIC(self):
+    def setSIC(self):
         self.getHandle()
         if self.fileOpen and len(self.mzVals)>0:
             mzCube = self.handle.root.dataCube
@@ -381,7 +392,7 @@ class ReadThread(QtCore.QThread):
             for mz in self.mzVals:
                 eic +=mzCube[:,mz]
 
-            self.EIC = eic
+            self.SIC = eic
             self.closeHandle()
             return True
         else:
@@ -397,16 +408,16 @@ class ReadThread(QtCore.QThread):
     #        self.emit(QtCore.SIGNAL("finished(bool)"),self.bpcOK)
             self.finished = True
             self.parent.updateBPC(self.bpcOK)
-        elif self.specType == 'EIC':
+        elif self.specType == 'SIC':
             if self.ready:
                 self.finished = False
-                self.eicOK = self.setEIC()
-        #        self.emit(QtCore.SIGNAL("finished(bool)"),self.eicOK)
+                self.sicOK = self.setSIC()
+        #        self.emit(QtCore.SIGNAL("finished(bool)"),self.sicOK)
                 self.finished = True
                 self.ready = False
-                self.parent.updateEIC(self.eicOK)
+                self.parent.updateSIC(self.sicOK)
             else:
-                print "No mz value list set, run initEICVals(mzList)"
+                print "No mz value list set, run initSICVals(mzList)"
 
 
     def stop(self):
@@ -445,24 +456,28 @@ if __name__ == "__main__":
 #    tic = data.getTIC()
 
     w = MPL_Widget()
-#    w.canvas.setupSub(1)
+    w.canvas.setupSub(2)
     ax1 = w.canvas.axDict['ax1']
+    ax2 = w.canvas.axDict['ax2']
 #    ax1.vlines(N.arange(len(mz)),0,mz)
-    i = 0
-    col = ['r','b','g','k','y']
-    for mz in mzList:
-        ax1.vlines(N.arange(len(mz)),0,mz, color = col[i])
-        print i
-        i+=1
+#    i = 0
+#    col = ['r','b','g','k','y']
+#    for mz in mzList:
+#        ax1.vlines(N.arange(len(mz)),0,mz, color = col[i])
+#        print i
+#        i+=1
 
 
 #    ax2 = w.canvas.axDict['ax2']
 
 #    t1 = time.clock()
-#    data._setEIC_([53])
-#    time.sleep(6)
+#    data._setSIC_([53])
+
 #    bpc = data.getBPC()
-#    print 'EIC Generation: ', time.clock()-t1
+    data._setSIC_([53])
+    time.sleep(6)
+    sicLayer = data.sicLayer
+#    print 'SIC Generation: ', time.clock()-t1
 
 
 #    t1 = time.clock()
@@ -470,22 +485,25 @@ if __name__ == "__main__":
 #    bpcLayer = data.bpcLayer
 #    print 'TIC Layer Generation: ', time.clock()-t1
 #
-#    t1 = time.clock()
-##    data._setBPC_()
-#    print 'BPC Generation: ', time.clock()-t1
 
 #    bpc, bpcMZ = data.getBPC()
 
 #    imAspect = data.rowPoints/(data.colPoints*1.0)
 #
-#    cdict ={
-#    'blue': ((0.0, 0.01, 0.01), (0.01, 0.25, 1), (0.65000000000000002, 1, 1), (0.75000000000000002, 0, 0), (1, 0, 0)),
-#    'green': ((0.0, 0, 0), (0.05, 0.75, 0.75), (0.25, 1, 1), (0.64000000000000001, 1, 1), (0.91000000000000003, 0, 0), (1, 0, 0)),
-#    'red': ((0.0, 0, 0), (0.15, 0.25, 0.25), (0.56000000000000003, 1, 1), (0.89000000000000001, 1, 1), (1, 0.75, 0.75))
-#    }
-#
-#    my_cmap = C.LinearSegmentedColormap('mycmap', cdict, 512)
+    cdict ={
+    'blue': ((0.0, 0.01, 0.01), (0.01, 0.25, 1), (0.65000000000000002, 1, 1), (0.75000000000000002, 0, 0), (1, 0, 0)),
+    'green': ((0.0, 0, 0), (0.05, 0.75, 0.75), (0.25, 1, 1), (0.64000000000000001, 1, 1), (0.91000000000000003, 0, 0), (1, 0, 0)),
+    'red': ((0.0, 0, 0), (0.15, 0.25, 0.25), (0.56000000000000003, 1, 1), (0.89000000000000001, 1, 1), (1, 0.75, 0.75))
+    }
+
+    my_cmap = C.LinearSegmentedColormap('mycmap', cdict, 512)
 #    ax1.imshow(bpcLayer, origin = 'lower', aspect = 'auto', cmap = my_cmap)
+    ax1.imshow(sicLayer, origin = 'lower', aspect = 'auto', cmap = my_cmap)
+
+    data._setSIC_([73])
+    time.sleep(6)
+    sicLayer2 = data.sicLayer
+    ax2.imshow(sicLayer2, origin = 'lower', aspect = 'auto', cmap = my_cmap)
     #ax2.imshow(N.transpose(ticLayer), origin = 'lower', aspect = 'auto')
 #    ax1.set_xlim(0, data.rowPoints)
 #    ax1.set_ylim(0, data.colPoints)
@@ -519,7 +537,7 @@ if __name__ == "__main__":
     ###########
     ############################################################
 #
-#class EICThread(QtCore.QThread):
+#class SICThread(QtCore.QThread):
 #    def __init__(self, fileName, main, parent = None):
 #        QtCore.QThread.__init__(self, parent)
 #
@@ -533,15 +551,15 @@ if __name__ == "__main__":
 #
 #        self.ready = False
 #
-#        self.eicOK = False
-#        self.EIC = None
+#        self.sicOK = False
+#        self.SIC = None
 #        self.mzVals = None
 #
 #
 #
-#    def initEICVals(self, mzList):
+#    def initSICVals(self, mzList):
 #        '''
-#        Accepts a list of mzValues to get an EIC for
+#        Accepts a list of mzValues to get an SIC for
 #        '''
 #        if type(mzList) is list and len(mzList)>0:
 #            self.mzVals = mzList
@@ -556,7 +574,7 @@ if __name__ == "__main__":
 #        self.handle.close()
 #        self.fileOpen = False
 #
-#    def setEIC(self):
+#    def setSIC(self):
 #        self.getHandle()
 #        if self.fileOpen and len(self.mzVals)>0:
 #            mzCube = self.handle.root.dataCube
@@ -567,7 +585,7 @@ if __name__ == "__main__":
 #            for mz in self.mzVals:
 #                eic +=mzCube[:,mz]
 #
-#            self.EIC = eic
+#            self.SIC = eic
 #            self.closeHandle()
 #            return True
 #        else:
@@ -577,17 +595,17 @@ if __name__ == "__main__":
 #    def run(self):
 #        if self.ready:
 #            self.finished = False
-#            self.eicOK = self.setEIC()
-#            self.emit(QtCore.SIGNAL("finished(bool)"),self.eicOK)
+#            self.sicOK = self.setSIC()
+#            self.emit(QtCore.SIGNAL("finished(bool)"),self.sicOK)
 #            self.finished = True
 #            self.ready = False
-#            self.parent.updateEIC(self.eicOK)
+#            self.parent.updateSIC(self.sicOK)
 #        else:
-#            print "No mz value list set, run initEICVals(mzList)"
+#            print "No mz value list set, run initSICVals(mzList)"
 #
-#    def getEIC(self):
-#        if self.eicOK:
-#            return self.EIC
+#    def getSIC(self):
+#        if self.sicOK:
+#            return self.SIC
 #
 #    def stop(self):
 #        print "stop try"
