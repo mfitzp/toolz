@@ -83,7 +83,7 @@ class CustomTable(QtGui.QTableWidget):
         '''Create a menu for the tableWidget and associated actions'''
         tw_menu = QtGui.QMenu("Menu", self)
         tw_menu.addAction(self.pasteAction)
-#        tw_menu.addAction(self.copyAction)
+        tw_menu.addAction(self.copyAction)
 #        tw_menu.addAction(self.insRowAction)
 #        tw_menu.addAction(self.insColAction)
 #        tw_menu.addAction(self.testAction)
@@ -151,12 +151,12 @@ class CustomTable(QtGui.QTableWidget):
 
     def __initActions__(self):
         self.pasteAction = QtGui.QAction("Paste",  self)
-        self.pasteAction.setShortcut("Ctrl+V")
+        self.pasteAction.setShortcut("Ctrl+Alt+V")
         self.addAction(self.pasteAction)
         self.connect(self.pasteAction, QtCore.SIGNAL("triggered()"), self.pasteClip)
 
         self.copyAction = QtGui.QAction("Copy",  self)
-        self.copyAction.setShortcut("Ctrl+C")
+        self.copyAction.setShortcut("Ctrl+Alt+C")
         self.addAction(self.copyAction)
         self.connect(self.copyAction, QtCore.SIGNAL("triggered()"), self.copyCells)
 
@@ -253,6 +253,7 @@ class CustomTable(QtGui.QTableWidget):
  ######################################
 
     def copyCells(self):
+#        print "COPY"
         selRange  = self.selectedRanges()[0]#just take the first range
         topRow = selRange.topRow()
         bottomRow = selRange.bottomRow()

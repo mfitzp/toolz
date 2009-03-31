@@ -700,25 +700,18 @@ p, li { white-space: pre-wrap; }
           </item>
          </layout>
         </item>
-        <item row="4" column="1" >
-         <spacer>
-          <property name="orientation" >
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" >
-           <size>
-            <width>20</width>
-            <height>40</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
         <item row="5" column="0" colspan="2" >
          <layout class="QVBoxLayout" >
           <item>
            <layout class="QHBoxLayout" >
             <item>
              <widget class="QLabel" name="label_25" >
+              <property name="toolTip" >
+               <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+p, li { white-space: pre-wrap; }
+&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
+&lt;p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">&lt;/p>&lt;/body>&lt;/html></string>
+              </property>
               <property name="text" >
                <string>Auto Peak Setting:</string>
               </property>
@@ -743,6 +736,12 @@ p, li { white-space: pre-wrap; }
            <layout class="QHBoxLayout" >
             <item>
              <widget class="QLabel" name="label_17" >
+              <property name="toolTip" >
+               <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+p, li { white-space: pre-wrap; }
+&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
+&lt;p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">&lt;/p>&lt;/body>&lt;/html></string>
+              </property>
               <property name="text" >
                <string>Wavelet Type:</string>
               </property>
@@ -772,7 +771,10 @@ p, li { white-space: pre-wrap; }
             <item>
              <widget class="QLabel" name="label_21" >
               <property name="toolTip" >
-               <string>Factor by which the spectrum will be split in order to estimate local noise</string>
+               <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+p, li { white-space: pre-wrap; }
+&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
+&lt;p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">&lt;/p>&lt;/body>&lt;/html></string>
               </property>
               <property name="text" >
                <string>End of Wavelet Noise Rows:</string>
@@ -811,7 +813,10 @@ p, li { white-space: pre-wrap; }
             <item>
              <widget class="QLabel" name="label_22" >
               <property name="toolTip" >
-               <string>Factor by which the spectrum will be split in order to estimate local noise</string>
+               <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+p, li { white-space: pre-wrap; }
+&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
+&lt;p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">&lt;/p>&lt;/body>&lt;/html></string>
               </property>
               <property name="text" >
                <string>Minimum Wavelet Cluster Size:</string>
@@ -846,6 +851,12 @@ Higher numbers mean fewer peaks.</string>
            <layout class="QHBoxLayout" >
             <item>
              <widget class="QLabel" name="label_19" >
+              <property name="toolTip" >
+               <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+p, li { white-space: pre-wrap; }
+&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
+&lt;p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">&lt;/p>&lt;/body>&lt;/html></string>
+              </property>
               <property name="text" >
                <string>Wavelet Row Tolerance:</string>
               </property>
@@ -877,7 +888,10 @@ p, li { white-space: pre-wrap; }
             <item>
              <widget class="QLabel" name="label_23" >
               <property name="toolTip" >
-               <string>Factor by which the spectrum will be split in order to estimate local noise</string>
+               <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+p, li { white-space: pre-wrap; }
+&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
+&lt;p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">&lt;/p>&lt;/body>&lt;/html></string>
               </property>
               <property name="text" >
                <string>Clustering Distance Threshold:</string>
@@ -893,11 +907,7 @@ p, li { white-space: pre-wrap; }
                <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
 p, li { white-space: pre-wrap; }
 &lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
-&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">&lt;span style=" font-size:8pt;">Distance to be used for a clustering cutoff.&lt;/span>&lt;/p>
-&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;">Set to -1 for auto-calculation.  &lt;/p>
-&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;">A smaller number means fewer peaks while a larger&lt;/p>
-&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;">number includes more surrounding neighbors.&lt;/p>
-&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;">Be careful...&lt;/p>&lt;/body>&lt;/html></string>
+&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;">Distance to be used for a clustering cutoff.  Set to -1 for auto-calculation.  A smaller number means fewer peaks while a larger number includes more surrounding neighbors.  Be careful...&lt;/p>&lt;/body>&lt;/html></string>
               </property>
               <property name="minimum" >
                <number>-1</number>
@@ -917,7 +927,10 @@ p, li { white-space: pre-wrap; }
             <item>
              <widget class="QLabel" name="label_15" >
               <property name="toolTip" >
-               <string>Factor by which the spectrum will be split in order to estimate local noise</string>
+               <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+p, li { white-space: pre-wrap; }
+&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
+&lt;p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">&lt;/p>&lt;/body>&lt;/html></string>
               </property>
               <property name="text" >
                <string>Noise Split Factor:</string>
@@ -933,8 +946,8 @@ p, li { white-space: pre-wrap; }
                <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
 p, li { white-space: pre-wrap; }
 &lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
-&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">&lt;span style=" font-size:8pt;">Factor by which the spectrum will be split in order to estimate local noise.  More is better but slower. For example:&lt;/span>&lt;/p>
-&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;">if the lenght of a MS spectrum = 10000&lt;/p>
+&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;">Factor by which the spectrum will be split in order to estimate local noise.  More is better but slower. For example:&lt;/p>
+&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;">if the length of a MS spectrum = 10000&lt;/p>
 &lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;">and Noise Split Factor = 10&lt;/p>
 &lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;">the number of segments used = 1000&lt;/p>&lt;/body>&lt;/html></string>
               </property>
@@ -955,6 +968,12 @@ p, li { white-space: pre-wrap; }
            <layout class="QHBoxLayout" >
             <item>
              <widget class="QLabel" name="label_24" >
+              <property name="toolTip" >
+               <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+p, li { white-space: pre-wrap; }
+&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
+&lt;p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">&lt;/p>&lt;/body>&lt;/html></string>
+              </property>
               <property name="text" >
                <string>Static Cutoff:</string>
               </property>
@@ -969,7 +988,7 @@ p, li { white-space: pre-wrap; }
                <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
 p, li { white-space: pre-wrap; }
 &lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
-&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">This is the minimum value in absolute counts (i.e. not normalized) to be considered for peak picking.&lt;/p>&lt;/body>&lt;/html></string>
+&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;">This is the minimum value in absolute counts (i.e. not normalized) to be considered for peak picking.&lt;/p>&lt;/body>&lt;/html></string>
               </property>
               <property name="maximum" >
                <number>1000000</number>
@@ -999,7 +1018,10 @@ p, li { white-space: pre-wrap; }
             <item>
              <widget class="QDoubleSpinBox" name="snrNoiseEst_SB" >
               <property name="toolTip" >
-               <string>SNR value used for noise estimate</string>
+               <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+p, li { white-space: pre-wrap; }
+&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
+&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">&lt;span style=" font-size:8pt;">SNR value used for noise estimate&lt;/span>&lt;/p>&lt;/body>&lt;/html></string>
               </property>
               <property name="decimals" >
                <number>1</number>
@@ -1285,19 +1307,6 @@ p, li { white-space: pre-wrap; }
               <row/>
               <column/>
              </widget>
-            </item>
-            <item>
-             <spacer>
-              <property name="orientation" >
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" >
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
             </item>
            </layout>
           </item>

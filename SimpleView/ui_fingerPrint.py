@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Documents and Settings\d3p483\workspace\SimpleView\fingerPrint.ui'
 #
-# Created: Wed Mar 11 11:01:30 2009
+# Created: Tue Mar 31 13:33:02 2009
 #      by: PyQt4 UI code generator 4.3.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -66,7 +66,7 @@ class Ui_fingerPlotWidget(object):
         self.gridlayout2.addLayout(self.hboxlayout1,1,2,1,1)
 
         self.showRaw_CB = QtGui.QCheckBox(self.tab)
-        self.showRaw_CB.setChecked(True)
+        self.showRaw_CB.setChecked(False)
         self.showRaw_CB.setObjectName("showRaw_CB")
         self.gridlayout2.addWidget(self.showRaw_CB,1,0,1,1)
 
