@@ -1277,7 +1277,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         if self.ignoreSignal:
             return
         else:
-            print "Spin Index",spinBoxVal
+#            print "Spin Index",spinBoxVal
         #by changing the listWidget selection it triggers the signal/slot and
         #causes a plot update
             self.listWidget.setCurrentRow(spinBoxVal-1)
