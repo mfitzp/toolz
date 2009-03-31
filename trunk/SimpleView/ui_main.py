@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Documents and Settings\d3p483\workspace\SimpleView\main.ui'
 #
-# Created: Thu Mar 26 12:11:42 2009
+# Created: Tue Mar 31 12:50:56 2009
 #      by: PyQt4 UI code generator 4.3.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -404,9 +404,6 @@ class Ui_MainWindow(object):
         self.vboxlayout1.addLayout(self.hboxlayout4)
         self.gridlayout5.addLayout(self.vboxlayout1,3,1,1,1)
 
-        spacerItem1 = QtGui.QSpacerItem(20,40,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
-        self.gridlayout5.addItem(spacerItem1,4,1,1,1)
-
         self.vboxlayout2 = QtGui.QVBoxLayout()
         self.vboxlayout2.setObjectName("vboxlayout2")
 
@@ -561,8 +558,8 @@ class Ui_MainWindow(object):
         self.showCWT_CB.setObjectName("showCWT_CB")
         self.vboxlayout2.addWidget(self.showCWT_CB)
 
-        spacerItem2 = QtGui.QSpacerItem(20,40,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
-        self.vboxlayout2.addItem(spacerItem2)
+        spacerItem1 = QtGui.QSpacerItem(20,40,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
+        self.vboxlayout2.addItem(spacerItem1)
         self.gridlayout5.addLayout(self.vboxlayout2,5,0,1,2)
 
         self.vboxlayout3 = QtGui.QVBoxLayout()
@@ -631,12 +628,12 @@ class Ui_MainWindow(object):
         self.makeScales_Btn.setObjectName("makeScales_Btn")
         self.vboxlayout4.addWidget(self.makeScales_Btn)
 
-        spacerItem3 = QtGui.QSpacerItem(20,40,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
-        self.vboxlayout4.addItem(spacerItem3)
+        spacerItem2 = QtGui.QSpacerItem(20,40,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
+        self.vboxlayout4.addItem(spacerItem2)
         self.hboxlayout17.addLayout(self.vboxlayout4)
 
-        spacerItem4 = QtGui.QSpacerItem(40,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
-        self.hboxlayout17.addItem(spacerItem4)
+        spacerItem3 = QtGui.QSpacerItem(40,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
+        self.hboxlayout17.addItem(spacerItem3)
         self.vboxlayout3.addLayout(self.hboxlayout17)
         self.gridlayout5.addLayout(self.vboxlayout3,5,2,1,1)
 
@@ -657,13 +654,10 @@ class Ui_MainWindow(object):
         self.scalesTable.setFrameShape(QtGui.QFrame.StyledPanel)
         self.scalesTable.setObjectName("scalesTable")
         self.vboxlayout5.addWidget(self.scalesTable)
-
-        spacerItem5 = QtGui.QSpacerItem(20,40,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
-        self.vboxlayout5.addItem(spacerItem5)
         self.hboxlayout18.addLayout(self.vboxlayout5)
 
-        spacerItem6 = QtGui.QSpacerItem(40,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
-        self.hboxlayout18.addItem(spacerItem6)
+        spacerItem4 = QtGui.QSpacerItem(40,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
+        self.hboxlayout18.addItem(spacerItem4)
         self.gridlayout5.addLayout(self.hboxlayout18,5,3,1,1)
         self.tabWidget.addTab(self.optionsTab,"")
 
@@ -762,8 +756,8 @@ class Ui_MainWindow(object):
         self.loadRawFPData_CB.setObjectName("loadRawFPData_CB")
         self.hboxlayout22.addWidget(self.loadRawFPData_CB)
 
-        spacerItem7 = QtGui.QSpacerItem(40,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
-        self.hboxlayout22.addItem(spacerItem7)
+        spacerItem5 = QtGui.QSpacerItem(40,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
+        self.hboxlayout22.addItem(spacerItem5)
         self.vboxlayout7.addLayout(self.hboxlayout22)
         self.vboxlayout6.addLayout(self.vboxlayout7)
 
@@ -803,8 +797,8 @@ class Ui_MainWindow(object):
         self.doFP_Btn.setObjectName("doFP_Btn")
         self.vboxlayout8.addWidget(self.doFP_Btn)
 
-        spacerItem8 = QtGui.QSpacerItem(20,40,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
-        self.vboxlayout8.addItem(spacerItem8)
+        spacerItem6 = QtGui.QSpacerItem(20,40,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
+        self.vboxlayout8.addItem(spacerItem6)
         self.hboxlayout24.addLayout(self.vboxlayout8)
 
         self.vboxlayout9 = QtGui.QVBoxLayout()
@@ -817,8 +811,8 @@ class Ui_MainWindow(object):
         self.expand_Btn.setObjectName("expand_Btn")
         self.hboxlayout25.addWidget(self.expand_Btn)
 
-        spacerItem9 = QtGui.QSpacerItem(40,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
-        self.hboxlayout25.addItem(spacerItem9)
+        spacerItem7 = QtGui.QSpacerItem(40,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
+        self.hboxlayout25.addItem(spacerItem7)
         self.vboxlayout9.addLayout(self.hboxlayout25)
 
         self.fpSpecTreeWidget = QtGui.QTreeWidget(self.layoutWidget1)
@@ -870,16 +864,16 @@ class Ui_MainWindow(object):
         self.revert_Btn.setObjectName("revert_Btn")
         self.hboxlayout27.addWidget(self.revert_Btn)
 
-        spacerItem10 = QtGui.QSpacerItem(40,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
-        self.hboxlayout27.addItem(spacerItem10)
+        spacerItem8 = QtGui.QSpacerItem(40,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
+        self.hboxlayout27.addItem(spacerItem8)
         self.vboxlayout11.addLayout(self.hboxlayout27)
         self.gridlayout8.addLayout(self.vboxlayout11,0,0,1,1)
 
-        spacerItem11 = QtGui.QSpacerItem(40,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
-        self.gridlayout8.addItem(spacerItem11,0,1,1,1)
+        spacerItem9 = QtGui.QSpacerItem(40,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
+        self.gridlayout8.addItem(spacerItem9,0,1,1,1)
 
-        spacerItem12 = QtGui.QSpacerItem(20,40,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
-        self.gridlayout8.addItem(spacerItem12,1,0,1,1)
+        spacerItem10 = QtGui.QSpacerItem(20,40,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
+        self.gridlayout8.addItem(spacerItem10,1,0,1,1)
         self.vboxlayout10.addLayout(self.gridlayout8)
         self.tabWidget.addTab(self.tab_3,"")
         self.gridlayout.addWidget(self.tabWidget,0,0,1,1)
@@ -1012,18 +1006,29 @@ class Ui_MainWindow(object):
         "</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:8.25pt; font-weight:400; font-style:normal;\">\n"
         "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Create an EIC for all members within a selected group.</p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
         self.getEIC_Btn.setText(QtGui.QApplication.translate("MainWindow", "Fetch EIC", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_25.setToolTip(QtGui.QApplication.translate("MainWindow", "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+        "p, li { white-space: pre-wrap; }\n"
+        "</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:8.25pt; font-weight:400; font-style:normal;\">\n"
+        "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"></p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
         self.label_25.setText(QtGui.QApplication.translate("MainWindow", "Auto Peak Setting:", None, QtGui.QApplication.UnicodeUTF8))
         self.peakSetting_CB.setToolTip(QtGui.QApplication.translate("MainWindow", "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
         "p, li { white-space: pre-wrap; }\n"
         "</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:8.25pt; font-weight:400; font-style:normal;\">\n"
         "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Peak Picking Presets</p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_17.setToolTip(QtGui.QApplication.translate("MainWindow", "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+        "p, li { white-space: pre-wrap; }\n"
+        "</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:8.25pt; font-weight:400; font-style:normal;\">\n"
+        "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"></p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
         self.label_17.setText(QtGui.QApplication.translate("MainWindow", "Wavelet Type:", None, QtGui.QApplication.UnicodeUTF8))
         self.comboBox.setToolTip(QtGui.QApplication.translate("MainWindow", "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
         "p, li { white-space: pre-wrap; }\n"
         "</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:8.25pt; font-weight:400; font-style:normal;\">\n"
         "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:8pt;\">Default to Mexican Hat</span></p>\n"
         "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;\">More later...</p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_21.setToolTip(QtGui.QApplication.translate("MainWindow", "Factor by which the spectrum will be split in order to estimate local noise", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_21.setToolTip(QtGui.QApplication.translate("MainWindow", "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+        "p, li { white-space: pre-wrap; }\n"
+        "</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:8.25pt; font-weight:400; font-style:normal;\">\n"
+        "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"></p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
         self.label_21.setText(QtGui.QApplication.translate("MainWindow", "End of Wavelet Noise Rows:", None, QtGui.QApplication.UnicodeUTF8))
         self.minRow_SB.setToolTip(QtGui.QApplication.translate("MainWindow", "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
         "p, li { white-space: pre-wrap; }\n"
@@ -1032,44 +1037,60 @@ class Ui_MainWindow(object):
         "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;\">Must be less than the number of scales.</p>\n"
         "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;\">A smaller number means more peaks,</p>\n"
         "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;\">but not necessarily better results.</p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_22.setToolTip(QtGui.QApplication.translate("MainWindow", "Factor by which the spectrum will be split in order to estimate local noise", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_22.setToolTip(QtGui.QApplication.translate("MainWindow", "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+        "p, li { white-space: pre-wrap; }\n"
+        "</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:8.25pt; font-weight:400; font-style:normal;\">\n"
+        "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"></p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
         self.label_22.setText(QtGui.QApplication.translate("MainWindow", "Minimum Wavelet Cluster Size:", None, QtGui.QApplication.UnicodeUTF8))
         self.minClust_SB.setToolTip(QtGui.QApplication.translate("MainWindow", "Minimum number of peaks to be found during the wavelet transform for each MS peak.\n"
         "Must be less than the number of scales.\n"
         "Half the number of scales appears to be a good approximation.\n"
         "Higher numbers mean fewer peaks.", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_19.setToolTip(QtGui.QApplication.translate("MainWindow", "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+        "p, li { white-space: pre-wrap; }\n"
+        "</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:8.25pt; font-weight:400; font-style:normal;\">\n"
+        "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"></p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
         self.label_19.setText(QtGui.QApplication.translate("MainWindow", "Wavelet Row Tolerance:", None, QtGui.QApplication.UnicodeUTF8))
         self.waveletRowTol_SB.setToolTip(QtGui.QApplication.translate("MainWindow", "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
         "p, li { white-space: pre-wrap; }\n"
         "</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:8.25pt; font-weight:400; font-style:normal;\">\n"
         "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Allowed tolerance for each peak found in each subsequent row of the wavelet transform.  A smaller number requires tighter grouping of peaks for each scale of the CWT in order for a peak to be located.  Too large a number creates more peaks, but at a cost.</p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_23.setToolTip(QtGui.QApplication.translate("MainWindow", "Factor by which the spectrum will be split in order to estimate local noise", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_23.setToolTip(QtGui.QApplication.translate("MainWindow", "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+        "p, li { white-space: pre-wrap; }\n"
+        "</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:8.25pt; font-weight:400; font-style:normal;\">\n"
+        "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"></p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
         self.label_23.setText(QtGui.QApplication.translate("MainWindow", "Clustering Distance Threshold:", None, QtGui.QApplication.UnicodeUTF8))
         self.dbscanEPS_SB.setToolTip(QtGui.QApplication.translate("MainWindow", "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
         "p, li { white-space: pre-wrap; }\n"
         "</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:8.25pt; font-weight:400; font-style:normal;\">\n"
-        "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:8pt;\">Distance to be used for a clustering cutoff.</span></p>\n"
-        "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;\">Set to -1 for auto-calculation.  </p>\n"
-        "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;\">A smaller number means fewer peaks while a larger</p>\n"
-        "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;\">number includes more surrounding neighbors.</p>\n"
-        "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;\">Be careful...</p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_15.setToolTip(QtGui.QApplication.translate("MainWindow", "Factor by which the spectrum will be split in order to estimate local noise", None, QtGui.QApplication.UnicodeUTF8))
+        "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;\">Distance to be used for a clustering cutoff.  Set to -1 for auto-calculation.  A smaller number means fewer peaks while a larger number includes more surrounding neighbors.  Be careful...</p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_15.setToolTip(QtGui.QApplication.translate("MainWindow", "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+        "p, li { white-space: pre-wrap; }\n"
+        "</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:8.25pt; font-weight:400; font-style:normal;\">\n"
+        "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"></p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
         self.label_15.setText(QtGui.QApplication.translate("MainWindow", "Noise Split Factor:", None, QtGui.QApplication.UnicodeUTF8))
         self.noiseFactor_SB.setToolTip(QtGui.QApplication.translate("MainWindow", "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
         "p, li { white-space: pre-wrap; }\n"
         "</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:8.25pt; font-weight:400; font-style:normal;\">\n"
-        "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:8pt;\">Factor by which the spectrum will be split in order to estimate local noise.  More is better but slower. For example:</span></p>\n"
-        "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;\">if the lenght of a MS spectrum = 10000</p>\n"
+        "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;\">Factor by which the spectrum will be split in order to estimate local noise.  More is better but slower. For example:</p>\n"
+        "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;\">if the length of a MS spectrum = 10000</p>\n"
         "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;\">and Noise Split Factor = 10</p>\n"
         "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;\">the number of segments used = 1000</p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_24.setToolTip(QtGui.QApplication.translate("MainWindow", "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+        "p, li { white-space: pre-wrap; }\n"
+        "</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:8.25pt; font-weight:400; font-style:normal;\">\n"
+        "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"></p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
         self.label_24.setText(QtGui.QApplication.translate("MainWindow", "Static Cutoff:", None, QtGui.QApplication.UnicodeUTF8))
         self.staticCutoff_SB.setToolTip(QtGui.QApplication.translate("MainWindow", "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
         "p, li { white-space: pre-wrap; }\n"
         "</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:8.25pt; font-weight:400; font-style:normal;\">\n"
-        "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">This is the minimum value in absolute counts (i.e. not normalized) to be considered for peak picking.</p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
+        "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;\">This is the minimum value in absolute counts (i.e. not normalized) to be considered for peak picking.</p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
         self.label_16.setToolTip(QtGui.QApplication.translate("MainWindow", "SNR value used for noise estimate", None, QtGui.QApplication.UnicodeUTF8))
         self.label_16.setText(QtGui.QApplication.translate("MainWindow", "SNR Noise Estimation:", None, QtGui.QApplication.UnicodeUTF8))
-        self.snrNoiseEst_SB.setToolTip(QtGui.QApplication.translate("MainWindow", "SNR value used for noise estimate", None, QtGui.QApplication.UnicodeUTF8))
+        self.snrNoiseEst_SB.setToolTip(QtGui.QApplication.translate("MainWindow", "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+        "p, li { white-space: pre-wrap; }\n"
+        "</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:8.25pt; font-weight:400; font-style:normal;\">\n"
+        "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:8pt;\">SNR value used for noise estimate</span></p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
         self.autoSavePkList_CB.setToolTip(QtGui.QApplication.translate("MainWindow", "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
         "p, li { white-space: pre-wrap; }\n"
         "</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:8.25pt; font-weight:400; font-style:normal;\">\n"

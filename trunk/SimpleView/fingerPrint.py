@@ -128,7 +128,7 @@ class Finger_Widget(QtGui.QWidget, ui_fingerPrint.Ui_fingerPlotWidget):
         self.compositePeakList = []
         self.peakStatDict = None
         self.resetPeakStatDict()
-        self.peakListDict = None
+        self.peakListDict = {}
         self.setPeakListDict()
         self.xLoc = None
         self.yLoc = None

@@ -88,7 +88,7 @@
             <string>Show FP Spectra?</string>
            </property>
            <property name="checked" >
-            <bool>true</bool>
+            <bool>false</bool>
            </property>
           </widget>
          </item>
@@ -303,15 +303,15 @@ p, li { white-space: pre-wrap; }
  </widget>
  <customwidgets>
   <customwidget>
+   <class>CustomTable</class>
+   <extends>QTableWidget</extends>
+   <header>customTable</header>
+  </customwidget>
+  <customwidget>
    <class>MPL_Widget</class>
    <extends>QWidget</extends>
    <header>mpl_pyqt4_widget</header>
    <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>CustomTable</class>
-   <extends>QTableWidget</extends>
-   <header>customTable</header>
   </customwidget>
  </customwidgets>
  <resources/>
