@@ -6,7 +6,6 @@ Remember to use writearray2file to append a certain array to hdf5.
 
 '''
 
-
 import os
 from PyQt4 import QtCore,  QtGui
 
@@ -32,7 +31,6 @@ class GC_GC_MS_CLASS(QtCore.QObject):
         self.peakPickParams = None
         self.peakArrayNames = ['peakLoc', 'peakInt', 'peakWidth', 'peakArea']
 
-
         self.colPoints = None
         self.rowPoints = None
         self.ticLayer = None
@@ -56,10 +54,13 @@ class GC_GC_MS_CLASS(QtCore.QObject):
         #conversion to floats has occurred
         self.floated = False
 
-        self.setAttrs()
+        self.getAttrs()
         self.setupThreads()
         self.setTIC()
         self.ticLayer = self.make2DLayer(self.TIC, self.colPoints)
+        '''
+        Need to add a test to find out what type of file exist and fetch it if appropriate.
+        '''
         try:
             self.setBPC()
             self.bpcLayer = self.make2DLayer(self.BPC, self.colPoints)
@@ -144,6 +145,28 @@ class GC_GC_MS_CLASS(QtCore.QObject):
         if self.peakPickOk:
             for item in self.peakInfo1D.iteritems():
                 self.writeArray2File(item[0], item[1])
+
+
+    def getPeakType(self):
+        self.getHandle()
+
+
+
+        self.closeHandle()
+
+    def setPeakType(self, layerType):
+        '''
+        Set Layer Type for future reading
+        '''
+        hdf = T.openFile(self.filePath, mode = "a")
+        r = hdf.root
+        try:
+            r.dataCube.attrs.fileType = layerType
+            hdf.close()
+            print "Peak Type set to %s"%layerType
+        except:
+            print "error setting layer type %s to %s"%(layerType,self.filePath)
+            hdf.close()
 
     def getHandle(self):
         self.handle = T.openFile(self.filePath, 'r')
@@ -261,7 +284,7 @@ class GC_GC_MS_CLASS(QtCore.QObject):
         else:
             print "TIC not set or not found try setTIC()"
 
-    def setAttrs(self):
+    def getAttrs(self):
         self.getHandle()
         if self.fileOpen:
             cols = self.handle.root.dataCube.attrs.colPoints
