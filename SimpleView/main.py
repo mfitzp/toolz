@@ -2109,6 +2109,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             newitem = QtGui.QTableWidgetItem(0)
             newitem.setData(0,QtCore.QVariant(scale))
             self.scalesTable.setItem(i,0,newitem)
+        self.scalesTable.setHorizontalHeaderLabels(['Scale Length'])
 
     def setupPeakPick(self):
         self.progressMax = 0
