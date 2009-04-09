@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Documents and Settings\d3p483\workspace\SimpleView\main.ui'
 #
-# Created: Tue Mar 31 12:50:56 2009
+# Created: Thu Apr 09 15:36:31 2009
 #      by: PyQt4 UI code generator 4.3.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -79,6 +79,10 @@ class Ui_MainWindow(object):
         self.groupTreeWidget.setProperty("headerHidden",QtCore.QVariant(False))
         self.groupTreeWidget.setObjectName("groupTreeWidget")
         self.gridlayout2.addWidget(self.groupTreeWidget,0,0,1,1)
+
+        self.multiPlot_CB = QtGui.QCheckBox(self.tab_4)
+        self.multiPlot_CB.setObjectName("multiPlot_CB")
+        self.gridlayout2.addWidget(self.multiPlot_CB,1,0,1,1)
         self.tabWidget_2.addTab(self.tab_4,"")
 
         self.tab_5 = QtGui.QWidget()
@@ -955,6 +959,11 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow", "SpectrumViewer", None, QtGui.QApplication.UnicodeUTF8))
         self.label_2.setText(QtGui.QApplication.translate("MainWindow", "Spectrum Location:", None, QtGui.QApplication.UnicodeUTF8))
         self.groupTreeWidget.headerItem().setText(0,QtGui.QApplication.translate("MainWindow", "1", None, QtGui.QApplication.UnicodeUTF8))
+        self.multiPlot_CB.setToolTip(QtGui.QApplication.translate("MainWindow", "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+        "p, li { white-space: pre-wrap; }\n"
+        "</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:8.25pt; font-weight:400; font-style:normal;\">\n"
+        "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Enable if multiple spectral overlays are desired.  Keep in mind the memory requirments.</p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
+        self.multiPlot_CB.setText(QtGui.QApplication.translate("MainWindow", "Enable Multiplot?", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.tab_4), QtGui.QApplication.translate("MainWindow", "Spectra", None, QtGui.QApplication.UnicodeUTF8))
         self.tabPeakTable.clear()
         self.tabPeakTable.setColumnCount(0)

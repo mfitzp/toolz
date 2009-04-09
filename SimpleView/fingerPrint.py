@@ -379,11 +379,17 @@ class Finger_Widget(QtGui.QWidget, ui_fingerPrint.Ui_fingerPlotWidget):
         self.plotWidget.canvas.draw()
 
     def saveFileDialog(self):
+        if self.parentOk:
+            curDir = self.parent.curDir
+        else:
+            curDir = ""
         fileName = QtGui.QFileDialog.getSaveFileName(self,
                                          "Select File to Save",
-                                         "",
+                                         curDir,
                                          "hdf5 Files (*.h5)")
         if not fileName.isEmpty():
+            fileName = os.path.abspath(str(fileName))
+            self.parent.curDir = os.path.dirname(fileName)
             print fileName
             return str(fileName)
         else:

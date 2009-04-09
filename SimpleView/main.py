@@ -853,11 +853,11 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                 errorMsg = 'No raw data were loaded with this FP.\nPlease check the "Load Raw Data From FP?" box and reload.'
                 return QtGui.QMessageBox.warning(self, "FP Review Error", errorMsg)
 
-    def plotMetaPeaks(self,dTableInstance, peakData):
-        curAx = dTableInstance.plotWidget.canvas.ax
-        for peakList in peakData:
-            curAx.plot(peakList[1], peakList[0], 'o', alpha = 0.6)
-        print "MetaPeaks"
+#    def plotMetaPeaks(self,dTableInstance, peakData):
+#        curAx = dTableInstance.plotWidget.canvas.ax
+#        for peakList in peakData:
+#            curAx.plot(peakList[1], peakList[0], 'o', alpha = 0.6)
+#        print "MetaPeaks"
 
     def viewFPMeta(self):
         '''
@@ -898,15 +898,17 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
     def plotMetaPeaks(self, dTableInstance, peakData, dataLabels):
         curAx = dTableInstance.plotWidget.canvas.ax
         for i,peakList in enumerate(peakData):
-            x = peakList[1][:,0]
-            y = peakList[0][:,0]
-            intensity = peakList[1][:,1]
-            self._updatePlotColor_()
-#            curAx.plot(x, y, 'o', alpha = 0.6)
-            curAx.scatter(x,y,s = intensity, alpha = 0.6, color = self.plotColor, label = dataLabels[i])
-#            label = dataLabels[i]
-#            curAx.text(0,i,label)
-#            curAx.legend()
+            if peakList!=None:#THIS IS A HACK
+
+                x = peakList[1][:,0]
+                y = peakList[0][:,0]
+                intensity = peakList[1][:,1]
+                self._updatePlotColor_()
+    #            curAx.plot(x, y, 'o', alpha = 0.6)
+                curAx.scatter(x,y,s = intensity, alpha = 0.6, color = self.plotColor, label = dataLabels[i])
+    #            label = dataLabels[i]
+    #            curAx.text(0,i,label)
+    #            curAx.legend()
 
         print "MetaPeaks"
 
@@ -947,7 +949,12 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                     curDataDict = curFP['dataDict']
                     for dataItem in curDataDict.iteritems():
                         dataLabels.append(dataItem[0].split(os.path.sep)[-1])
-                        curPeaks = dataItem[1].peakList
+                        if dataItem[1].pkListOk:#deals with case where no peak list exists
+                            curPeaks = dataItem[1].peakList
+                            print curPeaks.shape
+                        else:
+                            curPeaks = N.zeros((2,2))
+
                         peakData.append([N.zeros_like(curPeaks)+i,curPeaks])
                         i+=1
                         curMeta = []
@@ -984,6 +991,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             fileName = self.openFileDialog()
         if fileName != None:
             if os.path.isfile(fileName):
+                self.curDir = os.path.dirname(fileName)
                 hdf = T.openFile(fileName, mode = 'r')
                 hdfRoot = hdf.root
                 try:
@@ -1012,39 +1020,42 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
                         dataDict = {}
                         for i, key in enumerate(specList.keys()):
-
+                            print key
                             bName = os.path.basename(key.replace('*',os.path.sep))
                             newName = os.path.join(self.curGroupName, bName)
-                            spec = specList[key].read()
-                            dataFile = DataClass(spec[:,0], spec[:,1],  name = bName, path = newName, interp = True)#should already by interpolated
-                            dataFile.mzPad = specList[key].attrs.mzPad
-                            pkList = peakLists[key]
+                            if specList.has_key(key):
+                                spec = specList[key].read()
+                                dataFile = DataClass(spec[:,0], spec[:,1],  name = bName, path = newName, interp = True)#should already by interpolated
+                                dataFile.mzPad = specList[key].attrs.mzPad
+                                if peakLists.has_key(key):
+                                    pkList = peakLists[key]#changed from key
 
-                            paramDict = {'scales':None,
-                                         'minSNR':None,
-                                         'minRow':None,
-                                         'minClust':None,
-                                         'dbscanEPS':None,
-                                         'rowThresh':None,
-                                         'noiseFactor':None,
-                                         'staticThresh':None,
-                                         'autoSave':None
-                                         }
-                            if pkList.attrs.__contains__('minSNR'):
-                                paramDict['scales'] = pkList.attrs.scales
-                                paramDict['minSNR'] = pkList.attrs.minSNR
-                                paramDict['minRow'] = pkList.attrs.minRow
-                                paramDict['noiseFactor'] = pkList.attrs.noiseFactor
-                                paramDict['minClust'] = pkList.attrs.minClust
-                                paramDict['rowThresh'] = pkList.attrs.rowThresh
-                                paramDict['dbscanEPS'] = pkList.attrs.EPS
-                                paramDict['staticThresh'] = pkList.attrs.staticThresh
+                                    paramDict = {'scales':None,
+                                                 'minSNR':None,
+                                                 'minRow':None,
+                                                 'minClust':None,
+                                                 'dbscanEPS':None,
+                                                 'rowThresh':None,
+                                                 'noiseFactor':None,
+                                                 'staticThresh':None,
+                                                 'autoSave':None
+                                                 }
+                                    if pkList.attrs.__contains__('minSNR'):
+                                        paramDict['scales'] = pkList.attrs.scales
+                                        paramDict['minSNR'] = pkList.attrs.minSNR
+                                        paramDict['minRow'] = pkList.attrs.minRow
+                                        paramDict['noiseFactor'] = pkList.attrs.noiseFactor
+                                        paramDict['minClust'] = pkList.attrs.minClust
+                                        paramDict['rowThresh'] = pkList.attrs.rowThresh
+                                        paramDict['dbscanEPS'] = pkList.attrs.EPS
+                                        paramDict['staticThresh'] = pkList.attrs.staticThresh
 
 
-                            dataFile.setPeakList(pkList.read(), normalized = True)#set to normalized as these values are by nature already normalized
-                            dataFile.setPeakParams(paramDict)
-                            dataDict[newName] = dataFile#used to add to FP interface
-                            self.updateGUI(dataFile)
+                                    dataFile.setPeakList(pkList.read(), normalized = True)#set to normalized as these values are by nature already normalized
+                                    dataFile.setPeakParams(paramDict)
+
+                                dataDict[newName] = dataFile#used to add to FP interface
+                                self.updateGUI(dataFile)
 
 
                         peakStatDict = {}
@@ -1108,7 +1119,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
     def openFileDialog(self):
         fileName = QtGui.QFileDialog.getOpenFileName(self,
                                          "Select Fingerprint File to Load",
-                                         "",
+                                         self.curDir,
                                          "HDF5 Files (*.h5)")
         if not fileName.isEmpty():
 #            print fileName
@@ -1203,7 +1214,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         #########################
         self.dataList = []
         self.dataDict = {}
-        self.loadOk = False
         self.multiPlotIndex = []
         self.ignoreSignal = False
         self.firstLoad = True
@@ -1671,10 +1681,17 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                         curDataName = self.multiPlotList[1]
                         self.dataDict[curDataName].plot(curAx, pColor = self.plotColor, invert = True, plotPks = self.plotPkListCB.isChecked())
                     else:
-                        for curDataName in self.multiPlotList:
+                        if self.multiPlot_CB.isChecked():
+
+                            for curDataName in self.multiPlotList:
+                                self._updatePlotColor_()
+                                curData = self.dataDict[curDataName]
+    #                            print curData.peakList
+                                self.plotCurData(curData, curAx)
+                        else:
                             self._updatePlotColor_()
+                            curDataName = self.multiPlotList[0]
                             curData = self.dataDict[curDataName]
-#                            print curData.peakList
                             self.plotCurData(curData, curAx)
     #                        curData.plot(curAx, pColor = self.plotColor)
                         #the following makes it so the change is ignored and the plot does not update
