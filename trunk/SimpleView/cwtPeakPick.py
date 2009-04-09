@@ -270,20 +270,21 @@ def consolidatePeaks(peakLoc, peakInt, rawPeakInd, diffCutoff = 2.50):
             newIntLoc.append(peakInt[pnt])
             newPointLoc.append(rawPeakInd[pnt])
 
-        if cClass.max() > 0:#otherwise there is just one outlier
-            for i in xrange(1,int(cClass.max())+1):
-                tempInd = N.where(i == cClass)[0]
-                if len(tempInd)>0:
-#                    print tempInd
-                    maxLoc = peakInt[tempInd].argmax()
-    #                intSort = peakInt[tempInd].argsort()
+        if len(cClass)>0:
+            if cClass.max() > 0:#otherwise there is just one outlier
+                for i in xrange(1,int(cClass.max())+1):
+                    tempInd = N.where(i == cClass)[0]
+                    if len(tempInd)>0:
+    #                    print tempInd
+                        maxLoc = peakInt[tempInd].argmax()
+        #                intSort = peakInt[tempInd].argsort()
 
-    #                maxLoc = intSort[0]
+        #                maxLoc = intSort[0]
 
-    #                print peakLoc[maxLoc+tempInd[0]], peakInt[maxLoc+tempInd[0]], rawPeakInd[maxLoc+tempInd[0]]
-                    newPeakLoc.append(peakLoc[maxLoc+tempInd[0]])
-                    newIntLoc.append(peakInt[maxLoc+tempInd[0]])
-                    newPointLoc.append(rawPeakInd[maxLoc+tempInd[0]])
+        #                print peakLoc[maxLoc+tempInd[0]], peakInt[maxLoc+tempInd[0]], rawPeakInd[maxLoc+tempInd[0]]
+                        newPeakLoc.append(peakLoc[maxLoc+tempInd[0]])
+                        newIntLoc.append(peakInt[maxLoc+tempInd[0]])
+                        newPointLoc.append(rawPeakInd[maxLoc+tempInd[0]])
 
 #            print newPeakLoc
 #            print newIntLoc
