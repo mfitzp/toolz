@@ -346,6 +346,11 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
     def makePCAMtx(self, pcaXCrit, pcaStdCrit, pcaNum, fpNameList):
         '''
+        pcaXCrit -- list of m/z values
+        pcaStdCrit -- Std Deviation of m/z values
+        pcaNum -- number of values across matrix
+        fpList -- list of fingerprints
+
         make matrix for PCA
 
                       x1   x2   x3   x4  --m/z Values
@@ -360,7 +365,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         0-absent
 
         '''
-        mzTolPPM = 500/1000000#500ppm cutoff
+        mzTolPPM = self.globalPPM_SB.value()/1000000#500ppm cutoff
         freqCutoff = self.freqCutoff_SB.value()
 
         numCrit = len(pcaXCrit)
@@ -380,7 +385,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             fpStdLoc = curStats['stdLoc'][validInd]
             fpNum = curStats['numTot'][validInd]
 
-            print "Comp Loc", fpPeakLoc
+    #            print "Comp Loc", fpPeakLoc
             for j,xVal in enumerate(fpPeakLoc):
                 xStd = fpStdLoc[j]
                 xNum = fpNum[j]
@@ -395,20 +400,61 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 #                        print tVal, tCrit, xVal, pcaXVal
                         pcaMtx[i][m] = 1
 
-        print pcaMtx
-        critLabels = []
-        for val in pcaXCrit:
-            critLabels.append('%.2f'%val)
-        self.plotPCA(pcaMtx, fpNameList, critLabels)
+#        print pcaMtx
+        self.plotPCA(pcaMtx, fpNameList, pcaXCrit)
+
+    def compPCAMtx(self, compCrit):
+        '''
+        Compare spectra selected with the PCA of the selected fingerprints
+        '''
+        dataDict = {}
+        selectCompItems = self.fpSpecTreeWidget.selectedItems()
+        if len(selectCompItems) > 0:
+#            for item in selectCompItems:
+            item = selectCompItems[0]
+            if item.childCount() == 0:
+                dataDict[str(item.toolTip(0))] = self.dataDict[str(item.toolTip(0))]
+
+                mzTolPPM = self.globalPPM_SB.value()
+                compDict = FP.createFPDict(dataDict, mzTolppm = mzTolPPM)
+                compPeakLoc = compDict['aveLoc']
+                compBin = N.zeros_like(compCrit)
+                for j,xVal in enumerate(compPeakLoc):
+
+                    for m,pcaXVal in enumerate(compCrit):
+                        diff = N.abs(pcaXVal-xVal)
+                        maxDiff = (mzTolPPM/1000000)*xVal
+                        if diff <= maxDiff:
+                            compBin[m] = 1
+
+                return compBin, str(item.text(0))
+            else:
+                return None, None
+        else:
+            return None, None
+#            print "COMP PCA", compDict['aveLoc']
+#            for i, val in enumerate(compCrit):
+#                print compCrit[i], compBin[i]
 
 
-    def plotPCA(self, dataMatrix, pcaLabels=None, critLabels = None):
+    def plotPCA(self, dataMatrix, pcaLabels=None, numCrit=None):
         scores, loading, explanation = pca.PCA_nipals2(dataMatrix, standardize=False)
+
+#        print loading
+#        print explanation
+
+#        for i,diffVal in enumerate(xDiff):
+#            tErr = N.sqrt((xStd[i]**2/numVals[i])+(xStd[i+1]**2/numVals[i+1]))
+#            maxDiff = N.max(diffVal, mzTolPPM*xVals[i])
 
         pc1 = scores[:, 0]
         pc2 = scores[:, 1]
 #        pc3 = scores[:, 2]
-        pcaPlot = CT.DataTable(dataMatrix.transpose(), pcaLabels,critLabels)
+        critLabels = []
+        for val in numCrit:
+            critLabels.append('%.2f'%val)
+
+        pcaPlot = CT.DataTable(dataMatrix.transpose(), pcaLabels, critLabels)
         pcaPlot.setWindowTitle('PCA Plot')
         pcaPlot.tabWidget.setTabText(0,"PCA Matrix")
         pcaPlot.tabWidget.setTabText(1,"PCA Plot")
@@ -430,6 +476,21 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
         for label, x, y in map(None, pcaLabels, pc1, pc2):
             ax1.annotate(label, xy=(x, y),  size = 10)
+
+        compBin, sampLabel = self.compPCAMtx(numCrit)
+        if compBin != None:
+            compPCA1 = N.dot(compBin,loading[0])
+            compPCA2 = N.dot(compBin,loading[1])
+            ax1.plot([compPCA1],[compPCA2],alpha = 0.7, color = 'r', marker = 'o', ms = 15)
+            ax1.annotate(sampLabel, xy = (compPCA1, compPCA2), size = 10)
+#            for i in xrange(dataMatrix.shape[1]):
+#                dataMatrix[:,i]-=N.mean(dataMatrix[:,i])
+
+#        pc1Val = N.dot(dataMatrix[0],loading[0])
+#        pc2Val = N.dot(dataMatrix[0],loading[1])
+#
+#        print pc1Val, pc2Val
+
 
         pcaPlot.plotWidget.canvas.format_labels()
         pcaPlot.plotWidget.canvas.draw()
@@ -461,7 +522,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         Groups peaks together in order to make a standard list by which
         all of the peaks for each fingerprint will be compared.
         '''
-        mzTolPPM = 500/1000000
+        mzTolPPM = self.globalPPM_SB.value()/1000000
         xStd *= 3
 
         xVals = N.array(xVals)
@@ -511,7 +572,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             pcaStdCrit[i] = wStd
             pcaNum[i] = wNum
 
-        print "PCA X Crit",pcaXCrit
+#        print "PCA X Crit",pcaXCrit
 #        print pcaStdCrit
 
         return pcaXCrit, pcaStdCrit, pcaNum
@@ -648,6 +709,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         if boolAns:
             if self.curDataName != None:
                 curData = self.dataDict[self.curDataName]
+                peakLoc = curData.peakList[:,0]
 #                massSpecX = curData.x
                 massSpecY = curData.y
             else:
