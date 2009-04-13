@@ -56,9 +56,10 @@ class DataClass(object):
             #print self.path
             try:
                 peakListFN = self.path.replace('.mzXML', '_pks.csv')
-                if os.path.isfile(peakListFN):
-                    N.savetxt(peakListFN, self.peakList, delimiter = ',', fmt='%.4f')
-                    print "Peak List Save Time: ", time.clock()-t1
+#                if os.path.isfile(peakListFN):
+                N.savetxt(peakListFN, self.peakList, delimiter = ',', fmt='%.4f')
+                print "Peak List Save Time: ", time.clock()-t1
+
             except:
                 exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
                 traceback.print_exception(exceptionType, exceptionValue, exceptionTraceback, file=sys.stdout)
