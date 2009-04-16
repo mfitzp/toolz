@@ -19,7 +19,6 @@ from numpy.random import rand
 
 from PyQt4 import QtCore, QtGui
 
-import hcluster as H
 import scipy as S
 
 class Datum:
@@ -33,16 +32,12 @@ class Datum:
 
 
 class LassoManager(QtCore.QObject):#the QObject subclass is used so you can emit a signal
-#    def __init__(self):
     def __init__(self, data, ax = None, main = None, parent = None):
         QtCore.QObject.__init__(self, parent)
         self.ind = None
         self.selectPoints = None
         self.setupOk = False
 
-
-
-#    def setup(self, ax, data):
         self.ax = ax
         self.canvas = self.ax.figure.canvas
         self.data = data
@@ -64,8 +59,8 @@ class LassoManager(QtCore.QObject):#the QObject subclass is used so you can emit
     def update(self, data, ax):
         print "update"
         try:
-            self.canvas.mpl_disconnect(self.cid)#
-            self.canvas.mpl_disconnect(self.cidRelease)#'button_release_event', self.onrelease)
+            self.canvas.mpl_disconnect(self.cid)
+            self.canvas.mpl_disconnect(self.cidRelease)
         except:
             print "error removing axis connect"
         self.ax = ax
@@ -89,19 +84,11 @@ class LassoManager(QtCore.QObject):#the QObject subclass is used so you can emit
         This needs to be run before the release event otherwise no indices will be set.
         '''
 
-        print "callback"
-#        print verts
-#        facecolors = self.collection.get_facecolors()
         ind = nonzero(points_inside_poly(self.xys, verts))[0]
-#        for i in range(self.Nxy):
-#            if i in ind:
-#                facecolors[i] = Datum.colorin
-#            else:
-#                facecolors[i] = Datum.colorout
+
 #
         self.canvas.draw_idle()
         self.canvas.widgetlock.release(self.lasso)
-#        #del self.lasso
         self.ind = ind
         print "self.ind", self.ind
         if self.releaseOK:
@@ -119,7 +106,6 @@ class LassoManager(QtCore.QObject):#the QObject subclass is used so you can emit
 
     def onrelease(self, event = None):
         'on release we reset the press data'
-#        print 'release'
         self.releaseOK = True
         # test whether the widgetlock was initiated by the lasso
         if self.lassoLock:
@@ -127,19 +113,8 @@ class LassoManager(QtCore.QObject):#the QObject subclass is used so you can emit
             self.lassoLock = False
 
         if self.ind != None:
-#            if len(self.ind) == 1:
-#                print "self.ind, self.data ",self.ind, self.data[self.ind[0]]
-#            else:
-#                print "self.ind ", self.ind
             self.selectPoints = self.data[self.ind]
             self.emit(QtCore.SIGNAL("LassoUpdate(PyQt_PyObject)"),self.selectPoints)
-    #        print selectPoint
-#            try:
-#                self.selected.remove()
-#            except:
-#                print "No selection to remove."
-#                pass
-#            self.selected, = self.ax.plot(self.selectPoints[:,0], self.selectPoints[:,1], 'bo', alpha = 0.5)
 
     def setActive(self, boolState):
         if boolState:
@@ -159,13 +134,9 @@ if __name__ == '__main__':
     w.canvas.setupSub(1)
     ax = w.canvas.axDict['ax1']
 
-
-
-#    data = [Datum(*xy) for xy in rand(100, 2)]
     data = S.rand(100,2)
 
-#    ax = fig.add_subplot(111, xlim=(0,1), ylim=(0,1), autoscale_on=False)
-    ax.plot(data[:,0],data[:,1], 'ro')
+    ax.plot(data[:,0],data[:,1], 'bo')
     lman = LassoManager(data, ax)
 
     w.show()
