@@ -49,6 +49,8 @@ class GC_GC_MS_CLASS(QtCore.QObject):
         self.startPnt = None
         self.stopPnt = None
 
+        self.peakType = None
+
         #data are stored as integers but some of the functions
         #need to use floats.  This is a boolean to see if the
         #conversion to floats has occurred
@@ -73,6 +75,9 @@ class GC_GC_MS_CLASS(QtCore.QObject):
             print "No peaks are stored in the file."
 
     def setPeakInfo(self, peakInfoDict):
+        '''
+        Sets the peak locations for the current data layer
+        '''
         if type(peakInfoDict) is dict:
             if peakInfoDict.has_key('peakLoc'):
                 self.peakPickOk = True
@@ -83,21 +88,31 @@ class GC_GC_MS_CLASS(QtCore.QObject):
             print "the supplied peak information is not in dictionary form"
 
     def setupThreads(self):
+        '''
+        Initialize peak reading threads
+        '''
         self.ReadThread = ReadThread(self.filePath, self)
 
     def updateSIC(self, finishedBool):
+        '''
+        When the SIC thread is finished then this function is called
+        The 1D and 2D spectra are obtained and created respectively
+        '''
         self.sicOK = finishedBool
         if finishedBool:
             self.SIC = self.ReadThread.getSIC()
             self.sicLayer = self.make2DLayer(self.SIC, self.colPoints)
             msg = "SIC finished processing"
-            print msg
+#            print msg
             if self.parent != None:
                 self.parent.setSIC(finishedBool)
         else:
             print "Please wait, SIC not finished processing"
 
     def updateBPC(self, finishedBool):
+        '''
+        When the BPC extraction is finished this function sets the BPC to memory
+        '''
         self.bpcOK = finishedBool
         if finishedBool:
             self.BPC = self.ReadThread.getBPC()
@@ -108,15 +123,24 @@ class GC_GC_MS_CLASS(QtCore.QObject):
             print "Please wait, BPC not finished processing"
 
     def readPeakInfo(self):
+        '''
+        Called when the object is initialized
+        '''
         self.getHandle()
         childDict = self.handle.root._v_children #dictionary of children
-        if childDict.has_key(self.peakArrayNames[0]):
-            self.peakInfo1D = {}
-            for arrayName in self.peakArrayNames:
-                self.peakInfo1D[arrayName] = childDict[arrayName].read()
-                #Need to add which type of peaks these are
-                #What m/z if appropriate
-            self.peakPickOk = True
+        if childDict.has_key(self.peakArrayNames[0]):#in this case 'peakLoc'
+            peakAttrs = childDict[self.peakArrayNames[0]].attrs._v_attrnames
+            if 'peakType' in peakAttrs:
+                'YOU ARE HERE'
+                self.peakType = childDict[self.peakArrayNames[0]].attr.peakType
+                self.peakInfo1D = {}
+                for arrayName in self.peakArrayNames:
+                    self.peakInfo1D[arrayName] = childDict[arrayName].read()
+                    #Need to add which type of peaks these are
+                    #What m/z if appropriate
+                self.peakPickOk = True
+            else:
+                self.peakType = None
         self.closeHandle()
 
     def writeArray2File(self, arrayName, array):
@@ -154,18 +178,18 @@ class GC_GC_MS_CLASS(QtCore.QObject):
 
         self.closeHandle()
 
-    def setPeakType(self, layerType):
+    def setPeakType(self, peakType):
         '''
         Set Layer Type for future reading
         '''
         hdf = T.openFile(self.filePath, mode = "a")
         r = hdf.root
         try:
-            r.dataCube.attrs.fileType = layerType
+            r.dataCube.attrs.peakType = peakType
             hdf.close()
             print "Peak Type set to %s"%layerType
         except:
-            print "error setting layer type %s to %s"%(layerType,self.filePath)
+            print "error setting layer type %s to %s"%(peakType,self.filePath)
             hdf.close()
 
     def getHandle(self):
@@ -175,11 +199,6 @@ class GC_GC_MS_CLASS(QtCore.QObject):
     def closeHandle(self):
         self.handle.close()
         self.fileOpen = False
-
-    def _setBPC_(self):
-        print "This function has been disabled"
-#        self.ReadThread.setType('BPC')
-#        self.ReadThread.start()
 
     def getBPC(self):
         if self.bpcOK:
