@@ -629,6 +629,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         self.addChromPickers()
         self.curDataName = self.dataList[plotIndex]
         self.curData = self.dataDict[self.curDataName]
+        self.curData.setPlotType(self.plotType)
 #        print type(self.curData.name), self.curData.name
 #        test = self.listWidget.findItems(self.curData.name,QtCore.Qt.MatchExactly)[0]
 #        print self.listWidget.indexFromItem(test).row()

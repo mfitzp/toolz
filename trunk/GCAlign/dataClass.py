@@ -171,6 +171,16 @@ class GC_GC_MS_CLASS(QtCore.QObject):
                 self.writeArray2File(item[0], item[1])
 
 
+    def setPlotType(self, plotTypeStr):
+        if plotTypeStr is 'BPC':
+            self.plotType = 'BPC'
+
+        elif plotTypeStr is 'SIC':
+            self.plotType = 'SIC'
+
+        elif plotTypeStr is 'TIC':
+            self.plotType = 'TIC'
+
     def getPeakType(self):
         self.getHandle()
 
@@ -187,7 +197,7 @@ class GC_GC_MS_CLASS(QtCore.QObject):
         try:
             r.dataCube.attrs.peakType = peakType
             hdf.close()
-            print "Peak Type set to %s"%layerType
+            print "Peak Type set to %s"%peakType
         except:
             print "error setting layer type %s to %s"%(peakType,self.filePath)
             hdf.close()

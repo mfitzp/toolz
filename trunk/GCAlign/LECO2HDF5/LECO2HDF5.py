@@ -8,7 +8,7 @@ import time
 
 import ui_main
 
-from LECO_IO import ChromaTOF_Reader as CR
+#from LECO_IO import ChromaTOF_Reader as CR
 from LECOFolderParse import getLECOFiles
 
 import tables as T
@@ -315,6 +315,8 @@ class saveThread(QtCore.QThread):
         bpc = hdf.createCArray(hdf.root, 'BPC', atom, shape,  filters = filters)
         bpcMZ = hdf.createCArray(hdf.root, 'BPCmz', atom, shape,  filters = filters)
 
+        sic = hdf.createCArray(hdf.root, 'SIC', atom, shape,  filters = filters)
+        sic.attrs.sicMZ = 0.0
 
         #sicCube = hdf.createEArray(hdf.root, 'sicCube', atom, (mzMax,0), filters = filters,  expectedrows = mzMax)#,  chunkshape = chunkS)
         #print "Sic Chunk", sicCube.chunkshape
