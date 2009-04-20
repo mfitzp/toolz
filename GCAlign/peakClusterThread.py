@@ -5,7 +5,8 @@ from PyQt4 import QtCore,  QtGui
 import numpy as N
 
 from mpl_pyqt4_widget import MPL_Widget
-import hcluster_bhc as H
+#import hcluster_bhc as H
+import hcluster as H
 
 distTypeDist = {'Euclidean':'euclidean',
                 'Normalized Euclidean':'seuclidean',

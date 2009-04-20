@@ -8,7 +8,7 @@ kill child windows when spawned
 peak info when clicked
 '''
 ###################################
-import os, sys
+import os, sys, traceback
 import time
 
 from PyQt4 import QtCore,  QtGui
@@ -30,7 +30,8 @@ import supportFunc as SF
 from dataClass import GC_GC_MS_CLASS as GCDATA
 from peakFindThread import PeakFindThread as PFT
 import peakClusterThread as PCT
-import hcluster_bhc as H
+#import hcluster_bhc as H
+import hcluster as H
 from mpl_pyqt4_widget import MPL_Widget
 from dbscan import dbscan
 from lassoPlot import LassoManager as LM
@@ -1317,7 +1318,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         if finishedBool:
             self.peakInfo = None
             self.peakInfo = self.PFT.getPeakInfo()
-            self.curData.setPeakInfo(self.peakInfo)
+            self.curData.setPeakInfo(self.peakInfo, self.plotType)
             self.PFT.wait()#as per Ashoka's code...
 
             if self.peakPickPlot2D != None:
