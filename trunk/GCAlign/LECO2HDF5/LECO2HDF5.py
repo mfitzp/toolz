@@ -8,7 +8,7 @@ import time
 
 import ui_main
 
-#from LECO_IO import ChromaTOF_Reader as CR
+from LECO_IO import ChromaTOF_Reader as CR
 from LECOFolderParse import getLECOFiles
 
 import tables as T

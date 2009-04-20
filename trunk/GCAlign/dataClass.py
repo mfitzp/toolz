@@ -6,7 +6,7 @@ Remember to use writearray2file to append a certain array to hdf5.
 
 '''
 
-import os
+import os, sys, traceback
 from PyQt4 import QtCore,  QtGui
 
 import numpy as N
@@ -50,6 +50,7 @@ class GC_GC_MS_CLASS(QtCore.QObject):
         self.stopPnt = None
 
         self.peakType = None
+        self.plotType = None
 
         #data are stored as integers but some of the functions
         #need to use floats.  This is a boolean to see if the
@@ -72,9 +73,14 @@ class GC_GC_MS_CLASS(QtCore.QObject):
         try:
             self.readPeakInfo()
         except:
+            exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+            traceback.print_exception(exceptionType, exceptionValue, exceptionTraceback, file=sys.stdout)
+            errorMsg = "Sorry: %s\n\n:%s\n%s\n"%(exceptionType, exceptionValue, exceptionTraceback)
+            print errorMsg
+
             print "No peaks are stored in the file."
 
-    def setPeakInfo(self, peakInfoDict):
+    def setPeakInfo(self, peakInfoDict, plotType):
         '''
         Sets the peak locations for the current data layer
         '''
@@ -82,6 +88,7 @@ class GC_GC_MS_CLASS(QtCore.QObject):
             if peakInfoDict.has_key('peakLoc'):
                 self.peakPickOk = True
                 self.peakInfo1D = peakInfoDict
+                self.peakType = plotType #use this to match requested display layer with peaks, if they match plot all
             else:
                 print "1D Peak Info Error, the dictionary does not have the appropriate keys"
         else:
@@ -132,7 +139,7 @@ class GC_GC_MS_CLASS(QtCore.QObject):
             peakAttrs = childDict[self.peakArrayNames[0]].attrs._v_attrnames
             if 'peakType' in peakAttrs:
                 'YOU ARE HERE'
-                self.peakType = childDict[self.peakArrayNames[0]].attr.peakType
+                self.peakType = childDict[self.peakArrayNames[0]].attrs.peakType
                 self.peakInfo1D = {}
                 for arrayName in self.peakArrayNames:
                     self.peakInfo1D[arrayName] = childDict[arrayName].read()
@@ -143,7 +150,7 @@ class GC_GC_MS_CLASS(QtCore.QObject):
                 self.peakType = None
         self.closeHandle()
 
-    def writeArray2File(self, arrayName, array):
+    def writeArray2File(self, arrayName, array, attrStr = None):
         hdf = T.openFile(self.filePath, mode = "a")
         if hdf.root._v_children.has_key(arrayName):
             hdf.root._v_children[arrayName].remove()
@@ -152,6 +159,8 @@ class GC_GC_MS_CLASS(QtCore.QObject):
         shape = array.shape
         try:
             ca = hdf.createCArray(hdf.root, arrayName, atom, shape,  filters = filters)
+            if attrStr != None:
+                ca.attrs.peakType = attrStr
             ca[0:shape[0]] = array
             ca.flush()
             hdf.close()
@@ -168,17 +177,22 @@ class GC_GC_MS_CLASS(QtCore.QObject):
 
         if self.peakPickOk:
             for item in self.peakInfo1D.iteritems():
-                self.writeArray2File(item[0], item[1])
+                if item[0] == 'peakLoc':
+                    self.writeArray2File(item[0], item[1], self.peakType)
+                else:
+                    self.writeArray2File(item[0], item[1])
+                print self.plotType
 
 
     def setPlotType(self, plotTypeStr):
-        if plotTypeStr is 'BPC':
+        print "setPlotType", plotTypeStr
+        if plotTypeStr == 'BPC':
             self.plotType = 'BPC'
 
-        elif plotTypeStr is 'SIC':
+        elif plotTypeStr == 'SIC':
             self.plotType = 'SIC'
 
-        elif plotTypeStr is 'TIC':
+        elif plotTypeStr == 'TIC':
             self.plotType = 'TIC'
 
     def getPeakType(self):
