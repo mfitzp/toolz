@@ -664,9 +664,10 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
         self.curChromPlot, = self.chromAxis.plot(self.curChrom, 'b', label = self.curData.name, picker = 5)
         if self.showPickedPeaksCB.isChecked():
             if self.curData.peakPickOk:
-                self.peakInfo = self.curData.peakInfo1D
-                self.peakLoc2D = self.get2DPeakLoc(self.peakInfo['peakLoc'], self.curData.rowPoints, self.curData.colPoints)
-                self.setupTable()
+                if self.plotType == self.curData.peakType:#test to see if current peaks correspond to the current layer
+                    self.peakInfo = self.curData.peakInfo1D
+                    self.peakLoc2D = self.get2DPeakLoc(self.peakInfo['peakLoc'], self.curData.rowPoints, self.curData.colPoints)
+                    self.setupTable()
         #update Chrom GUI elements for peak picking and other functions
         self.updateChromGUI()
 
@@ -1319,26 +1320,36 @@ class Plot_Widget(QtGui.QMainWindow,  ui_iterate.Ui_MainWindow):
             self.peakInfo = None
             self.peakInfo = self.PFT.getPeakInfo()
             self.curData.setPeakInfo(self.peakInfo, self.plotType)
+            self.curData.setPeakType(self.plotType)
             self.PFT.wait()#as per Ashoka's code...
 
-            if self.peakPickPlot2D != None:
-                self.peakPickPlot2D.remove()
-            if self.peakPickPlot1D != None:
-                self.peakPickPlot1D.remove()
-            if self.clustPlot != None:
-                try:
-                    self.clustDict = {}
-                    self.clustPlot.remove()
-                    self.clustLoc2D = None
-                except:
-                    print "No clustPlot to remove:"
+            try:
+                if self.peakPickPlot2D != None:
+                    self.peakPickPlot2D.remove()
+                if self.peakPickPlot1D != None:
+                    self.peakPickPlot1D.remove()
+                if self.clustPlot != None:
+                    try:
+                        self.clustDict = {}
+                        self.clustPlot.remove()
+                        self.clustLoc2D = None
+                    except:
+                        print "No clustPlot to remove:"
 
-            if self.memPlot != None:
-                try:
-                    self.memPlot.remove()
-                    self.clustMembers = None
-                except:
-                    print "No memPlot to remove:"
+                if self.memPlot != None:
+                    try:
+                        self.memPlot.remove()
+                        self.clustMembers = None
+                    except:
+                        print "No memPlot to remove:"
+            except:
+                exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+                traceback.print_exception(exceptionType, exceptionValue, exceptionTraceback, file=sys.stdout)
+                errorMsg = "Sorry: %s\n\n:%s\n%s\n"%(exceptionType, exceptionValue, exceptionTraceback)
+#                return QtGui.QMessageBox.warning(self, "Load Fingerpint Error", errorMsg)
+#                print 'Error loading fingerprint from HDF5'
+                print errorMsg
+
 
             if self.showPickedPeaksCB.isChecked():
                 self.peakLoc2D = self.get2DPeakLoc(self.peakInfo['peakLoc'], self.curData.rowPoints, self.curData.colPoints)
