@@ -80,7 +80,7 @@ class GC_GC_MS_CLASS(QtCore.QObject):
 
             print "No peaks are stored in the file."
 
-    def setPeakInfo(self, peakInfoDict, plotType):
+    def setPeakInfo(self, peakInfoDict, plotType = None):
         '''
         Sets the peak locations for the current data layer
         '''
@@ -88,7 +88,8 @@ class GC_GC_MS_CLASS(QtCore.QObject):
             if peakInfoDict.has_key('peakLoc'):
                 self.peakPickOk = True
                 self.peakInfo1D = peakInfoDict
-                self.peakType = plotType #use this to match requested display layer with peaks, if they match plot all
+                if plotType != None:
+                    self.peakType = plotType #use this to match requested display layer with peaks, if they match plot all
             else:
                 print "1D Peak Info Error, the dictionary does not have the appropriate keys"
         else:
@@ -138,7 +139,6 @@ class GC_GC_MS_CLASS(QtCore.QObject):
         if childDict.has_key(self.peakArrayNames[0]):#in this case 'peakLoc'
             peakAttrs = childDict[self.peakArrayNames[0]].attrs._v_attrnames
             if 'peakType' in peakAttrs:
-                'YOU ARE HERE'
                 self.peakType = childDict[self.peakArrayNames[0]].attrs.peakType
                 self.peakInfo1D = {}
                 for arrayName in self.peakArrayNames:
@@ -185,7 +185,6 @@ class GC_GC_MS_CLASS(QtCore.QObject):
 
 
     def setPlotType(self, plotTypeStr):
-        print "setPlotType", plotTypeStr
         if plotTypeStr == 'BPC':
             self.plotType = 'BPC'
 
@@ -195,26 +194,35 @@ class GC_GC_MS_CLASS(QtCore.QObject):
         elif plotTypeStr == 'TIC':
             self.plotType = 'TIC'
 
-    def getPeakType(self):
-        self.getHandle()
+    def setPeakType(self, peakTypeStr):
+        if peakTypeStr == 'BPC':
+            self.peakType = 'BPC'
 
+        elif peakTypeStr == 'SIC':
+            self.peakType = 'SIC'
 
-
-        self.closeHandle()
-
-    def setPeakType(self, peakType):
-        '''
-        Set Layer Type for future reading
-        '''
-        hdf = T.openFile(self.filePath, mode = "a")
-        r = hdf.root
-        try:
-            r.dataCube.attrs.peakType = peakType
-            hdf.close()
-            print "Peak Type set to %s"%peakType
-        except:
-            print "error setting layer type %s to %s"%(peakType,self.filePath)
-            hdf.close()
+        elif peakTypeStr == 'TIC':
+            self.peakType = 'TIC'
+#    def getPeakType(self):
+#        self.getHandle()
+#
+#
+#
+#        self.closeHandle()
+#
+#    def setPeakType(self, peakType):
+#        '''
+#        Set Layer Type for future reading
+#        '''
+#        hdf = T.openFile(self.filePath, mode = "a")
+#        r = hdf.root
+#        try:
+#            r.dataCube.attrs.peakType = peakType
+#            hdf.close()
+#            print "Peak Type set to %s"%peakType
+#        except:
+#            print "error setting layer type %s to %s"%(peakType,self.filePath)
+#            hdf.close()
 
     def getHandle(self):
         self.handle = T.openFile(self.filePath, 'r')
