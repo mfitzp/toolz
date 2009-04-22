@@ -141,10 +141,10 @@ def fit_gaussian(chans, counts):
    w = N.asarray(counts, dtype=float)**2
    w = N.clip(w, 1., max(w))#changed from low clip from 1.0 10/19/2008 BHC
    fic = polyfitw(x, y, w, 2)
-   fic[2] = min(fic[2], -.001)  # Protect against divide by 0
+   fic[2] = min(fic[2], -.0001)  # Protect against divide by 0
    amplitude = N.exp(fic[0] - fic[1]**2/(4.*fic[2]))
 
-   if amplitude > (max(counts))**2:#sanity check
+   if amplitude > (max(counts))*5:#sanity check
        amplitude = max(counts)
    centroid  = center - fic[1]/(2.*fic[2])
    sigma     = N.sqrt(-1/(2.*fic[2]))
