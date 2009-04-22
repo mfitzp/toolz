@@ -109,6 +109,7 @@ class GC_GC_MS_CLASS(QtCore.QObject):
         self.sicOK = finishedBool
         if finishedBool:
             self.SIC = self.ReadThread.getSIC()
+            self.SIC = self.SIC[0:self.rowPoints*self.colPoints]
             self.sicLayer = self.make2DLayer(self.SIC, self.colPoints)
             msg = "SIC finished processing"
 #            print msg
@@ -304,7 +305,7 @@ class GC_GC_MS_CLASS(QtCore.QObject):
             self.closeHandle()
             if len(tic)>0:
                 self.ticOK = True
-                self.TIC = tic
+                self.TIC = tic[0:self.rowPoints*self.colPoints]
             else:
                 print "Error opening HDF5 data file, no TIC found"
 
@@ -317,7 +318,7 @@ class GC_GC_MS_CLASS(QtCore.QObject):
 
                 if len(bpc)>0:
                     self.bpcOK = True
-                    self.BPC = bpc
+                    self.BPC = bpc[0:self.rowPoints*self.colPoints]
                     self.BPCmz = bpcMZ
                 else:
                     print "Error opening HDF5 data file, no BPC found"
@@ -355,24 +356,35 @@ class GC_GC_MS_CLASS(QtCore.QObject):
             else:
                 print 'Big Error!, check file type and how it was made. No row attributes found!'
 
+
             self.closeHandle()
 
     def make2DLayer(self, cgram, colPoints):
-        '''
-        cgram = chromatogram
-        cLayer = 2D representation of cgram
-        '''
-        rowPoints = int(len(cgram)/colPoints)
-        cLayer = N.empty((rowPoints, colPoints), dtype = int)#  self.colPoints),  dtype=int)
-        print cLayer.shape
-        x = 0
-        for i in xrange(len(cgram)):
-            y=i%colPoints
-            cLayer[x][y] = cgram[i]
-            if i !=0 and (i%colPoints) == 0:
-                x+=1
+        try:
 
-        return N.transpose(cLayer)
+            '''
+            cgram = chromatogram
+            cLayer = 2D representation of cgram
+            '''
+            print "Rows, Columns, len(cgram)", self.rowPoints, colPoints, len(cgram)
+            rowPoints = int(len(cgram)/colPoints)
+            cLayer = N.empty((rowPoints, colPoints), dtype = int)#  self.colPoints),  dtype=int)
+            print cLayer.shape
+            x = 0
+            for i in xrange(len(cgram)):
+                y=i%colPoints
+                cLayer[x][y] = cgram[i]
+                if i !=0 and (i%colPoints) == 0:
+                    x+=1
+
+            return N.transpose(cLayer)
+        except:
+            exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+            traceback.print_exception(exceptionType, exceptionValue, exceptionTraceback, file=sys.stdout)
+            errorMsg = "Sorry: %s\n\n:%s\n%s\n"%(exceptionType, exceptionValue, exceptionTraceback)
+            print errorMsg
+
+            print "No peaks are stored in the file."
 
     def get2DPeakLoc(peakLoc, rows, cols):
         x = N.empty(len(peakLoc), dtype = int)
