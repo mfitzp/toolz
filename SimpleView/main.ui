@@ -13,7 +13,8 @@
    <string>SpectrumViewer</string>
   </property>
   <property name="windowIcon" >
-   <iconset resource="icons.qrc" >:/new/prefix1/Retro Mario World_32.png</iconset>
+   <iconset resource="icons.qrc" >
+    <normaloff>:/new/prefix1/Retro Mario World_32.png</normaloff>:/new/prefix1/Retro Mario World_32.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget" >
    <layout class="QGridLayout" >
@@ -53,7 +54,14 @@
              </layout>
             </item>
             <item>
-             <widget class="MPL_Widget" native="1" name="plotWidget" />
+             <widget class="MPL_Widget" native="1" name="plotWidget" >
+              <property name="sizePolicy" >
+               <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+             </widget>
             </item>
            </layout>
           </item>
@@ -93,11 +101,11 @@
                 <property name="sortingEnabled" >
                  <bool>true</bool>
                 </property>
+                <property name="headerHidden" >
+                 <bool>false</bool>
+                </property>
                 <property name="columnCount" >
                  <number>1</number>
-                </property>
-                <property name="headerHidden" stdset="0" >
-                 <bool>false</bool>
                 </property>
                 <column>
                  <property name="text" >
@@ -731,7 +739,7 @@ p, li { white-space: pre-wrap; }
               <property name="orientation" >
                <enum>Qt::Horizontal</enum>
               </property>
-              <property name="sizeHint" >
+              <property name="sizeHint" stdset="0" >
                <size>
                 <width>40</width>
                 <height>20</height>
@@ -1123,7 +1131,7 @@ p, li { white-space: pre-wrap; }
             <property name="orientation" >
              <enum>Qt::Vertical</enum>
             </property>
-            <property name="sizeHint" >
+            <property name="sizeHint" stdset="0" >
              <size>
               <width>20</width>
               <height>40</height>
@@ -1286,7 +1294,7 @@ p, li { white-space: pre-wrap; }
                 <property name="orientation" >
                  <enum>Qt::Vertical</enum>
                 </property>
-                <property name="sizeHint" >
+                <property name="sizeHint" stdset="0" >
                  <size>
                   <width>20</width>
                   <height>40</height>
@@ -1301,7 +1309,7 @@ p, li { white-space: pre-wrap; }
               <property name="orientation" >
                <enum>Qt::Horizontal</enum>
               </property>
-              <property name="sizeHint" >
+              <property name="sizeHint" stdset="0" >
                <size>
                 <width>40</width>
                 <height>20</height>
@@ -1358,7 +1366,7 @@ p, li { white-space: pre-wrap; }
             <property name="orientation" >
              <enum>Qt::Horizontal</enum>
             </property>
-            <property name="sizeHint" >
+            <property name="sizeHint" stdset="0" >
              <size>
               <width>40</width>
               <height>20</height>
@@ -1522,7 +1530,7 @@ p, li { white-space: pre-wrap; }
                   <property name="orientation" >
                    <enum>Qt::Horizontal</enum>
                   </property>
-                  <property name="sizeHint" >
+                  <property name="sizeHint" stdset="0" >
                    <size>
                     <width>40</width>
                     <height>20</height>
@@ -1592,7 +1600,7 @@ p, li { white-space: pre-wrap; }
                 <property name="orientation" >
                  <enum>Qt::Vertical</enum>
                 </property>
-                <property name="sizeHint" >
+                <property name="sizeHint" stdset="0" >
                  <size>
                   <width>20</width>
                   <height>40</height>
@@ -1618,7 +1626,7 @@ p, li { white-space: pre-wrap; }
                   <property name="orientation" >
                    <enum>Qt::Horizontal</enum>
                   </property>
-                  <property name="sizeHint" >
+                  <property name="sizeHint" stdset="0" >
                    <size>
                     <width>40</width>
                     <height>20</height>
@@ -1642,11 +1650,11 @@ p, li { white-space: pre-wrap; }
                 <property name="sortingEnabled" >
                  <bool>true</bool>
                 </property>
+                <property name="headerHidden" >
+                 <bool>false</bool>
+                </property>
                 <property name="columnCount" >
                  <number>1</number>
-                </property>
-                <property name="headerHidden" stdset="0" >
-                 <bool>false</bool>
                 </property>
                 <column>
                  <property name="text" >
@@ -1714,7 +1722,7 @@ p, li { white-space: pre-wrap; }
                 <property name="orientation" >
                  <enum>Qt::Horizontal</enum>
                 </property>
-                <property name="sizeHint" >
+                <property name="sizeHint" stdset="0" >
                  <size>
                   <width>40</width>
                   <height>20</height>
@@ -1731,7 +1739,7 @@ p, li { white-space: pre-wrap; }
             <property name="orientation" >
              <enum>Qt::Horizontal</enum>
             </property>
-            <property name="sizeHint" >
+            <property name="sizeHint" stdset="0" >
              <size>
               <width>40</width>
               <height>20</height>
@@ -1744,7 +1752,7 @@ p, li { white-space: pre-wrap; }
             <property name="orientation" >
              <enum>Qt::Vertical</enum>
             </property>
-            <property name="sizeHint" >
+            <property name="sizeHint" stdset="0" >
              <size>
               <width>20</width>
               <height>40</height>

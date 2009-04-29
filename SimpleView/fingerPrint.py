@@ -75,6 +75,7 @@ class Finger_Widget(QtGui.QWidget, ui_fingerPrint.Ui_fingerPlotWidget):
             self.setupPlot()
 
         self.__initConnections__()
+        self.resize(500,700)
 
     def __initConnections__(self):
         self.actionAutoScale = QtGui.QAction("AutoScale",  self)#self.MainWindow)
