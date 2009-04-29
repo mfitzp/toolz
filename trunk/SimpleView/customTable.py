@@ -66,6 +66,7 @@ class DataTable(QtGui.QWidget):
         self.tabWidget.addTab(self.tab2, "MetaData Plot")
 
         self.vLayout.addWidget(self.tabWidget)
+#        self.resize(500,700)
 
 class CustomTable(QtGui.QTableWidget):
     def __init__(self, parent = None):

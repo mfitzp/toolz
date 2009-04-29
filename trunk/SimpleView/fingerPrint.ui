@@ -24,7 +24,14 @@
       </attribute>
       <layout class="QGridLayout" >
        <item row="0" column="0" >
-        <widget class="MPL_Widget" native="1" name="plotWidget" />
+        <widget class="MPL_Widget" native="1" name="plotWidget" >
+         <property name="sizePolicy" >
+          <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+        </widget>
        </item>
        <item row="1" column="0" >
         <layout class="QGridLayout" >

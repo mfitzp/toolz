@@ -495,6 +495,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         pcaPlot.plotWidget.canvas.format_labels()
         pcaPlot.plotWidget.canvas.draw()
         pcaPlot.show()
+        pcaPlot.resize(700,500)
         self.fingerRevTabls.append(pcaPlot)
 
 #        testPlot.show()
@@ -629,7 +630,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             if item.childCount() == 0:
                 dataDict[str(item.toolTip(0))] = self.dataDict[str(item.toolTip(0))]
 
-            compDict = FP.createFPDict(dataDict)
+            compDict = FP.createFPDict(dataDict)#create a temporary fingerprint of the selected files
             prob = {}
             for fpName in fpList:
                 curFPDict = self.fpDict[fpName]
@@ -1789,7 +1790,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
     #                    self.groupTreeWidget.setCurrentRow(plotIndex)
     #                    self.ignoreSignal = False
             if self.plotLegendCB.isChecked():
-                curAx.legend(axespad = 0.03, pad=0.25)
+                curAx.legend(borderaxespad = 0.03, axespad=0.25)
             try:
                 minX = curAx.get_lines()[0].get_xdata()[0]
                 self.addPickers(minX)
@@ -2099,7 +2100,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                     self.specListWidget.setCurrentRow(plotIndex)
                     self.ignoreSignal = False
             if self.plotLegendCB.isChecked():
-                curAx.legend(axespad = 0.03, pad=0.25)
+                curAx.legend(borderaxespad = 0.03, axespad=0.25)
             try:
                 minX = curAx.get_lines()[0].get_xdata()[0]
                 self.addPickers(minX)
