@@ -7,12 +7,13 @@ from PyQt4 import QtCore,  QtGui
 
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt4 import NavigationToolbar2QT as NavigationToolbar
-#from matplotlib.backend_bases import NavigationToolbar2
 
 from matplotlib.figure import Figure
 
 from matplotlib.widgets import SpanSelector
-#from matplotlib.pyplot import savefig
+
+
+
 import numpy as N
 
 
@@ -73,8 +74,6 @@ class MyMplCanvas(FigureCanvas):
 
 class MyNavigationToolbar(NavigationToolbar) :
     def __init__(self , parent , canvas , direction = 'h' ) :
-        #NavigationToolbar.__init__(self,parent,canvas)
-        #self.layout = QVBoxLayout( self )
 
         self.canvas = canvas
         QWidget.__init__( self, parent )
@@ -171,7 +170,7 @@ class MPL_Widget(QtGui.QWidget):
 #        print xmin,  xmax
         if self.hZoom:
             self.canvas.ax.set_ylim(ymax = self.localYMax)
-            self.canvas.ax.set_xlim(xmin,  xmax)
+            self.canvas.ax.set_xlim(xmin, xmax)
             self.canvas.draw()
 
 

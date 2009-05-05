@@ -460,6 +460,8 @@ class Finger_Widget(QtGui.QWidget, ui_fingerPrint.Ui_fingerPlotWidget):
                 else:
                     ca._v_attrs.mzPad = item[1].mzPad
 
+    def saveDict2CSV(self):
+        "Go Joe"
 
     def saveFinger2HDF5(self):
         fileName = self.saveFileDialog()
@@ -468,6 +470,8 @@ class Finger_Widget(QtGui.QWidget, ui_fingerPrint.Ui_fingerPlotWidget):
             try:
                 self.saveDict(hdf, self.dataDict, "Spectra")
                 self.saveDict(hdf, self.peakStatDict, "PeakStats")
+                csvFileName = fileName.split('.')[0]+'_Table.csv'
+                writeDict2CSV(self.peakStatDict, csvFileName)
                 '''
                 Need to iteratively save XY spectra and each peak List
                 Save Peak Table
@@ -673,6 +677,32 @@ def createFPDict(dataDict, mzTolppm=500):
         peakStatDict[key] = N.array(peakStatDict[key][1:])#we want to remove the first element as it is zero and just a place holder
 
     return peakStatDict
+
+def writeDict2CSV(dict2write, fileName):
+    '''
+    Assumes that the length of each
+    item in the dictionary is the same
+    '''
+    dKeys = dict2write.keys()
+    header = ','.join(dKeys)
+    f = open(fileName, 'w')
+    header+='\n'
+    f.write(header)
+    try:
+        allRows = []
+        for i in xrange(len(dict2write[dKeys[0]])):
+            row = []
+            for key in dKeys:
+                row.append(str(dict2write[key][i]))
+            formattedRow = ','.join(row)
+            formattedRow+='\n'
+            allRows.append(formattedRow)
+        f.writelines(allRows)
+        f.close()
+    except:
+        print "File Write Error"
+        f.close()
+        raise
 
 
 
