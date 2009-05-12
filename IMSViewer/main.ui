@@ -174,16 +174,6 @@
               </property>
              </widget>
             </item>
-            <item>
-             <widget class="QCheckBox" name="showTOF_CB" >
-              <property name="enabled" >
-               <bool>true</bool>
-              </property>
-              <property name="text" >
-               <string>Show TOF Spectrum?</string>
-              </property>
-             </widget>
-            </item>
            </layout>
           </item>
           <item>

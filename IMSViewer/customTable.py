@@ -60,6 +60,9 @@ class DataTable(QtGui.QWidget):
 
         self.tab2 = QtGui.QWidget()
         self.plotWidget = MPL_Widget(self.tab2, enableAutoScale = True, enableCSV = True)
+#        self.axisLayout = QtGui.QHBoxLayout
+#        self.setLimitsBtn = QtGui.QPushButton(self.tab2)
+#        self.setLimitsBtn.setText('Set X Scale')
         self.tab2Layout = QtGui.QHBoxLayout(self.tab2)
         self.tab2Layout.addWidget(self.plotWidget)
 

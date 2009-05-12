@@ -28,6 +28,7 @@ from Plot_Options_Line2D import Plot_Options_Dialog as POD
 from dataClass import DataClass
 from WSU_Process import WSUDataClass as WSU
 
+from plotWindow import PlotWidget as PW
 import supportFunc as SF
 import getBaseline as GB
 import customTable as CT
@@ -88,6 +89,14 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
         self.addFileAction = QtGui.QAction("Add File", self)
         self.groupTreeWidget.addAction(self.addFileAction)
+
+        self.addDataAction = QtGui.QAction("Append Data",  self)#self.MainWindow)
+        self.groupTreeWidget.addAction(self.addDataAction)
+        QtCore.QObject.connect(self.addDataAction, QtCore.SIGNAL("triggered()"), self.addData2Plot)
+
+        self.showTOFAction = QtGui.QAction("Show TOF Spectrum",  self)#self.MainWindow)
+        self.groupTreeWidget.addAction(self.showTOFAction)
+        QtCore.QObject.connect(self.showTOFAction, QtCore.SIGNAL("triggered()"), self.showTOFSpectrum)
 
 #        self.topHatAction = QtGui.QAction("Apply TopHat",  self)
 #        self.groupTreeWidget.addAction(self.topHatAction)
@@ -172,7 +181,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         QtCore.QObject.connect(self.actionIgnore_Raw_Spectrum, QtCore.SIGNAL("triggered()"), self.toggleIgnoreRaw)
         QtCore.QObject.connect(self.actionInvert_Comparison, QtCore.SIGNAL("triggered()"), self.toggleInvert)
 
-        QtCore.QObject.connect(self.loadWSU_CB, QtCore.SIGNAL("stateChanged (int)"), self.toggleIMSTOFLoad)
+#        QtCore.QObject.connect(self.loadWSU_CB, QtCore.SIGNAL("stateChanged (int)"), self.toggleIMSTOFLoad)
 
 
 ############IMS Resolving Power Widget###################
@@ -187,8 +196,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
         QtCore.QObject.connect(self.driftTimeSlider, QtCore.SIGNAL("sliderReleased()"), self.setRP_DT)
         QtCore.QObject.connect(self.sliderDriftTime_SB, QtCore.SIGNAL("valueChanged (double)"), self.setSlider_DT)
-
-
 
     def setSlider_Temp(self, value):
         self.tempSlider.setValue(int(value))
@@ -255,14 +262,50 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
 #########################################################
 
+    def addData2Plot(self):
+        selectItems = self.groupTreeWidget.selectedItems()
+        if len(selectItems) > 0:
+            item = selectItems[0]
+            if item.childCount() == 0:#test to see if the object is a leaf
+                curData = self.dataDict[str(item.toolTip(0))]
+                if isinstance(curData, WSU):
+                    self.append2ActivePlot(curData)
+
+    def _setPlotFocus_(self, plotInstance):
+        self.curChildPlot = plotInstance
+#        print plotInstance.windowTitle
+
+    def append2ActivePlot(self, data2plot):
+        '''
+        Prompt user to select active window to append data to.
+        '''
+#        print "Data Addition"
+        massPlot = self.curChildPlot
+        massPlot.plotWidget.canvas.xtitle="m/z"
+        massPlot.plotWidget.canvas.ytitle="Intensity"
+        massPlot.addData(data2plot.name, N.column_stack((data2plot.mzX,data2plot.mzY)))
+        ax = massPlot.mainAx
+        ax.title.set_fontsize(10)
+#        ax.set_xlabel('m/z', fontstyle = 'italic')
+#        ax.set_ylabel('Intensity')
+
+        massPlot.plotWidget.canvas.format_labels(xItalic = True)
+        massPlot.plotWidget.canvas.draw()
+
+    def selectData2Add(self):
+        dataList = []
+        for item in self.dataDict.iteritems():
+            dataName = item[0]
+            dataRaw = item[1]
+            if isinstance(dataRaw, WSU):
+                dataList.append([dataName, dataRaw.path])
 
 
-
-    def toggleIMSTOFLoad(self, state):
-        if state == 2:
-            self.showTOF_CB.setEnabled(True)
-        elif state == 0:
-            self.showTOF_CB.setEnabled(False)
+#    def toggleIMSTOFLoad(self, state):
+#        if state == 2:
+#            self.showTOF_CB.setEnabled(True)
+#        elif state == 0:
+#            self.showTOF_CB.setEnabled(False)
 
 
     def editPlotProperties(self):
@@ -378,6 +421,32 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
 #        QtCore.QTimer.singleShot(500)
 
+    def showTOFSpectrum(self):
+        selectItems = self.groupTreeWidget.selectedItems()
+        if len(selectItems) > 0:
+            item = selectItems[0]
+            if item.childCount() == 0:#test to see if the object is a leaf
+                curData = self.dataDict[str(item.toolTip(0))]
+                if isinstance(curData, WSU):
+                    openWindow = True
+                    for i,window in enumerate(self.mzPlots):
+                        try:#test to see if it existed and then was closed
+#                            print type(window), type(window.windowTitle)
+                            print curData.path, str(window.windowTitle)
+                            if curData.path == str(window.windowTitle):#will create and exception if the plot was previously open then closed
+                                window.setFocus()
+                                openWindow = False
+                        except:
+                            exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+                            traceback.print_exception(exceptionType, exceptionValue, exceptionTraceback, file=sys.stdout)
+
+                            errorMsg = 'Error with m/z window: %s\n\n:%s\n%s\n'%(exceptionType, exceptionValue, exceptionTraceback)
+                            print errorMsg
+#                            pass
+                            self.mzPlots.pop(i)
+                    if openWindow:
+                        self.wsuMZPlot(curData)
+#                    self.append2ActivePlot(curData)
 
     def wsuMZPlot(self, data2plot):
         '''
@@ -386,17 +455,23 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 #        print "Test Plot Go"
 
 #        testPlot = MPL_Widget(enableAutoScale = True, enableCSV = True)
-        massPlot = CT.DataTable(N.column_stack((data2plot.mzX,data2plot.mzY)),colHeaderList = ['m/z', 'Intensity'])
-        massPlot.setWindowTitle(data2plot.path)
+        massPlot = PW(parent = self, windowTitle = data2plot.path)#xyData = N.column_stack((data2plot.mzX,data2plot.mzY)),colHeaders = ['m/z', 'Intensity'])
+#        massPlot = CT.DataTable(N.column_stack((data2plot.mzX,data2plot.mzY)),colHeaderList = ['m/z', 'Intensity'])
+#        massPlot.setWindowTitle(data2plot.path)
 
-        ax1 = massPlot.plotWidget.canvas.ax
+        ax = massPlot.mainAx
+        massPlot.plotWidget.canvas.xtitle="m/z"
+        massPlot.plotWidget.canvas.ytitle="Intensity"
+#        ax1 = massPlot.plotWidget.canvas.ax
         plotTitle = ''
-        ax1.set_title(plotTitle)
-        ax1.title.set_fontsize(10)
-        ax1.set_xlabel('m/z', fontstyle = 'italic')
-        ax1.set_ylabel('Intensity')
+        ax.set_title(plotTitle)
+        ax.title.set_fontsize(10)
+#        ax.set_xlabel('m/z', fontstyle = 'italic')
+#        ax.set_ylabel('Intensity')
 
-        ax1.plot(data2plot.mzX, data2plot.mzY, 'r')
+        massPlot.addData(data2plot.name, N.column_stack((data2plot.mzX,data2plot.mzY)))
+
+#        ax1.plot(data2plot.mzX, data2plot.mzY, 'r')
         massPlot.show()
         self.mzPlots.append(massPlot)
 
@@ -478,7 +553,8 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.lineDict = {}
 
         self.freqVal = 0
-        self.showTOF_CB.setEnabled(False)
+#        self.showTOF_CB.setEnabled(False)
+        self.curChildPlot = None
 
 
     def setupGUI(self):
@@ -655,11 +731,21 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         ct_menu = QtGui.QMenu("Tree Menu", self.groupTreeWidget)
         ct_menu.addAction(self.removeAction)
         ct_menu.addAction(self.sgSmoothAction)
-#        ct_menu.addAction(self.findPeakAction)
-#        ct_menu.addAction(self.savePksAction)
         ct_menu.addSeparator()
+        selectItems = self.groupTreeWidget.selectedItems()
+        if len(selectItems) > 0:
+            item = selectItems[0]
+            if item.childCount() == 0:#test to see if the object is a leaf
+                curData = self.dataDict[str(item.toolTip(0))]
+                if isinstance(curData, WSU):
+                    ct_menu.addAction(self.showTOFAction)
+                    ct_menu.addSeparator()
+                    ct_menu.addAction(self.addDataAction)
+                    ct_menu.addSeparator()
+
 #        selectItems = self.groupTreeWidget.selectedItems()
 #        groupBool = True
+
 #        if len(selectItems) > 0:
 #            for item in selectItems:
 #                if item.childCount() == 0:#test to see if any of the items selected are leaves
@@ -1044,18 +1130,28 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 #        else:
         curData.plot(curAx, pColor = self.plotColor, plotFilter = self.lowPassOn_CB.isChecked(),\
                      ignoreRaw = self.ignoreRaw_CB.isChecked(), ignoreNorm = self.normRaw_CB.isChecked())#, plotPks = self.plotPkListCB.isChecked(), labelPks = self.labelPeak_CB.isChecked())
-        if self.loadWSU_CB.isChecked():
-            if isinstance(curData, WSU):
-                if self.showTOF_CB.isChecked():
-                    openWindow = True
-                    for i,window in enumerate(self.mzPlots):
-                        try:#test to see if it existed and then was closed
-                            if curData.path == str(window.windowTitle()):#will create and exception if the plot was previously open then closed
-                                openWindow = False
-                        except:
-                            self.mzPlots.pop(i)
-                    if openWindow:
-                        self.wsuMZPlot(curData)
+#        if self.loadWSU_CB.isChecked():
+#            if isinstance(curData, WSU):
+#                if self.showTOF_CB.isChecked():
+#                    openWindow = True
+#                    for i,window in enumerate(self.mzPlots):
+#                        try:#test to see if it existed and then was closed
+##                            print type(window), type(window.windowTitle)
+#                            print curData.path, str(window.windowTitle)
+#                            if curData.path == str(window.windowTitle):#will create and exception if the plot was previously open then closed
+#                                window.setFocus()
+#                                openWindow = False
+#                        except:
+#                            exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+#                            traceback.print_exception(exceptionType, exceptionValue, exceptionTraceback, file=sys.stdout)
+#
+#                            errorMsg = 'Error with m/z window: %s\n\n:%s\n%s\n'%(exceptionType, exceptionValue, exceptionTraceback)
+#                            print errorMsg
+##                            pass
+#                            self.mzPlots.pop(i)
+##                            i+=-1#this is for book keeping
+#                    if openWindow:
+#                        self.wsuMZPlot(curData)
 
     def plotByIndex(self, plotIndex=None,  multiPlot = False):
         curDataName = None

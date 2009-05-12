@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Documents and Settings\d3p483\workspace\NoiseProject\main.ui'
 #
-# Created: Fri May 08 11:36:41 2009
+# Created: Tue May 12 15:46:27 2009
 #      by: PyQt4 UI code generator 4.4.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -105,10 +105,6 @@ class Ui_MainWindow(object):
         self.loadWSU_CB = QtGui.QCheckBox(self.plotTab)
         self.loadWSU_CB.setObjectName("loadWSU_CB")
         self.horizontalLayout_3.addWidget(self.loadWSU_CB)
-        self.showTOF_CB = QtGui.QCheckBox(self.plotTab)
-        self.showTOF_CB.setEnabled(True)
-        self.showTOF_CB.setObjectName("showTOF_CB")
-        self.horizontalLayout_3.addWidget(self.showTOF_CB)
         self.verticalLayout_2.addLayout(self.horizontalLayout_3)
         self.hboxlayout2 = QtGui.QHBoxLayout()
         self.hboxlayout2.setObjectName("hboxlayout2")
@@ -653,7 +649,6 @@ class Ui_MainWindow(object):
         self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.tab_3), QtGui.QApplication.translate("MainWindow", "Data", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.tab_4), QtGui.QApplication.translate("MainWindow", "File Info", None, QtGui.QApplication.UnicodeUTF8))
         self.loadWSU_CB.setText(QtGui.QApplication.translate("MainWindow", "Load IMS-TOF?", None, QtGui.QApplication.UnicodeUTF8))
-        self.showTOF_CB.setText(QtGui.QApplication.translate("MainWindow", "Show TOF Spectrum?", None, QtGui.QApplication.UnicodeUTF8))
         self.label_15.setText(QtGui.QApplication.translate("MainWindow", "Filter Info:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_3.setText(QtGui.QApplication.translate("MainWindow", "Label:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_4.setText(QtGui.QApplication.translate("MainWindow", "Label:", None, QtGui.QApplication.UnicodeUTF8))

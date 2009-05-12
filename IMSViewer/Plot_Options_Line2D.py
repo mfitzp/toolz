@@ -93,18 +93,18 @@ class Plot_Options_Dialog(QDialog, ui_Plot_Options.Ui_Plot_Options_Dialog):
 
     def setLogX(self, cbState):
         if cbState == 2:
-            self.parent.plotWidget.canvas.ax.set_xscale('log')
+            self.curAx.set_xscale('log')
         elif cbState == 0:
-            self.parent.plotWidget.canvas.ax.set_xscale('linear')
+            self.curAx.set_xscale('linear')
 
     def setLogY(self, cbState):
         if cbState == 2:
-            self.parent.plotWidget.canvas.ax.set_yscale('log')
+            self.curAx.set_yscale('log')
         elif cbState == 0:
-            self.parent.plotWidget.canvas.ax.set_yscale('linear')
+            self.curAx.set_yscale('linear')
 
     def setGrid(self):
-        self.parent.plotWidget.canvas.ax.grid()
+        self.curAx.grid()
 
     def setPlotTitle(self, label):
         label = str(label)#convert from QString
@@ -269,13 +269,13 @@ class Plot_Options_Dialog(QDialog, ui_Plot_Options.Ui_Plot_Options_Dialog):
         self.ymax_lineEdit.setText(str(self.ymax))
         self.ylabel_lineEdit.setText(self.ytitle)
 
-        xScale = self.parent.plotWidget.canvas.ax.get_xscale()
+        xScale = self.curAx.get_xscale()
         if xScale == 'linear':
             self.logx_cb.setCheckState(Qt.Unchecked)
         elif xScale == 'log':
             self.logx_cb.setCheckState(Qt.Checked)
 
-        yScale = self.parent.plotWidget.canvas.ax.get_yscale()
+        yScale = self.curAx.get_yscale()
         if yScale == 'linear':
             self.logy_cb.setCheckState(Qt.Unchecked)
         elif yScale == 'log':

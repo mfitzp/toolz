@@ -39,12 +39,15 @@ class MyMplCanvas(FigureCanvas):
             QtGui.QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(self)
 
-    def format_labels(self):
+    def format_labels(self, xItalic = False):
         #self.ax.set_title(self.PlotTitle)
         self.ax.title.set_fontsize(10)
         xLabel = self.xtitle#self.ax.get_xlabel()
         yLabel = self.ytitle#self.ax.get_ylabel()
-        self.ax.set_xlabel(xLabel, fontsize = 9)
+        if xItalic:
+            self.ax.set_xlabel(xLabel, fontsize = 9, fontstyle = 'italic')
+        else:
+            self.ax.set_xlabel(xLabel, fontsize = 9)
         self.ax.set_ylabel(yLabel, fontsize = 9)
         labels_x = self.ax.get_xticklabels()
         labels_y = self.ax.get_yticklabels()
@@ -96,7 +99,7 @@ class MyNavigationToolbar(NavigationToolbar) :
 
 
 class MPL_Widget(QtGui.QWidget):
-    def __init__(self, parent = None, enableAutoScale = False, enableCSV = False):
+    def __init__(self, parent = None, enableAutoScale = False, enableCSV = False, enableEdit = False):
         QtGui.QWidget.__init__(self, parent)
         self.canvas = MyMplCanvas()
         self.toolbar = NavigationToolbar(self.canvas, self.canvas)
@@ -115,10 +118,8 @@ class MPL_Widget(QtGui.QWidget):
         #This function has been disabled because of the special autoscaling requried for a custom program
         #FIX THIS
         if enableAutoScale:
-            self.actionAutoScale = QtGui.QAction("AutoScale",  self)#self.MainWindow)
-            self.actionAutoScale.setShortcut("Ctrl+A")
-            self.addAction(self.actionAutoScale)
-            QtCore.QObject.connect(self.actionAutoScale,QtCore.SIGNAL("triggered()"), self.autoscale_plot)
+            self.enableAutoScale()
+
 
         self.span = SpanSelector(self.canvas.ax, self.onselect, 'horizontal', minspan =0.01,
                                  useblit=True, rectprops=dict(alpha=0.5, facecolor='#C6DEFF') )
@@ -138,11 +139,8 @@ class MPL_Widget(QtGui.QWidget):
         self.addAction(self.mpl2ClipAction)
         QtCore.QObject.connect(self.mpl2ClipAction,QtCore.SIGNAL("triggered()"), self.mpl2Clip)
 
-#        self.editAction = QtGui.QAction("Edit Line Properties",  self)
-#        self.editAction.setShortcut("Ctrl+E")
-#        self.addAction(self.editAction)
-#        QtCore.QObject.connect(self.editAction,QtCore.SIGNAL("triggered()"), self.editPlotProperties)
-
+        if enableEdit:
+            self.enableEdit()
 
         self.lineDict = None
         self.addLegend = False
@@ -150,12 +148,29 @@ class MPL_Widget(QtGui.QWidget):
 
         #######SAVING FIGURE DATA############################
         if enableCSV:
-            self.saveCSVAction = QtGui.QAction("Save to CSV",  self)
-            self.saveCSVAction.setShortcut("Ctrl+Alt+S")
-            self.addAction(self.saveCSVAction)
-            QtCore.QObject.connect(self.saveCSVAction,QtCore.SIGNAL("triggered()"), self.save2CSV)
+            self.enableCSV()
+
 
         ########### HELPER FUNCTIONS #########################
+    def enableEdit(self):
+        self.editAction = QtGui.QAction("Edit Line Properties",  self)
+        self.editAction.setShortcut("Ctrl+E")
+        self.addAction(self.editAction)
+        QtCore.QObject.connect(self.editAction,QtCore.SIGNAL("triggered()"), self.editPlotProperties)
+
+
+    def enableAutoScale(self):
+        self.actionAutoScale = QtGui.QAction("AutoScale",  self)#self.MainWindow)
+        self.actionAutoScale.setShortcut("Ctrl+A")
+        self.addAction(self.actionAutoScale)
+        QtCore.QObject.connect(self.actionAutoScale,QtCore.SIGNAL("triggered()"), self.autoscale_plot)
+
+
+    def enableCSV(self):
+        self.saveCSVAction = QtGui.QAction("Save to CSV",  self)
+        self.saveCSVAction.setShortcut("Ctrl+Alt+S")
+        self.addAction(self.saveCSVAction)
+        QtCore.QObject.connect(self.saveCSVAction,QtCore.SIGNAL("triggered()"), self.save2CSV)
 
     def setLineDict(self):
         self.lineDict = {}
@@ -170,7 +185,7 @@ class MPL_Widget(QtGui.QWidget):
             curAx = self.canvas.ax
             if POD(self.lineDict, curAx = curAx, parent = self).exec_():
                 if self.addLegend:
-                    curAx.legend(axespad = 0.03, pad=0.25)
+                    curAx.legend(borderaxespad = 0.03, axespad=0.25)
                 self.canvas.format_labels()
                 self.canvas.draw()
             else:
@@ -286,12 +301,12 @@ def getHomeDir():
 def main():
     import sys
     app = QtGui.QApplication(sys.argv)
-    w = MPL_Widget()
+    w = MPL_Widget(enableAutoScale = True, enableEdit = True)
     x = N.arange(0, 20, 0.1)
     y = N.sin(x)
     y2 = N.cos(x)
     w.canvas.ax.plot(x, y)
-    w.canvas.ax.plot(x, y2)
+#    w.canvas.ax.plot(x, y2)
     w.show()
     sys.exit(app.exec_())
 
