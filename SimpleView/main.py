@@ -159,6 +159,10 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.fpListWidget.addAction(self.viewFPMetaAction)
         QtCore.QObject.connect(self.viewFPMetaAction,QtCore.SIGNAL("triggered()"), self.viewFPMeta)
 
+        self.toggleFPSelectAction = QtGui.QAction("Select/Deselect All Fingerprints",  self)
+        self.fpListWidget.addAction(self.toggleFPSelectAction)
+        QtCore.QObject.connect(self.toggleFPSelectAction, QtCore.SIGNAL("triggered()"), self.toggleSelectedFPs)
+
         QtCore.QObject.connect(self.saveCSVAction,QtCore.SIGNAL("triggered()"), self.save2CSV)
 
         QtCore.QObject.connect(self.removeAction, QtCore.SIGNAL("triggered()"),self.removeFile)
@@ -228,7 +232,21 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.useDefaultScale_CB.nextCheckState()
 
 
+    def toggleSelectedFPs(self):
+        '''
+        Used to toggle the state of all present fingerprints
+        '''
+        self.fpListWidget.selectAll()
+        selectItems = self.fpListWidget.selectedItems()
 
+        if self.selectAllFPs:
+            self.selectAllFPs = False
+            for curFP in selectItems:
+                curFP.setCheckState(QtCore.Qt.Checked)
+        else:
+            self.selectAllFPs = True
+            for curFP in selectItems:
+                curFP.setCheckState(QtCore.Qt.Unchecked)
 
     def setDefaultFPDir(self):
         '''
@@ -472,10 +490,25 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
             self._updatePlotColor_()
             curMarker = self._getPlotMarker_()
-            ax1.plot([val], [pc2[i]], alpha = 0.5, color = self.plotColor, marker = curMarker, ms = 10)
+            curLabel = pcaLabels[i]
+            if 'Y' in curLabel:
+                curColor = 'r'
+                curMarker = 'o'
+            elif 'C' in curLabel:
+                curColor = 'g'
+                curMarker = 's'
+            elif 'P' in curLabel:
+                curColor = 'b'
+                curMarker = '^'
+            elif 'V' in curLabel:
+                curColor = 'm'
+                curMarker = 'd'
 
-        for label, x, y in map(None, pcaLabels, pc1, pc2):
-            ax1.annotate(label, xy=(x, y),  size = 10)
+#            ax1.plot([val], [pc2[i]], alpha = 0.5, color = self.plotColor, marker = curMarker, ms = 10)
+            ax1.plot([val], [pc2[i]], alpha = 0.5, color = curColor, marker = curMarker, ms = 10)
+
+#        for label, x, y in map(None, pcaLabels, pc1, pc2):
+#            ax1.annotate(label, xy=(x, y),  size = 10)
 
         compBin, sampLabel = self.compPCAMtx(numCrit)
         if compBin != None:
@@ -659,6 +692,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
     def plotFPDendro(self, dataMatrix, dataLabels = None, probDict = None):
         simPlot = CT.DataTable(dataMatrix.transpose(),dataLabels, dataLabels)
+#        simPlot.plotWidget.enableEdit()
         simPlot.plotWidget.canvas.fig.subplots_adjust(right=0.7, left = 0.1)
         simPlot.setWindowTitle('Fingerprint Comparison')
         simPlot.tableWidget.setSortingEnabled(False)
@@ -672,11 +706,12 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         ax1.set_title(plotTitle)
         ax1.title.set_fontsize(10)
         simPlot.plotWidget.canvas.ytitle='Fingerprint File'
-        simPlot.plotWidget.canvas.xtitle='Degree of Association'
+        simPlot.plotWidget.canvas.xtitle='Similarity Distance'
 
 
 #        Y = H.pdist(dataMatrix)#, 'seuclidean')
         dataMatrix+=0.1
+        dataMatrix*=0.5
         Z = H.linkage(dataMatrix,'single')
 
         R = H.dendrogram(Z, truncate_mode='none', show_contracted=False, customMPL = ax1, orientation='right', labels = dataLabels)
@@ -1055,9 +1090,10 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         if fileName != None:
             if os.path.isfile(fileName):
                 self.curDir = os.path.dirname(fileName)
-                hdf = T.openFile(fileName, mode = 'r')
-                hdfRoot = hdf.root
+                hdf = None#dummy variable
                 try:
+                    hdf = T.openFile(fileName, mode = 'r')
+                    hdfRoot = hdf.root
                     self.curGroupName = fileName.split(os.path.sep)[-1]
                     if self.loadRawFPData_CB.isChecked():
 
@@ -1170,7 +1206,8 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
 
                 except:
-                    hdf.close()
+                    if hdf != None:
+                        hdf.close()
                     exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
                     traceback.print_exception(exceptionType, exceptionValue, exceptionTraceback, file=sys.stdout)
                     errorMsg = "Sorry: %s\n\n:%s\n%s\n"%(exceptionType, exceptionValue, exceptionTraceback)
@@ -1332,6 +1369,9 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.peakSetting_CB.addItems(self.peakSettingTypes)
         peakFindInt = self.peakSetting_CB.findText('Med SNR')
         self.peakSetting_CB.setCurrentIndex(peakFindInt)
+
+        self.selectAllFPs = True#used to toggle the state of all the present FPs
+        self.plotWidget.enableEdit()
 
 
     def setupGUI(self):
@@ -1519,6 +1559,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         ct_menu = QtGui.QMenu("Fingerprint Menu", self.fpListWidget)
         ct_menu.addAction(self.reviewFPAction)
         ct_menu.addAction(self.viewFPMetaAction)
+        ct_menu.addAction(self.toggleFPSelectAction)
 #        ct_menu.addAction(self.topHatAction)
 #        ct_menu.addAction(self.findPeakAction)
 #        ct_menu.addAction(self.savePksAction)
@@ -2117,6 +2158,8 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             else:
                 curAx.set_ylim(ymin = 0)
             self.curDataName = curDataName
+            self.plotWidget.canvas.xtitle = 'm/z'
+            self.plotWidget.canvas.ytitle = 'Intensity'
             self.plotWidget.canvas.format_labels()
             self.plotWidget.canvas.draw()
             self.plotWidget.setFocus()#this is needed so that you can use CTRL+Z to zoom
@@ -2318,6 +2361,11 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
         self.dx = 0
         self.dy = 0
+
+        self.plotWidget.canvas.xtitle = 'm/z'
+        self.plotWidget.canvas.ytitle = 'Intensity'
+        self.plotWidget.canvas.format_labels()
+        self.plotWidget.canvas.draw()
 
         self.addPickers()
 
