@@ -96,14 +96,86 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.setupVars()
         self.readThread = LoadThread(parent = self)
         self.FPT = FindPeaksThread()
-        self.initConnections()
+        self._initConnections_()
         self.setupGUI()
         self.loadPrefs()
         self.setupPlot()
         self.layoutStatusBar()
 
+    def setupVars(self):
+        self.dirList = []
+        self.curDir = os.getcwd()
+        self.curDataName = None
+        #these are used to keep track of what group is loaded
+        self.groupIndex = []
+        self.groupList = []
+        self.groupDict = {}
+        self.curGroup = None
+        self.numGroups = 0
+        #########################
+        self.dataList = []
+        self.dataDict = {}
+        self.multiPlotIndex = []
+        self.ignoreSignal = False
+        self.firstLoad = True
+        self.labelPks = False
+        self.plotPks = False
+        self.txtColor = None
+        self.colorIndex = 0
+        self.markerIndex = 0
+        self.plotColor = None
+        self.plotColorIndex = 0
+        self.curEIC = None
+        self.eicPlots = []
+        self.fingerPlots = []
+        self.fingerRevTabls = []
+        self.curFPWidget = FP.Finger_Widget(parent = self)
+        self.fingerPlots.append(self.curFPWidget)
+        self.peakParams = None
+        self.setupPeakPick()
+        ###FP Related Vars:
+        self.expandFPBool = False
+        self.fpDict = {}
+        self.curFPName = None
+        self.fpDir = None
+        ###Preference Variables
+        self.prefFileName = 'svconfig.ini'
+        self.orgPrefFileName = 'original_svconfig.ini'#Don't change this.
+        self.prefDict = {'showsnrest':self.plotNoiseEst_CB,
+                         'snrnoiseest':self.snrNoiseEst_SB,
+                         'minrowtol':self.waveletRowTol_SB,
+                         'minrownoise':self.minRow_SB,
+                         'defaultscales':self.useDefaultScale_CB,
+                         'splitfactor':self.noiseFactor_SB,
+                         'autosavepeaks':self.autoSavePkList_CB,
+                         'scaleend':self.scaleStop_SB,
+                         'minclust':self.minClust_SB,
+                         'staticcutoff':self.staticCutoff_SB,
+                         'distthresh':self.dbscanEPS_SB,
+                         'scalestart':self.scaleStart_SB,
+                         'scalefactor':self.scaleFactor_SB,
+                         'plotlegend':self.plotLegendCB,
+                         'invertcomp':self.invertCompCB,
+                         'plotpeaklist':self.plotPkListCB,
+                         'labelpeaks':self.labelPeak_CB,
+                         'mzhi':self.mzHi_SB,
+                         'mzlo':self.mzLo_SB,
+                         'excludelift':self.excludeLIFTCB,
+                         'loadmzxml':self.loadmzXMLCB,
+                         'autoloadfp':self.autoLoadFP_CB,
+                         'fpdir':self.fpFolder_LE
+                         }
+        self.prefFileStruct = {}
+        self.peakSettingTypes = ['High SNR','Med SNR','Low SNR']
+        self.peakSetting_CB.addItems(self.peakSettingTypes)
+        peakFindInt = self.peakSetting_CB.findText('Med SNR')
+        self.peakSetting_CB.setCurrentIndex(peakFindInt)
 
-    def initConnections(self):
+        self.selectAllFPs = True#used to toggle the state of all the present FPs
+        self.plotWidget.enableEdit()
+
+
+    def _initConnections_(self):
         '''
         Initiates all of the GUI connections
         '''
@@ -230,11 +302,357 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         QtCore.QObject.connect(self.doPCA_Btn, QtCore.SIGNAL("clicked()"), self.fpPCA)
         QtCore.QObject.connect(self.fpFolder_Btn, QtCore.SIGNAL("clicked()"), self.setDefaultFPDir)
 
-
-
         QtCore.QObject.connect(self.peakSetting_CB, QtCore.SIGNAL("currentIndexChanged(QString)"), self.peakComboChanged)
 
         self.useDefaultScale_CB.nextCheckState()
+
+
+    def _getDir_(self):
+        directory = QtGui.QFileDialog.getExistingDirectory(self, '', self.curDir)
+        directory = str(directory)
+        if directory != None:
+            self.curDir = os.path.abspath(directory)
+            return True
+        else:
+            self.curDir = os.path.abspath(os.getcwd())
+            return False
+        #return directory
+
+    def _updatePlotColor_(self):
+        if self.plotColorIndex%len(COLORS) == 0:
+            self.plotColorIndex = 0
+            self.plotColor = COLORS[self.plotColorIndex]
+            self.plotColorIndex +=1
+        else:
+            self.plotColor = COLORS[self.plotColorIndex]
+            self.plotColorIndex +=1
+
+    def _getPlotMarker_(self):
+        marker = MARKERS[self.markerIndex]
+        if self.markerIndex is len(MARKERS)-1:
+            self.markerIndex = 0
+        else:
+            self.markerIndex+=1
+        return marker
+
+    def _getTextColor_(self):
+        if self.colorIndex%len(COLORS) == 0:
+            self.colorIndex = 0
+            self.txtColor = COLORS[self.colorIndex]
+            self.colorIndex +=1
+        else:
+            self.txtColor = COLORS[self.colorIndex]
+            self.colorIndex +=1
+
+    def _initContextMenus_(self):
+        self.plotWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.plotWidget.connect(self.plotWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self.__mplContext__)
+        self.groupTreeWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.groupTreeWidget.connect(self.groupTreeWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self.__treeContext__)
+        self.fpListWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.fpListWidget.connect(self.fpListWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self.__fpContext__)
+
+
+    def __fpContext__(self, point):
+        '''Create a menu for the FingerPrint list widget'''
+        ct_menu = QtGui.QMenu("Fingerprint Menu", self.fpListWidget)
+        ct_menu.addAction(self.reviewFPAction)
+        ct_menu.addAction(self.viewFPMetaAction)
+        ct_menu.addAction(self.toggleFPSelectAction)
+#        ct_menu.addAction(self.topHatAction)
+#        ct_menu.addAction(self.findPeakAction)
+#        ct_menu.addAction(self.savePksAction)
+        ct_menu.addSeparator()
+        ct_menu.addAction(self.overlayFPAction)
+#        ct_menu.addAction(self.selectAllAction)
+        ct_menu.exec_(self.fpListWidget.mapToGlobal(point))
+
+    def __treeContext__(self, point):
+        '''Create a menu for the file list widget'''
+        ct_menu = QtGui.QMenu("Tree Menu", self.groupTreeWidget)
+        ct_menu.addAction(self.removeAction)
+        ct_menu.addAction(self.topHatAction)
+        ct_menu.addAction(self.findPeakAction)
+        ct_menu.addAction(self.savePksAction)
+        ct_menu.addSeparator()
+        selectItems = self.groupTreeWidget.selectedItems()
+        groupBool = True
+        if len(selectItems) > 0:
+            for item in selectItems:
+                if item.childCount() == 0:#test to see if any of the items selected are leaves
+                    groupBool = False
+        if groupBool:
+            ct_menu.addAction(self.initFPAction)
+        ct_menu.addAction(self.selectGroupAction)
+        ct_menu.addAction(self.addFileAction)
+#        ct_menu.addAction(self.selectAllAction)
+        ct_menu.exec_(self.groupTreeWidget.mapToGlobal(point))
+
+
+    def __listContext__(self, point):
+        '''Create a menu for the file list widget'''
+        ct_menu = QtGui.QMenu("List Menu", self.specListWidget)
+        ct_menu.addAction(self.removeAction)
+        ct_menu.addAction(self.topHatAction)
+        ct_menu.addAction(self.findPeakAction)
+        ct_menu.addAction(self.savePksAction)
+        ct_menu.addSeparator()
+        ct_menu.addAction(self.selectAllAction)
+        ct_menu.exec_(self.specListWidget.mapToGlobal(point))
+
+    def __mplContext__(self, point):
+        '''Create a menu for the mpl widget'''
+        ct_menu = QtGui.QMenu("Plot Menu", self.plotWidget)
+#        ct_menu.addAction(self.ui.actionZoom)
+#        ct_menu.addAction(self.ui.actionAutoScale)
+#        ct_menu.addSeparator()
+#        ct_menu.addAction(self.ui.actionPlotOptions)
+#        ct_menu.addSeparator()
+#        ct_menu.addAction(self.ui.actionClear)
+#        ct_menu.addSeparator()
+        ct_menu.addAction(self.handleActionA)
+        ct_menu.addAction(self.handleActionB)
+        ct_menu.addAction(self.cursorClearAction)
+#        ct_menu.addSeparator()
+        ct_menu.addAction(self.labelAction)
+#        ct_menu.addSeparator()
+        ct_menu.addAction(self.plotWidget.mpl2ClipAction)
+        ct_menu.exec_(self.plotWidget.mapToGlobal(point))
+
+    def testFocus(self):
+        print "Test Focus"
+
+    def _setFPFocus_(self, fpInstance=None):
+        '''
+        used to capture the top window focus
+        '''
+        if isinstance(fpInstance, FP.Finger_Widget):
+            self.curFPWidget = fpInstance
+#            print "Got Finger Widget"
+
+    def __askConfirm__(self,title,message):
+        clickedButton = QtGui.QMessageBox.question(self,\
+                                                   title,message,\
+                                                   QtGui.QMessageBox.Yes,QtGui.QMessageBox.Cancel)
+        if clickedButton == QtGui.QMessageBox.Yes: return True
+        return False
+
+    def _setGUIPref_(self, val, valType, guiElement):
+        '''
+        guiElement = element to commit value to
+        val = value to load into GUI
+        valType = type used to determine which function to use to set the value to the GUI
+        '''
+        if valType == float or valType == int:
+            guiElement.setValue(val)
+        elif valType == bool:
+            guiElement.setChecked(val)
+        elif valType == str:
+            guiElement.setText(val)
+
+    def _getPrefs_(self, configFileName):
+        '''
+        Need to get floats and ints before bools and strings.  Otherwise
+        types can get mixed
+        '''
+        self.prefFileStruct = {}
+        config = ConfigParser.ConfigParser()
+        config.read(configFileName)
+        i = 0
+        for section in config.sections():
+            tempOptions = []
+#            print '\t',config.options(section)
+            for option in config.options(section):
+                val = None
+                valOk = False
+
+                try:
+                    if not valOk:
+                        val = config.getfloat(section, option)
+                        valOk = True
+                except:
+                    pass
+
+                try:
+                    if not valOk:
+                        val = config.getint(section, option)
+                        valOk = True
+                except:
+                    pass
+
+                try:
+                    if not valOk:
+                        val = config.getboolean(section, option)
+                        valOk = True
+                except:
+                    pass
+
+                try:
+                    if not valOk:
+                        val = config.get(section, option)
+                        valOk = True
+                except:
+                    pass
+
+                if val != None:
+                    if self.prefDict.has_key(option):
+#                        print " ", option, "=", val, type(val)
+                        tempOptions.append([option, type(val)])
+                        self._setGUIPref_(val, type(val), self.prefDict[option])
+#                    print option, self.prefDict[option]
+            self.prefFileStruct[section] = tempOptions
+
+#        print self.prefFileStruct
+
+    def loadPrefs(self):
+#        try:
+        if os.path.isfile(self.prefFileName):
+            self._getPrefs_(self.prefFileName)
+#                print self.prefFileName
+            if self.autoLoadFP_CB.isChecked():
+                self.fpDir = os.path.abspath(str(self.fpFolder_LE.text()))
+                self.autoLoadFP()
+
+        else:
+            return QtGui.QMessageBox.warning(self, "Load Preferences Error", "No Preference File Exists\nReverting to Defaults")
+#        except:
+#            self.defaultRevert()
+#            return QtGui.QMessageBox.warning(self, "Load Preferences Error", "No Preference File Exists\nReverting to Defaults")
+
+
+    def savePrefs(self):
+        try:
+            if len(self.prefFileStruct) != len(self.prefDict):
+                config = ConfigParser.ConfigParser()
+                for key in self.prefFileStruct.iterkeys():
+                    config.add_section(key)
+                    prefList = self.prefFileStruct[key]
+                    for varList in prefList:
+                        varName = varList[0]
+                        guiElement = self.prefDict[varName]
+                        valType = varList[1]#each varList is a list containing the variable then the variable type
+                        if valType == float or valType == int:
+                            val = guiElement.value()
+                        elif valType == bool:
+                            val = guiElement.isChecked()
+                        elif valType == str:
+                            val = str(guiElement.text())
+                        config.set(key, varName, val)
+
+                # write to screen
+                fp = open(self.prefFileName, 'w')
+                config.write(fp)
+                fp.close()
+#                config.
+
+    #            print "Go"
+            else:
+                return QtGui.QMessageBox.warning(self, "Save Preferences Error", "Dictionary mismatch")
+        except:
+            exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+            traceback.print_exception(exceptionType, exceptionValue, exceptionTraceback, file=sys.stdout)
+            errorMsg = "Sorry: %s\n\n:%s\n%s\n"%(exceptionType, exceptionValue, exceptionTraceback)
+            return QtGui.QMessageBox.warning(self, "Save Preferences Error", errorMsg)
+            print errorMsg
+
+
+    def defaultRevert(self):
+        '''
+        Load default preferences
+        '''
+        try:
+            if os.path.isfile(self.orgPrefFileName):
+                self._getPrefs_(self.orgPrefFileName)
+        except:
+            return QtGui.QMessageBox.warning(self, "Preferences File is Hosed", "Try Reinstalling to fix this!")
+
+    def setupGUI(self):
+        self.specNameEdit.clear()
+        self.groupTreeWidget.setHeaderLabel('Loaded Spectra:')
+        self.fpSpecTreeWidget.setHeaderLabel('Loaded Spectra:')
+
+#        self.indexHSlider.setMaximum(0)
+#        self.indexSpinBox.setMaximum(0)
+        self._initContextMenus_()
+
+    def updateGUI(self,  loadedItem=None):
+        if loadedItem != None:
+            #So that duplicate files are not loaded into the dataDict
+            #if self.dataDict.has_key(loadedItem.name):
+            if self.dataDict.has_key(loadedItem.path):
+                print "%s already exists...skipping"%loadedItem.path
+                pass
+            else:
+                self.dataList.append(loadedItem.path)
+                tempTWI = QtGui.QTreeWidgetItem()
+                tempTWI.setText(0, loadedItem.name)
+                tempColor = QtGui.QColor(self.txtColor)
+                tempTWI.setTextColor(0, tempColor)
+                tempTWI.setToolTip(0, loadedItem.path)
+                self.curTreeItem.addChild(tempTWI)
+
+                tempFPTWI = QtGui.QTreeWidgetItem()
+                tempFPTWI.setText(0, loadedItem.name)
+                tempFPTWI.setTextColor(0, tempColor)
+                tempFPTWI.setToolTip(0, loadedItem.path)
+                self.curFPTreeItem.addChild(tempFPTWI)
+
+            self.dataDict[loadedItem.path] = loadedItem
+
+        self.numSpec = len(self.dataDict)
+
+    def _testPlot_(self, data2plot):
+        '''
+        Misc function for plotting data
+        '''
+#        print "Test Plot Go"
+
+        testPlot = MPL_Widget()
+        testPlot.setWindowTitle('Test Plot')
+
+        ax1 = testPlot.canvas.ax
+        plotTitle = 'Composite Plot'
+        ax1.set_title(plotTitle)
+        ax1.title.set_fontsize(10)
+        ax1.set_xlabel('m/z', fontstyle = 'italic')
+        ax1.set_ylabel('Intensity')
+
+        xValList = data2plot[0]
+        yValList = data2plot[1]
+        for i,xVal in enumerate(xValList):
+            self._updatePlotColor_()
+            yVal = yValList[i]
+#            ax1.plot(self.curEIC)
+            ax1.vlines(xVal, 0, yVal, color = self.plotColor)
+
+
+        testPlot.show()
+        self.eicPlots.append(testPlot)
+
+
+########FINGERPRINT ELEMENTS####################
+    def initFP(self):
+        selectItems = self.groupTreeWidget.selectedItems()
+        if len(selectItems) > 0:
+            curFingerPlot = FP.Finger_Widget(parent = self)
+            for item in selectItems:
+                curGroupName = str(item.toolTip(0))
+                if self.groupDict.has_key(curGroupName):
+                    tempItemList = self.groupDict[curGroupName]
+                    if len(tempItemList)>0:
+                        tempDataDict = {}#self.dataDict.fromkeys(tempItemList)
+                        for childName in tempItemList:
+                            tempDataDict[childName] = self.dataDict[childName]
+                        curFingerPlot.updateDataDict(tempDataDict)
+
+                print item.toolTip(0)
+
+            if curFingerPlot.showRaw_CB.isChecked():
+                    curFingerPlot.setupPlot()
+#            curFingerPlot.setupPlot()
+            curFingerPlot.getFPPeakList()
+            curFingerPlot.show()
+            self.fingerPlots.append(curFingerPlot)
 
 
     def overlayFP(self):
@@ -353,31 +771,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         else:
             self.fpDir = None
             return False
-
-    def peakComboChanged(self, selectedStr):
-        '''
-        Changes to pre-set values for peak picking
-        '''
-        selectedStr = str(selectedStr)
-        settingsKey = {'Low SNR':0,
-                       'Med SNR':1,
-                       'High SNR':2
-                       }
-        selIndex = settingsKey[selectedStr]
-
-        defaultParams = {'minSNR':[1.5,3,10],
-                         'minRow':[1,1,2],
-                         'minClust':[3,4,4],
-                         'rowThresh':[4,3,3],
-                         'staticThresh':[50,100,200],
-                         }
-
-        self.snrNoiseEst_SB.setValue(defaultParams['minSNR'][selIndex])#default 3
-        self.minRow_SB.setValue(defaultParams['minRow'][selIndex])#default 1
-        self.minClust_SB.setValue(defaultParams['minClust'][selIndex]) #default is 4
-        self.waveletRowTol_SB.setValue(defaultParams['rowThresh'][selIndex])
-        self.staticCutoff_SB.setValue(defaultParams['staticThresh'][selIndex])
-
 
     def fpPCA(self):
         '''
@@ -697,36 +1090,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
         return pcaXCrit, pcaStdCrit, pcaNum
 
-
-    def _testPlot_(self, data2plot):
-        '''
-        Misc function for plotting data
-        '''
-#        print "Test Plot Go"
-
-        testPlot = MPL_Widget()
-        testPlot.setWindowTitle('Test Plot')
-
-        ax1 = testPlot.canvas.ax
-        plotTitle = 'Composite Plot'
-        ax1.set_title(plotTitle)
-        ax1.title.set_fontsize(10)
-        ax1.set_xlabel('m/z', fontstyle = 'italic')
-        ax1.set_ylabel('Intensity')
-
-        xValList = data2plot[0]
-        yValList = data2plot[1]
-        for i,xVal in enumerate(xValList):
-            self._updatePlotColor_()
-            yVal = yValList[i]
-#            ax1.plot(self.curEIC)
-            ax1.vlines(xVal, 0, yVal, color = self.plotColor)
-
-
-        testPlot.show()
-        self.eicPlots.append(testPlot)
-
-
     def compareFP(self):
         '''
         Compares the checked fingerprints loaded into memory with raw data loaded selected on the right
@@ -825,56 +1188,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         simPlot.show()
         self.fingerRevTabls.append(simPlot)
 
-    def plotCWTPeaks(self, dataList):#massSpecX, massSpecY, cwtMTX, peakLoc, peakInt, cwtPeakLoc, peakClass):
-        cwtMTX, cwtResult = dataList
-        peakLoc, peakInt, rawPeakInd, cwtPeakLoc, peakClass, boolAns = cwtResult
-        if boolAns:
-            if self.curDataName != None:
-                curData = self.dataDict[self.curDataName]
-                peakLoc = curData.peakList[:,0]
-#                massSpecX = curData.x
-                massSpecY = curData.y
-            else:
-                return False
-
-            cwtPlot = MPL_CWT()
-            cwtPlot.setWindowTitle('CWT Plot')
-            cwtPlot.canvas.setupSub(2)
-            ax1 = cwtPlot.canvas.axDict['ax1']
-            ax2 = cwtPlot.canvas.axDict['ax2']
-
-            ax1.plot(SF.normalize(massSpecY), 'g', alpha = 0.7, label = 'ms')
-            intMax = cwtMTX.max(axis=0).max()*0.05
-            im=ax2.imshow(cwtMTX,vmax = intMax, cmap=P.cm.jet,aspect='auto')
-            ax2.plot(cwtPeakLoc[:,0], cwtPeakLoc[:,1], 'oy', ms = 3, alpha = 0.4)
-            if peakClass != None:
-                i = peakClass.max()
-                for m in xrange(int(i)+1):
-                    ind = N.where(m == peakClass)
-                    temp = cwtPeakLoc[ind]
-                    ax2.plot(temp[:,0],temp[:,1],'-s', alpha = 0.7, ms = 3)
-                if len(peakLoc) != 0:
-#                    print peakLoc
-#                    print rawPeakInd
-                    ax1.vlines(rawPeakInd, 0, 100, 'r', linestyle = 'dashed', alpha = 0.5)
-
-            cwtPlot.show()
-            self.appendMPLPlot(cwtPlot)
-
-
-    def appendMPLPlot(self, mplWidgetInstance):
-        self.eicPlots.append(mplWidgetInstance)
-
-    def defaultRevert(self):
-        '''
-        Load default preferences
-        '''
-        try:
-            if os.path.isfile(self.orgPrefFileName):
-                self._getPrefs_(self.orgPrefFileName)
-        except:
-            return QtGui.QMessageBox.warning(self, "Preferences File is Hosed", "Try Reinstalling to fix this!")
-
     def autoLoadFP(self):
         '''
         Recursively parse through the user specified directory and load all FP
@@ -891,125 +1204,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                             fpList.append(fpPath)
                             self.loadFPfromHDF5(fpPath)
 #            print "Auto FP List",fpList
-
-    def loadPrefs(self):
-#        try:
-        if os.path.isfile(self.prefFileName):
-            self._getPrefs_(self.prefFileName)
-#                print self.prefFileName
-            if self.autoLoadFP_CB.isChecked():
-                self.fpDir = os.path.abspath(str(self.fpFolder_LE.text()))
-                self.autoLoadFP()
-
-        else:
-            return QtGui.QMessageBox.warning(self, "Load Preferences Error", "No Preference File Exists\nReverting to Defaults")
-#        except:
-#            self.defaultRevert()
-#            return QtGui.QMessageBox.warning(self, "Load Preferences Error", "No Preference File Exists\nReverting to Defaults")
-
-    def _setGUIPref_(self, val, valType, guiElement):
-        '''
-        guiElement = element to commit value to
-        val = value to load into GUI
-        valType = type used to determine which function to use to set the value to the GUI
-        '''
-        if valType == float or valType == int:
-            guiElement.setValue(val)
-        elif valType == bool:
-            guiElement.setChecked(val)
-        elif valType == str:
-            guiElement.setText(val)
-
-
-    def _getPrefs_(self, configFileName):
-        '''
-        Need to get floats and ints before bools and strings.  Otherwise
-        types can get mixed
-        '''
-        self.prefFileStruct = {}
-        config = ConfigParser.ConfigParser()
-        config.read(configFileName)
-        i = 0
-        for section in config.sections():
-            tempOptions = []
-#            print '\t',config.options(section)
-            for option in config.options(section):
-                val = None
-                valOk = False
-
-                try:
-                    if not valOk:
-                        val = config.getfloat(section, option)
-                        valOk = True
-                except:
-                    pass
-
-                try:
-                    if not valOk:
-                        val = config.getint(section, option)
-                        valOk = True
-                except:
-                    pass
-
-                try:
-                    if not valOk:
-                        val = config.getboolean(section, option)
-                        valOk = True
-                except:
-                    pass
-
-                try:
-                    if not valOk:
-                        val = config.get(section, option)
-                        valOk = True
-                except:
-                    pass
-
-                if val != None:
-                    if self.prefDict.has_key(option):
-#                        print " ", option, "=", val, type(val)
-                        tempOptions.append([option, type(val)])
-                        self._setGUIPref_(val, type(val), self.prefDict[option])
-#                    print option, self.prefDict[option]
-            self.prefFileStruct[section] = tempOptions
-
-#        print self.prefFileStruct
-
-    def savePrefs(self):
-        try:
-            if len(self.prefFileStruct) != len(self.prefDict):
-                config = ConfigParser.ConfigParser()
-                for key in self.prefFileStruct.iterkeys():
-                    config.add_section(key)
-                    prefList = self.prefFileStruct[key]
-                    for varList in prefList:
-                        varName = varList[0]
-                        guiElement = self.prefDict[varName]
-                        valType = varList[1]#each varList is a list containing the variable then the variable type
-                        if valType == float or valType == int:
-                            val = guiElement.value()
-                        elif valType == bool:
-                            val = guiElement.isChecked()
-                        elif valType == str:
-                            val = str(guiElement.text())
-                        config.set(key, varName, val)
-
-                # write to screen
-                fp = open(self.prefFileName, 'w')
-                config.write(fp)
-                fp.close()
-#                config.
-
-    #            print "Go"
-            else:
-                return QtGui.QMessageBox.warning(self, "Save Preferences Error", "Dictionary mismatch")
-        except:
-            exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
-            traceback.print_exception(exceptionType, exceptionValue, exceptionTraceback, file=sys.stdout)
-            errorMsg = "Sorry: %s\n\n:%s\n%s\n"%(exceptionType, exceptionValue, exceptionTraceback)
-            return QtGui.QMessageBox.warning(self, "Save Preferences Error", errorMsg)
-            print errorMsg
-
 
     def reviewFP(self):
 #        print "ReviewFP"
@@ -1198,7 +1392,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                         self.curFPTreeItem.setToolTip(0, fileName)
                         self.fpSpecTreeWidget.resizeColumnToContents(0)
 
-                        self.getTextColor()
+                        self._getTextColor_()
 
                         specList = hdfRoot.Spectra._v_children
                         peakLists = hdfRoot.PeakLists._v_children
@@ -1301,18 +1495,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                     print 'Error loading fingerprint from HDF5'
                     print errorMsg
 
-
-    def openFileDialog(self):
-        fileName = QtGui.QFileDialog.getOpenFileName(self,
-                                         "Select Fingerprint File to Load",
-                                         self.curDir,
-                                         "HDF5 Files (*.h5)")
-        if not fileName.isEmpty():
-#            print fileName
-            return os.path.abspath(str(fileName))
-        else:
-            return None
-
     def fpListSelect(self, listItem=None):
         if listItem != None:
             if self.fpDict.has_key(str(listItem.text())):
@@ -1350,8 +1532,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                 self.fpDict[item[0]]=item[1]
                 self.addFP(fpDict)
 
-
-
     def addFP(self, fpDict):
         curFPName = fpDict.keys()[0]
         matchNameList = self.fpListWidget.findItems(curFPName, QtCore.Qt.MatchExactly)
@@ -1363,17 +1543,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             curFP.setFlags(QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsSelectable)
             curFP.setCheckState(QtCore.Qt.Unchecked)
             self.fpListWidget.addItem(curFP)
-
-    def testFocus(self):
-        print "Test Focus"
-
-    def _setFPFocus_(self, fpInstance=None):
-        '''
-        used to capture the top window focus
-        '''
-        if isinstance(fpInstance, FP.Finger_Widget):
-            self.curFPWidget = fpInstance
-#            print "Got Finger Widget"
 
     def expandFPSpectra(self):
         if self.expandFPBool:
@@ -1387,130 +1556,16 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             self.fpSpecTreeWidget.collapseAll()
 
 
-    def setupVars(self):
-        self.dirList = []
-        self.curDir = os.getcwd()
-        self.curDataName = None
-        #these are used to keep track of what group is loaded
-        self.groupIndex = []
-        self.groupList = []
-        self.groupDict = {}
-        self.curGroup = None
-        self.numGroups = 0
-        #########################
-        self.dataList = []
-        self.dataDict = {}
-        self.multiPlotIndex = []
-        self.ignoreSignal = False
-        self.firstLoad = True
-        self.labelPks = False
-        self.plotPks = False
-        self.txtColor = None
-        self.colorIndex = 0
-        self.markerIndex = 0
-        self.plotColor = None
-        self.plotColorIndex = 0
-        self.curEIC = None
-        self.eicPlots = []
-        self.fingerPlots = []
-        self.fingerRevTabls = []
-        self.curFPWidget = FP.Finger_Widget(parent = self)
-        self.fingerPlots.append(self.curFPWidget)
-        self.peakParams = None
-        self.setupPeakPick()
-        ###FP Related Vars:
-        self.expandFPBool = False
-        self.fpDict = {}
-        self.curFPName = None
-        self.fpDir = None
-        ###Preference Variables
-        self.prefFileName = 'svconfig.ini'
-        self.orgPrefFileName = 'original_svconfig.ini'#Don't change this.
-        self.prefDict = {'showsnrest':self.plotNoiseEst_CB,
-                         'snrnoiseest':self.snrNoiseEst_SB,
-                         'minrowtol':self.waveletRowTol_SB,
-                         'minrownoise':self.minRow_SB,
-                         'defaultscales':self.useDefaultScale_CB,
-                         'splitfactor':self.noiseFactor_SB,
-                         'autosavepeaks':self.autoSavePkList_CB,
-                         'scaleend':self.scaleStop_SB,
-                         'minclust':self.minClust_SB,
-                         'staticcutoff':self.staticCutoff_SB,
-                         'distthresh':self.dbscanEPS_SB,
-                         'scalestart':self.scaleStart_SB,
-                         'scalefactor':self.scaleFactor_SB,
-                         'plotlegend':self.plotLegendCB,
-                         'invertcomp':self.invertCompCB,
-                         'plotpeaklist':self.plotPkListCB,
-                         'labelpeaks':self.labelPeak_CB,
-                         'mzhi':self.mzHi_SB,
-                         'mzlo':self.mzLo_SB,
-                         'excludelift':self.excludeLIFTCB,
-                         'loadmzxml':self.loadmzXMLCB,
-                         'autoloadfp':self.autoLoadFP_CB,
-                         'fpdir':self.fpFolder_LE
-                         }
-        self.prefFileStruct = {}
-        self.peakSettingTypes = ['High SNR','Med SNR','Low SNR']
-        self.peakSetting_CB.addItems(self.peakSettingTypes)
-        peakFindInt = self.peakSetting_CB.findText('Med SNR')
-        self.peakSetting_CB.setCurrentIndex(peakFindInt)
-
-        self.selectAllFPs = True#used to toggle the state of all the present FPs
-        self.plotWidget.enableEdit()
-
-
-    def setupGUI(self):
-        self.specNameEdit.clear()
-        self.groupTreeWidget.setHeaderLabel('Loaded Spectra:')
-        self.fpSpecTreeWidget.setHeaderLabel('Loaded Spectra:')
-
-#        self.indexHSlider.setMaximum(0)
-#        self.indexSpinBox.setMaximum(0)
-        self.initContextMenus()
-
-    def updateGUI(self,  loadedItem=None):
-        if loadedItem != None:
-            #So that duplicate files are not loaded into the dataDict
-            #if self.dataDict.has_key(loadedItem.name):
-            if self.dataDict.has_key(loadedItem.path):
-                print "%s already exists...skipping"%loadedItem.path
-                pass
-            else:
-                #self.dataList.append(loadedItem.name)
-                self.dataList.append(loadedItem.path)
-                #color handler
-#                tempItem = QtGui.QListWidgetItem(loadedItem.name)
-
-#                tempItem.setTextColor(tempColor)
-#                tempItem.setToolTip(loadedItem.path)
-#                #self.specListWidget.addItem(loadedItem.name)
-#                self.specListWidget.addItem(tempItem)
-
-                #TreeWidget Handling
-                tempTWI = QtGui.QTreeWidgetItem()
-                tempTWI.setText(0, loadedItem.name)
-                tempColor = QtGui.QColor(self.txtColor)
-                tempTWI.setTextColor(0, tempColor)
-                tempTWI.setToolTip(0, loadedItem.path)
-                self.curTreeItem.addChild(tempTWI)
-
-                tempFPTWI = QtGui.QTreeWidgetItem()
-                tempFPTWI.setText(0, loadedItem.name)
-                tempFPTWI.setTextColor(0, tempColor)
-                tempFPTWI.setToolTip(0, loadedItem.path)
-                self.curFPTreeItem.addChild(tempFPTWI)
-
-            self.dataDict[loadedItem.path] = loadedItem
-
-        self.numSpec = len(self.dataDict)
-#        if self.numSpec == 1:
-#            self.plotByIndex(0)
-#            self.indexHSlider.setMaximum(self.numSpec)
-#            self.indexSpinBox.setMaximum(self.numSpec)
-#        else:
-#            self.indexHSlider.setMaximum(self.numSpec-1)
-#            self.indexSpinBox.setMaximum(self.numSpec-1)
+    def openFileDialog(self):
+        fileName = QtGui.QFileDialog.getOpenFileName(self,
+                                         "Select Fingerprint File to Load",
+                                         self.curDir,
+                                         "HDF5 Files (*.h5)")
+        if not fileName.isEmpty():
+#            print fileName
+            return os.path.abspath(str(fileName))
+        else:
+            return None
 
     def getMZXMLDialog(self):
         fileName = QtGui.QFileDialog.getOpenFileName(self,
@@ -1561,7 +1616,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             if len(selectItems) == 0:
                 fileName = self.getMZXMLDialog()
                 if fileName != None:
-                    self.getTextColor()
+                    self._getTextColor_()
                     self.curGroup = self.numGroups
 
                     if sys.platform == 'win32':
@@ -1600,125 +1655,10 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                         if self.P != None:
                             QtGui.QMessageBox.warning(self, "Too many spectra in File", errMsg)
 
-
-
-
-    def _getDir_(self):
-        directory = QtGui.QFileDialog.getExistingDirectory(self, '', self.curDir)
-        directory = str(directory)
-        if directory != None:
-            self.curDir = os.path.abspath(directory)
-            return True
-        else:
-            self.curDir = os.path.abspath(os.getcwd())
-            return False
-        #return directory
-
-    def _updatePlotColor_(self):
-        if self.plotColorIndex%len(COLORS) == 0:
-            self.plotColorIndex = 0
-            self.plotColor = COLORS[self.plotColorIndex]
-            self.plotColorIndex +=1
-        else:
-            self.plotColor = COLORS[self.plotColorIndex]
-            self.plotColorIndex +=1
-
-    def _getPlotMarker_(self):
-        marker = MARKERS[self.markerIndex]
-        if self.markerIndex is len(MARKERS)-1:
-            self.markerIndex = 0
-        else:
-            self.markerIndex+=1
-        return marker
-
-    def initContextMenus(self):
-        self.plotWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
-        self.plotWidget.connect(self.plotWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self.__mplContext__)
-        self.groupTreeWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
-        self.groupTreeWidget.connect(self.groupTreeWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self.__treeContext__)
-        self.fpListWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
-        self.fpListWidget.connect(self.fpListWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self.__fpContext__)
-
-
-    def __fpContext__(self, point):
-        '''Create a menu for the FingerPrint list widget'''
-        ct_menu = QtGui.QMenu("Fingerprint Menu", self.fpListWidget)
-        ct_menu.addAction(self.reviewFPAction)
-        ct_menu.addAction(self.viewFPMetaAction)
-        ct_menu.addAction(self.toggleFPSelectAction)
-#        ct_menu.addAction(self.topHatAction)
-#        ct_menu.addAction(self.findPeakAction)
-#        ct_menu.addAction(self.savePksAction)
-        ct_menu.addSeparator()
-        ct_menu.addAction(self.overlayFPAction)
-#        ct_menu.addAction(self.selectAllAction)
-        ct_menu.exec_(self.fpListWidget.mapToGlobal(point))
-
-    def __treeContext__(self, point):
-        '''Create a menu for the file list widget'''
-        ct_menu = QtGui.QMenu("Tree Menu", self.groupTreeWidget)
-        ct_menu.addAction(self.removeAction)
-        ct_menu.addAction(self.topHatAction)
-        ct_menu.addAction(self.findPeakAction)
-        ct_menu.addAction(self.savePksAction)
-        ct_menu.addSeparator()
-        selectItems = self.groupTreeWidget.selectedItems()
-        groupBool = True
-        if len(selectItems) > 0:
-            for item in selectItems:
-                if item.childCount() == 0:#test to see if any of the items selected are leaves
-                    groupBool = False
-        if groupBool:
-            ct_menu.addAction(self.initFPAction)
-        ct_menu.addAction(self.selectGroupAction)
-        ct_menu.addAction(self.addFileAction)
-#        ct_menu.addAction(self.selectAllAction)
-        ct_menu.exec_(self.groupTreeWidget.mapToGlobal(point))
-
-
-    def __listContext__(self, point):
-        '''Create a menu for the file list widget'''
-        ct_menu = QtGui.QMenu("List Menu", self.specListWidget)
-        ct_menu.addAction(self.removeAction)
-        ct_menu.addAction(self.topHatAction)
-        ct_menu.addAction(self.findPeakAction)
-        ct_menu.addAction(self.savePksAction)
-        ct_menu.addSeparator()
-        ct_menu.addAction(self.selectAllAction)
-        ct_menu.exec_(self.specListWidget.mapToGlobal(point))
-
-    def __mplContext__(self, point):
-        '''Create a menu for the mpl widget'''
-        ct_menu = QtGui.QMenu("Plot Menu", self.plotWidget)
-#        ct_menu.addAction(self.ui.actionZoom)
-#        ct_menu.addAction(self.ui.actionAutoScale)
-#        ct_menu.addSeparator()
-#        ct_menu.addAction(self.ui.actionPlotOptions)
-#        ct_menu.addSeparator()
-#        ct_menu.addAction(self.ui.actionClear)
-#        ct_menu.addSeparator()
-        ct_menu.addAction(self.handleActionA)
-        ct_menu.addAction(self.handleActionB)
-        ct_menu.addAction(self.cursorClearAction)
-#        ct_menu.addSeparator()
-        ct_menu.addAction(self.labelAction)
-#        ct_menu.addSeparator()
-        ct_menu.addAction(self.plotWidget.mpl2ClipAction)
-        ct_menu.exec_(self.plotWidget.mapToGlobal(point))
-
-    def getTextColor(self):
-        if self.colorIndex%len(COLORS) == 0:
-            self.colorIndex = 0
-            self.txtColor = COLORS[self.colorIndex]
-            self.colorIndex +=1
-        else:
-            self.txtColor = COLORS[self.colorIndex]
-            self.colorIndex +=1
-
     def initDataList(self):
         #handles loading of new group.
         #####Text Color Handler
-        self.getTextColor()
+        self._getTextColor_()
 
         if not self.firstLoad:
             #reinitialize GUI and spectrumList
@@ -1807,29 +1747,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.groupDict[str(self.curTreeItem.toolTip(0))] = tempGroupItems
         self.curTreeItem.sortChildren(0,QtCore.Qt.AscendingOrder)#sort column 0 in ascending order
 #        print self.groupDict
-
-    def initFP(self):
-        selectItems = self.groupTreeWidget.selectedItems()
-        if len(selectItems) > 0:
-            curFingerPlot = FP.Finger_Widget(parent = self)
-            for item in selectItems:
-                curGroupName = str(item.toolTip(0))
-                if self.groupDict.has_key(curGroupName):
-                    tempItemList = self.groupDict[curGroupName]
-                    if len(tempItemList)>0:
-                        tempDataDict = {}#self.dataDict.fromkeys(tempItemList)
-                        for childName in tempItemList:
-                            tempDataDict[childName] = self.dataDict[childName]
-                        curFingerPlot.updateDataDict(tempDataDict)
-
-                print item.toolTip(0)
-
-            if curFingerPlot.showRaw_CB.isChecked():
-                    curFingerPlot.setupPlot()
-#            curFingerPlot.setupPlot()
-            curFingerPlot.getFPPeakList()
-            curFingerPlot.show()
-            self.fingerPlots.append(curFingerPlot)
 
     def PFTFinished(self, finishedBool):
 
@@ -2252,6 +2169,8 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             self.plotWidget.canvas.draw()
             self.plotWidget.setFocus()#this is needed so that you can use CTRL+Z to zoom
 
+#############FIND PEAKS ELEMENTS#########################
+
     def makeUserScale(self):
         self.startScale = self.scaleStart_SB.value()
         self.endScale = self.scaleStop_SB.value()
@@ -2371,7 +2290,29 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                         print self.progressMax
                         self.FPT.start()
 
+    def peakComboChanged(self, selectedStr):
+        '''
+        Changes to pre-set values for peak picking
+        '''
+        selectedStr = str(selectedStr)
+        settingsKey = {'Low SNR':0,
+                       'Med SNR':1,
+                       'High SNR':2
+                       }
+        selIndex = settingsKey[selectedStr]
 
+        defaultParams = {'minSNR':[1.5,3,10],
+                         'minRow':[1,1,2],
+                         'minClust':[3,4,4],
+                         'rowThresh':[4,3,3],
+                         'staticThresh':[50,100,200],
+                         }
+
+        self.snrNoiseEst_SB.setValue(defaultParams['minSNR'][selIndex])#default 3
+        self.minRow_SB.setValue(defaultParams['minRow'][selIndex])#default 1
+        self.minClust_SB.setValue(defaultParams['minClust'][selIndex]) #default is 4
+        self.waveletRowTol_SB.setValue(defaultParams['rowThresh'][selIndex])
+        self.staticCutoff_SB.setValue(defaultParams['staticThresh'][selIndex])
 
 
     def findPeaks(self):
@@ -2389,6 +2330,48 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             self.startPeakThread(dataItemList)
             return True
 #            print "Find Peaks"
+
+    def plotCWTPeaks(self, dataList):#massSpecX, massSpecY, cwtMTX, peakLoc, peakInt, cwtPeakLoc, peakClass):
+        cwtMTX, cwtResult = dataList
+        peakLoc, peakInt, rawPeakInd, cwtPeakLoc, peakClass, boolAns = cwtResult
+        if boolAns:
+            if self.curDataName != None:
+                curData = self.dataDict[self.curDataName]
+                peakLoc = curData.peakList[:,0]
+#                massSpecX = curData.x
+                massSpecY = curData.y
+            else:
+                return False
+
+            cwtPlot = MPL_CWT()
+            cwtPlot.setWindowTitle('CWT Plot')
+            cwtPlot.canvas.setupSub(2)
+            ax1 = cwtPlot.canvas.axDict['ax1']
+            ax2 = cwtPlot.canvas.axDict['ax2']
+
+            ax1.plot(SF.normalize(massSpecY), 'g', alpha = 0.7, label = 'ms')
+            intMax = cwtMTX.max(axis=0).max()*0.05
+            im=ax2.imshow(cwtMTX,vmax = intMax, cmap=P.cm.jet,aspect='auto')
+            ax2.plot(cwtPeakLoc[:,0], cwtPeakLoc[:,1], 'oy', ms = 3, alpha = 0.4)
+            if peakClass != None:
+                i = peakClass.max()
+                for m in xrange(int(i)+1):
+                    ind = N.where(m == peakClass)
+                    temp = cwtPeakLoc[ind]
+                    ax2.plot(temp[:,0],temp[:,1],'-s', alpha = 0.7, ms = 3)
+                if len(peakLoc) != 0:
+#                    print peakLoc
+#                    print rawPeakInd
+                    ax1.vlines(rawPeakInd, 0, 100, 'r', linestyle = 'dashed', alpha = 0.5)
+
+            cwtPlot.show()
+            self.appendMPLPlot(cwtPlot)
+
+
+    def appendMPLPlot(self, mplWidgetInstance):
+        self.eicPlots.append(mplWidgetInstance)
+
+
 
 
     ###########Peak Label#########################
@@ -2636,13 +2619,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             self.tabPeakTable.setHorizontalHeaderLabels(header)
             self.tabPeakTable.setSortingEnabled(True)
             self.tabPeakTable.resizeColumnToContents(0)
-
-    def __askConfirm__(self,title,message):
-        clickedButton = QtGui.QMessageBox.question(self,\
-                                                   title,message,\
-                                                   QtGui.QMessageBox.Yes,QtGui.QMessageBox.Cancel)
-        if clickedButton == QtGui.QMessageBox.Yes: return True
-        return False
 
 
 ##########Begin Ashoka Progress Bar Code....
