@@ -58,6 +58,7 @@ import tables as T
 
 from matplotlib.lines import Line2D
 from matplotlib.mlab import rec2csv
+from matplotlib.patches import Rectangle as Rect
 import matplotlib.pyplot as P
 
 from FolderParse import Load_FID_Folder as LFid
@@ -163,6 +164,10 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.fpListWidget.addAction(self.toggleFPSelectAction)
         QtCore.QObject.connect(self.toggleFPSelectAction, QtCore.SIGNAL("triggered()"), self.toggleSelectedFPs)
 
+        self.overlayFPAction = QtGui.QAction("Spectral FP Context",  self)
+        self.fpListWidget.addAction(self.overlayFPAction)
+        QtCore.QObject.connect(self.overlayFPAction, QtCore.SIGNAL("triggered()"), self.overlayFP)
+
         QtCore.QObject.connect(self.saveCSVAction,QtCore.SIGNAL("triggered()"), self.save2CSV)
 
         QtCore.QObject.connect(self.removeAction, QtCore.SIGNAL("triggered()"),self.removeFile)
@@ -230,6 +235,87 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         QtCore.QObject.connect(self.peakSetting_CB, QtCore.SIGNAL("currentIndexChanged(QString)"), self.peakComboChanged)
 
         self.useDefaultScale_CB.nextCheckState()
+
+
+    def overlayFP(self):
+        '''
+        Overlay a single fingerprint with the selected spectrum and show which peaks contribute to the degree
+        of association observed (if any).
+        '''
+        curData = None
+        mzXVals = []
+        mzStd = []
+        mzYVals = []
+        numVals = []
+        self.plotColorIndex = 0
+
+        selectItems = self.fpListWidget.selectedItems()
+        if len(selectItems)>0:
+            curFP = selectItems[0]
+
+            fpName = str(curFP.text())
+
+            freqCutoff = self.freqCutoff_SB.value()
+            curFPDict = self.fpDict[fpName]
+            curStats = curFPDict['peakStats']
+            fpFreq = curStats['freq']
+            validInd = N.where(fpFreq>=freqCutoff)[0]
+            fpFreq = fpFreq[validInd]
+            fpPeakLoc = curStats['aveLoc'][validInd]
+            fpPeakInt = curStats['aveInt'][validInd]
+            fpStdLoc = curStats['stdLoc'][validInd]
+            fpNum = curStats['numTot'][validInd]
+            if len(fpPeakLoc)>1:
+                mzXVals.append(fpPeakLoc)
+                mzYVals.append(SF.normalize(fpPeakInt))
+                mzStd.append(fpStdLoc)
+                numVals.append(fpNum)
+
+            mzXVals = N.array(SF.flattenX(mzXVals))
+            mzYVals = N.array(SF.flattenX(mzYVals))
+            mzStd = N.array(SF.flattenX(mzStd))
+            numVals = N.array(SF.flattenX(numVals))
+
+            mzOrder = mzXVals.argsort()
+            mzXVals = mzXVals[mzOrder]
+            mzYVals = mzYVals[mzOrder]
+            mzStd = mzStd[mzOrder]
+            numVals = numVals[mzOrder]
+
+        selectCompItems = self.fpSpecTreeWidget.selectedItems()
+        if len(selectCompItems) > 0:
+#            for item in selectCompItems:
+            item = selectCompItems[0]
+            curData = self.dataDict[str(item.toolTip(0))]
+
+
+        if curData != None and len(mzXVals>0):
+            eicPlot = MPL_Widget(enableAutoScale = True, enableCSV = False, enableEdit = True)
+            eicPlot.setWindowTitle('FP Comparison for %s'%item.toolTip(0))
+
+            ax1 = eicPlot.canvas.ax
+            self._updatePlotColor_()
+            curData.plot(ax1, pColor = self.plotColor, usrAlpha = 1)
+            plotTitle = 'Comparison to %s'%fpName
+            ax1.set_title(plotTitle)
+            ax1.title.set_fontsize(10)
+            ax1.set_xlabel('m/z', fontstyle = 'italic')
+            ax1.set_ylabel('Intensity')
+
+            ax1.plot(mzXVals, mzYVals, ms = 4, linestyle = 'none', marker = 'o', alpha = 0.7, color = 'y', label = '_nolegend_')
+            #Rect((x,y),width, height)
+
+
+            for i,mz in enumerate(mzXVals):
+                self._updatePlotColor_()
+                curXStd = mzStd[i]
+                curYVal = 100#mzYVals[i]
+                tempRect = Rect((mz-curXStd*3,0),curXStd*2*3,curYVal, alpha = 0.5, facecolor = self.plotColor)
+                ax1.add_patch(tempRect)
+
+            eicPlot.show()
+            self.eicPlots.append(eicPlot)
+
 
 
     def toggleSelectedFPs(self):
@@ -942,8 +1028,8 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                 #set mzTol and the stdDev
                 curFingerPlot.mzTol_SB.setValue(peakStatDict['mzTol'].mean())
                 curFingerPlot.stdDev_SB.setValue(peakStatDict['stdDevTol'].mean())
-
-                curFingerPlot.setupPlot()
+                if curFingerPlot.showRaw_CB.isChecked():
+                    curFingerPlot.setupPlot()
                 curFingerPlot.getFPPeakList(resetDict = True)
                 curFingerPlot.show()
                 self.fingerPlots.append(curFingerPlot)
@@ -1563,7 +1649,8 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 #        ct_menu.addAction(self.topHatAction)
 #        ct_menu.addAction(self.findPeakAction)
 #        ct_menu.addAction(self.savePksAction)
-#        ct_menu.addSeparator()
+        ct_menu.addSeparator()
+        ct_menu.addAction(self.overlayFPAction)
 #        ct_menu.addAction(self.selectAllAction)
         ct_menu.exec_(self.fpListWidget.mapToGlobal(point))
 
@@ -1737,8 +1824,9 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
                 print item.toolTip(0)
 
-
-            curFingerPlot.setupPlot()
+            if curFingerPlot.showRaw_CB.isChecked():
+                    curFingerPlot.setupPlot()
+#            curFingerPlot.setupPlot()
             curFingerPlot.getFPPeakList()
             curFingerPlot.show()
             self.fingerPlots.append(curFingerPlot)

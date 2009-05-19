@@ -72,7 +72,8 @@ class Finger_Widget(QtGui.QWidget, ui_fingerPrint.Ui_fingerPlotWidget):
         if dataDict != None:
             self.dataDict = dataDict
             self.dataDictOK = True
-            self.setupPlot()
+            if self.showRaw_CB.isChecked():
+                self.setupPlot()
 
         self.__initConnections__()
         self.resize(500,700)
