@@ -7,6 +7,7 @@ import os, sys, traceback
 from PyQt4 import QtCore, QtGui
 import pylab as P
 import numpy as N
+import tables as T
 import supportFunc as SF
 import getBaseline as GB
 import SG_Filter as SG
@@ -230,41 +231,73 @@ if __name__ == "__main__":
     w = MPL_Widget()
     w2 = MPL_Widget()
     t1 = time.clock()
-    f = open('C:\Sandbox\WSU_IMS.txt', 'r')
-#    f = gzip.open('C:\Sandbox\WSU_IMS.txt.gz', 'rb')
-    header = []
-    for i in xrange(15):
-        header.append(f.readline())
-    f.close()
 
-    mobX = header[-1]
-#    header.pop(len(header)-1)
-    dummyHeader = ''
-    header.pop(-1)
-    for entry in header:
-        dummyHeader+=entry
-#    dummyHeader.join(header)
-    header = dummyHeader
-    print type(header)
-    print header
 
-    mobX = mobX.split(' ')
-    mobX.pop(0)
-    mobX = N.array(mobX, dtype = float)
+    ###HDF SECTION
+    h = T.openFile('newTOF.h5', 'r')
+    r = h.root
 
-#    wsu = P.load('C:\Sandbox\WSU_IMS.txt.gz', skiprows = 15)
-    wsu = P.load('C:\Sandbox\WSU_IMS.txt', skiprows = 15)
-    mzX = wsu[:,0]#extracts the m/z domain
-    wsu = wsu[:,1:]#gets rid of first column which is the m/z values
+    mzX = r.FullSpectra.MassAxis.read()
+    mzY = r.FullSpectra.SumSpectrum.read()
+    mzFilterInd = N.where(mzX>5)[0]
+    mzX = mzX[mzFilterInd]
+    mzY = mzY[mzFilterInd]
 
-    mobY = wsu.sum(axis = 0)
-    print "mobY", len(mobY)
+    raw = r.PeakData.PeakData.read()
+    buff = raw.sum(axis = 1)
+    ims = buff.sum(axis = 0)
 
-    mzY = wsu.sum(axis = 1)
-    print "mzY", len(mzY)
+    r._v_attrs.NbrWaveforms
+    r.TimingData._v_attrs.TofPeriod
+    print ims.shape
+#    for i in ims[20]:
+#        print i
+    mobX = ims[:,0]
+#    mobY = ims[:,1]
+
+    h.close()
+
+    #############
+
+#    f = open('C:\Sandbox\WSU_IMS.txt', 'r')
+##    f = gzip.open('C:\Sandbox\WSU_IMS.txt.gz', 'rb')
+#    header = []
+#    for i in xrange(15):
+#        header.append(f.readline())
+#    f.close()
+#
+#    mobX = header[-1]
+##    header.pop(len(header)-1)
+#    dummyHeader = ''
+#    header.pop(-1)
+#    for entry in header:
+#        dummyHeader+=entry
+##    dummyHeader.join(header)
+#    header = dummyHeader
+#    print type(header)
+#    print header
+#
+#    mobX = mobX.split(' ')
+#    mobX.pop(0)
+#    mobX = N.array(mobX, dtype = float)
+#
+##    wsu = P.load('C:\Sandbox\WSU_IMS.txt.gz', skiprows = 15)
+#    wsu = P.load('C:\Sandbox\WSU_IMS.txt', skiprows = 15)
+#    mzX = wsu[:,0]#extracts the m/z domain
+#    wsu = wsu[:,1:]#gets rid of first column which is the m/z values
+#
+#    mobY = wsu.sum(axis = 0)
+#    print "mobY", len(mobY)
+#
+#    mzY = wsu.sum(axis = 1)
+#    print "mzY", len(mzY)
     print time.clock()-t1
-    w.canvas.ax.plot(mobX, mobY)
-#    w2.canvas.ax.plot(mzX, mzY)
+
+
+#    w.canvas.ax.plot(mobX, mobY)
+
+    w.canvas.ax.plot(mobX)
+    w2.canvas.ax.plot(mzX, mzY)
     w.show()
-#    w2.show()
+    w2.show()
     sys.exit(app.exec_())
