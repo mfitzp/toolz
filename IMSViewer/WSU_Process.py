@@ -294,22 +294,12 @@ class WSUHDF5(object):
 
     def initExpParams(self):
         '''
-        WSU Data Header similar to below:
+        tofWERK Data Header similar to below:
 
-        Mobility v2.2 (beta) compiled Jun 24 2003 14:20:54
-        This data was saved on 12/11/08 17:03:35
-        ID:
-        # of Extractions = 700 ; # of Interleaves = 1
-        TDC Resolution: 2.500 nsec
-        TDC Active Time: 35.800 usec
-        Drift Time = 5.000 msec
-        Histogram length: 13201 cells
-        TOF start delay = 2.8 usec
-        Extraction Frequency = 25 kHz
-        Extraction Pulse Width = 2.00 usec ; # of Laser Pulses = 14610
-        Laser Frequency = 25 Hz
-        Mass1: 35.000 Time1: 7.3500
-        Mass2: 289.090 Time2: 20.6575
+        ====================================================
+        Tofwerk AG (http://www.tofwerk.com) HDF5 data file
+        created: 8/11/2008 3:47:04 PM
+        ====================================================
         '''
         self.temperature = None #in degrees C
         self.pressure = None #in Torr

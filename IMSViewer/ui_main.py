@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Documents and Settings\d3p483\workspace\NoiseProject\main.ui'
 #
-# Created: Tue May 12 15:46:27 2009
+# Created: Tue Jun 02 11:13:31 2009
 #      by: PyQt4 UI code generator 4.4.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -103,6 +103,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_3 = QtGui.QHBoxLayout()
         self.horizontalLayout_3.setObjectName("horizontalLayout_3")
         self.loadWSU_CB = QtGui.QCheckBox(self.plotTab)
+        self.loadWSU_CB.setChecked(True)
         self.loadWSU_CB.setObjectName("loadWSU_CB")
         self.horizontalLayout_3.addWidget(self.loadWSU_CB)
         self.verticalLayout_2.addLayout(self.horizontalLayout_3)

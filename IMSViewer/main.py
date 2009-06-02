@@ -15,6 +15,7 @@ from PyQt4 import QtCore,  QtGui
 
 import numpy as N
 import scipy as S
+import tables as T
 import scipy.stats as stats
 #import tables as T
 
@@ -27,6 +28,7 @@ from Plot_Options_Line2D import Plot_Options_Dialog as POD
 
 from dataClass import DataClass
 from WSU_Process import WSUDataClass as WSU
+from WSU_Process import WSUHDF5 as WSUHDF5
 
 from plotWindow import PlotWidget as PW
 import supportFunc as SF
@@ -427,7 +429,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             item = selectItems[0]
             if item.childCount() == 0:#test to see if the object is a leaf
                 curData = self.dataDict[str(item.toolTip(0))]
-                if isinstance(curData, WSU):
+                if isinstance(curData, WSU) or isinstance(curData, WSUHDF5):
                     openWindow = True
                     for i,window in enumerate(self.mzPlots):
                         try:#test to see if it existed and then was closed
@@ -574,6 +576,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                 print "%s already exists...skipping"%loadedItem.path
                 pass
             else:
+                #self.getTextColor()
                 #self.dataList.append(loadedItem.name)
                 self.dataList.append(loadedItem.path)
                 #color handler
@@ -607,7 +610,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         fileName = QtGui.QFileDialog.getOpenFileName(self,
                                          "Select IMS File to Load",
                                          "",
-                                         "TXT (*.TXT);; IMS-TOF GZIP (*.gz)")
+                                         "TXT (*.TXT);; IMS-TOF GZIP (*.gz);; IMS-TOF HDF5 (*.h5);; All Files (*.*)")
         if not fileName.isEmpty():
 #            print fileName
             return os.path.abspath(str(fileName))
@@ -629,13 +632,28 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             fileName = self.getIMSDialog()
             if fileName != None:
                 if self.loadWSU_CB.isChecked():
-                    tempSpec = openWSUTOFFile(fileName)
-                    if tempSpec[-1]:
-                        data2plot = WSU(tempSpec[0],tempSpec[1],tempSpec[2],tempSpec[3], name = os.path.basename(fileName), path = fileName)
-                        data2plot.setInfo(tempSpec[4])
-                        self.updateGUI(data2plot)
+                    if '.h5' in fileName:#test to see if it is an HDF5 file
+                        f = open(fileName, 'r')
+                        tempHeader = []
+                        for i in xrange(5):
+                            tempHeader.append(f.readline())
+                        f.close()
+                        if 'Tofwerk AG' in tempHeader[1]:#test to see if the particular HDF5 file is from tofWERK
+                            tempSpec = openWSUHDF5(fileName)
+                            if tempSpec[-1]:
+                                data2plot = WSUHDF5(tempSpec[0],tempSpec[1],tempSpec[2],tempSpec[3], name = os.path.basename(fileName), path = fileName)
+                                data2plot.setInfo(tempSpec[4])
+                                self.updateGUI(data2plot)
+                            else:
+                                return QtGui.QMessageBox.warning(self, "Error Loading File",  tempSpec[0])
                     else:
-                        return QtGui.QMessageBox.warning(self, "Error Loading File",  tempSpec[0])
+                        tempSpec = openWSUTOF(fileName)
+                        if tempSpec[-1]:
+                            data2plot = WSU(tempSpec[0],tempSpec[1],tempSpec[2],tempSpec[3], name = os.path.basename(fileName), path = fileName)
+                            data2plot.setInfo(tempSpec[4])
+                            self.updateGUI(data2plot)
+                        else:
+                            return QtGui.QMessageBox.warning(self, "Error Loading File",  tempSpec[0])
                 else:
                     tempSpec = openIMSFile(fileName)
                     if tempSpec[-1]:
@@ -652,13 +670,28 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                 fileName = self.getIMSDialog()
                 if fileName != None:
                     if self.loadWSU_CB.isChecked():
-                        tempSpec = openWSUTOFFile(fileName)
-                        if tempSpec[-1]:
-                            data2plot = WSU(tempSpec[0],tempSpec[1],tempSpec[2],tempSpec[3], name = os.path.basename(fileName), path = fileName)
-                            data2plot.setInfo(tempSpec[4])
-                            self.loadOk = True
+                        if '.h5' in fileName:#test to see if it is an HDF5 file
+                            f = open(fileName, 'r')
+                            tempHeader = []
+                            for i in xrange(5):
+                                tempHeader.append(f.readline())
+                            f.close()
+                            if 'Tofwerk AG' in tempHeader[1]:#test to see if the particular HDF5 file is from tofWERK
+                                tempSpec = openWSUHDF5(fileName)
+                                if tempSpec[-1]:
+                                    data2plot = WSUHDF5(tempSpec[0],tempSpec[1],tempSpec[2],tempSpec[3], name = os.path.basename(fileName), path = fileName)
+                                    data2plot.setInfo(tempSpec[4])
+                                    self.loadOk = True
+                                else:
+                                    return QtGui.QMessageBox.warning(self, "Error Loading File",  tempSpec[0])
                         else:
-                            return QtGui.QMessageBox.warning(self, "Error Loading File",  tempSpec[0])
+                            tempSpec = openWSUTOF(fileName)
+                            if tempSpec[-1]:
+                                data2plot = WSU(tempSpec[0],tempSpec[1],tempSpec[2],tempSpec[3], name = os.path.basename(fileName), path = fileName)
+                                data2plot.setInfo(tempSpec[4])
+                                self.loadOk = True
+                            else:
+                                return QtGui.QMessageBox.warning(self, "Error Loading File",  tempSpec[0])
 
                     else:
                         tempSpec =  openIMSFile(fileName)
@@ -737,7 +770,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             item = selectItems[0]
             if item.childCount() == 0:#test to see if the object is a leaf
                 curData = self.dataDict[str(item.toolTip(0))]
-                if isinstance(curData, WSU):
+                if isinstance(curData, WSU) or isinstance(curData, WSUHDF5):
                     ct_menu.addAction(self.showTOFAction)
                     ct_menu.addSeparator()
                     ct_menu.addAction(self.addDataAction)
@@ -1703,7 +1736,7 @@ class LoadThread(QtCore.QThread):
 #                            pass
                             self.numItems = 0
 #                            return QtGui.QMessageBox.Information(self.P, "Don't Load Files This Way", "Load IMS-TOF Files one at a time\nRight Click to Add a File")
-#                            tempSpec = openWSUTOFFile(item)
+#                            tempSpec = openWSUTOF(item)
 #                            if tempSpec[-1]:
 #                                data2plot = WSU(tempSpec[0],tempSpec[1],tempSpec[2],tempSpec[3], name = os.path.basename(item), path = item)
 #                                data2plot.setInfo(tempSpec[4])
@@ -1733,15 +1766,64 @@ class LoadThread(QtCore.QThread):
             self.exiting = True
             self.wait()
 
-def openWSUTOFFile(fileName):
+
+def openWSUHDF5(fileName):
+    '''
+    Opens HDF5 format from tofWERK AG.
+
+    '''
+    t1 = time.clock()
+    h = T.openFile(fileName, 'r')
+    r = h.root
+
+    mzX = r.FullSpectra.MassAxis.read()
+    mzY = r.FullSpectra.SumSpectrum.read()
+    mzFilterInd = N.where(mzX>5)[0]#gets rid of tof pulser ringing that can swamp spectrum
+    mzX = mzX[mzFilterInd]
+    mzY = mzY[mzFilterInd]
+
+    raw = r.PeakData.PeakData.read()
+    buff = raw.sum(axis = 1)
+    ims = buff.sum(axis = 0)
+
+
+    imsSpacing = r._v_attrs.NbrWaveforms*r.TimingData._v_attrs.TofPeriod/1000000.#convert to ms
+    mobY = ims[:,0]
+    mobX = N.arange(0, len(mobY)*imsSpacing, imsSpacing)
+
+    '''
+    Header handler
+    '''
+    header = ''
+    attrList = r._v_attrs._g_listAttr()
+    for attr in attrList:
+        header+=attr
+        header+=': '
+        header+=str(r._v_attrs.__getattr__(attr))
+        header+='\n'
+
+    header+='\n\nTiming Data\n'
+    attrList = r.TimingData._v_attrs._g_listAttr()
+    for attr in attrList:
+        header+=attr
+        header+=': '
+        header+=str(r.TimingData._v_attrs.__getattr__(attr))
+        header+='\n'
+
+    h.close()
+    t2 = time.clock()
+    print 'Load Time',t2-t1
+    return mobX, mobY, mzX, mzY, header, True
+
+
+def openWSUTOF(fileName):
     '''
 
     '''
-
     if os.path.isfile(fileName):
         try:
             t1 = time.clock()
-            if '.gz' in fileName:
+            if '.gz' in fileName:#for compressed original IMS-TOF format
                 f = gzip.open(fileName, 'rb')
             else:
                 f = open(fileName, 'r')
