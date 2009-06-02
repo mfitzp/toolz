@@ -13,7 +13,8 @@
    <string>Bruker2mzXML</string>
   </property>
   <property name="windowIcon" >
-   <iconset resource="icons.qrc" >:/new/prefix1/Clone_32.png</iconset>
+   <iconset resource="icons.qrc" >
+    <normaloff>:/new/prefix1/Clone_32.png</normaloff>:/new/prefix1/Clone_32.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget" >
    <layout class="QVBoxLayout" >
@@ -22,7 +23,7 @@
       <item>
        <widget class="QPushButton" name="selBrukerDataBtn" >
         <property name="text" >
-         <string>&amp;Bruker Data:</string>
+         <string>&amp;Data Folder:</string>
         </property>
        </widget>
       </item>
@@ -44,6 +45,20 @@
        <widget class="QCheckBox" name="toCSVCB" >
         <property name="text" >
          <string>Convert mzXML to CSV?</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="makeMGF_CB" >
+        <property name="toolTip" >
+         <string>&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">
+&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+p, li { white-space: pre-wrap; }
+&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
+&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">If checked only peaks files created by the SimpleViewer program will be identified and rolled into a single &lt;span style=" font-weight:600;">M&lt;/span>ascot &lt;span style=" font-weight:600;">G&lt;/span>eneral &lt;span style=" font-weight:600;">F&lt;/span>ormat file&lt;/p>&lt;/body>&lt;/html></string>
+        </property>
+        <property name="text" >
+         <string>Convert peaks to mgf?</string>
         </property>
        </widget>
       </item>
@@ -119,7 +134,7 @@
     <item>
      <widget class="QPushButton" name="cnvrtBrukerBtn" >
       <property name="text" >
-       <string>&amp;Convert to mzXML</string>
+       <string>&amp;Convert</string>
       </property>
      </widget>
     </item>
