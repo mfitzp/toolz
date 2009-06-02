@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\SVN\Bruker2mzXML\main.ui'
+# Form implementation generated from reading ui file 'C:\Documents and Settings\d3p483\workspace\Bruker2mzXML\main.ui'
 #
-# Created: Mon Oct 13 16:30:22 2008
-#      by: PyQt4 UI code generator 4.3.3
+# Created: Tue Jun 02 15:52:46 2009
+#      by: PyQt4 UI code generator 4.4.3
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -12,119 +12,96 @@ from PyQt4 import QtCore, QtGui
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(QtCore.QSize(QtCore.QRect(0,0,500,446).size()).expandedTo(MainWindow.minimumSizeHint()))
-        MainWindow.setWindowIcon(QtGui.QIcon(":/new/prefix1/Clone_32.png"))
-
+        MainWindow.resize(500, 446)
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(":/new/prefix1/Clone_32.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        MainWindow.setWindowIcon(icon)
         self.centralwidget = QtGui.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
-
         self.vboxlayout = QtGui.QVBoxLayout(self.centralwidget)
         self.vboxlayout.setObjectName("vboxlayout")
-
         self.hboxlayout = QtGui.QHBoxLayout()
         self.hboxlayout.setObjectName("hboxlayout")
-
         self.selBrukerDataBtn = QtGui.QPushButton(self.centralwidget)
         self.selBrukerDataBtn.setObjectName("selBrukerDataBtn")
         self.hboxlayout.addWidget(self.selBrukerDataBtn)
-
         self.brukerFolderLE = QtGui.QLineEdit(self.centralwidget)
         self.brukerFolderLE.setObjectName("brukerFolderLE")
         self.hboxlayout.addWidget(self.brukerFolderLE)
         self.vboxlayout.addLayout(self.hboxlayout)
-
         self.hboxlayout1 = QtGui.QHBoxLayout()
         self.hboxlayout1.setObjectName("hboxlayout1")
-
         self.singleFileCB = QtGui.QCheckBox(self.centralwidget)
         self.singleFileCB.setObjectName("singleFileCB")
         self.hboxlayout1.addWidget(self.singleFileCB)
-
         self.toCSVCB = QtGui.QCheckBox(self.centralwidget)
         self.toCSVCB.setObjectName("toCSVCB")
         self.hboxlayout1.addWidget(self.toCSVCB)
+        self.makeMGF_CB = QtGui.QCheckBox(self.centralwidget)
+        self.makeMGF_CB.setObjectName("makeMGF_CB")
+        self.hboxlayout1.addWidget(self.makeMGF_CB)
         self.vboxlayout.addLayout(self.hboxlayout1)
-
         self.hboxlayout2 = QtGui.QHBoxLayout()
         self.hboxlayout2.setObjectName("hboxlayout2")
-
         self.autoXFileBtn = QtGui.QPushButton(self.centralwidget)
         self.autoXFileBtn.setEnabled(False)
         self.autoXFileBtn.setObjectName("autoXFileBtn")
         self.hboxlayout2.addWidget(self.autoXFileBtn)
-
         self.autoExecuteLE = QtGui.QLineEdit(self.centralwidget)
         self.autoExecuteLE.setEnabled(False)
         self.autoExecuteLE.setObjectName("autoExecuteLE")
         self.hboxlayout2.addWidget(self.autoExecuteLE)
         self.vboxlayout.addLayout(self.hboxlayout2)
-
         self.vboxlayout1 = QtGui.QVBoxLayout()
         self.vboxlayout1.setObjectName("vboxlayout1")
-
         self.line = QtGui.QFrame(self.centralwidget)
         self.line.setFrameShape(QtGui.QFrame.HLine)
         self.line.setFrameShadow(QtGui.QFrame.Sunken)
         self.line.setObjectName("line")
         self.vboxlayout1.addWidget(self.line)
-
         self.hboxlayout3 = QtGui.QHBoxLayout()
         self.hboxlayout3.setObjectName("hboxlayout3")
-
         self.outputBtn = QtGui.QPushButton(self.centralwidget)
         self.outputBtn.setObjectName("outputBtn")
         self.hboxlayout3.addWidget(self.outputBtn)
-
         self.outputFileLE = QtGui.QLineEdit(self.centralwidget)
         self.outputFileLE.setObjectName("outputFileLE")
         self.hboxlayout3.addWidget(self.outputFileLE)
         self.vboxlayout1.addLayout(self.hboxlayout3)
-
         self.line_2 = QtGui.QFrame(self.centralwidget)
         self.line_2.setFrameShape(QtGui.QFrame.HLine)
         self.line_2.setFrameShadow(QtGui.QFrame.Sunken)
         self.line_2.setObjectName("line_2")
         self.vboxlayout1.addWidget(self.line_2)
         self.vboxlayout.addLayout(self.vboxlayout1)
-
         self.vboxlayout2 = QtGui.QVBoxLayout()
         self.vboxlayout2.setObjectName("vboxlayout2")
-
         self.label_3 = QtGui.QLabel(self.centralwidget)
         self.label_3.setObjectName("label_3")
         self.vboxlayout2.addWidget(self.label_3)
-
         self.outputTE = QtGui.QTextEdit(self.centralwidget)
         self.outputTE.setObjectName("outputTE")
         self.vboxlayout2.addWidget(self.outputTE)
         self.vboxlayout.addLayout(self.vboxlayout2)
-
         self.cnvrtBrukerBtn = QtGui.QPushButton(self.centralwidget)
         self.cnvrtBrukerBtn.setObjectName("cnvrtBrukerBtn")
         self.vboxlayout.addWidget(self.cnvrtBrukerBtn)
         MainWindow.setCentralWidget(self.centralwidget)
-
         self.menubar = QtGui.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0,0,500,21))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 500, 21))
         self.menubar.setObjectName("menubar")
-
         self.menuFile = QtGui.QMenu(self.menubar)
         self.menuFile.setObjectName("menuFile")
-
         self.menuTools = QtGui.QMenu(self.menubar)
         self.menuTools.setObjectName("menuTools")
         MainWindow.setMenuBar(self.menubar)
-
         self.statusbar = QtGui.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
-
         self.actionClose = QtGui.QAction(MainWindow)
         self.actionClose.setObjectName("actionClose")
-
         self.actionConvert2XML = QtGui.QAction(MainWindow)
         self.actionConvert2XML.setObjectName("actionConvert2XML")
-
         self.action_About = QtGui.QAction(MainWindow)
         self.action_About.setObjectName("action_About")
         self.menuFile.addAction(self.actionClose)
@@ -135,20 +112,26 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
-        MainWindow.setTabOrder(self.brukerFolderLE,self.autoExecuteLE)
-        MainWindow.setTabOrder(self.autoExecuteLE,self.outputFileLE)
-        MainWindow.setTabOrder(self.outputFileLE,self.cnvrtBrukerBtn)
-        MainWindow.setTabOrder(self.cnvrtBrukerBtn,self.outputTE)
+        MainWindow.setTabOrder(self.brukerFolderLE, self.autoExecuteLE)
+        MainWindow.setTabOrder(self.autoExecuteLE, self.outputFileLE)
+        MainWindow.setTabOrder(self.outputFileLE, self.cnvrtBrukerBtn)
+        MainWindow.setTabOrder(self.cnvrtBrukerBtn, self.outputTE)
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Bruker2mzXML", None, QtGui.QApplication.UnicodeUTF8))
-        self.selBrukerDataBtn.setText(QtGui.QApplication.translate("MainWindow", "&Bruker Data:", None, QtGui.QApplication.UnicodeUTF8))
+        self.selBrukerDataBtn.setText(QtGui.QApplication.translate("MainWindow", "&Data Folder:", None, QtGui.QApplication.UnicodeUTF8))
         self.singleFileCB.setText(QtGui.QApplication.translate("MainWindow", "Single File Conversion?", None, QtGui.QApplication.UnicodeUTF8))
         self.toCSVCB.setText(QtGui.QApplication.translate("MainWindow", "Convert mzXML to CSV?", None, QtGui.QApplication.UnicodeUTF8))
+        self.makeMGF_CB.setToolTip(QtGui.QApplication.translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:8.25pt; font-weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">If checked only peaks files created by the SimpleViewer program will be identified and rolled into a single <span style=\" font-weight:600;\">M</span>ascot <span style=\" font-weight:600;\">G</span>eneral <span style=\" font-weight:600;\">F</span>ormat file</p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
+        self.makeMGF_CB.setText(QtGui.QApplication.translate("MainWindow", "Convert peaks to mgf?", None, QtGui.QApplication.UnicodeUTF8))
         self.autoXFileBtn.setText(QtGui.QApplication.translate("MainWindow", "&AutoExecute File:", None, QtGui.QApplication.UnicodeUTF8))
         self.outputBtn.setText(QtGui.QApplication.translate("MainWindow", "&Output File:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_3.setText(QtGui.QApplication.translate("MainWindow", "Output Message:", None, QtGui.QApplication.UnicodeUTF8))
-        self.cnvrtBrukerBtn.setText(QtGui.QApplication.translate("MainWindow", "&Convert to mzXML", None, QtGui.QApplication.UnicodeUTF8))
+        self.cnvrtBrukerBtn.setText(QtGui.QApplication.translate("MainWindow", "&Convert", None, QtGui.QApplication.UnicodeUTF8))
         self.menuFile.setTitle(QtGui.QApplication.translate("MainWindow", "&File", None, QtGui.QApplication.UnicodeUTF8))
         self.menuTools.setTitle(QtGui.QApplication.translate("MainWindow", "&Tools", None, QtGui.QApplication.UnicodeUTF8))
         self.actionClose.setText(QtGui.QApplication.translate("MainWindow", "&Close", None, QtGui.QApplication.UnicodeUTF8))
@@ -156,4 +139,4 @@ class Ui_MainWindow(object):
         self.actionConvert2XML.setText(QtGui.QApplication.translate("MainWindow", "&Convert2XML", None, QtGui.QApplication.UnicodeUTF8))
         self.action_About.setText(QtGui.QApplication.translate("MainWindow", "&About", None, QtGui.QApplication.UnicodeUTF8))
 
-import qrc_icons
+import icons_rc
