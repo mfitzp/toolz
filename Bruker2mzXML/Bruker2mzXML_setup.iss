@@ -23,8 +23,8 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "C:\SVN\Bruker2mzXML\dist\Bruker2mzXML.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\SVN\Bruker2mzXML\dist\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "C:\Documents and Settings\d3p483\workspace\Bruker2mzXML\dist\Bruker2mzXML.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Documents and Settings\d3p483\workspace\Bruker2mzXML\dist\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
