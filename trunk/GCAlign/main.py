@@ -19,7 +19,8 @@ import tables as T
 
 from matplotlib import colors as C
 from matplotlib.lines import Line2D
-from matplotlib.widgets_bhc import SpanSelector, RectangleSelector
+#from matplotlib.widgets_bhc import SpanSelector, RectangleSelector
+from matplotlib.widgets import SpanSelector, RectangleSelector
 from pylab import cm
 cmaps = [cm.jet, cm.BrBG, cm.gist_ncar, cm.bone_r,  cm.hot,  cm.spectral, cm.gist_ncar, cm.RdYlBu, cm.BrBG, cm.Accent]
 
