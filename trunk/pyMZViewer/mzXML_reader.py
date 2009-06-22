@@ -94,7 +94,6 @@ class mzXMLDoc:
         element = document.find(self.ns+'msRun')
 
         self.data['totalScans'] = int(element.get('scanCount'))
-        #print self.data['totalScans']
         if element:
             self.scanList = element.findall(self.ns+'scan')
             status = self.handleSpectrumList(self.scanList)
