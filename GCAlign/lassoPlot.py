@@ -7,7 +7,8 @@ This is currently a proof-of-concept implementation (though it is
 usable as is).  There will be some refinement of the API and the
 inside polygon detection routine.
 """
-from matplotlib.widgets_bhc import Lasso
+from matplotlib.widgets import Lasso
+#from matplotlib.widgets_bhc import Lasso
 import matplotlib.mlab
 from matplotlib.nxutils import points_inside_poly
 from matplotlib.colors import colorConverter
