@@ -178,7 +178,7 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
         ydata = line.get_ydata()
         self.handleA.set_visible(True)
         self.handleAline.set_visible(True)
-        self.handleA.set_data([xdata[self.curIndex]], [ydata[self.curIndex]])
+        self.handleA.set_data([xdata[self.curIndex], ydata[self.curIndex]])
 
         #self.mzWidget.canvas.plotTitle = str(int(xdata[self.curIndex]))
         #print self.curIndex,  xdata[self.curIndex]
