@@ -1,0 +1,10 @@
+<xml version="1.0">
+  <bioml>
+    <note>GO Joe</note>
+    <note label="protein, taxon" type="input">yeast</note>
+    <note label="list path, default parameters" type="input">default_input.xml</note>
+    <note label="list path, taxonomy information" type="input">taxonomy.xml</note>
+    <note label="spectrum, path" type="input">test_spectra.mgf</note>
+    <note label="output, path" type="input">clowers.xml</note>
+  </bioml>
+</xml>
