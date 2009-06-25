@@ -18,6 +18,7 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
         super(XTandem_Widget,  self).__init__(parent)
         self.ui = self.setupUi(self)
 
+        self._setVars_()
         self._setupGUI_()
         self._setConnections_()
 
@@ -63,9 +64,16 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
     def _setConnections_(self):
         QtCore.QObject.connect(self.cleaveSite_CB, QtCore.SIGNAL("currentIndexChanged(QString)"), self.setCleaveRule)
 
+        QtCore.QObject.connect(self.xtInputFile_Btn, QtCore.SIGNAL("clicked()"), self.setXTInputFile)
+        QtCore.QObject.connect(self.xtOutputFile_Btn, QtCore.SIGNAL("clicked()"), self.setXTOutputFile)
+        QtCore.QObject.connect(self.defaultTaxFile_Btn, QtCore.SIGNAL("clicked()"), self.setTaxonomyFile)
+        QtCore.QObject.connect(self.defaultXTEXE_Btn, QtCore.SIGNAL("clicked()"), self.setXTEXE)
+        QtCore.QObject.connect(self.defaultFolder_Btn, QtCore.SIGNAL("clicked()"), self.getDefaultFolder)
+
     def _setVars_(self):
         self.defaultIndex = None
         self.cleaveRule = None
+        self.defaultDir = os.getcwd()
 
     def setCleaveRule(self, value=None):
         if value == None:
@@ -75,7 +83,81 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
         curEnzyme = str(value)#convert from QString
         self.cleaveRule = SE.enzymeTypes[curEnzyme]
         self.cleaveRule_LE.setText(self.cleaveRule)
+    ####################################################
+    '''
+    FOLDER FUNCTIONS AND HANDLERS
+    '''
+    ####################################################
+    def setTaxonomyFile(self):
+        fileName = self.openFileDialog("Get X!Tandem Taxonomy File", "Taxonomy File (taxonomy.xml)")
+        if fileName != None:
+            self.defaultTaxFile_LE.clear()
+            self.defaultTaxFile_LE.setText(fileName)
 
+    def setXTEXE(self):
+        fileName = self.openFileDialog("Set X!Tandem Executable", "X!Tandem (tandem.exe)")
+        if fileName != None:
+            self.defaultXTEXE_LE.clear()
+            self.defaultXTEXE_LE.setText(fileName)
+
+    def setDefaultFolder(self, dir):
+        if os.path.isdir(dir):
+            self.defaultDir = dir
+
+    def getDefaultFolder(self):
+        dirBool, dir = self._getDir_()
+        if dirBool:
+            self.setDefaultFolder(dir)
+            self.defaultFolder_LE.clear()
+            self.defaultFolder_LE.setText(self.defaultDir)
+
+    def setXTInputFile(self):
+        fileName = self.saveFileDialog("X!Tandem XML Input to Save:", "XML (*.xml)")
+        if fileName != None:
+            self.inputFile_LE.clear()
+            self.inputFile_LE.setText(fileName)
+
+    def setXTOutputFile(self):
+        fileName = self.saveFileDialog("X!Tandem XML Output to Save:", "XML (*.xml)")
+        if fileName != None:
+            self.outputFile_LE.clear()
+            self.outputFile_LE.setText(fileName)
+
+    def _getDir_(self):
+        directory = QtGui.QFileDialog.getExistingDirectory(self, '', self.defaultDir)
+        directory = str(directory)
+        if directory != None:
+            return True, os.path.abspath(directory)
+        else:
+            return False, None
+
+    def saveFileDialog(self, dialogText = None, fileTypes = None):
+        if dialogText is None:
+            dialogText = "Select File to Save"
+        if fileTypes is None:
+            fileTypes = "All Files (*.*)"
+        fileName = QtGui.QFileDialog.getSaveFileName(self,
+                                         dialogText,
+                                         self.defaultDir,
+                                         fileTypes)
+        if not fileName.isEmpty():
+            return os.path.abspath(str(fileName))
+        else:
+            return None
+
+    def openFileDialog(self, dialogText = None, fileTypes = None):
+        if dialogText is None:
+            dialogText = "Select File to Open"
+        if fileTypes is None:
+            fileTypes = "All Files (*.*)"
+        fileName = QtGui.QFileDialog.getOpenFileName(self,
+                                         dialogText,
+                                         self.defaultDir,
+                                         fileTypes)
+        if not fileName.isEmpty():
+            return os.path.abspath(str(fileName))
+        else:
+            return None
 
 
 if __name__ == "__main__":
