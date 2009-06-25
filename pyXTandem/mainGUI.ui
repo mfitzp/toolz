@@ -942,14 +942,14 @@
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_5" >
           <item>
-           <widget class="QPushButton" name="xtInputFile_Btn_2" >
+           <widget class="QPushButton" name="xtOutputFile_Btn" >
             <property name="text" >
              <string>X!Tandem Output File:</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="inputFile_LE_2" />
+           <widget class="QLineEdit" name="outputFile_LE" />
           </item>
           <item>
            <spacer name="horizontalSpacer_3" >
@@ -1042,7 +1042,7 @@
             <item>
              <layout class="QHBoxLayout" name="horizontalLayout_4" >
               <item>
-               <widget class="QPushButton" name="fpFolder_Btn_3" >
+               <widget class="QPushButton" name="defaultXTEXE_Btn" >
                 <property name="enabled" >
                  <bool>true</bool>
                 </property>
@@ -1052,7 +1052,7 @@
                </widget>
               </item>
               <item>
-               <widget class="QLineEdit" name="fpFolder_LE_3" >
+               <widget class="QLineEdit" name="defaultXTEXE_LE" >
                 <property name="readOnly" >
                  <bool>true</bool>
                 </property>
@@ -1063,7 +1063,7 @@
             <item>
              <layout class="QHBoxLayout" name="_4" >
               <item>
-               <widget class="QPushButton" name="fpFolder_Btn" >
+               <widget class="QPushButton" name="defaultFolder_Btn" >
                 <property name="enabled" >
                  <bool>true</bool>
                 </property>
@@ -1073,7 +1073,7 @@
                </widget>
               </item>
               <item>
-               <widget class="QLineEdit" name="fpFolder_LE" >
+               <widget class="QLineEdit" name="defaultFolder_LE" >
                 <property name="readOnly" >
                  <bool>true</bool>
                 </property>
@@ -1143,7 +1143,7 @@
           <item row="0" column="0" >
            <layout class="QHBoxLayout" name="horizontalLayout_2" >
             <item>
-             <widget class="QPushButton" name="fpFolder_Btn_2" >
+             <widget class="QPushButton" name="defaultTaxFile_Btn" >
               <property name="enabled" >
                <bool>true</bool>
               </property>
@@ -1153,7 +1153,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QLineEdit" name="fpFolder_LE_2" >
+             <widget class="QLineEdit" name="defaultTaxFile_LE" >
               <property name="readOnly" >
                <bool>true</bool>
               </property>
