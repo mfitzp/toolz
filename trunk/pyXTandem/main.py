@@ -23,7 +23,6 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
         self._setConnections_()
 
     def _setupGUI_(self):
-
         #populate types of fragments
         defaultFrags = ['b', 'y']#default fragments, add to list if needed
         for frag in SE.fragTypes:
@@ -61,6 +60,14 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
         self.cleaveCTermChange_SB.setValue(17.002735)
         self.doubleSpinBox_8.setValue(1.007825)
 
+        #Set file path defaults:
+        tempInput = os.path.join(self.defaultDir,"input.xml")
+        self.inputFile_LE.setText(tempInput)
+
+        tempOutput = os.path.join(self.defaultDir,"output.xml")
+        self.outputFile_LE.setText(tempOutput)
+
+
     def _setConnections_(self):
         QtCore.QObject.connect(self.cleaveSite_CB, QtCore.SIGNAL("currentIndexChanged(QString)"), self.setCleaveRule)
 
@@ -74,6 +81,61 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
         self.defaultIndex = None
         self.cleaveRule = None
         self.defaultDir = os.getcwd()
+        self.xtInputFile = None
+        self.xtOutputFile = None
+        self.taxonomyFile = None
+        self.inputDict = None
+
+    def setInputDict(self):
+        self.inputDict = {}
+        self.inputDict['maxCharge']=self.minCharge_SB.value()
+#        self.inputDict['defaultPath'] = "list path, default parameters"
+        self.inputDict['taxonomyPath'] = "list path, taxonomy information"
+        self.inputDict['fragSpecError'] = self.fragErr_SB.value()
+        self.inputDict['parentErrPos'] = self.parentErrPos_SB.value()
+        self.inputDict['parentErrNeg'] = self.parentErrNeg_SB.value()
+        self.inputDict['isotopeErr'] = "spectrum, parent monoisotopic mass isotope error"#use isotope error?
+        self.inputDict['fragUnits'] = "spectrum, fragment monoisotopic mass error units"#Daltons or ppm
+        self.inputDict['parentUnits'] = "spectrum, parent monoisotopic mass error units"#Daltons or ppm
+        self.inputDict['fragMassType'] = "spectrum, fragment mass type"#monoisotopic or average
+        self.inputDict['totalPeaks'] = self.totalPeaks_SB.value()
+        self.inputDict['maxCharge'] = self.maxCharge_SB.value()
+        self.inputDict['noiseSupress'] = "spectrum, use noise suppression"
+        self.inputDict['minParentMZ'] = self.minParent_SB.value()
+        self.inputDict['minFragMZ'] = self.minFrag_SB.value()
+        self.inputDict['minPeaks'] = self.minPeaks_SB.value()
+        self.inputDict['threads'] = self.numThreads_SB.value()
+        self.inputDict['aaModStr'] = "residue, modification mass"
+        self.inputDict['potentialModMass'] = "residue, potential modification mass"
+        self.inputDict['potentialModMotif'] = "residue, potential modification motif"
+        self.inputDict['taxon'] = "protein, taxon"
+        self.inputDict['cleavageSite'] = "protein, cleavage site"
+        self.inputDict['protCTermChange'] = "protein, cleavage C-terminal mass change"#>+17.002735</note>
+        self.inputDict['protNTermChange'] = "protein, cleavage N-terminal mass change"#>+1.007825</note>
+        self.inputDict['protNModMass'] = "protein, N-terminal residue modification mass"#>0.0</note>
+        self.inputDict['protCModMass'] = "protein, C-terminal residue modification mass"#>0.0</note>
+        self.inputDict['refine'] = "refine"#>yes</note>
+        self.inputDict['refineModMass'] = "refine, modification mass"#></note>
+        #self.inputDict[''] = "refine, sequence path"#></note>
+        self.inputDict['ticPercent'] = "refine, tic percent"#>20</note>
+        self.inputDict['synthesizeSpec'] = "refine, spectrum synthesis"#>yes</note>
+        self.inputDict['maxEValue'] = "refine, maximum valid expectation value"#>0.1</note>
+        self.inputDict['refinePotNTermMod'] = "refine, potential N-terminus modifications"#>+42.010565@[</note>
+        self.inputDict['refinePotCTermMod'] = "refine, potential C-terminus modifications"#></note>
+        self.inputDict['refineUnanticipated'] = "refine, unanticipated cleavage"#>yes</note>
+        #self.inputDict[''] = "refine, potential modification mass"#></note>
+        self.inputDict['pointMutations1'] = "refine, point mutations"#>no</note>
+        self.inputDict['useModsforFull'] = "refine, use potential modifications for full refinement"#>no</note>
+        self.inputDict['pointMutations2'] = "refine, point mutations"#>no</note>
+        self.inputDict['refinePotModMotif'] = "refine, potential modification motif"#></note>
+        self.inputDict['minIonCount'] = "scoring, minimum ion count"
+        self.inputDict['maxMissedCleavages'] = self.maxMissedCleaves_SB.value()
+        self.inputDict['xIons'] = "scoring, x ions"
+        self.inputDict['yIons'] = "scoring, y ions"
+        self.inputDict['zIons'] = "scoring, z ions"
+        self.inputDict['aIons'] = "scoring, a ions"
+        self.inputDict['bIons'] = "scoring, b ions"
+        self.inputDict['cIons'] = "scoring, c ions"
 
     def setCleaveRule(self, value=None):
         if value == None:
@@ -83,6 +145,55 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
         curEnzyme = str(value)#convert from QString
         self.cleaveRule = SE.enzymeTypes[curEnzyme]
         self.cleaveRule_LE.setText(self.cleaveRule)
+
+    def getFragTypes(self):
+        print "Get Frag Types"
+
+
+    def getTaxa(self):
+        print "Get Taxa to search"
+
+
+
+    def writeXMLTree(self, fileName):
+        root = ET.Element('xml', version = '1.0')
+        head = ET.SubElement(root, "bioml")
+#        for item in
+        note = ET.SubElement(head, "note")
+        note.text = "GO Joe"
+        note1 = ET.SubElement(head, "note", type = "input", label = "protein, taxon")
+        note1.text = 'yeast'
+        note2 = ET.SubElement(head, "note", type = "input", label = "list path, default parameters")
+        note2.text='default_input.xml'
+        note3 = ET.SubElement(head, "note", type = "input", label = "list path, taxonomy information")
+        note3.text='taxonomy.xml'
+        note4 = ET.SubElement(head, "note", type = "input", label = "spectrum, path")
+        note4.text='test_spectra.mgf'
+        note5 = ET.SubElement(head, "note", type = "input", label = "output, path")
+        note5.text='test_spectra.mgf'
+        note5.text = 'clowers.xml'
+
+
+        SE.indent(root)#makes it print pretty
+        tree = ET.ElementTree(root)
+        tree.write(fileName, encoding = 'utf-8')
+
+    def saveXTInputFile(self):
+        tempInput = str(self.inputFile_LE.text())
+        tempDirInput = os.path.dirname(tempInput)
+
+        tempOutput = str(self.outputFile_LE.text())
+        tempDirOutput = os.path.dirname(tempOutput)
+
+        if os.path.isdir(tempDirInput):
+            self.xtInputFile = tempInput
+            if os.path.isdir(tempDirOutput):
+                self.xtOutputFile = tempOutput
+                self.writeXMLTree(self.xtInputFile, self.xtOutputFile)
+        else:
+            print "Invalid X!Tandem input file path"
+
+
     ####################################################
     '''
     FOLDER FUNCTIONS AND HANDLERS
