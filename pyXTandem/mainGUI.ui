@@ -540,7 +540,11 @@
              </widget>
             </item>
             <item row="25" column="1" >
-             <widget class="QLineEdit" name="userDefinedMods_LE" />
+             <widget class="QLineEdit" name="userDefinedMods_LE" >
+              <property name="toolTip" >
+               <string>The format of this parameter is similar to residue, modification mass, with the addition of a modified PROSITE notation sequence motif specification.  For example, a value of 80@[ST!]PX[KR] indicates a modification of either S or T when followed by P, and residue and the a K or an R. A value of 204@N!{P}[ST]{P} indicates a modification of N by 204, if it         is NOT followed by a P, then either an S or a T, NOT followed by a P.  Positive and negative values are allowed.</string>
+              </property>
+             </widget>
             </item>
             <item row="1" column="1" >
              <widget class="QSpinBox" name="numThreads_SB" >
@@ -782,7 +786,11 @@
              </widget>
             </item>
             <item row="14" column="1" >
-             <widget class="QLineEdit" name="customCleaveRule_LE" />
+             <widget class="QLineEdit" name="customCleaveRule_LE" >
+              <property name="toolTip" >
+               <string>[RK]|{P} corresponds to the enzyme trypsin. The first charactersin brackets represent residues N-terminal to the bond - the '|' pipe - and the second set of characters represent residues C-terminal to thebond. The characters must be in square brackets (denoting that only these residues are allowed for a cleavage) or french brackets (denoting that these residues cannot be in that position). Use UPPERCASE characters.  To denote cleavage at any residue, use [X]|[X] and reset the scoring, maximum missed cleavage site parameter (see below) to something like 50.</string>
+              </property>
+             </widget>
             </item>
             <item row="17" column="1" >
              <widget class="QSpinBox" name="maxMissedCleaves_SB" >
@@ -864,7 +872,12 @@
              </widget>
             </item>
             <item row="15" column="1" >
-             <widget class="QLineEdit" name="aaMod_LE" />
+             <widget class="QLineEdit" name="aaMod_LE" >
+              <property name="toolTip" >
+               <string>The format of this parameter is m@X, where m is the modfication mass in Daltons and X is the appropriate residue to modify. Lists of modifications are separated by commas. For example, to modify M and C with the addition of 16.0 Daltons, the parameter line would be
++16.0@M,+16.0@C</string>
+              </property>
+             </widget>
             </item>
             <item row="15" column="0" >
              <widget class="QLabel" name="label_33" >
@@ -894,7 +907,11 @@
              </widget>
             </item>
             <item>
-             <widget class="QListWidget" name="fragTypeListWidget" />
+             <widget class="QListWidget" name="fragTypeListWidget" >
+              <property name="selectionMode" >
+               <enum>QAbstractItemView::MultiSelection</enum>
+              </property>
+             </widget>
             </item>
            </layout>
           </item>
@@ -911,7 +928,11 @@
              </widget>
             </item>
             <item>
-             <widget class="QListWidget" name="taxonListWidget" />
+             <widget class="QListWidget" name="taxonListWidget" >
+              <property name="selectionMode" >
+               <enum>QAbstractItemView::MultiSelection</enum>
+              </property>
+             </widget>
             </item>
            </layout>
           </item>
@@ -941,6 +962,19 @@
              </size>
             </property>
            </spacer>
+          </item>
+          <item>
+           <widget class="QPushButton" name="rawData_Btn" >
+            <property name="toolTip" >
+             <string>Usually an mgf or mzXML file.</string>
+            </property>
+            <property name="text" >
+             <string>Raw Data Input:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="rawData_LE" />
           </item>
          </layout>
         </item>

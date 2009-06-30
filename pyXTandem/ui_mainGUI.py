@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Documents and Settings\d3p483\workspace\pyXTandem\mainGUI.ui'
 #
-# Created: Mon Jun 29 17:33:53 2009
+# Created: Tue Jun 30 15:02:50 2009
 #      by: PyQt4 UI code generator 4.4.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -415,6 +415,7 @@ class Ui_MainWindow(object):
         self.label_26.setObjectName("label_26")
         self.verticalLayout_2.addWidget(self.label_26)
         self.fragTypeListWidget = QtGui.QListWidget(self.tab)
+        self.fragTypeListWidget.setSelectionMode(QtGui.QAbstractItemView.MultiSelection)
         self.fragTypeListWidget.setObjectName("fragTypeListWidget")
         self.verticalLayout_2.addWidget(self.fragTypeListWidget)
         self.gridLayout_3.addLayout(self.verticalLayout_2, 1, 0, 1, 1)
@@ -425,6 +426,7 @@ class Ui_MainWindow(object):
         self.label_25.setObjectName("label_25")
         self.verticalLayout.addWidget(self.label_25)
         self.taxonListWidget = QtGui.QListWidget(self.tab)
+        self.taxonListWidget.setSelectionMode(QtGui.QAbstractItemView.MultiSelection)
         self.taxonListWidget.setObjectName("taxonListWidget")
         self.verticalLayout.addWidget(self.taxonListWidget)
         self.gridLayout_3.addLayout(self.verticalLayout, 0, 0, 1, 1)
@@ -439,6 +441,12 @@ class Ui_MainWindow(object):
         self.horizontalLayout_3.addWidget(self.inputFile_LE)
         spacerItem = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.horizontalLayout_3.addItem(spacerItem)
+        self.rawData_Btn = QtGui.QPushButton(self.tab)
+        self.rawData_Btn.setObjectName("rawData_Btn")
+        self.horizontalLayout_3.addWidget(self.rawData_Btn)
+        self.rawData_LE = QtGui.QLineEdit(self.tab)
+        self.rawData_LE.setObjectName("rawData_LE")
+        self.horizontalLayout_3.addWidget(self.rawData_LE)
         self.verticalLayout_4.addLayout(self.horizontalLayout_3)
         self.horizontalLayout_5 = QtGui.QHBoxLayout()
         self.horizontalLayout_5.setObjectName("horizontalLayout_5")
@@ -583,6 +591,7 @@ class Ui_MainWindow(object):
         self.label_18.setText(QtGui.QApplication.translate("MainWindow", "Protein N-terminus:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_19.setText(QtGui.QApplication.translate("MainWindow", "Protein C-terminus:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_17.setText(QtGui.QApplication.translate("MainWindow", "User Defined Potential Modifications:", None, QtGui.QApplication.UnicodeUTF8))
+        self.userDefinedMods_LE.setToolTip(QtGui.QApplication.translate("MainWindow", "The format of this parameter is similar to residue, modification mass, with the addition of a modified PROSITE notation sequence motif specification.  For example, a value of 80@[ST!]PX[KR] indicates a modification of either S or T when followed by P, and residue and the a K or an R. A value of 204@N!{P}[ST]{P} indicates a modification of N by 204, if it         is NOT followed by a P, then either an S or a T, NOT followed by a P.  Positive and negative values are allowed.", None, QtGui.QApplication.UnicodeUTF8))
         self.label_6.setText(QtGui.QApplication.translate("MainWindow", "Number of Threads:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_20.setText(QtGui.QApplication.translate("MainWindow", "Potential C-terminus mods:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_21.setText(QtGui.QApplication.translate("MainWindow", "Potential N-terminus mods:", None, QtGui.QApplication.UnicodeUTF8))
@@ -601,12 +610,17 @@ class Ui_MainWindow(object):
         self.semiCleave_CB.setText(QtGui.QApplication.translate("MainWindow", ":?Semi-cleavage", None, QtGui.QApplication.UnicodeUTF8))
         self.potenNTermMods_LE.setText(QtGui.QApplication.translate("MainWindow", "+42.010565@[", None, QtGui.QApplication.UnicodeUTF8))
         self.label_27.setText(QtGui.QApplication.translate("MainWindow", "Custom Cleavage Rule:", None, QtGui.QApplication.UnicodeUTF8))
+        self.customCleaveRule_LE.setToolTip(QtGui.QApplication.translate("MainWindow", "[RK]|{P} corresponds to the enzyme trypsin. The first charactersin brackets represent residues N-terminal to the bond - the \'|\' pipe - and the second set of characters represent residues C-terminal to thebond. The characters must be in square brackets (denoting that only these residues are allowed for a cleavage) or french brackets (denoting that these residues cannot be in that position). Use UPPERCASE characters.  To denote cleavage at any residue, use [X]|[X] and reset the scoring, maximum missed cleavage site parameter (see below) to something like 50.", None, QtGui.QApplication.UnicodeUTF8))
         self.label.setText(QtGui.QApplication.translate("MainWindow", "Cleavage C-terminal change (Da):", None, QtGui.QApplication.UnicodeUTF8))
         self.cleaveNTermChange_label.setText(QtGui.QApplication.translate("MainWindow", "Cleavage N-terminal change (Da):", None, QtGui.QApplication.UnicodeUTF8))
+        self.aaMod_LE.setToolTip(QtGui.QApplication.translate("MainWindow", "The format of this parameter is m@X, where m is the modfication mass in Daltons and X is the appropriate residue to modify. Lists of modifications are separated by commas. For example, to modify M and C with the addition of 16.0 Daltons, the parameter line would be\n"
+"+16.0@M,+16.0@C", None, QtGui.QApplication.UnicodeUTF8))
         self.label_33.setText(QtGui.QApplication.translate("MainWindow", "Amino Acid Modification:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_26.setText(QtGui.QApplication.translate("MainWindow", "Fragment Types:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_25.setText(QtGui.QApplication.translate("MainWindow", "Taxon:", None, QtGui.QApplication.UnicodeUTF8))
         self.xtInputFile_Btn.setText(QtGui.QApplication.translate("MainWindow", "X!Tandem Input File:", None, QtGui.QApplication.UnicodeUTF8))
+        self.rawData_Btn.setToolTip(QtGui.QApplication.translate("MainWindow", "Usually an mgf or mzXML file.", None, QtGui.QApplication.UnicodeUTF8))
+        self.rawData_Btn.setText(QtGui.QApplication.translate("MainWindow", "Raw Data Input:", None, QtGui.QApplication.UnicodeUTF8))
         self.xtOutputFile_Btn.setText(QtGui.QApplication.translate("MainWindow", "X!Tandem Output File:", None, QtGui.QApplication.UnicodeUTF8))
         self.outputAll_CB.setToolTip(QtGui.QApplication.translate("MainWindow", "If this is unchecked only the valid (i.e. not stochastic) will be output.", None, QtGui.QApplication.UnicodeUTF8))
         self.outputAll_CB.setText(QtGui.QApplication.translate("MainWindow", "Output all hits?", None, QtGui.QApplication.UnicodeUTF8))
