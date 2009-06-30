@@ -10,7 +10,7 @@ import xml.etree.cElementTree as ET
 import os, sys, traceback
 
 fragTypes = ['a','b','c','x','y','z']
-
+####################################################
 enzymeTypes = {}
 enzymeTypes["Trypsin"] = "[RK]|{P}"
 enzymeTypes["Endo-Arg-C"] = "[R]|[X]"
@@ -19,7 +19,7 @@ enzymeTypes["Endo-Glu-C"] = "[E]|[X]"
 enzymeTypes["Endo-Asp-N"] = "[X]|[D]"
 enzymeTypes["V8"] = "[ED]|[X]"
 enzymeTypes["Non-Specific"] = "[X]|[X]"
-
+####################################################
 xtInputDict = {}
 xtInputDict['maxCharge']='spectrum, maximum parent charge'
 xtInputDict['defaultPath'] = "list path, default parameters"
@@ -29,7 +29,7 @@ xtInputDict['parentErrPos'] = "spectrum, parent monoisotopic mass error plus"
 xtInputDict['parentErrNeg'] = "spectrum, parent monoisotopic mass error minus"
 xtInputDict['isotopeErr'] = "spectrum, parent monoisotopic mass isotope error"#use isotope error?
 xtInputDict['fragUnits'] = "spectrum, fragment monoisotopic mass error units"#Daltons or ppm
-xtInputDict['parentUnits'] = "spectrum, parent monoisotopic mass error units"#Daltons or ppm
+xtInputDict['parentErrUnits'] = "spectrum, parent monoisotopic mass error units"#Daltons or ppm
 xtInputDict['fragMassType'] = "spectrum, fragment mass type"#monoisotopic or average
 xtInputDict['totalPeaks'] = "spectrum, total peaks"
 xtInputDict['maxCharge'] = "spectrum, maximum parent charge"
@@ -41,13 +41,13 @@ xtInputDict['threads'] = "spectrum, threads"
 xtInputDict['aaModStr'] = "residue, modification mass"
 '''
 The format of this parameter is m@X, where m is the modfication
-        mass in Daltons and X is the appropriate residue to modify. Lists of
-        modifications are separated by commas. For example, to modify M and C
-        with the addition of 16.0 Daltons, the parameter line would be
-        +16.0@M,+16.0@C
+mass in Daltons and X is the appropriate residue to modify. Lists of
+modifications are separated by commas. For example, to modify M and C
+with the addition of 16.0 Daltons, the parameter line would be
++16.0@M,+16.0@C
 '''
 
-xtInputDict['potentialModMass'] = "residue, potential modification mass"
+#xtInputDict['potentialModMass'] = "residue, potential modification mass"
 '''
     xtInputDict['"residue, potential modification motif"></note>
         <note>The format of this parameter is similar to residue, modification mass,
@@ -63,16 +63,16 @@ xtInputDict['potentialModMotif'] = "residue, potential modification motif"
 
 xtInputDict['taxon'] = "protein, taxon"
 '''
-    xtInputDict['"protein, cleavage site">[RK]|{P}</note>
-        <note>this setting corresponds to the enzyme trypsin. The first characters
-        in brackets represent residues N-terminal to the bond - the '|' pipe -
-        and the second set of characters represent residues C-terminal to the
-        bond. The characters must be in square brackets (denoting that only
-        these residues are allowed for a cleavage) or french brackets (denoting
-        that these residues cannot be in that position). Use UPPERCASE characters.
-        To denote cleavage at any residue, use [X]|[X] and reset the
-        scoring, maximum missed cleavage site parameter (see below) to something like 50.
-        </note>
+xtInputDict['"protein, cleavage site">[RK]|{P}</note>
+<note>this setting corresponds to the enzyme trypsin. The first characters
+in brackets represent residues N-terminal to the bond - the '|' pipe -
+and the second set of characters represent residues C-terminal to the
+bond. The characters must be in square brackets (denoting that only
+these residues are allowed for a cleavage) or french brackets (denoting
+that these residues cannot be in that position). Use UPPERCASE characters.
+To denote cleavage at any residue, use [X]|[X] and reset the
+scoring, maximum missed cleavage site parameter (see below) to something like 50.
+</note>
 '''
 xtInputDict['cleavageSite'] = "protein, cleavage site"
 
@@ -82,19 +82,19 @@ xtInputDict['protNModMass'] = "protein, N-terminal residue modification mass"#>0
 xtInputDict['protCModMass'] = "protein, C-terminal residue modification mass"#>0.0</note>
 
 xtInputDict['refine'] = "refine"#>yes</note>
-xtInputDict['refineModMass'] = "refine, modification mass"#></note>
+#xtInputDict['refineModMass'] = "refine, modification mass"#></note>
 #xtInputDict[''] = "refine, sequence path"#></note>
-xtInputDict['ticPercent'] = "refine, tic percent"#>20</note>
+#xtInputDict['ticPercent'] = "refine, tic percent"#>20</note>
 xtInputDict['synthesizeSpec'] = "refine, spectrum synthesis"#>yes</note>
 xtInputDict['maxEValue'] = "refine, maximum valid expectation value"#>0.1</note>
 xtInputDict['refinePotNTermMod'] = "refine, potential N-terminus modifications"#>+42.010565@[</note>
 xtInputDict['refinePotCTermMod'] = "refine, potential C-terminus modifications"#></note>
-xtInputDict['refineUnanticipated'] = "refine, unanticipated cleavage"#>yes</note>
+#xtInputDict['refineUnanticipated'] = "refine, unanticipated cleavage"#>yes</note>
 #xtInputDict[''] = "refine, potential modification mass"#></note>
 xtInputDict['pointMutations1'] = "refine, point mutations"#>no</note>
 xtInputDict['useModsforFull'] = "refine, use potential modifications for full refinement"#>no</note>
-xtInputDict['pointMutations2'] = "refine, point mutations"#>no</note>
-xtInputDict['refinePotModMotif'] = "refine, potential modification motif"#></note>
+#xtInputDict['pointMutations2'] = "refine, point mutations"#>no</note>
+#xtInputDict['refinePotModMotif'] = "refine, potential modification motif"#></note>
 '''
 <note>The format of this parameter is similar to residue, modification mass,
     with the addition of a modified PROSITE notation sequence motif specification.
@@ -105,7 +105,7 @@ xtInputDict['refinePotModMotif'] = "refine, potential modification motif"#></not
     Positive and negative values are allowed.
     </note>
 '''
-xtInputDict['minIonCount'] = "scoring, minimum ion count"
+#xtInputDict['minIonCount'] = "scoring, minimum ion count"#default is 4
 xtInputDict['maxMissedCleavages'] = "scoring, maximum missed cleavage sites"
 xtInputDict['xIons'] = "scoring, x ions"
 xtInputDict['yIons'] = "scoring, y ions"
@@ -114,6 +114,8 @@ xtInputDict['aIons'] = "scoring, a ions"
 xtInputDict['bIons'] = "scoring, b ions"
 xtInputDict['cIons'] = "scoring, c ions"
 
+xtInputDict['outputPath'] = "output, path"
+xtInputDict['outputAll'] = "output, results"#all|valid|stochastic
 
 
 def indent(elem, level=0):
