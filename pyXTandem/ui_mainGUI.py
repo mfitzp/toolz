@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Documents and Settings\d3p483\workspace\pyXTandem\mainGUI.ui'
 #
-# Created: Tue Jun 30 15:02:50 2009
+# Created: Tue Jun 30 16:00:35 2009
 #      by: PyQt4 UI code generator 4.4.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -501,20 +501,20 @@ class Ui_MainWindow(object):
         self.defaultXTEXE_Btn.setObjectName("defaultXTEXE_Btn")
         self.horizontalLayout_4.addWidget(self.defaultXTEXE_Btn)
         self.defaultXTEXE_LE = QtGui.QLineEdit(self.tab_2)
-        self.defaultXTEXE_LE.setReadOnly(True)
+        self.defaultXTEXE_LE.setReadOnly(False)
         self.defaultXTEXE_LE.setObjectName("defaultXTEXE_LE")
         self.horizontalLayout_4.addWidget(self.defaultXTEXE_LE)
         self._3.addLayout(self.horizontalLayout_4)
         self._4 = QtGui.QHBoxLayout()
         self._4.setObjectName("_4")
-        self.defaultFolder_Btn = QtGui.QPushButton(self.tab_2)
-        self.defaultFolder_Btn.setEnabled(True)
-        self.defaultFolder_Btn.setObjectName("defaultFolder_Btn")
-        self._4.addWidget(self.defaultFolder_Btn)
-        self.defaultFolder_LE = QtGui.QLineEdit(self.tab_2)
-        self.defaultFolder_LE.setReadOnly(True)
-        self.defaultFolder_LE.setObjectName("defaultFolder_LE")
-        self._4.addWidget(self.defaultFolder_LE)
+        self.defaultMethod_Btn = QtGui.QPushButton(self.tab_2)
+        self.defaultMethod_Btn.setEnabled(True)
+        self.defaultMethod_Btn.setObjectName("defaultMethod_Btn")
+        self._4.addWidget(self.defaultMethod_Btn)
+        self.defaultMethod_LE = QtGui.QLineEdit(self.tab_2)
+        self.defaultMethod_LE.setReadOnly(False)
+        self.defaultMethod_LE.setObjectName("defaultMethod_LE")
+        self._4.addWidget(self.defaultMethod_LE)
         self._3.addLayout(self._4)
         self._5 = QtGui.QHBoxLayout()
         self._5.setObjectName("_5")
@@ -539,7 +539,7 @@ class Ui_MainWindow(object):
         self.defaultTaxFile_Btn.setObjectName("defaultTaxFile_Btn")
         self.horizontalLayout_2.addWidget(self.defaultTaxFile_Btn)
         self.defaultTaxFile_LE = QtGui.QLineEdit(self.tab_2)
-        self.defaultTaxFile_LE.setReadOnly(True)
+        self.defaultTaxFile_LE.setReadOnly(False)
         self.defaultTaxFile_LE.setObjectName("defaultTaxFile_LE")
         self.horizontalLayout_2.addWidget(self.defaultTaxFile_LE)
         self._2.addLayout(self.horizontalLayout_2, 0, 0, 1, 1)
@@ -629,7 +629,7 @@ class Ui_MainWindow(object):
         self.label_30.setText(QtGui.QApplication.translate("MainWindow", "Output:", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), QtGui.QApplication.translate("MainWindow", "X!Tandem", None, QtGui.QApplication.UnicodeUTF8))
         self.defaultXTEXE_Btn.setText(QtGui.QApplication.translate("MainWindow", "Default X!Tandem Executable:", None, QtGui.QApplication.UnicodeUTF8))
-        self.defaultFolder_Btn.setText(QtGui.QApplication.translate("MainWindow", "Default Folder:", None, QtGui.QApplication.UnicodeUTF8))
+        self.defaultMethod_Btn.setText(QtGui.QApplication.translate("MainWindow", "Default Method:", None, QtGui.QApplication.UnicodeUTF8))
         self.savePref_Btn.setText(QtGui.QApplication.translate("MainWindow", "Save Preferences", None, QtGui.QApplication.UnicodeUTF8))
         self.revert_Btn.setText(QtGui.QApplication.translate("MainWindow", "Revert to Defaults", None, QtGui.QApplication.UnicodeUTF8))
         self.defaultTaxFile_Btn.setText(QtGui.QApplication.translate("MainWindow", "Default Taxonomy File:", None, QtGui.QApplication.UnicodeUTF8))

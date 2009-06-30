@@ -1103,7 +1103,7 @@
               <item>
                <widget class="QLineEdit" name="defaultXTEXE_LE" >
                 <property name="readOnly" >
-                 <bool>true</bool>
+                 <bool>false</bool>
                 </property>
                </widget>
               </item>
@@ -1112,19 +1112,19 @@
             <item>
              <layout class="QHBoxLayout" name="_4" >
               <item>
-               <widget class="QPushButton" name="defaultFolder_Btn" >
+               <widget class="QPushButton" name="defaultMethod_Btn" >
                 <property name="enabled" >
                  <bool>true</bool>
                 </property>
                 <property name="text" >
-                 <string>Default Folder:</string>
+                 <string>Default Method:</string>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QLineEdit" name="defaultFolder_LE" >
+               <widget class="QLineEdit" name="defaultMethod_LE" >
                 <property name="readOnly" >
-                 <bool>true</bool>
+                 <bool>false</bool>
                 </property>
                </widget>
               </item>
@@ -1204,7 +1204,7 @@
             <item>
              <widget class="QLineEdit" name="defaultTaxFile_LE" >
               <property name="readOnly" >
-               <bool>true</bool>
+               <bool>false</bool>
               </property>
              </widget>
             </item>
