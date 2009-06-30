@@ -40,17 +40,6 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
             self.fragTypeListWidget.addItem(curFrag)
 
 
-        #CHANGE THIS to get the actual file specified in the parameter file
-        taxa = SE.getTaxonomyList()
-        if len(taxa)>0:
-            for taxon in taxa:
-                if taxon != None:
-                    curTaxon = QtGui.QListWidgetItem()
-                    curTaxon.setText(taxon)
-                    curTaxon.setFlags(QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsSelectable)
-                    curTaxon.setCheckState(QtCore.Qt.Unchecked)
-                    self.taxonListWidget.addItem(curTaxon)
-
         #populate digestion parameters
         enzymeKeys = SE.enzymeTypes.keys()
         enzymeKeys.sort()
@@ -91,6 +80,19 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
         QtCore.QObject.connect(self.makeXT_Output_Btn, QtCore.SIGNAL("clicked()"), self.makeXTOutput)
         QtCore.QObject.connect(self.runXT_Btn, QtCore.SIGNAL("clicked()"), self.startXT)
 
+
+    def populateTaxa(self, fileName):
+        #CHANGE THIS to get the actual file specified in the parameter file
+        self.taxonListWidget.clear()
+        taxa = SE.getTaxonomyList(fileName)
+        if len(taxa)>0:
+            for taxon in taxa:
+                if taxon != None:
+                    curTaxon = QtGui.QListWidgetItem()
+                    curTaxon.setText(taxon)
+                    curTaxon.setFlags(QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsSelectable)
+                    curTaxon.setCheckState(QtCore.Qt.Unchecked)
+                    self.taxonListWidget.addItem(curTaxon)
 
     def startXT(self):
         self.makeXTOutput()
@@ -353,12 +355,15 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
         if fileName != None:
             self.defaultTaxFile_LE.clear()
             self.defaultTaxFile_LE.setText(fileName)
+            self.populateTaxa(fileName)
+            self.setDefaultFolder(os.path.dirname(fileName))
 
     def setXTEXE(self):
         fileName = self.openFileDialog("Set X!Tandem Executable", "X!Tandem (tandem.exe)")
         if fileName != None:
             self.defaultXTEXE_LE.clear()
             self.defaultXTEXE_LE.setText(fileName)
+            self.setDefaultFolder(os.path.dirname(fileName))
 
     def setDefaultFolder(self, dir):
         if os.path.isdir(dir):
@@ -369,6 +374,7 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
         if fileName != None:
             self.defaultMethod_LE.clear()
             self.defaultMethod_LE.setText(fileName)
+            self.setDefaultFolder(os.path.dirname(fileName))
 #        dirBool, dir = self._getDir_()
 #        if dirBool:
 #            self.setDefaultFolder(dir)
@@ -381,18 +387,21 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
             self.rawData_LE.clear()
             self.rawData_LE.setText(fileName)
             self.rawInputDataPath = fileName
+            self.setDefaultFolder(os.path.dirname(fileName))
 
     def setXTInputFile(self):
         fileName = self.saveFileDialog("X!Tandem XML Input to Save:", "XML (*.xml)")
         if fileName != None:
             self.inputFile_LE.clear()
             self.inputFile_LE.setText(fileName)
+            self.setDefaultFolder(os.path.dirname(fileName))
 
     def setXTOutputFile(self):
         fileName = self.saveFileDialog("X!Tandem XML Output to Save:", "XML (*.xml)")
         if fileName != None:
             self.outputFile_LE.clear()
             self.outputFile_LE.setText(fileName)
+            self.setDefaultFolder(os.path.dirname(fileName))
 
     def _getDir_(self):
         directory = QtGui.QFileDialog.getExistingDirectory(self, '', self.defaultDir)
