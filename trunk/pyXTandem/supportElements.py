@@ -116,6 +116,7 @@ xtInputDict['cIons'] = "scoring, c ions"
 
 xtInputDict['outputPath'] = "output, path"
 xtInputDict['outputAll'] = "output, results"#all|valid|stochastic
+xtInputDict['specPath'] = "spectrum, path"
 
 
 def indent(elem, level=0):

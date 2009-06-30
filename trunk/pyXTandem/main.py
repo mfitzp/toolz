@@ -10,6 +10,7 @@ import xml.etree.ElementTree as ET#need to use correctly with py2exe
 import xml.etree.cElementTree as ET#I know seems redundant but is needed by py2exe
 
 import supportElements as SE
+import miscFunc as MF
 import ui_mainGUI
 
 
@@ -67,6 +68,13 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
         tempOutput = os.path.join(self.defaultDir,"output.xml")
         self.outputFile_LE.setText(tempOutput)
 
+        specPath = "chickenInput.tmp"
+        self.rawData_LE.setText(specPath)
+        self.rawInputDataPath = specPath
+        #Setup Highlighter
+        self.highlighter = MF.PythonHighlighter(self.output_TE.document())
+
+
 
     def _setConnections_(self):
         QtCore.QObject.connect(self.cleaveSite_CB, QtCore.SIGNAL("currentIndexChanged(QString)"), self.setCleaveRule)
@@ -76,6 +84,7 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
         QtCore.QObject.connect(self.defaultTaxFile_Btn, QtCore.SIGNAL("clicked()"), self.setTaxonomyFile)
         QtCore.QObject.connect(self.defaultXTEXE_Btn, QtCore.SIGNAL("clicked()"), self.setXTEXE)
         QtCore.QObject.connect(self.defaultFolder_Btn, QtCore.SIGNAL("clicked()"), self.getDefaultFolder)
+        QtCore.QObject.connect(self.rawData_Btn, QtCore.SIGNAL("clicked()"), self.setRawDataInput)
 
         QtCore.QObject.connect(self.makeXT_Output_Btn, QtCore.SIGNAL("clicked()"), self.makeXTOutput)
 
@@ -92,6 +101,7 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
         self.inputDict = None
         self.fragDict = {}
         self.fragDictOk = False
+        self.rawInputDataPath= None
 
     def resetFragDict(self):
         self.fragDict['a'] = 'no'
@@ -109,13 +119,16 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
         if len(selectItems) > 0:
             for item in selectItems:
                 if item.checkState() == 2:#Case when it is checked
-                    taxaList.append([str(item.text())])
+                    taxaList.append(str(item.text()))
             self.taxa = taxaList
             self.taxaOk = True
-        else:
-            errMsg = "You must select at least one taxa to search against."
-            self.taxaOk = False
-            return QtGui.QMessageBox.warning(self, "Search Aborted", errMsg)
+            if len(taxaList)<1:
+                errMsg = "You must select at least one taxa to search against."
+                self.taxaOk = False
+                self.taxonListWidget.clearSelection()
+                return QtGui.QMessageBox.warning(self, "Search Aborted", errMsg)
+
+        self.taxonListWidget.clearSelection()
 
 
     def setFragDict(self):
@@ -126,20 +139,135 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
             for item in selectItems:
                 if item.checkState() == 2:#Case when it is checked
                     self.fragDict[str(item.text())] = 'yes'
-                    #fpList.append(str(item.text()))
             self.fragDictOk = True
         else:
             errMsg = "You must select at least one type of fragment."
             self.fragDictOk = False
+            self.fragTypeListWidget.clearSelection()
             return QtGui.QMessageBox.warning(self, "Search Aborted", errMsg)
+
+        self.fragTypeListWidget.clearSelection()
+
+
+    def setCleaveRule(self, value=None):
+        '''
+        Called when Combo Box is changed and when the input file for X!Tandem is created"
+        '''
+        if value == None:
+            index = self.cleaveSite_CB.currentIndex()
+            value = self.cleaveSite_CB.itemText(index)
+
+        curEnzyme = str(value)#convert from QString
+        self.cleaveRule = SE.enzymeTypes[curEnzyme]
+        self.cleaveRule_LE.setText(self.cleaveRule)
+
+        customCleave = str(self.customCleaveRule_LE.text())
+        if len(customCleave)>0:
+            self.cleaveRule = customCleave
+
+
+    def makeXTOutput(self):
+        try:
+            self.setTaxa()
+            self.resetFragDict()
+            self.setFragDict()
+            self.setCleaveRule()
+            self.setInputDict()
+            self.writeXMLTree(self.inputDict['outputPath'])
+        except:
+            exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+            traceback.print_exception(exceptionType, exceptionValue, exceptionTraceback, file=sys.stdout)
+            errorMsg = "Sorry: %s\n\n:%s\n%s\n"%(exceptionType, exceptionValue, exceptionTraceback)
+            return QtGui.QMessageBox.warning(self, "Error Creating X!Tandem Input", errorMsg)
+            print errorMsg
+
+    def setOutputText(self, text2Print):
+        self.output_TE.clear()
+        self.output_TE.setText(text2Print)
+
+    def readXML(self, fileName):
+        if os.path.isfile(fileName):
+            xml = open(fileName, 'r')
+            xmlText = xml.read()
+            self.setOutputText(xmlText)
+            xml.close()
+
+    def writeXMLTree(self, fileName):
+        root = ET.Element('xml', version = '1.0')
+        head = ET.SubElement(root, "bioml")
+        note = ET.SubElement(head, "note")
+        keys = SE.xtInputDict.keys()
+        keys.sort()
+        for key in keys:
+            if self.inputDict.has_key(key):
+                if key == 'taxon':
+                    for taxon in self.taxa:
+                        subNote = ET.SubElement(head, "note", type = "input", label = SE.xtInputDict[key])
+                        subNote.text = taxon
+                else:
+                    textVal = str(self.inputDict[key])
+                    if len(textVal)>0:
+                        subNote = ET.SubElement(head, "note", type = "input", label = SE.xtInputDict[key])
+                        subNote.text = textVal
+
+
+        SE.indent(root)#makes it print pretty
+        tree = ET.ElementTree(root)
+        tree.write(fileName, encoding = 'utf-8')
+        self.readXML(fileName)
+
+    def saveXTInputFile(self):
+        tempInput = str(self.inputFile_LE.text())
+        tempDirInput = os.path.dirname(tempInput)
+
+        tempOutput = str(self.outputFile_LE.text())
+        tempDirOutput = os.path.dirname(tempOutput)
+
+        if os.path.isdir(tempDirInput):
+            self.xtInputFile = tempInput
+            if os.path.isdir(tempDirOutput):
+                self.xtOutputFile = tempOutput
+                self.writeXMLTree(self.xtInputFile, self.xtOutputFile)
+        else:
+            print "Invalid X!Tandem input file path"
 
     def setInputDict(self):
         self.inputDict = {}
         self.inputDict['maxCharge']=self.maxCharge_SB.value()
         #####################
-        self.inputDict['defaultPath'] = "C:Default_Input.xml"#"list path, default parameters"
+        defaultPath = str(self.defaultFolder_LE.text())
+        if os.path.isdir(defaultPath):
+            defaultInput = os.path.join(defaultPath, 'default_input.xml')
+            if os.path.isfile(defaultInput):
+                self.inputDict['defaultPath'] = defaultInput#"list path, default parameters"
+            else:
+                errorMsg = "Sorry: %s\n is not a valid file.\nIs your tandem directory specified?\n"%(defaultInput)
+                return QtGui.QMessageBox.warning(self, "Error Setting X!Tandem Default Input", errorMsg)
+                print errorMsg
         #####################
-        self.inputDict['taxonomyPath'] = "C:Taxonomy.xml"#self.taxonomyFile#"list path, taxonomy information"
+        taxPath = str(self.defaultTaxFile_LE.text())
+        if os.path.isfile(taxPath):
+            self.inputDict['taxonomyPath'] = taxPath
+        else:#self.taxonomyFile#"list path, taxonomy information"
+            defaultFolder = self.defaultFolder_LE.text()
+            taxPath2 = os.path.join(defaultFolder, "taxonomy.xml")
+            if os.path.isfile(taxPath2):
+                self.inputDict['taxonomyPath'] = taxPath2
+            else:
+                errorMsg = "Sorry: %s\n no valid taxonomy file was established an searching cannot continue\n"%(taxPath2)
+                return QtGui.QMessageBox.warning(self, "Error Setting X!Tandem Default Input", errorMsg)
+                print errorMsg
+
+        #####################
+        specPath = self.rawInputDataPath#str(self.rawData_LE.text())
+        if os.path.isfile(specPath):
+            self.inputDict['specPath'] = specPath
+        else:
+            errorMsg = "Sorry: %s\n no valid input file was selected\n"%(specPath)
+            return QtGui.QMessageBox.warning(self, "Error Setting X!Tandem Raw Data Input", errorMsg)
+            print errorMsg
+
+
         #####################
         self.inputDict['fragSpecError'] = self.fragErr_SB.value()
         self.inputDict['parentErrPos'] = self.parentErrPos_SB.value()
@@ -161,7 +289,8 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
         ###############
         self.inputDict['taxon'] = self.taxa#"protein, taxon"
         ###############
-        self.inputDict['cleavageSite'] = str(self.customCleaveRule_LE.text())#"protein, cleavage site"
+
+        self.inputDict['cleavageSite'] = self.cleaveRule#"protein, cleavage site"
         self.inputDict['protCTermChange'] = self.cleaveCTermChange_SB.value()#"protein, cleavage C-terminal mass change"#>+17.002735</note>
         self.inputDict['protNTermChange'] = self.cleaveNTermChange_SB.value()#"protein, cleavage N-terminal mass change"#>+1.007825</note>
         #self.inputDict['protNModMass'] = self.protNTerm_LE.value()#"protein, N-terminal residue modification mass"#>0.0</note>
@@ -190,7 +319,11 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
         self.inputDict['cIons'] = self.fragDict['c']#"scoring, c ions"
 
         self.inputDict['outputPath'] = str(self.outputFile_LE.text())#"output, path"
-        self.inputDict['outputAll'] = self.outputAll_CB.isChecked()#
+        if self.outputAll_CB.isChecked():
+            self.inputDict['outputAll'] = 'all'
+        else:
+            self.inputDict['outputAll'] = 'valid'
+
 
         #Set all bool values to a string either: 'yes' or 'no'
         for item in self.inputDict.iteritems():
@@ -199,66 +332,6 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
                     self.inputDict[item[0]]='yes'
                 else:
                     self.inputDict[item[0]]='no'
-
-
-    def setCleaveRule(self, value=None):
-        if value == None:
-            index = self.cleaveSite_CB.currentIndex()
-            value = self.cleaveSite_CB.itemText(index)
-
-        curEnzyme = str(value)#convert from QString
-        self.cleaveRule = SE.enzymeTypes[curEnzyme]
-        self.cleaveRule_LE.setText(self.cleaveRule)
-
-    def getFragTypes(self):
-        print "Get Frag Types"
-
-
-    def getTaxa(self):
-        print "Get Taxa to search"
-
-
-    def makeXTOutput(self):
-        self.setTaxa()
-        self.resetFragDict()
-        self.setFragDict()
-        self.setInputDict()
-        self.writeXMLTree(self.inputDict['outputPath'])
-
-
-    def writeXMLTree(self, fileName):
-        root = ET.Element('xml', version = '1.0')
-        head = ET.SubElement(root, "bioml")
-        note = ET.SubElement(head, "note")
-        for key in SE.xtInputDict.iterkeys():
-            if self.inputDict.has_key(key):
-                subNote = ET.SubElement(head, "note", type = "input", label = SE.xtInputDict[key])
-                subNote.text = str(self.inputDict[key])
-
-        note4 = ET.SubElement(head, "note", type = "input", label = "spectrum, path")
-        note4.text='test_spectra.mgf'
-        note5 = ET.SubElement(head, "note", type = "input", label = "output, path")
-        note5.text='test_spectra.mgf'
-        note5.text = 'clowers.xml'
-
-        SE.indent(root)#makes it print pretty
-        tree = ET.ElementTree(root)
-        tree.write(fileName, encoding = 'utf-8')
-
-    def saveXTInputFile(self):
-        tempInput = str(self.inputFile_LE.text())
-        tempDirInput = os.path.dirname(tempInput)
-
-        tempOutput = str(self.outputFile_LE.text())
-        tempDirOutput = os.path.dirname(tempOutput)
-
-        if os.path.isdir(tempDirInput):
-            self.xtInputFile = tempInput
-            if os.path.isdir(tempDirOutput):
-                self.xtOutputFile = tempOutput
-                self.writeXMLTree(self.xtInputFile, self.xtOutputFile)
-        else:
-            print "Invalid X!Tandem input file path"
 
 
     ####################################################
@@ -288,6 +361,13 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
             self.setDefaultFolder(dir)
             self.defaultFolder_LE.clear()
             self.defaultFolder_LE.setText(self.defaultDir)
+
+    def setRawDataInput(self):
+        fileName = self.openFileDialog("Select Raw Data File", "mzXML (*.mzXML);Mascot General File (*.mgf); Temp File (*.tmp)")
+        if fileName != None:
+            self.rawData_LE.clear()
+            self.rawData_LE.setText(fileName)
+            self.rawInputDataPath = fileName
 
     def setXTInputFile(self):
         fileName = self.saveFileDialog("X!Tandem XML Input to Save:", "XML (*.xml)")
