@@ -8,6 +8,8 @@ import numpy as N
 import scipy as S
 import xml.etree.ElementTree as ET#need to use correctly with py2exe
 import xml.etree.cElementTree as ET#I know seems redundant but is needed by py2exe
+import subprocess as sub
+import time
 
 import supportElements as SE
 import miscFunc as MF
@@ -83,13 +85,22 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
         QtCore.QObject.connect(self.xtOutputFile_Btn, QtCore.SIGNAL("clicked()"), self.setXTOutputFile)
         QtCore.QObject.connect(self.defaultTaxFile_Btn, QtCore.SIGNAL("clicked()"), self.setTaxonomyFile)
         QtCore.QObject.connect(self.defaultXTEXE_Btn, QtCore.SIGNAL("clicked()"), self.setXTEXE)
-        QtCore.QObject.connect(self.defaultFolder_Btn, QtCore.SIGNAL("clicked()"), self.getDefaultFolder)
+        QtCore.QObject.connect(self.defaultMethod_Btn, QtCore.SIGNAL("clicked()"), self.setDefaultFile)
         QtCore.QObject.connect(self.rawData_Btn, QtCore.SIGNAL("clicked()"), self.setRawDataInput)
 
         QtCore.QObject.connect(self.makeXT_Output_Btn, QtCore.SIGNAL("clicked()"), self.makeXTOutput)
+        QtCore.QObject.connect(self.runXT_Btn, QtCore.SIGNAL("clicked()"), self.startXT)
 
+
+    def startXT(self):
+        self.makeXTOutput()
+        xtPath = os.path.abspath(str(self.defaultXTEXE_LE.text()))
+        inputPath = os.path.abspath(str(self.inputFile_LE.text()))
+        self.XTThread.updateThread(xtPath, inputPath)
+        self.XTThread.start()
 
     def _setVars_(self):
+        self.XTThread = XTandemThread(self)
         self.defaultIndex = None
         self.cleaveRule = None
         self.defaultDir = os.getcwd()
@@ -173,7 +184,7 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
             self.setFragDict()
             self.setCleaveRule()
             self.setInputDict()
-            self.writeXMLTree(self.inputDict['outputPath'])
+            self.writeXMLTree(str(self.inputFile_LE.text()))
         except:
             exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
             traceback.print_exception(exceptionType, exceptionValue, exceptionTraceback, file=sys.stdout)
@@ -216,34 +227,33 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
         tree.write(fileName, encoding = 'utf-8')
         self.readXML(fileName)
 
-    def saveXTInputFile(self):
-        tempInput = str(self.inputFile_LE.text())
-        tempDirInput = os.path.dirname(tempInput)
-
-        tempOutput = str(self.outputFile_LE.text())
-        tempDirOutput = os.path.dirname(tempOutput)
-
-        if os.path.isdir(tempDirInput):
-            self.xtInputFile = tempInput
-            if os.path.isdir(tempDirOutput):
-                self.xtOutputFile = tempOutput
-                self.writeXMLTree(self.xtInputFile, self.xtOutputFile)
-        else:
-            print "Invalid X!Tandem input file path"
+#    def saveXTInputFile(self):
+#        tempInput = str(self.inputFile_LE.text())
+#        tempDirInput = os.path.dirname(tempInput)
+#
+#        tempOutput = str(self.outputFile_LE.text())
+#        tempDirOutput = os.path.dirname(tempOutput)
+#
+#        if os.path.isdir(tempDirInput):
+#            self.xtInputFile = tempInput
+#            if os.path.isdir(tempDirOutput):
+#                self.xtOutputFile = tempOutput
+#                self.writeXMLTree(self.xtInputFile, self.xtOutputFile)
+#        else:
+#            print "Invalid X!Tandem input file path"
 
     def setInputDict(self):
         self.inputDict = {}
         self.inputDict['maxCharge']=self.maxCharge_SB.value()
         #####################
-        defaultPath = str(self.defaultFolder_LE.text())
-        if os.path.isdir(defaultPath):
-            defaultInput = os.path.join(defaultPath, 'default_input.xml')
-            if os.path.isfile(defaultInput):
-                self.inputDict['defaultPath'] = defaultInput#"list path, default parameters"
-            else:
-                errorMsg = "Sorry: %s\n is not a valid file.\nIs your tandem directory specified?\n"%(defaultInput)
-                return QtGui.QMessageBox.warning(self, "Error Setting X!Tandem Default Input", errorMsg)
-                print errorMsg
+        defaultPath = str(self.defaultMethod_LE.text())
+        defaultInput = os.path.abspath(defaultPath)#, 'default_input.xml')
+        if os.path.isfile(defaultInput):
+            self.inputDict['defaultPath'] = defaultInput#"list path, default parameters"
+        else:
+            errorMsg = "Sorry: %s\n is not a valid file.\nIs your tandem directory specified?\n"%(defaultInput)
+            return QtGui.QMessageBox.warning(self, "Error Setting X!Tandem Default Input", errorMsg)
+            print errorMsg
         #####################
         taxPath = str(self.defaultTaxFile_LE.text())
         if os.path.isfile(taxPath):
@@ -266,7 +276,6 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
             errorMsg = "Sorry: %s\n no valid input file was selected\n"%(specPath)
             return QtGui.QMessageBox.warning(self, "Error Setting X!Tandem Raw Data Input", errorMsg)
             print errorMsg
-
 
         #####################
         self.inputDict['fragSpecError'] = self.fragErr_SB.value()
@@ -317,7 +326,7 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
         self.inputDict['aIons'] = self.fragDict['a']#"scoring, a ions"
         self.inputDict['bIons'] = self.fragDict['b']#"scoring, b ions"
         self.inputDict['cIons'] = self.fragDict['c']#"scoring, c ions"
-
+        ################################
         self.inputDict['outputPath'] = str(self.outputFile_LE.text())#"output, path"
         if self.outputAll_CB.isChecked():
             self.inputDict['outputAll'] = 'all'
@@ -355,12 +364,16 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
         if os.path.isdir(dir):
             self.defaultDir = dir
 
-    def getDefaultFolder(self):
-        dirBool, dir = self._getDir_()
-        if dirBool:
-            self.setDefaultFolder(dir)
-            self.defaultFolder_LE.clear()
-            self.defaultFolder_LE.setText(self.defaultDir)
+    def setDefaultFile(self):
+        fileName = self.openFileDialog("Select Default X!Tandem Input File", "XML(*.xml)")
+        if fileName != None:
+            self.defaultMethod_LE.clear()
+            self.defaultMethod_LE.setText(fileName)
+#        dirBool, dir = self._getDir_()
+#        if dirBool:
+#            self.setDefaultFolder(dir)
+#            self.defaultFolder_LE.clear()
+#            self.defaultFolder_LE.setText(self.defaultDir)
 
     def setRawDataInput(self):
         fileName = self.openFileDialog("Select Raw Data File", "mzXML (*.mzXML);Mascot General File (*.mgf); Temp File (*.tmp)")
@@ -416,6 +429,100 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
             return os.path.abspath(str(fileName))
         else:
             return None
+
+class XTandemThread(QtCore.QThread):
+        def __init__(self, parent, tandemPath = None, inputPath = None):
+            QtCore.QThread.__init__(self, None)#parent)
+
+            self.P = parent
+            self.tandemPath = tandemPath
+            self.inputPath = inputPath
+            self.finished = False
+            self.ready = False
+
+        def updateThread(self, tandemPath, inputPath):
+            self.tandemPath = tandemPath
+            self.inputPath = inputPath
+            self.ready = True
+
+        def run(self):
+            if self.ready:
+                self.exeTandem()
+#                    self.curFileNum = 0
+#                    for item in self.loadList:
+##                        print item, os.path.join(item.split('.')[:-1][0])
+#                        self.msg = self.exeRAW(item[0], item[1])
+#                        #print item[0],  item[1]
+#                        #this following line is key to pass python object via the SIGNAL/SLOT mechanism of PyQt
+#                        self.emit(QtCore.SIGNAL("itemLoaded(PyQt_PyObject)"),self.msg)#note PyQt_PyObject
+#                        self.numItems -=1
+#
+#                        self.curFileNum+=1
+
+
+        def __del__(self):
+            self.exiting = True
+            self.wait()
+
+        def exeTandem(self):
+            '''
+            USAGE: tandem filename
+
+            where filename is any valid path to an XML input file.
+
+            +-+-+-+-+-+-+
+
+            X! TANDEM TORNADO (2008.02.01.3)
+
+            Copyright (C) 2003-2008 Ronald C Beavis, all rights reserved
+            This software is a component of the GPM  project.
+            Use of this software governed by the Artistic license.
+            If you do not have this license, you can get a copy at
+            http://www.perl.com/pub/a/language/misc/Artistic.html
+
+            +-+-+-+-+-+-+
+                        '''
+            t1 = time.clock()
+            self.cmdOut = [self.tandemPath]
+            self.cmdOut.append(self.inputPath)
+
+            cmdStr = ''
+            for item in self.cmdOut:
+                cmdStr += item
+                cmdStr += ' ' #add space
+            cmdStr +='\n'
+            print cmdStr
+            try:
+                subHandle = sub.Popen(cmdStr, bufsize = 0, shell = True,  stdout=sub.PIPE, stderr=sub.PIPE,  stdin = sub.PIPE)
+
+                self.outMsg = subHandle.stdout.read()
+                self.errMsg = subHandle.stderr.read()
+                subHandle.stderr.close()
+                subHandle.stdout.close()
+                subHandle.stdin.close()
+                self.retCode = subHandle.wait()
+
+                t2 = time.clock()
+                runTime= '%s sec\n\n'%(t2-t1)
+                if self.retCode != 0:
+                    msg = self.outMsg+'\n'+self.errMsg
+#                    fileupdate = '%d of %d Finished\n'%(self.curFileNum+1, self.totalFiles)
+#                    msg +=fileupdate
+                    msg += runTime
+                    print msg
+                    return msg
+                else:
+                    msg = self.outMsg+'\n'+self.errMsg
+#                    fileupdate = '%d of %d Finished\n'%(self.curFileNum+1, self.totalFiles)
+#                    msg +=fileupdate
+                    msg += runTime
+                    print msg
+                    return msg
+            except:
+                print "Error Log Start:\n",cmdStr
+                raise
+
+
 
 
 if __name__ == "__main__":
