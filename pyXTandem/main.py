@@ -65,6 +65,7 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
         #Setup Highlighter
         self.highlighter = MF.PythonHighlighter(self.output_TE.document())
 
+        self.setupDefaults()
 
 
     def _setConnections_(self):
@@ -80,6 +81,46 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
         QtCore.QObject.connect(self.makeXT_Output_Btn, QtCore.SIGNAL("clicked()"), self.makeXTOutput)
         QtCore.QObject.connect(self.runXT_Btn, QtCore.SIGNAL("clicked()"), self.startXT)
 
+        QtCore.QObject.connect(self.XTThread, QtCore.SIGNAL("itemLoaded(PyQt_PyObject)"), self.updateOutputMsg)
+
+    def setupDefaults(self):
+        fileName = "default.ini"
+        if os.path.isfile(fileName):
+            defaultFile = open(fileName, 'r')
+            confValues = defaultFile.readlines()
+            defaultFile.close()
+            '''
+            #pyXTandem Default Configuration File
+            XTandem Executable=C:\XTandem\thegpm-cgi\tandem.exe
+            Taxonomy Location=C:\XTandem\tandem\taxonomy.xml
+            Default Input File=C:\XTandem\iontrap.xml
+            '''
+            for line in confValues[1:]:#skip first line
+                lineVals = line.split('=')
+                if len(lineVals) == 2 and type(lineVals) == list:
+                    defType = lineVals[0]
+                    defValue = lineVals[1].split('\n')[0]#remove line feed
+#                    print defType, '***', defValue
+                    if "XTandem Executable" in defType:
+                        self.defaultXTEXE_LE.clear()
+                        self.defaultXTEXE_LE.setText(defValue)
+                    elif "Taxonomy Location" in defType:
+                        taxaFile = os.path.abspath(defValue)
+#                        taxaFile = os.path.normpath(taxaFile)
+                        self.defaultTaxFile_LE.clear()
+                        self.defaultTaxFile_LE.setText(defValue)
+                        print taxaFile, os.path.isfile(taxaFile)
+                        if os.path.isfile(taxaFile):
+                            self.populateTaxa(taxaFile)
+                        else:
+                            print "Taxa file not valid"
+                    elif "Default Input File" in defType:
+                        self.defaultMethod_LE.clear()
+                        self.defaultMethod_LE.setText(defValue)
+
+        else:
+            errMsg = "'default.ini' is missing or corrupted. Re-install to fix problem!"
+            return QtGui.QMessageBox.warning(self, "Default Settings Not Found!", errMsg)
 
     def populateTaxa(self, fileName):
         #CHANGE THIS to get the actual file specified in the parameter file
@@ -98,7 +139,8 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
         self.makeXTOutput()
         xtPath = os.path.abspath(str(self.defaultXTEXE_LE.text()))
         inputPath = os.path.abspath(str(self.inputFile_LE.text()))
-        self.XTThread.updateThread(xtPath, inputPath)
+        taxonomyPath = os.path.dirname(str(self.defaultTaxFile_LE.text()))
+        self.XTThread.updateThread(xtPath, inputPath, taxonomyPath)
         self.XTThread.start()
 
     def _setVars_(self):
@@ -178,6 +220,12 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
         if len(customCleave)>0:
             self.cleaveRule = customCleave
 
+    def updateOutputMsg(self, outputStr):
+        self.iterScroll+=1
+        self.output_TE.insertPlainText(QtCore.QString(outputStr))
+        scrollBar = self.output_TE.verticalScrollBar();
+        scrollBar.setValue(scrollBar.maximum())
+
 
     def makeXTOutput(self):
         try:
@@ -205,8 +253,8 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
             xml = open(fileName, 'r')
             xmlText = xml.read()
             xml.close()
-            print xmlText
-            #self.setOutputText(QtCore.QString(xmlText))
+            #print xmlText
+            self.setOutputText(QtCore.QString(xmlText))
 
     def writeXMLTree(self, fileName):
         root = ET.Element('xml', version = '1.0')
@@ -231,7 +279,7 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
         tree = ET.ElementTree(root)
         tree.write(fileName, encoding = 'utf-8')
         print fileName
-        #self.readXML(fileName)
+        self.readXML(fileName)
 
 #    def saveXTInputFile(self):
 #        tempInput = str(self.inputFile_LE.text())
@@ -452,12 +500,15 @@ class XTandemThread(QtCore.QThread):
             self.P = parent
             self.tandemPath = tandemPath
             self.inputPath = inputPath
+            self.outMsg = ''
+            self.cwd = None
             self.finished = False
             self.ready = False
 
-        def updateThread(self, tandemPath, inputPath):
+        def updateThread(self, tandemPath, inputPath, cwd):
             self.tandemPath = tandemPath
             self.inputPath = inputPath
+            self.cwd = cwd
             self.ready = True
 
         def run(self):
@@ -478,6 +529,11 @@ class XTandemThread(QtCore.QThread):
         def __del__(self):
             self.exiting = True
             self.wait()
+
+        def updateMsg(self, outputStr = None):
+            print self.outMsg
+            self.emit(QtCore.SIGNAL("itemLoaded(PyQt_PyObject)"),self.outMsg)
+
 
         def exeTandem(self):
             '''
@@ -508,7 +564,13 @@ class XTandemThread(QtCore.QThread):
             cmdStr +='\n'
             print cmdStr
             try:
-                subHandle = sub.Popen(cmdStr, bufsize = 0, shell = True,  stdout=sub.PIPE, stderr=sub.PIPE,  stdin = sub.PIPE)
+                subHandle = sub.Popen(cmdStr, bufsize = 0, shell = True,  cwd = self.cwd, stdout=sub.PIPE, stderr=sub.PIPE,  stdin = sub.PIPE)
+
+                print subHandle.poll()
+#                while subHandle.poll()!=0:
+#                    self.outMsg = subHandle.stdout.read()
+#                    QtCore.QTimer.singleShot(20, self.updateMsg)
+
 
                 self.outMsg = subHandle.stdout.read()
                 self.errMsg = subHandle.stderr.read()
