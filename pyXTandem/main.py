@@ -221,10 +221,10 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
             self.cleaveRule = customCleave
 
     def updateOutputMsg(self, outputStr):
-        self.iterScroll+=1
+#        self.iterScroll+=1
         self.output_TE.insertPlainText(QtCore.QString(outputStr))
         scrollBar = self.output_TE.verticalScrollBar();
-        scrollBar.setValue(scrollBar.maximum())
+        scrollBar.setValue(scrollBar.minimum())
 
 
     def makeXTOutput(self):
@@ -235,7 +235,7 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
             self.setCleaveRule()
             boolOk, msg = self.setInputDict()
             if boolOk:
-                print str(self.inputFile_LE.text())
+                #print str(self.inputFile_LE.text())
                 self.writeXMLTree(str(self.inputFile_LE.text()))
         except:
             exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
@@ -566,9 +566,14 @@ class XTandemThread(QtCore.QThread):
             try:
                 subHandle = sub.Popen(cmdStr, bufsize = 0, shell = True,  cwd = self.cwd, stdout=sub.PIPE, stderr=sub.PIPE,  stdin = sub.PIPE)
 
-                print subHandle.poll()
-#                while subHandle.poll()!=0:
+#                print subHandle.poll()
+#                while subHandle.poll() == None:
+#                    msg = subHandle.stderr.readline()
+#                    self.emit(QtCore.SIGNAL("itemLoaded(PyQt_PyObject)"),msg)
+#                    msg = subHandle.stdout.readline()
+#                    self.emit(QtCore.SIGNAL("itemLoaded(PyQt_PyObject)"),msg)
 #                    self.outMsg = subHandle.stdout.read()
+#                    print subHandle.stderr.read()
 #                    QtCore.QTimer.singleShot(20, self.updateMsg)
 
 
@@ -587,6 +592,7 @@ class XTandemThread(QtCore.QThread):
 #                    msg +=fileupdate
                     msg += runTime
                     print msg
+#                    self.emit(QtCore.SIGNAL("itemLoaded(PyQt_PyObject)"),msg)
                     return msg
                 else:
                     msg = self.outMsg+'\n'+self.errMsg
@@ -594,6 +600,7 @@ class XTandemThread(QtCore.QThread):
 #                    msg +=fileupdate
                     msg += runTime
                     print msg
+#                    self.emit(QtCore.SIGNAL("itemLoaded(PyQt_PyObject)"),msg)
                     return msg
             except:
                 print "Error Log Start:\n",cmdStr
