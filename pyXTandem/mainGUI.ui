@@ -1,1108 +1,1140 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>MainWindow</class>
- <widget class="QMainWindow" name="MainWindow" >
-  <property name="geometry" >
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>898</width>
-    <height>910</height>
+    <width>931</width>
+    <height>1083</height>
    </rect>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>pyX!Tandem</string>
   </property>
-  <widget class="QWidget" name="centralwidget" >
-   <layout class="QGridLayout" name="gridLayout_5" >
-    <item row="0" column="0" >
-     <widget class="QTabWidget" name="tabWidget" >
-      <property name="currentIndex" >
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QGridLayout" name="gridLayout_5">
+    <item row="0" column="0">
+     <widget class="QTabWidget" name="tabWidget">
+      <property name="currentIndex">
        <number>0</number>
       </property>
-      <widget class="QWidget" name="tab" >
-       <attribute name="title" >
+      <widget class="QWidget" name="tab">
+       <property name="mouseTracking">
+        <bool>false</bool>
+       </property>
+       <attribute name="title">
         <string>X!Tandem</string>
        </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_4" >
-        <item>
-         <layout class="QGridLayout" name="gridLayout_3" >
-          <item rowspan="2" row="0" column="1" >
-           <layout class="QGridLayout" name="gridLayout" >
-            <item row="0" column="0" >
-             <widget class="QLabel" name="label_14" >
-              <property name="font" >
-               <font>
-                <pointsize>9</pointsize>
-                <weight>75</weight>
-                <bold>true</bold>
-               </font>
-              </property>
-              <property name="text" >
-               <string>Algorithm</string>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="0" >
-             <widget class="QLabel" name="label_2" >
-              <property name="text" >
-               <string>Minimum log(e) value for peptides:</string>
-              </property>
-              <property name="alignment" >
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="1" >
-             <widget class="QSpinBox" name="minLogEPep_SB" >
-              <property name="minimum" >
-               <number>-1000</number>
-              </property>
-              <property name="maximum" >
-               <number>1000</number>
-              </property>
-              <property name="value" >
-               <number>-1</number>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="0" >
-             <widget class="QLabel" name="label_3" >
-              <property name="text" >
-               <string>Minimum log(e) value for proteins:</string>
-              </property>
-              <property name="alignment" >
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="1" >
-             <widget class="QSpinBox" name="minLogEProt_SB" >
-              <property name="minimum" >
-               <number>-1000</number>
-              </property>
-              <property name="maximum" >
-               <number>1000</number>
-              </property>
-              <property name="value" >
-               <number>-1</number>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="0" >
-             <widget class="QLabel" name="label_13" >
-              <property name="text" >
-               <string>Measurement Errors</string>
-              </property>
-             </widget>
-            </item>
-            <item row="5" column="0" >
-             <widget class="QLabel" name="label_4" >
-              <property name="font" >
-               <font>
-                <italic>true</italic>
-               </font>
-              </property>
-              <property name="layoutDirection" >
-               <enum>Qt::LeftToRight</enum>
-              </property>
-              <property name="text" >
-               <string>Fragment Mass Error:</string>
-              </property>
-              <property name="alignment" >
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="5" column="1" >
-             <widget class="QDoubleSpinBox" name="fragErr_SB" >
-              <property name="decimals" >
-               <number>4</number>
-              </property>
-              <property name="minimum" >
-               <double>0.000000000000000</double>
-              </property>
-              <property name="maximum" >
-               <double>1000.000000000000000</double>
-              </property>
-              <property name="value" >
-               <double>0.400000000000000</double>
-              </property>
-             </widget>
-            </item>
-            <item row="5" column="2" >
-             <widget class="QComboBox" name="fragErr_Type_CB" >
-              <item>
-               <property name="text" >
-                <string>Daltons</string>
-               </property>
-              </item>
-              <item>
-               <property name="text" >
-                <string>ppm</string>
-               </property>
-              </item>
-             </widget>
-            </item>
-            <item row="6" column="0" >
-             <widget class="QLabel" name="label_5" >
-              <property name="font" >
-               <font>
-                <italic>true</italic>
-               </font>
-              </property>
-              <property name="layoutDirection" >
-               <enum>Qt::LeftToRight</enum>
-              </property>
-              <property name="text" >
-               <string>Parent Mass Error (+):</string>
-              </property>
-              <property name="alignment" >
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="6" column="1" >
-             <widget class="QDoubleSpinBox" name="parentErrPos_SB" >
-              <property name="decimals" >
-               <number>4</number>
-              </property>
-              <property name="maximum" >
-               <double>10000.000000000000000</double>
-              </property>
-              <property name="value" >
-               <double>100.000000000000000</double>
-              </property>
-             </widget>
-            </item>
-            <item row="6" column="2" >
-             <widget class="QComboBox" name="parentErrType_CB" >
-              <item>
-               <property name="text" >
-                <string>ppm</string>
-               </property>
-              </item>
-              <item>
-               <property name="text" >
-                <string>Daltons</string>
-               </property>
-              </item>
-             </widget>
-            </item>
-            <item row="7" column="0" >
-             <widget class="QLabel" name="label_16" >
-              <property name="font" >
-               <font>
-                <italic>true</italic>
-               </font>
-              </property>
-              <property name="layoutDirection" >
-               <enum>Qt::LeftToRight</enum>
-              </property>
-              <property name="text" >
-               <string>Parent Mass Error (-):</string>
-              </property>
-              <property name="alignment" >
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="7" column="1" >
-             <widget class="QDoubleSpinBox" name="parentErrNeg_SB" >
-              <property name="decimals" >
-               <number>4</number>
-              </property>
-              <property name="maximum" >
-               <double>10000.000000000000000</double>
-              </property>
-              <property name="value" >
-               <double>100.000000000000000</double>
-              </property>
-             </widget>
-            </item>
-            <item row="10" column="0" >
-             <widget class="QCheckBox" name="isotopeErr_CB" >
-              <property name="layoutDirection" >
-               <enum>Qt::RightToLeft</enum>
-              </property>
-              <property name="text" >
-               <string>:?Use Isotope Error</string>
-              </property>
-              <property name="checked" >
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="11" column="0" >
-             <widget class="QLabel" name="label_28" >
-              <property name="layoutDirection" >
-               <enum>Qt::LeftToRight</enum>
-              </property>
-              <property name="text" >
-               <string>Fragment Type:</string>
-              </property>
-              <property name="alignment" >
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="11" column="1" >
-             <widget class="QComboBox" name="fragType_CB" >
-              <item>
-               <property name="text" >
-                <string>monoisotopic</string>
-               </property>
-              </item>
-              <item>
-               <property name="text" >
-                <string>average</string>
-               </property>
-              </item>
-             </widget>
-            </item>
-            <item row="12" column="0" >
-             <widget class="QLabel" name="label_15" >
-              <property name="font" >
-               <font>
-                <pointsize>9</pointsize>
-                <weight>75</weight>
-                <bold>true</bold>
-               </font>
-              </property>
-              <property name="text" >
-               <string>Signal Processing</string>
-              </property>
-             </widget>
-            </item>
-            <item row="13" column="0" >
-             <widget class="QCheckBox" name="removeRedun_CB" >
-              <property name="layoutDirection" >
-               <enum>Qt::RightToLeft</enum>
-              </property>
-              <property name="text" >
-               <string>:?Remove Redundant</string>
-              </property>
-             </widget>
-            </item>
-            <item row="13" column="1" >
-             <widget class="QLabel" name="label_29" >
-              <property name="enabled" >
-               <bool>false</bool>
-              </property>
-              <property name="text" >
-               <string>Angle:</string>
-              </property>
-              <property name="alignment" >
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="13" column="2" >
-             <widget class="QSpinBox" name="spinBox_7" >
-              <property name="enabled" >
-               <bool>false</bool>
-              </property>
-              <property name="minimum" >
-               <number>0</number>
-              </property>
-              <property name="maximum" >
-               <number>360</number>
-              </property>
-              <property name="value" >
-               <number>40</number>
-              </property>
-             </widget>
-            </item>
-            <item row="14" column="0" >
-             <widget class="QLabel" name="label_8" >
-              <property name="layoutDirection" >
-               <enum>Qt::LeftToRight</enum>
-              </property>
-              <property name="text" >
-               <string>Maximum Parent Charge:</string>
-              </property>
-              <property name="alignment" >
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="14" column="1" >
-             <widget class="QSpinBox" name="maxCharge_SB" >
-              <property name="minimum" >
-               <number>1</number>
-              </property>
-              <property name="maximum" >
-               <number>1000</number>
-              </property>
-             </widget>
-            </item>
-            <item row="15" column="0" >
-             <widget class="QCheckBox" name="specSyn_CB" >
-              <property name="layoutDirection" >
-               <enum>Qt::RightToLeft</enum>
-              </property>
-              <property name="text" >
-               <string>:?Spectrum Synthesis</string>
-              </property>
-              <property name="checked" >
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="16" column="0" >
-             <widget class="QCheckBox" name="noiseSuppress_CB" >
-              <property name="layoutDirection" >
-               <enum>Qt::RightToLeft</enum>
-              </property>
-              <property name="text" >
-               <string>:?Noise Suppression</string>
-              </property>
-             </widget>
-            </item>
-            <item row="17" column="0" >
-             <widget class="QLabel" name="label_9" >
-              <property name="layoutDirection" >
-               <enum>Qt::LeftToRight</enum>
-              </property>
-              <property name="text" >
-               <string>Minimum parent (M+H):</string>
-              </property>
-              <property name="alignment" >
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="17" column="1" >
-             <widget class="QDoubleSpinBox" name="minParent_SB" >
-              <property name="maximum" >
-               <double>1000000.000000000000000</double>
-              </property>
-              <property name="singleStep" >
-               <double>50.000000000000000</double>
-              </property>
-              <property name="value" >
-               <double>400.000000000000000</double>
-              </property>
-             </widget>
-            </item>
-            <item row="18" column="0" >
-             <widget class="QLabel" name="label_10" >
-              <property name="layoutDirection" >
-               <enum>Qt::LeftToRight</enum>
-              </property>
-              <property name="text" >
-               <string>Minimum fragment m/z?:</string>
-              </property>
-              <property name="alignment" >
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="18" column="1" >
-             <widget class="QDoubleSpinBox" name="minFrag_SB" >
-              <property name="maximum" >
-               <double>1000000.000000000000000</double>
-              </property>
-              <property name="singleStep" >
-               <double>50.000000000000000</double>
-              </property>
-              <property name="value" >
-               <double>150.000000000000000</double>
-              </property>
-             </widget>
-            </item>
-            <item row="19" column="0" >
-             <widget class="QLabel" name="label_11" >
-              <property name="layoutDirection" >
-               <enum>Qt::LeftToRight</enum>
-              </property>
-              <property name="text" >
-               <string>Total Peaks:</string>
-              </property>
-              <property name="alignment" >
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="19" column="1" >
-             <widget class="QSpinBox" name="totalPeaks_SB" >
-              <property name="minimum" >
-               <number>1</number>
-              </property>
-              <property name="maximum" >
-               <number>100000</number>
-              </property>
-              <property name="value" >
-               <number>50</number>
-              </property>
-             </widget>
-            </item>
-            <item row="20" column="0" >
-             <widget class="QLabel" name="label_12" >
-              <property name="layoutDirection" >
-               <enum>Qt::LeftToRight</enum>
-              </property>
-              <property name="text" >
-               <string>Minimum Peaks:</string>
-              </property>
-              <property name="alignment" >
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="20" column="1" >
-             <widget class="QSpinBox" name="minPeaks_SB" >
-              <property name="minimum" >
-               <number>1</number>
-              </property>
-              <property name="maximum" >
-               <number>100000</number>
-              </property>
-              <property name="value" >
-               <number>15</number>
-              </property>
-             </widget>
-            </item>
-            <item row="21" column="0" >
-             <widget class="QLabel" name="label_7" >
-              <property name="font" >
-               <font>
-                <pointsize>9</pointsize>
-                <weight>75</weight>
-                <bold>true</bold>
-               </font>
-              </property>
-              <property name="text" >
-               <string>Protein Modification</string>
-              </property>
-             </widget>
-            </item>
-            <item row="22" column="0" >
-             <widget class="QCheckBox" name="useSeqAnno1_CB" >
-              <property name="layoutDirection" >
-               <enum>Qt::RightToLeft</enum>
-              </property>
-              <property name="text" >
-               <string>:?Use Sequence Annotations</string>
-              </property>
-              <property name="checked" >
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="23" column="0" >
-             <widget class="QLabel" name="label_18" >
-              <property name="layoutDirection" >
-               <enum>Qt::LeftToRight</enum>
-              </property>
-              <property name="text" >
-               <string>Protein N-terminus:</string>
-              </property>
-              <property name="alignment" >
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="23" column="1" >
-             <widget class="QLineEdit" name="protNTerm_LE" />
-            </item>
-            <item row="24" column="0" >
-             <widget class="QLabel" name="label_19" >
-              <property name="layoutDirection" >
-               <enum>Qt::LeftToRight</enum>
-              </property>
-              <property name="text" >
-               <string>Protein C-terminus:</string>
-              </property>
-              <property name="alignment" >
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="24" column="1" >
-             <widget class="QLineEdit" name="protCTerm_LE" />
-            </item>
-            <item row="25" column="0" >
-             <widget class="QLabel" name="label_17" >
-              <property name="font" >
-               <font>
-                <italic>true</italic>
-               </font>
-              </property>
-              <property name="layoutDirection" >
-               <enum>Qt::LeftToRight</enum>
-              </property>
-              <property name="text" >
-               <string>User Defined Potential Modifications:</string>
-              </property>
-              <property name="alignment" >
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="25" column="1" >
-             <widget class="QLineEdit" name="userDefinedMods_LE" >
-              <property name="toolTip" >
-               <string>The format of this parameter is similar to residue, modification mass, with the addition of a modified PROSITE notation sequence motif specification.  For example, a value of 80@[ST!]PX[KR] indicates a modification of either S or T when followed by P, and residue and the a K or an R. A value of 204@N!{P}[ST]{P} indicates a modification of N by 204, if it         is NOT followed by a P, then either an S or a T, NOT followed by a P.  Positive and negative values are allowed.</string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="1" >
-             <widget class="QSpinBox" name="numThreads_SB" >
-              <property name="minimum" >
-               <number>1</number>
-              </property>
-              <property name="maximum" >
-               <number>1000</number>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="0" >
-             <widget class="QLabel" name="label_6" >
-              <property name="text" >
-               <string>Number of Threads:</string>
-              </property>
-              <property name="alignment" >
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item rowspan="2" row="0" column="2" >
-           <layout class="QGridLayout" name="gridLayout_2" >
-            <item row="8" column="0" >
-             <widget class="QLabel" name="label_20" >
-              <property name="text" >
-               <string>Potential C-terminus mods:</string>
-              </property>
-              <property name="alignment" >
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="9" column="0" >
-             <widget class="QLabel" name="label_21" >
-              <property name="text" >
-               <string>Potential N-terminus mods:</string>
-              </property>
-              <property name="alignment" >
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="10" column="0" >
-             <widget class="QLabel" name="label_22" >
-              <property name="text" >
-               <string>Maximum expectation value:</string>
-              </property>
-              <property name="alignment" >
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="12" column="0" >
-             <widget class="QLabel" name="label_23" >
-              <property name="layoutDirection" >
-               <enum>Qt::LeftToRight</enum>
-              </property>
-              <property name="text" >
-               <string>Enzymatic Cleavage Site:</string>
-              </property>
-              <property name="alignment" >
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="17" column="0" >
-             <widget class="QLabel" name="label_24" >
-              <property name="font" >
-               <font>
-                <italic>true</italic>
-               </font>
-              </property>
-              <property name="layoutDirection" >
-               <enum>Qt::LeftToRight</enum>
-              </property>
-              <property name="text" >
-               <string>Missed Cleavages allowed:</string>
-              </property>
-              <property name="alignment" >
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="11" column="0" >
-             <widget class="QLabel" name="label_31" >
-              <property name="font" >
-               <font>
-                <pointsize>9</pointsize>
-                <weight>75</weight>
-                <bold>true</bold>
-               </font>
-              </property>
-              <property name="text" >
-               <string>Protein Cleavage</string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="0" >
-             <widget class="QCheckBox" name="refineModel_CB" >
-              <property name="layoutDirection" >
-               <enum>Qt::RightToLeft</enum>
-              </property>
-              <property name="text" >
-               <string>:?Refine Model</string>
-              </property>
-              <property name="checked" >
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="0" >
-             <widget class="QCheckBox" name="useSeqAnno2_CB" >
-              <property name="layoutDirection" >
-               <enum>Qt::RightToLeft</enum>
-              </property>
-              <property name="text" >
-               <string>:?Use Sequence Annotations</string>
-              </property>
-              <property name="checked" >
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="0" >
-             <widget class="QCheckBox" name="pointMut_CB" >
-              <property name="layoutDirection" >
-               <enum>Qt::RightToLeft</enum>
-              </property>
-              <property name="text" >
-               <string>:?Point Mutations</string>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="0" >
-             <widget class="QCheckBox" name="singleAAPoly_CB" >
-              <property name="layoutDirection" >
-               <enum>Qt::RightToLeft</enum>
-              </property>
-              <property name="text" >
-               <string>:?Single amino acid polymorphisms</string>
-              </property>
-              <property name="checked" >
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="5" column="0" >
-             <widget class="QCheckBox" name="semiCleave1_CB" >
-              <property name="enabled" >
-               <bool>false</bool>
-              </property>
-              <property name="layoutDirection" >
-               <enum>Qt::RightToLeft</enum>
-              </property>
-              <property name="text" >
-               <string>:?Semi-cleavage</string>
-              </property>
-             </widget>
-            </item>
-            <item row="6" column="0" >
-             <widget class="QCheckBox" name="useModsThroughout_CB" >
-              <property name="layoutDirection" >
-               <enum>Qt::RightToLeft</enum>
-              </property>
-              <property name="text" >
-               <string>:?Use Mods Throughout</string>
-              </property>
-             </widget>
-            </item>
-            <item row="7" column="0" >
-             <widget class="QCheckBox" name="unanticipatedCleave_CB" >
-              <property name="layoutDirection" >
-               <enum>Qt::RightToLeft</enum>
-              </property>
-              <property name="text" >
-               <string>:?([Unanticipated Cleavages ([X]|[X </string>
-              </property>
-              <property name="checked" >
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="0" >
-             <widget class="QLabel" name="label_32" >
-              <property name="font" >
-               <font>
-                <pointsize>9</pointsize>
-                <weight>75</weight>
-                <bold>true</bold>
-               </font>
-              </property>
-              <property name="text" >
-               <string>Refinement Specifications</string>
-              </property>
-             </widget>
-            </item>
-            <item row="16" column="0" >
-             <widget class="QCheckBox" name="semiCleave_CB" >
-              <property name="enabled" >
-               <bool>false</bool>
-              </property>
-              <property name="layoutDirection" >
-               <enum>Qt::RightToLeft</enum>
-              </property>
-              <property name="text" >
-               <string>:?Semi-cleavage</string>
-              </property>
-             </widget>
-            </item>
-            <item row="9" column="1" >
-             <widget class="QLineEdit" name="potenNTermMods_LE" >
-              <property name="text" >
-               <string>+42.010565@[</string>
-              </property>
-             </widget>
-            </item>
-            <item row="8" column="1" >
-             <widget class="QLineEdit" name="potenCTermMods_LE" />
-            </item>
-            <item row="14" column="0" >
-             <widget class="QLabel" name="label_27" >
-              <property name="font" >
-               <font>
-                <italic>true</italic>
-               </font>
-              </property>
-              <property name="layoutDirection" >
-               <enum>Qt::LeftToRight</enum>
-              </property>
-              <property name="text" >
-               <string>Custom Cleavage Rule:</string>
-              </property>
-              <property name="alignment" >
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="14" column="1" >
-             <widget class="QLineEdit" name="customCleaveRule_LE" >
-              <property name="toolTip" >
-               <string>[RK]|{P} corresponds to the enzyme trypsin. The first charactersin brackets represent residues N-terminal to the bond - the '|' pipe - and the second set of characters represent residues C-terminal to thebond. The characters must be in square brackets (denoting that only these residues are allowed for a cleavage) or french brackets (denoting that these residues cannot be in that position). Use UPPERCASE characters.  To denote cleavage at any residue, use [X]|[X] and reset the scoring, maximum missed cleavage site parameter (see below) to something like 50.</string>
-              </property>
-             </widget>
-            </item>
-            <item row="17" column="1" >
-             <widget class="QSpinBox" name="maxMissedCleaves_SB" >
-              <property name="maximum" >
-               <number>10000</number>
-              </property>
-              <property name="value" >
-               <number>1</number>
-              </property>
-             </widget>
-            </item>
-            <item row="18" column="0" >
-             <widget class="QLabel" name="label" >
-              <property name="text" >
-               <string>Cleavage C-terminal change (Da):</string>
-              </property>
-              <property name="alignment" >
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="19" column="0" >
-             <widget class="QLabel" name="cleaveNTermChange_label" >
-              <property name="text" >
-               <string>Cleavage N-terminal change (Da):</string>
-              </property>
-              <property name="alignment" >
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="10" column="1" >
-             <widget class="QDoubleSpinBox" name="refineEVal_SB" >
-              <property name="decimals" >
-               <number>4</number>
-              </property>
-              <property name="minimum" >
-               <double>-1000.000000000000000</double>
-              </property>
-              <property name="maximum" >
-               <double>100.000000000000000</double>
-              </property>
-              <property name="value" >
-               <double>-2.000000000000000</double>
-              </property>
-             </widget>
-            </item>
-            <item row="19" column="1" >
-             <widget class="QDoubleSpinBox" name="cleaveNTermChange_SB" >
-              <property name="decimals" >
-               <number>6</number>
-              </property>
-              <property name="value" >
-               <double>1.000000000000000</double>
-              </property>
-             </widget>
-            </item>
-            <item row="18" column="1" >
-             <widget class="QDoubleSpinBox" name="cleaveCTermChange_SB" >
-              <property name="decimals" >
-               <number>6</number>
-              </property>
-              <property name="maximum" >
-               <double>1000000.000000000000000</double>
-              </property>
-              <property name="value" >
-               <double>17.000000000000000</double>
-              </property>
-             </widget>
-            </item>
-            <item row="12" column="1" >
-             <widget class="QComboBox" name="cleaveSite_CB" />
-            </item>
-            <item row="13" column="1" >
-             <widget class="QLineEdit" name="cleaveRule_LE" >
-              <property name="readOnly" >
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="15" column="1" >
-             <widget class="QLineEdit" name="aaMod_LE" >
-              <property name="toolTip" >
-               <string>The format of this parameter is m@X, where m is the modfication mass in Daltons and X is the appropriate residue to modify. Lists of modifications are separated by commas. For example, to modify M and C with the addition of 16.0 Daltons, the parameter line would be
+       <layout class="QGridLayout" name="gridLayout_6">
+        <item row="0" column="0">
+         <widget class="QSplitter" name="splitter">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <widget class="QScrollArea" name="scrollArea">
+           <property name="widgetResizable">
+            <bool>true</bool>
+           </property>
+           <widget class="QWidget" name="scrollAreaWidgetContents">
+            <property name="geometry">
+             <rect>
+              <x>0</x>
+              <y>0</y>
+              <width>907</width>
+              <height>760</height>
+             </rect>
+            </property>
+            <layout class="QGridLayout" name="gridLayout_7">
+             <item row="0" column="0">
+              <layout class="QGridLayout" name="gridLayout_3">
+               <item row="0" column="1" rowspan="2">
+                <layout class="QGridLayout" name="gridLayout">
+                 <item row="0" column="0">
+                  <widget class="QLabel" name="label_14">
+                   <property name="font">
+                    <font>
+                     <pointsize>9</pointsize>
+                     <weight>75</weight>
+                     <bold>true</bold>
+                    </font>
+                   </property>
+                   <property name="text">
+                    <string>Algorithm</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="0">
+                  <widget class="QLabel" name="label_2">
+                   <property name="text">
+                    <string>Minimum log(e) value for peptides:</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="1">
+                  <widget class="QSpinBox" name="minLogEPep_SB">
+                   <property name="minimum">
+                    <number>-1000</number>
+                   </property>
+                   <property name="maximum">
+                    <number>1000</number>
+                   </property>
+                   <property name="value">
+                    <number>-1</number>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="3" column="0">
+                  <widget class="QLabel" name="label_3">
+                   <property name="text">
+                    <string>Minimum log(e) value for proteins:</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="3" column="1">
+                  <widget class="QSpinBox" name="minLogEProt_SB">
+                   <property name="minimum">
+                    <number>-1000</number>
+                   </property>
+                   <property name="maximum">
+                    <number>1000</number>
+                   </property>
+                   <property name="value">
+                    <number>-1</number>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="4" column="0">
+                  <widget class="QLabel" name="label_13">
+                   <property name="text">
+                    <string>Measurement Errors</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="5" column="0">
+                  <widget class="QLabel" name="label_4">
+                   <property name="font">
+                    <font>
+                     <italic>true</italic>
+                    </font>
+                   </property>
+                   <property name="layoutDirection">
+                    <enum>Qt::LeftToRight</enum>
+                   </property>
+                   <property name="text">
+                    <string>Fragment Mass Error:</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="5" column="1">
+                  <widget class="QDoubleSpinBox" name="fragErr_SB">
+                   <property name="decimals">
+                    <number>4</number>
+                   </property>
+                   <property name="minimum">
+                    <double>0.000000000000000</double>
+                   </property>
+                   <property name="maximum">
+                    <double>1000.000000000000000</double>
+                   </property>
+                   <property name="value">
+                    <double>0.400000000000000</double>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="5" column="2">
+                  <widget class="QComboBox" name="fragErr_Type_CB">
+                   <item>
+                    <property name="text">
+                     <string>Daltons</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>ppm</string>
+                    </property>
+                   </item>
+                  </widget>
+                 </item>
+                 <item row="6" column="0">
+                  <widget class="QLabel" name="label_5">
+                   <property name="font">
+                    <font>
+                     <italic>true</italic>
+                    </font>
+                   </property>
+                   <property name="layoutDirection">
+                    <enum>Qt::LeftToRight</enum>
+                   </property>
+                   <property name="text">
+                    <string>Parent Mass Error (+):</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="6" column="1">
+                  <widget class="QDoubleSpinBox" name="parentErrPos_SB">
+                   <property name="decimals">
+                    <number>4</number>
+                   </property>
+                   <property name="maximum">
+                    <double>10000.000000000000000</double>
+                   </property>
+                   <property name="value">
+                    <double>100.000000000000000</double>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="6" column="2">
+                  <widget class="QComboBox" name="parentErrType_CB">
+                   <item>
+                    <property name="text">
+                     <string>ppm</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>Daltons</string>
+                    </property>
+                   </item>
+                  </widget>
+                 </item>
+                 <item row="7" column="0">
+                  <widget class="QLabel" name="label_16">
+                   <property name="font">
+                    <font>
+                     <italic>true</italic>
+                    </font>
+                   </property>
+                   <property name="layoutDirection">
+                    <enum>Qt::LeftToRight</enum>
+                   </property>
+                   <property name="text">
+                    <string>Parent Mass Error (-):</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="7" column="1">
+                  <widget class="QDoubleSpinBox" name="parentErrNeg_SB">
+                   <property name="decimals">
+                    <number>4</number>
+                   </property>
+                   <property name="maximum">
+                    <double>10000.000000000000000</double>
+                   </property>
+                   <property name="value">
+                    <double>100.000000000000000</double>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="10" column="0">
+                  <widget class="QCheckBox" name="isotopeErr_CB">
+                   <property name="layoutDirection">
+                    <enum>Qt::RightToLeft</enum>
+                   </property>
+                   <property name="text">
+                    <string>:?Use Isotope Error</string>
+                   </property>
+                   <property name="checked">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="11" column="0">
+                  <widget class="QLabel" name="label_28">
+                   <property name="layoutDirection">
+                    <enum>Qt::LeftToRight</enum>
+                   </property>
+                   <property name="text">
+                    <string>Fragment Type:</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="11" column="1">
+                  <widget class="QComboBox" name="fragType_CB">
+                   <item>
+                    <property name="text">
+                     <string>monoisotopic</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>average</string>
+                    </property>
+                   </item>
+                  </widget>
+                 </item>
+                 <item row="12" column="0">
+                  <widget class="QLabel" name="label_15">
+                   <property name="font">
+                    <font>
+                     <pointsize>9</pointsize>
+                     <weight>75</weight>
+                     <bold>true</bold>
+                    </font>
+                   </property>
+                   <property name="text">
+                    <string>Signal Processing</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="13" column="0">
+                  <widget class="QCheckBox" name="removeRedun_CB">
+                   <property name="layoutDirection">
+                    <enum>Qt::RightToLeft</enum>
+                   </property>
+                   <property name="text">
+                    <string>:?Remove Redundant</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="13" column="1">
+                  <widget class="QLabel" name="label_29">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
+                   <property name="text">
+                    <string>Angle:</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="13" column="2">
+                  <widget class="QSpinBox" name="spinBox_7">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
+                   <property name="minimum">
+                    <number>0</number>
+                   </property>
+                   <property name="maximum">
+                    <number>360</number>
+                   </property>
+                   <property name="value">
+                    <number>40</number>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="14" column="0">
+                  <widget class="QLabel" name="label_8">
+                   <property name="layoutDirection">
+                    <enum>Qt::LeftToRight</enum>
+                   </property>
+                   <property name="text">
+                    <string>Maximum Parent Charge:</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="14" column="1">
+                  <widget class="QSpinBox" name="maxCharge_SB">
+                   <property name="minimum">
+                    <number>1</number>
+                   </property>
+                   <property name="maximum">
+                    <number>1000</number>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="15" column="0">
+                  <widget class="QCheckBox" name="specSyn_CB">
+                   <property name="layoutDirection">
+                    <enum>Qt::RightToLeft</enum>
+                   </property>
+                   <property name="text">
+                    <string>:?Spectrum Synthesis</string>
+                   </property>
+                   <property name="checked">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="16" column="0">
+                  <widget class="QCheckBox" name="noiseSuppress_CB">
+                   <property name="layoutDirection">
+                    <enum>Qt::RightToLeft</enum>
+                   </property>
+                   <property name="text">
+                    <string>:?Noise Suppression</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="17" column="0">
+                  <widget class="QLabel" name="label_9">
+                   <property name="layoutDirection">
+                    <enum>Qt::LeftToRight</enum>
+                   </property>
+                   <property name="text">
+                    <string>Minimum parent (M+H):</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="17" column="1">
+                  <widget class="QDoubleSpinBox" name="minParent_SB">
+                   <property name="maximum">
+                    <double>1000000.000000000000000</double>
+                   </property>
+                   <property name="singleStep">
+                    <double>50.000000000000000</double>
+                   </property>
+                   <property name="value">
+                    <double>400.000000000000000</double>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="18" column="0">
+                  <widget class="QLabel" name="label_10">
+                   <property name="layoutDirection">
+                    <enum>Qt::LeftToRight</enum>
+                   </property>
+                   <property name="text">
+                    <string>Minimum fragment m/z?:</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="18" column="1">
+                  <widget class="QDoubleSpinBox" name="minFrag_SB">
+                   <property name="maximum">
+                    <double>1000000.000000000000000</double>
+                   </property>
+                   <property name="singleStep">
+                    <double>50.000000000000000</double>
+                   </property>
+                   <property name="value">
+                    <double>150.000000000000000</double>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="19" column="0">
+                  <widget class="QLabel" name="label_11">
+                   <property name="layoutDirection">
+                    <enum>Qt::LeftToRight</enum>
+                   </property>
+                   <property name="text">
+                    <string>Total Peaks:</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="19" column="1">
+                  <widget class="QSpinBox" name="totalPeaks_SB">
+                   <property name="minimum">
+                    <number>1</number>
+                   </property>
+                   <property name="maximum">
+                    <number>100000</number>
+                   </property>
+                   <property name="value">
+                    <number>50</number>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="20" column="0">
+                  <widget class="QLabel" name="label_12">
+                   <property name="layoutDirection">
+                    <enum>Qt::LeftToRight</enum>
+                   </property>
+                   <property name="text">
+                    <string>Minimum Peaks:</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="20" column="1">
+                  <widget class="QSpinBox" name="minPeaks_SB">
+                   <property name="minimum">
+                    <number>1</number>
+                   </property>
+                   <property name="maximum">
+                    <number>100000</number>
+                   </property>
+                   <property name="value">
+                    <number>15</number>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="21" column="0">
+                  <widget class="QLabel" name="label_7">
+                   <property name="font">
+                    <font>
+                     <pointsize>9</pointsize>
+                     <weight>75</weight>
+                     <bold>true</bold>
+                    </font>
+                   </property>
+                   <property name="text">
+                    <string>Protein Modification</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="22" column="0">
+                  <widget class="QCheckBox" name="useSeqAnno1_CB">
+                   <property name="layoutDirection">
+                    <enum>Qt::RightToLeft</enum>
+                   </property>
+                   <property name="text">
+                    <string>:?Use Sequence Annotations</string>
+                   </property>
+                   <property name="checked">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="23" column="0">
+                  <widget class="QLabel" name="label_18">
+                   <property name="layoutDirection">
+                    <enum>Qt::LeftToRight</enum>
+                   </property>
+                   <property name="text">
+                    <string>Protein N-terminus:</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="23" column="1">
+                  <widget class="QLineEdit" name="protNTerm_LE"/>
+                 </item>
+                 <item row="24" column="0">
+                  <widget class="QLabel" name="label_19">
+                   <property name="layoutDirection">
+                    <enum>Qt::LeftToRight</enum>
+                   </property>
+                   <property name="text">
+                    <string>Protein C-terminus:</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="24" column="1">
+                  <widget class="QLineEdit" name="protCTerm_LE"/>
+                 </item>
+                 <item row="25" column="0">
+                  <widget class="QLabel" name="label_17">
+                   <property name="font">
+                    <font>
+                     <italic>true</italic>
+                    </font>
+                   </property>
+                   <property name="layoutDirection">
+                    <enum>Qt::LeftToRight</enum>
+                   </property>
+                   <property name="text">
+                    <string>User Defined Potential Modifications:</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="25" column="1">
+                  <widget class="QLineEdit" name="userDefinedMods_LE">
+                   <property name="toolTip">
+                    <string>The format of this parameter is similar to residue, modification mass, with the addition of a modified PROSITE notation sequence motif specification.  For example, a value of 80@[ST!]PX[KR] indicates a modification of either S or T when followed by P, and residue and the a K or an R. A value of 204@N!{P}[ST]{P} indicates a modification of N by 204, if it         is NOT followed by a P, then either an S or a T, NOT followed by a P.  Positive and negative values are allowed.</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="1">
+                  <widget class="QSpinBox" name="numThreads_SB">
+                   <property name="minimum">
+                    <number>1</number>
+                   </property>
+                   <property name="maximum">
+                    <number>1000</number>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="0">
+                  <widget class="QLabel" name="label_6">
+                   <property name="text">
+                    <string>Number of Threads:</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item row="0" column="2" rowspan="2">
+                <layout class="QGridLayout" name="gridLayout_2">
+                 <item row="8" column="0">
+                  <widget class="QLabel" name="label_20">
+                   <property name="text">
+                    <string>Potential C-terminus mods:</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="9" column="0">
+                  <widget class="QLabel" name="label_21">
+                   <property name="text">
+                    <string>Potential N-terminus mods:</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="10" column="0">
+                  <widget class="QLabel" name="label_22">
+                   <property name="text">
+                    <string>Maximum expectation value:</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="12" column="0">
+                  <widget class="QLabel" name="label_23">
+                   <property name="layoutDirection">
+                    <enum>Qt::LeftToRight</enum>
+                   </property>
+                   <property name="text">
+                    <string>Enzymatic Cleavage Site:</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="17" column="0">
+                  <widget class="QLabel" name="label_24">
+                   <property name="font">
+                    <font>
+                     <italic>true</italic>
+                    </font>
+                   </property>
+                   <property name="layoutDirection">
+                    <enum>Qt::LeftToRight</enum>
+                   </property>
+                   <property name="text">
+                    <string>Missed Cleavages allowed:</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="11" column="0">
+                  <widget class="QLabel" name="label_31">
+                   <property name="font">
+                    <font>
+                     <pointsize>9</pointsize>
+                     <weight>75</weight>
+                     <bold>true</bold>
+                    </font>
+                   </property>
+                   <property name="text">
+                    <string>Protein Cleavage</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="0">
+                  <widget class="QCheckBox" name="refineModel_CB">
+                   <property name="layoutDirection">
+                    <enum>Qt::RightToLeft</enum>
+                   </property>
+                   <property name="text">
+                    <string>:?Refine Model</string>
+                   </property>
+                   <property name="checked">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="0">
+                  <widget class="QCheckBox" name="useSeqAnno2_CB">
+                   <property name="layoutDirection">
+                    <enum>Qt::RightToLeft</enum>
+                   </property>
+                   <property name="text">
+                    <string>:?Use Sequence Annotations</string>
+                   </property>
+                   <property name="checked">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="3" column="0">
+                  <widget class="QCheckBox" name="pointMut_CB">
+                   <property name="layoutDirection">
+                    <enum>Qt::RightToLeft</enum>
+                   </property>
+                   <property name="text">
+                    <string>:?Point Mutations</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="4" column="0">
+                  <widget class="QCheckBox" name="singleAAPoly_CB">
+                   <property name="layoutDirection">
+                    <enum>Qt::RightToLeft</enum>
+                   </property>
+                   <property name="text">
+                    <string>:?Single amino acid polymorphisms</string>
+                   </property>
+                   <property name="checked">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="5" column="0">
+                  <widget class="QCheckBox" name="semiCleave1_CB">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
+                   <property name="layoutDirection">
+                    <enum>Qt::RightToLeft</enum>
+                   </property>
+                   <property name="text">
+                    <string>:?Semi-cleavage</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="6" column="0">
+                  <widget class="QCheckBox" name="useModsThroughout_CB">
+                   <property name="layoutDirection">
+                    <enum>Qt::RightToLeft</enum>
+                   </property>
+                   <property name="text">
+                    <string>:?Use Mods Throughout</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="7" column="0">
+                  <widget class="QCheckBox" name="unanticipatedCleave_CB">
+                   <property name="layoutDirection">
+                    <enum>Qt::RightToLeft</enum>
+                   </property>
+                   <property name="text">
+                    <string>:?([Unanticipated Cleavages ([X]|[X </string>
+                   </property>
+                   <property name="checked">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="0">
+                  <widget class="QLabel" name="label_32">
+                   <property name="font">
+                    <font>
+                     <pointsize>9</pointsize>
+                     <weight>75</weight>
+                     <bold>true</bold>
+                    </font>
+                   </property>
+                   <property name="text">
+                    <string>Refinement Specifications</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="16" column="0">
+                  <widget class="QCheckBox" name="semiCleave_CB">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
+                   <property name="layoutDirection">
+                    <enum>Qt::RightToLeft</enum>
+                   </property>
+                   <property name="text">
+                    <string>:?Semi-cleavage</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="9" column="1">
+                  <widget class="QLineEdit" name="potenNTermMods_LE">
+                   <property name="text">
+                    <string>+42.010565@[</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="8" column="1">
+                  <widget class="QLineEdit" name="potenCTermMods_LE"/>
+                 </item>
+                 <item row="14" column="0">
+                  <widget class="QLabel" name="label_27">
+                   <property name="font">
+                    <font>
+                     <italic>true</italic>
+                    </font>
+                   </property>
+                   <property name="layoutDirection">
+                    <enum>Qt::LeftToRight</enum>
+                   </property>
+                   <property name="text">
+                    <string>Custom Cleavage Rule:</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="14" column="1">
+                  <widget class="QLineEdit" name="customCleaveRule_LE">
+                   <property name="toolTip">
+                    <string>[RK]|{P} corresponds to the enzyme trypsin. The first charactersin brackets represent residues N-terminal to the bond - the '|' pipe - and the second set of characters represent residues C-terminal to thebond. The characters must be in square brackets (denoting that only these residues are allowed for a cleavage) or french brackets (denoting that these residues cannot be in that position). Use UPPERCASE characters.  To denote cleavage at any residue, use [X]|[X] and reset the scoring, maximum missed cleavage site parameter (see below) to something like 50.</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="17" column="1">
+                  <widget class="QSpinBox" name="maxMissedCleaves_SB">
+                   <property name="maximum">
+                    <number>10000</number>
+                   </property>
+                   <property name="value">
+                    <number>1</number>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="18" column="0">
+                  <widget class="QLabel" name="label">
+                   <property name="text">
+                    <string>Cleavage C-terminal change (Da):</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="19" column="0">
+                  <widget class="QLabel" name="cleaveNTermChange_label">
+                   <property name="text">
+                    <string>Cleavage N-terminal change (Da):</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="10" column="1">
+                  <widget class="QDoubleSpinBox" name="refineEVal_SB">
+                   <property name="decimals">
+                    <number>4</number>
+                   </property>
+                   <property name="minimum">
+                    <double>-1000.000000000000000</double>
+                   </property>
+                   <property name="maximum">
+                    <double>100.000000000000000</double>
+                   </property>
+                   <property name="value">
+                    <double>-2.000000000000000</double>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="19" column="1">
+                  <widget class="QDoubleSpinBox" name="cleaveNTermChange_SB">
+                   <property name="decimals">
+                    <number>6</number>
+                   </property>
+                   <property name="value">
+                    <double>1.000000000000000</double>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="18" column="1">
+                  <widget class="QDoubleSpinBox" name="cleaveCTermChange_SB">
+                   <property name="decimals">
+                    <number>6</number>
+                   </property>
+                   <property name="maximum">
+                    <double>1000000.000000000000000</double>
+                   </property>
+                   <property name="value">
+                    <double>17.000000000000000</double>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="12" column="1">
+                  <widget class="QComboBox" name="cleaveSite_CB"/>
+                 </item>
+                 <item row="13" column="1">
+                  <widget class="QLineEdit" name="cleaveRule_LE">
+                   <property name="readOnly">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="15" column="1">
+                  <widget class="QLineEdit" name="aaMod_LE">
+                   <property name="toolTip">
+                    <string>The format of this parameter is m@X, where m is the modfication mass in Daltons and X is the appropriate residue to modify. Lists of modifications are separated by commas. For example, to modify M and C with the addition of 16.0 Daltons, the parameter line would be
 +16.0@M,+16.0@C</string>
-              </property>
-             </widget>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="15" column="0">
+                  <widget class="QLabel" name="label_33">
+                   <property name="text">
+                    <string>Amino Acid Modification:</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item row="1" column="0">
+                <layout class="QVBoxLayout" name="verticalLayout_2">
+                 <item>
+                  <widget class="QLabel" name="label_26">
+                   <property name="layoutDirection">
+                    <enum>Qt::LeftToRight</enum>
+                   </property>
+                   <property name="text">
+                    <string>Fragment Types:</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QListWidget" name="fragTypeListWidget">
+                   <property name="selectionMode">
+                    <enum>QAbstractItemView::MultiSelection</enum>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item row="0" column="0">
+                <layout class="QVBoxLayout" name="verticalLayout">
+                 <item>
+                  <widget class="QLabel" name="label_25">
+                   <property name="text">
+                    <string>Taxon:</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QListWidget" name="taxonListWidget">
+                   <property name="selectionMode">
+                    <enum>QAbstractItemView::MultiSelection</enum>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </item>
+            </layout>
+           </widget>
+          </widget>
+          <widget class="QWidget" name="">
+           <layout class="QVBoxLayout" name="verticalLayout_4">
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_3">
+              <item>
+               <widget class="QPushButton" name="xtInputFile_Btn">
+                <property name="text">
+                 <string>X!Tandem Input File:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="inputFile_LE"/>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_3">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QPushButton" name="rawData_Btn">
+                <property name="toolTip">
+                 <string>Usually an mgf or mzXML file.</string>
+                </property>
+                <property name="text">
+                 <string>Raw Data Input:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="rawData_LE"/>
+              </item>
+             </layout>
             </item>
-            <item row="15" column="0" >
-             <widget class="QLabel" name="label_33" >
-              <property name="text" >
-               <string>Amino Acid Modification:</string>
-              </property>
-              <property name="alignment" >
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_5">
+              <item>
+               <widget class="QPushButton" name="xtOutputFile_Btn">
+                <property name="text">
+                 <string>X!Tandem Output File:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="outputFile_LE"/>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="outputAll_CB">
+                <property name="toolTip">
+                 <string>If this is unchecked only the valid (i.e. not stochastic) will be output.</string>
+                </property>
+                <property name="text">
+                 <string>Output all hits?</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_3">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout">
+              <item>
+               <spacer name="horizontalSpacer">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QPushButton" name="makeXT_Output_Btn">
+                <property name="text">
+                 <string>Create X!Tandem Input</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="runXT_Btn">
+                <property name="text">
+                 <string>Run X!Tandem</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_2">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_3">
+              <item>
+               <widget class="QLabel" name="label_30">
+                <property name="text">
+                 <string>Output:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QTextEdit" name="output_TE">
+                <property name="readOnly">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </item>
            </layout>
-          </item>
-          <item row="1" column="0" >
-           <layout class="QVBoxLayout" name="verticalLayout_2" >
-            <item>
-             <widget class="QLabel" name="label_26" >
-              <property name="layoutDirection" >
-               <enum>Qt::LeftToRight</enum>
-              </property>
-              <property name="text" >
-               <string>Fragment Types:</string>
-              </property>
-              <property name="alignment" >
-               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QListWidget" name="fragTypeListWidget" >
-              <property name="selectionMode" >
-               <enum>QAbstractItemView::MultiSelection</enum>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item row="0" column="0" >
-           <layout class="QVBoxLayout" name="verticalLayout" >
-            <item>
-             <widget class="QLabel" name="label_25" >
-              <property name="text" >
-               <string>Taxon:</string>
-              </property>
-              <property name="alignment" >
-               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QListWidget" name="taxonListWidget" >
-              <property name="selectionMode" >
-               <enum>QAbstractItemView::MultiSelection</enum>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_3" >
-          <item>
-           <widget class="QPushButton" name="xtInputFile_Btn" >
-            <property name="text" >
-             <string>X!Tandem Input File:</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLineEdit" name="inputFile_LE" />
-          </item>
-          <item>
-           <spacer name="horizontalSpacer_3" >
-            <property name="orientation" >
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0" >
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item>
-           <widget class="QPushButton" name="rawData_Btn" >
-            <property name="toolTip" >
-             <string>Usually an mgf or mzXML file.</string>
-            </property>
-            <property name="text" >
-             <string>Raw Data Input:</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLineEdit" name="rawData_LE" />
-          </item>
-         </layout>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_5" >
-          <item>
-           <widget class="QPushButton" name="xtOutputFile_Btn" >
-            <property name="text" >
-             <string>X!Tandem Output File:</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLineEdit" name="outputFile_LE" />
-          </item>
-          <item>
-           <widget class="QCheckBox" name="outputAll_CB" >
-            <property name="toolTip" >
-             <string>If this is unchecked only the valid (i.e. not stochastic) will be output.</string>
-            </property>
-            <property name="text" >
-             <string>Output all hits?</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <spacer name="horizontalSpacer_3" >
-            <property name="orientation" >
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0" >
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout" >
-          <item>
-           <spacer name="horizontalSpacer" >
-            <property name="orientation" >
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0" >
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item>
-           <widget class="QPushButton" name="makeXT_Output_Btn" >
-            <property name="text" >
-             <string>Create X!Tandem Input</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="runXT_Btn" >
-            <property name="text" >
-             <string>Run X!Tandem</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <spacer name="horizontalSpacer_2" >
-            <property name="orientation" >
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0" >
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <layout class="QVBoxLayout" name="verticalLayout_3" >
-          <item>
-           <widget class="QLabel" name="label_30" >
-            <property name="text" >
-             <string>Output:</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QTextEdit" name="output_TE" >
-            <property name="readOnly" >
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-         </layout>
+          </widget>
+         </widget>
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="tab_2" >
-       <attribute name="title" >
+      <widget class="QWidget" name="tab_2">
+       <attribute name="title">
         <string>Options</string>
        </attribute>
-       <layout class="QGridLayout" name="gridLayout_4" >
-        <item row="0" column="0" >
-         <layout class="QGridLayout" name="_2" >
-          <item row="1" column="0" >
-           <layout class="QVBoxLayout" name="_3" >
+       <layout class="QGridLayout" name="gridLayout_4">
+        <item row="0" column="0">
+         <layout class="QGridLayout" name="_2">
+          <item row="1" column="0">
+           <layout class="QVBoxLayout" name="_3">
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_4" >
+             <layout class="QHBoxLayout" name="horizontalLayout_4">
               <item>
-               <widget class="QPushButton" name="defaultXTEXE_Btn" >
-                <property name="enabled" >
+               <widget class="QPushButton" name="defaultXTEXE_Btn">
+                <property name="enabled">
                  <bool>true</bool>
                 </property>
-                <property name="text" >
+                <property name="text">
                  <string>Default X!Tandem Executable:</string>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QLineEdit" name="defaultXTEXE_LE" >
-                <property name="readOnly" >
+               <widget class="QLineEdit" name="defaultXTEXE_LE">
+                <property name="readOnly">
                  <bool>false</bool>
                 </property>
                </widget>
@@ -1110,20 +1142,20 @@
              </layout>
             </item>
             <item>
-             <layout class="QHBoxLayout" name="_4" >
+             <layout class="QHBoxLayout" name="_4">
               <item>
-               <widget class="QPushButton" name="defaultMethod_Btn" >
-                <property name="enabled" >
+               <widget class="QPushButton" name="defaultMethod_Btn">
+                <property name="enabled">
                  <bool>true</bool>
                 </property>
-                <property name="text" >
+                <property name="text">
                  <string>Default Method:</string>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QLineEdit" name="defaultMethod_LE" >
-                <property name="readOnly" >
+               <widget class="QLineEdit" name="defaultMethod_LE">
+                <property name="readOnly">
                  <bool>false</bool>
                 </property>
                </widget>
@@ -1131,27 +1163,27 @@
              </layout>
             </item>
             <item>
-             <layout class="QHBoxLayout" name="_5" >
+             <layout class="QHBoxLayout" name="_5">
               <item>
-               <widget class="QPushButton" name="savePref_Btn" >
-                <property name="text" >
+               <widget class="QPushButton" name="savePref_Btn">
+                <property name="text">
                  <string>Save Preferences</string>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QPushButton" name="revert_Btn" >
-                <property name="text" >
+               <widget class="QPushButton" name="revert_Btn">
+                <property name="text">
                  <string>Revert to Defaults</string>
                 </property>
                </widget>
               </item>
               <item>
                <spacer>
-                <property name="orientation" >
+                <property name="orientation">
                  <enum>Qt::Horizontal</enum>
                 </property>
-                <property name="sizeHint" stdset="0" >
+                <property name="sizeHint" stdset="0">
                  <size>
                   <width>40</width>
                   <height>20</height>
@@ -1163,12 +1195,12 @@
             </item>
            </layout>
           </item>
-          <item row="1" column="1" >
+          <item row="1" column="1">
            <spacer>
-            <property name="orientation" >
+            <property name="orientation">
              <enum>Qt::Horizontal</enum>
             </property>
-            <property name="sizeHint" stdset="0" >
+            <property name="sizeHint" stdset="0">
              <size>
               <width>40</width>
               <height>20</height>
@@ -1176,12 +1208,12 @@
             </property>
            </spacer>
           </item>
-          <item row="2" column="0" >
+          <item row="2" column="0">
            <spacer>
-            <property name="orientation" >
+            <property name="orientation">
              <enum>Qt::Vertical</enum>
             </property>
-            <property name="sizeHint" stdset="0" >
+            <property name="sizeHint" stdset="0">
              <size>
               <width>20</width>
               <height>40</height>
@@ -1189,21 +1221,21 @@
             </property>
            </spacer>
           </item>
-          <item row="0" column="0" >
-           <layout class="QHBoxLayout" name="horizontalLayout_2" >
+          <item row="0" column="0">
+           <layout class="QHBoxLayout" name="horizontalLayout_2">
             <item>
-             <widget class="QPushButton" name="defaultTaxFile_Btn" >
-              <property name="enabled" >
+             <widget class="QPushButton" name="defaultTaxFile_Btn">
+              <property name="enabled">
                <bool>true</bool>
               </property>
-              <property name="text" >
+              <property name="text">
                <string>Default Taxonomy File:</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QLineEdit" name="defaultTaxFile_LE" >
-              <property name="readOnly" >
+             <widget class="QLineEdit" name="defaultTaxFile_LE">
+              <property name="readOnly">
                <bool>false</bool>
               </property>
              </widget>
@@ -1218,17 +1250,17 @@
     </item>
    </layout>
   </widget>
-  <widget class="QMenuBar" name="menubar" >
-   <property name="geometry" >
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>898</width>
-     <height>21</height>
+     <width>931</width>
+     <height>25</height>
     </rect>
    </property>
   </widget>
-  <widget class="QStatusBar" name="statusbar" />
+  <widget class="QStatusBar" name="statusbar"/>
  </widget>
  <resources/>
  <connections/>

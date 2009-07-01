@@ -185,8 +185,10 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
             self.resetFragDict()
             self.setFragDict()
             self.setCleaveRule()
-            self.setInputDict()
-            self.writeXMLTree(str(self.inputFile_LE.text()))
+            boolOk, msg = self.setInputDict()
+            if boolOk:
+                print str(self.inputFile_LE.text())
+                self.writeXMLTree(str(self.inputFile_LE.text()))
         except:
             exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
             traceback.print_exception(exceptionType, exceptionValue, exceptionTraceback, file=sys.stdout)
@@ -202,8 +204,9 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
         if os.path.isfile(fileName):
             xml = open(fileName, 'r')
             xmlText = xml.read()
-            self.setOutputText(xmlText)
             xml.close()
+            print xmlText
+            #self.setOutputText(QtCore.QString(xmlText))
 
     def writeXMLTree(self, fileName):
         root = ET.Element('xml', version = '1.0')
@@ -227,7 +230,8 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
         SE.indent(root)#makes it print pretty
         tree = ET.ElementTree(root)
         tree.write(fileName, encoding = 'utf-8')
-        self.readXML(fileName)
+        print fileName
+        #self.readXML(fileName)
 
 #    def saveXTInputFile(self):
 #        tempInput = str(self.inputFile_LE.text())
@@ -254,7 +258,7 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
             self.inputDict['defaultPath'] = defaultInput#"list path, default parameters"
         else:
             errorMsg = "Sorry: %s\n is not a valid file.\nIs your tandem directory specified?\n"%(defaultInput)
-            return QtGui.QMessageBox.warning(self, "Error Setting X!Tandem Default Input", errorMsg)
+            return False, QtGui.QMessageBox.warning(self, "Error Setting X!Tandem Default Input", errorMsg)
             print errorMsg
         #####################
         taxPath = str(self.defaultTaxFile_LE.text())
@@ -267,7 +271,7 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
                 self.inputDict['taxonomyPath'] = taxPath2
             else:
                 errorMsg = "Sorry: %s\n no valid taxonomy file was established an searching cannot continue\n"%(taxPath2)
-                return QtGui.QMessageBox.warning(self, "Error Setting X!Tandem Default Input", errorMsg)
+                return False, QtGui.QMessageBox.warning(self, "Error Setting X!Tandem Default Input", errorMsg)
                 print errorMsg
 
         #####################
@@ -276,7 +280,7 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
             self.inputDict['specPath'] = specPath
         else:
             errorMsg = "Sorry: %s\n no valid input file was selected\n"%(specPath)
-            return QtGui.QMessageBox.warning(self, "Error Setting X!Tandem Raw Data Input", errorMsg)
+            return False, QtGui.QMessageBox.warning(self, "Error Setting X!Tandem Raw Data Input", errorMsg)
             print errorMsg
 
         #####################
@@ -344,6 +348,8 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
                 else:
                     self.inputDict[item[0]]='no'
 
+        return True, True
+
 
     ####################################################
     '''
@@ -382,7 +388,7 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
 #            self.defaultFolder_LE.setText(self.defaultDir)
 
     def setRawDataInput(self):
-        fileName = self.openFileDialog("Select Raw Data File", "mzXML (*.mzXML);Mascot General File (*.mgf); Temp File (*.tmp)")
+        fileName = self.openFileDialog("Select Raw Data File", "mzXML (*.mzXML);;Mascot General File (*.mgf);; Temp File (*.tmp);; All Files (*.*)")
         if fileName != None:
             self.rawData_LE.clear()
             self.rawData_LE.setText(fileName)
