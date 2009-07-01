@@ -567,7 +567,15 @@ class XTandemThread(QtCore.QThread):
                 subHandle = sub.Popen(cmdStr, bufsize = 0, shell = True,  cwd = self.cwd, stdout=sub.PIPE, stderr=sub.PIPE,  stdin = sub.PIPE)
 
 #                print subHandle.poll()
-#                while subHandle.poll() == None:
+                timer = QtCore.QTimer()
+                while subHandle.poll() == None:
+                    timer.start(10)
+                    msg = subHandle.stdout.read()
+                    self.emit(QtCore.SIGNAL("itemLoaded(PyQt_PyObject)"),msg)
+
+#                    print subHandle.stderr.read()
+
+
 #                    msg = subHandle.stderr.readline()
 #                    self.emit(QtCore.SIGNAL("itemLoaded(PyQt_PyObject)"),msg)
 #                    msg = subHandle.stdout.readline()
@@ -588,19 +596,15 @@ class XTandemThread(QtCore.QThread):
                 runTime= '%s sec\n\n'%(t2-t1)
                 if self.retCode != 0:
                     msg = self.outMsg+'\n'+self.errMsg
-#                    fileupdate = '%d of %d Finished\n'%(self.curFileNum+1, self.totalFiles)
-#                    msg +=fileupdate
                     msg += runTime
                     print msg
-#                    self.emit(QtCore.SIGNAL("itemLoaded(PyQt_PyObject)"),msg)
+                    self.emit(QtCore.SIGNAL("itemLoaded(PyQt_PyObject)"),msg)
                     return msg
                 else:
                     msg = self.outMsg+'\n'+self.errMsg
-#                    fileupdate = '%d of %d Finished\n'%(self.curFileNum+1, self.totalFiles)
-#                    msg +=fileupdate
                     msg += runTime
                     print msg
-#                    self.emit(QtCore.SIGNAL("itemLoaded(PyQt_PyObject)"),msg)
+                    self.emit(QtCore.SIGNAL("itemLoaded(PyQt_PyObject)"),msg)
                     return msg
             except:
                 print "Error Log Start:\n",cmdStr
