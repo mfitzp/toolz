@@ -100,15 +100,17 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
                 if len(lineVals) == 2 and type(lineVals) == list:
                     defType = lineVals[0]
                     defValue = lineVals[1].split('\n')[0]#remove line feed
+                    defValue = defValue.split('\r')[0]#remove line feed
+                    print repr(defValue)
 #                    print defType, '***', defValue
                     if "XTandem Executable" in defType:
                         self.defaultXTEXE_LE.clear()
-                        self.defaultXTEXE_LE.setText(defValue)
+                        self.defaultXTEXE_LE.setText(os.path.abspath(defValue))
                     elif "Taxonomy Location" in defType:
-                        taxaFile = os.path.abspath(defValue)
+                        taxaFile = os.path.abspath(os.path.abspath(defValue))
 #                        taxaFile = os.path.normpath(taxaFile)
                         self.defaultTaxFile_LE.clear()
-                        self.defaultTaxFile_LE.setText(defValue)
+                        self.defaultTaxFile_LE.setText(taxaFile)
                         print taxaFile, os.path.isfile(taxaFile)
                         if os.path.isfile(taxaFile):
                             self.populateTaxa(taxaFile)
@@ -116,7 +118,7 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
                             print "Taxa file not valid"
                     elif "Default Input File" in defType:
                         self.defaultMethod_LE.clear()
-                        self.defaultMethod_LE.setText(defValue)
+                        self.defaultMethod_LE.setText(os.path.abspath(defValue))
 
         else:
             errMsg = "'default.ini' is missing or corrupted. Re-install to fix problem!"
@@ -253,8 +255,8 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
             xml = open(fileName, 'r')
             xmlText = xml.read()
             xml.close()
-            #print xmlText
-            self.setOutputText(QtCore.QString(xmlText))
+            print xmlText
+            #self.setOutputText(QtCore.QString(xmlText))
 
     def writeXMLTree(self, fileName):
         root = ET.Element('xml', version = '1.0')
@@ -567,11 +569,11 @@ class XTandemThread(QtCore.QThread):
                 subHandle = sub.Popen(cmdStr, bufsize = 0, shell = True,  cwd = self.cwd, stdout=sub.PIPE, stderr=sub.PIPE,  stdin = sub.PIPE)
 
 #                print subHandle.poll()
-                timer = QtCore.QTimer()
-                while subHandle.poll() == None:
-                    timer.start(10)
-                    msg = subHandle.stdout.read()
-                    self.emit(QtCore.SIGNAL("itemLoaded(PyQt_PyObject)"),msg)
+#                timer = QtCore.QTimer()
+#                while subHandle.poll() == None:
+#                    timer.start(10)
+#                    msg = subHandle.stdout.read()
+#                    self.emit(QtCore.SIGNAL("itemLoaded(PyQt_PyObject)"),msg)
 
 #                    print subHandle.stderr.read()
 
@@ -599,13 +601,15 @@ class XTandemThread(QtCore.QThread):
                     msg += runTime
                     print msg
                     self.emit(QtCore.SIGNAL("itemLoaded(PyQt_PyObject)"),msg)
-                    return msg
+#                    self.__del__()
+#                    return msg
                 else:
                     msg = self.outMsg+'\n'+self.errMsg
                     msg += runTime
                     print msg
                     self.emit(QtCore.SIGNAL("itemLoaded(PyQt_PyObject)"),msg)
-                    return msg
+#                    self.__del__()
+#                    return msg
             except:
                 print "Error Log Start:\n",cmdStr
                 raise
