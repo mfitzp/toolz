@@ -12,6 +12,7 @@ import subprocess as sub
 import time
 
 import supportElements as SE
+#import sandbox as SB
 import miscFunc as MF
 import ui_mainGUI
 
@@ -54,14 +55,20 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
 
         #Set file path defaults:
         tempInput = os.path.join(self.defaultDir,"input.xml")
+        tempInput = '/home/clowers/Proteomics/XTandem/pyinput.xml'#on clowers' linux box
         self.inputFile_LE.setText(tempInput)
 
         tempOutput = os.path.join(self.defaultDir,"output.xml")
+        tempOutput = '/home/clowers/Proteomics/XTandem/pyoutput.xml'#on clowers' linux box
         self.outputFile_LE.setText(tempOutput)
 
         specPath = "chickenInput.tmp"
+        specPath = '/home/clowers/Proteomics/XTandem/test_spectra.mgf'#on clowers' linux box
         self.rawData_LE.setText(specPath)
         self.rawInputDataPath = specPath
+        #Setup default Values:
+
+        self.refineEVal_SB.setValue(0.1)
         #Setup Highlighter
         self.highlighter = MF.PythonHighlighter(self.output_TE.document())
 
@@ -224,9 +231,14 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
 
     def updateOutputMsg(self, outputStr):
 #        self.iterScroll+=1
+        print outputStr
+#        self.output_TE.clear()
+#        self.output_TE.setText(QtCore.QString(outputStr))
+#        QtGui.QTextEdit.setText(outputStr)
+#        self.output_TE.
         self.output_TE.insertPlainText(QtCore.QString(outputStr))
-        scrollBar = self.output_TE.verticalScrollBar();
-        scrollBar.setValue(scrollBar.minimum())
+#        scrollBar = self.output_TE.verticalScrollBar();
+#        scrollBar.setValue(scrollBar.minimum())
 
 
     def makeXTOutput(self):
@@ -256,7 +268,7 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
             xmlText = xml.read()
             xml.close()
             print xmlText
-            #self.setOutputText(QtCore.QString(xmlText))
+            self.setOutputText(QtCore.QString(xmlText))
 
     def writeXMLTree(self, fileName):
         root = ET.Element('xml', version = '1.0')
@@ -599,14 +611,14 @@ class XTandemThread(QtCore.QThread):
                 if self.retCode != 0:
                     msg = self.outMsg+'\n'+self.errMsg
                     msg += runTime
-                    print msg
+                    #print msg
                     self.emit(QtCore.SIGNAL("itemLoaded(PyQt_PyObject)"),msg)
 #                    self.__del__()
 #                    return msg
                 else:
                     msg = self.outMsg+'\n'+self.errMsg
                     msg += runTime
-                    print msg
+                    #print msg
                     self.emit(QtCore.SIGNAL("itemLoaded(PyQt_PyObject)"),msg)
 #                    self.__del__()
 #                    return msg
