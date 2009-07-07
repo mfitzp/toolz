@@ -21,10 +21,10 @@ def getBrukerFiles(directory = None):
         numFiles = 0
         for root, dirs, files in walk(directory):
             for dir in dirs:
-                if '1SRef' in dir:
+                if '1SRef' or '1SLin' in dir:
                     numFiles+=1
         #print numFiles
-        
+
         t1 = time.clock()
         dirList = []
         i=0
@@ -43,11 +43,21 @@ def getBrukerFiles(directory = None):
                         fn = splitDir[-4]
                     else:
                         fn = splitDir[-5]+'.'+splitDir[-3]
-                    
+
                     dirList.append((datadir, fn))
-    
+                elif '1SLin' in dir:
+                    i+=1
+                    root1 = root
+                    dir1 = dir
+                    file1 = "fid"
+                    datadir = path.abspath(path.join(root1,  dir1,  file1))
+
+                    splitDir = datadir.split(path.sep)
+                    fn = splitDir[-4]
+
+                    dirList.append((datadir, fn))
     return dirList
-                    
+
 
 
 def getSubFolders(directory):
@@ -71,8 +81,8 @@ def run_main():
     except:
         raise
         sys.exit(app.exec_())
-    
-    
+
+
 
 if __name__ == "__main__":
     run_main()
