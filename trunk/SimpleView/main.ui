@@ -13,7 +13,7 @@
    <string>SpectrumViewer</string>
   </property>
   <property name="windowIcon" >
-   <iconset resource="icons.qrc" >
+   <iconset>
     <normaloff>:/new/prefix1/Retro Mario World_32.png</normaloff>:/new/prefix1/Retro Mario World_32.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget" >
@@ -24,7 +24,7 @@
        <bool>true</bool>
       </property>
       <property name="currentIndex" >
-       <number>0</number>
+       <number>3</number>
       </property>
       <widget class="QWidget" name="plotTab" >
        <attribute name="title" >
