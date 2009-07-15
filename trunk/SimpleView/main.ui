@@ -13,7 +13,7 @@
    <string>SpectrumViewer</string>
   </property>
   <property name="windowIcon" >
-   <iconset>
+   <iconset resource="icons.qrc" >
     <normaloff>:/new/prefix1/Retro Mario World_32.png</normaloff>:/new/prefix1/Retro Mario World_32.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget" >
@@ -24,7 +24,7 @@
        <bool>true</bool>
       </property>
       <property name="currentIndex" >
-       <number>3</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="plotTab" >
        <attribute name="title" >
@@ -530,7 +530,7 @@ p, li { white-space: pre-wrap; }
        <attribute name="title" >
         <string>Options</string>
        </attribute>
-       <layout class="QGridLayout" >
+       <layout class="QGridLayout" name="gridLayout" >
         <item row="0" column="0" >
          <widget class="QCheckBox" name="loadmzXMLCB" >
           <property name="toolTip" >
@@ -557,6 +557,13 @@ p, li { white-space: pre-wrap; }
           </property>
           <property name="checked" >
            <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="3" >
+         <widget class="QCheckBox" name="lowResPP_CB" >
+          <property name="text" >
+           <string>Low Resolution Peak Picking?</string>
           </property>
          </widget>
         </item>
@@ -615,7 +622,7 @@ p, li { white-space: pre-wrap; }
           </property>
          </widget>
         </item>
-        <item rowspan="2" row="2" column="2" >
+        <item rowspan="4" row="2" column="2" >
          <layout class="QHBoxLayout" >
           <item>
            <widget class="QLabel" name="label_18" >
@@ -645,7 +652,34 @@ p, li { white-space: pre-wrap; }
           </item>
          </layout>
         </item>
-        <item row="3" column="1" >
+        <item row="2" column="3" >
+         <layout class="QHBoxLayout" name="_5" >
+          <item>
+           <widget class="QLabel" name="label_27" >
+            <property name="text" >
+             <string>Minimum Signal-to-Noise:</string>
+            </property>
+            <property name="alignment" >
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QSpinBox" name="lowResMinSNR_SB" >
+            <property name="minimum" >
+             <number>2</number>
+            </property>
+            <property name="maximum" >
+             <number>250000</number>
+            </property>
+            <property name="value" >
+             <number>3</number>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item rowspan="3" row="3" column="1" >
          <layout class="QVBoxLayout" >
           <item>
            <layout class="QHBoxLayout" >
@@ -751,7 +785,79 @@ p, li { white-space: pre-wrap; }
           </item>
          </layout>
         </item>
-        <item row="4" column="0" colspan="2" >
+        <item row="3" column="3" >
+         <layout class="QHBoxLayout" name="_6" >
+          <item>
+           <widget class="QLabel" name="label_28" >
+            <property name="enabled" >
+             <bool>false</bool>
+            </property>
+            <property name="text" >
+             <string>Slope Threshold:</string>
+            </property>
+            <property name="alignment" >
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QDoubleSpinBox" name="slopeThreshSB" >
+            <property name="enabled" >
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item row="4" column="3" >
+         <layout class="QHBoxLayout" name="_7" >
+          <item>
+           <widget class="QLabel" name="label_29" >
+            <property name="text" >
+             <string>Smoothing Kernel Length:</string>
+            </property>
+            <property name="alignment" >
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QSpinBox" name="lowResSmthKern_SB" >
+            <property name="value" >
+             <number>15</number>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item row="5" column="3" >
+         <layout class="QHBoxLayout" name="_8" >
+          <item>
+           <widget class="QLabel" name="label_30" >
+            <property name="text" >
+             <string>Approximate Peak Width (in points):</string>
+            </property>
+            <property name="alignment" >
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QSpinBox" name="lowResPeakWidth_SB" >
+            <property name="minimum" >
+             <number>3</number>
+            </property>
+            <property name="maximum" >
+             <number>200000</number>
+            </property>
+            <property name="value" >
+             <number>500</number>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item row="6" column="0" colspan="2" >
          <layout class="QVBoxLayout" >
           <item>
            <layout class="QHBoxLayout" >
@@ -1141,7 +1247,7 @@ p, li { white-space: pre-wrap; }
           </item>
          </layout>
         </item>
-        <item row="4" column="2" >
+        <item row="6" column="2" >
          <layout class="QVBoxLayout" >
           <item>
            <widget class="QCheckBox" name="useDefaultScale_CB" >
@@ -1321,7 +1427,7 @@ p, li { white-space: pre-wrap; }
           </item>
          </layout>
         </item>
-        <item row="4" column="3" >
+        <item row="6" column="3" >
          <layout class="QHBoxLayout" >
           <item>
            <layout class="QVBoxLayout" >
