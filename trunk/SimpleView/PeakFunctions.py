@@ -77,18 +77,18 @@ def SplitNSmooth(spec, numSegs, sigThresh = 5):
     #return xSpec, ySpec
 
 
-def peakHelper(spec, minSNR = 3, slopeThresh = None, \
+def peakHelper(specX, specY, minSNR = 3, slopeThresh = None, \
                  smthKern = 15, fitWidth = None, peakWidth = None,
                  ampThresh = None, numSegs = 10):
         '''
         Accepts a numpy spectrum containing gaussian like peaks...
         '''
-        if len(spec)>0:
+        if len(specY)>0:
 
-            peakInfo = findPeaks(spec, peakWidth = peakWidth, minSNR = minSNR,\
+            peakInfo = findPeaks(specX, specY, peakWidth = peakWidth, minSNR = minSNR,\
                                 slopeThresh = slopeThresh, ampThresh = ampThresh,\
-                                smthKern = smthKern, fitWidth = fitWidth, numSegs = numSegs
-                                )
+                                smthKern = smthKern, fitWidth = fitWidth, numSegs = numSegs,\
+                                resample = True)
             return peakInfo
 
 
@@ -114,7 +114,7 @@ def crudeNoiseEstimate(datArray, sigmaThresh=3):
 
 
 def findPeaks(data_arrayX, data_arrayY, peakWidth, minSNR = 3, slopeThresh = None, ampThresh = None,\
-              smthKern = None, fitWidth = None,  peakWin = None, numSegs = 10, minFrac = 2, factor = 5):
+              smthKern = None, fitWidth = None,  peakWin = None, numSegs = 10, minFrac = 2, factor = 5, resample = False):
     '''
     peakWidth = Average number of points in half-width of peaks (CHANGE TO FIT YOUR SIGNAL)
     minSNR = minimum SNR for a peak to be considered, noise is defined by function crudeNoiseEstimate
@@ -122,6 +122,7 @@ def findPeaks(data_arrayX, data_arrayY, peakWidth, minSNR = 3, slopeThresh = Non
     ampThresh = absolute value for the threshold cutoff
     smthKern = width to use for Savitzky-Golay smoothing of derivative
     Send it a normalized data set, things work better, let prone to fail
+    resample
     '''
 
     data_arrayX = data_arrayX.astype(N.float32)
@@ -140,7 +141,11 @@ def findPeaks(data_arrayX, data_arrayY, peakWidth, minSNR = 3, slopeThresh = Non
     numSegs = peakWidth/factor#first approximation
     peakWidth/=round(peakWidth/numSegs)#scale for the resampling
     #resample returns the Y,X resampled arrays
-    resampleY, resampleX = signal.resample(data_arrayY, len(data_arrayY)/numSegs, data_arrayX)
+    if resample:
+        resampleY, resampleX = signal.resample(data_arrayY, len(data_arrayY)/numSegs, data_arrayX)
+    else:
+        resampleY = data_arrayY
+        resampleX = data_arrayX
     smoothed_data = SF.savitzky_golay(resampleY, kernel = smthKern, order = 4)
     ampThreshold, minNoise = SplitNSmooth(smoothed_data, len(resampleY)/numSegs, minSNR)
     d = derivative(smoothed_data)
@@ -153,8 +158,9 @@ def findPeaks(data_arrayX, data_arrayY, peakWidth, minSNR = 3, slopeThresh = Non
     peakIndex = []
     for m in tempLocEst[:-1]:#need to exclude last element so we don't get an IndexError for the derivative array
         if N.sign(d[m]) > N.sign(d[m+1]):
-            if ampThreshold[m]>0.1:
-                if resampleX[m] >= ampThreshold[m]:
+            if ampThreshold[m]>0.1:#check to see if noise threshold is reasonable
+#                if resampleY[m] >= ampThreshold[m]:
+                if smoothed_data[m] >= ampThreshold[m]:
                     peakLoc.append(resampleX[m])
                     peakIndex.append(m)
 
@@ -237,102 +243,32 @@ def findPeaks(data_arrayX, data_arrayY, peakWidth, minSNR = 3, slopeThresh = Non
         try:
             p = CM.fit_gaussian(xx, yy)
 
+            if pFrac >= 0.25:#pInd == val:
+                print "Index @ %s"%pInd
+                print resampleY[pInd]
+                print p
+
             if p[0]>=minFrac:
                 peak_intensity.append(p[0])
                 peak_loc.append(abs(p[1]))
                 peak_width.append(p[2])
                 peak_area.append(N.trapz(yy, xx))
+            else:
+                if yy.max()>=minFrac:
+#                    print "GO JOE"
+#                    print yy.max(), xx[yy.argmax()]
+                    if (yy.max()/ymax)>=0.1:#10% Threshold
+#                        print "BOO"
+                        peak_intensity.append(yy.max())
+#                        peak_loc.append(xx[yy.argmax()])
+                        peak_loc.append(xx[0])
+                        peak_width.append(0)
+                        peak_area.append(N.trapz(yy, xx))
+
         except:
+            print yy.max(), xx[yy.argmax()]
             print "Fit Exception"
             continue
-
-
-
-#    for j in xrange(len(d)-1): #d is the smoothed first derivative
-#        if N.sign(d[j]) > N.sign (d[j+1]): # Detects zero-crossing
-#            #print j
-#            if d[j]-d[j+1] > SlopeThreshold*resampleY[j]:#07-15-09#data_arrayY[j]: # if slope of derivative is larger than SlopeThreshold
-#                #setting up SNR screening which looks before and after the peak to get an idea of the local noise
-##                if (j - peakWidth) < 0:
-##                    index_start_prev = 0#index start before peak
-##                    index_end_prev = j - peakWidth#index end before peak
-##                    local_max_prev = 0
-##                elif (j - peakWidth - peakWindow*y_len) < 0:#if the peak location is close to the beginning
-##                    index_start_prev = 0#index start before peak
-##                    index_end_prev = j + peakWidth#index end before peak #not sure if this is right changed to + sign 03/10/08 bhc
-##                    #print index_start_prev
-##                    #print index_end_prev
-##                    local_max_prev = N.max(resampleY[index_start_prev:index_end_prev])#07-15-09#data_arrayY[index_start_prev:index_end_prev])
-##                else:
-##                    index_start_prev = j - peakWidth - peakWindow*y_len
-##                    index_end_prev = j - peakWidth
-##                    local_max_prev = N.max(resampleY[index_start_prev:index_end_prev])#07-15-09#
-##
-##                if (j + peakWidth) > y_len:
-##                    index_start_after = 0#index start before peak
-##                    index_end_after = j + peakWidth#index end before peak
-##                    local_max_after = 0
-##                elif (j + peakWidth + peakWindow*y_len) > y_len:#if the peak location is close to the beginning
-##                    index_start_after = 0#index start before peak
-##                    index_end_after = j + peakWidth#index end before peak
-##                    local_max_after = N.max(resampleY[index_start_prev:index_end_prev])#07-15-09#
-##                else:
-##                    index_start_after = j + peakWidth + peakWindow*y_len
-##                    index_end_after = j + peakWidth
-##                    local_max_after = N.max(resampleY[index_start_prev:index_end_prev])#07-15-09#
-##
-##                if local_max_prev == 0:
-##                    local_max_prev = local_max_after
-##                elif local_max_after == 0:
-##                    local_max_after = local_max_prev
-##
-##                local_max = (local_max_prev + local_max_after)/2
-#
-#                #if data_array[j] > AmpThreshold[j]:#3*local_max: # if height of peak is larger than AmpThreshold
-#                #07-15-09#
-#                if resampleY[j] >= ampThreshold[j]:#3*local_max: # if height of peak is larger than AmpThreshold
-##                    print j, data_array[j], AmpThreshold[j]
-#                    xx=[]
-#                    yy=[]
-#                    noise_range=[]
-#                    for k in range(int(peakgroup)): # Create sub-group of points near peak
-#                        groupindex=j+k-n+1
-#                        if groupindex<1:
-#                            groupindex=1
-#                        if groupindex >= vectorlength:
-#                            groupindex = vectorlength-1
-#                        xx.append(resampleX[groupindex])
-##                        print len(data_array), groupindex
-#                        yy.append(resampleY[groupindex])
-#
-#                    #print local_max
-##                    print xx
-##                    print yy
-#                    try:
-#
-#                        p = CM.fit_gaussian(xx, yy)
-#                        #noise_range = data_array[]
-#                        #if p[0] <= y_stdev:
-#                        #    print "low SNR...skipping"
-#                        #    continue
-#
-#    #                    if p[0]>53185522652:
-#    #                        plot(data_array)
-#    #                        show()
-#    #                        print 'too big'
-#                        if p[0]>=minFrac:
-#                            peak_intensity.append(p[0])
-#                            peak_loc.append(abs(p[1]))
-#                            peak_width.append(p[2])
-#                            peak_area.append(N.trapz(yy, xx))
-#                    except:
-#                        print "Fit Exception"
-#                        continue
-#
-#                    ##print "Peak Intensity: ", p[0]
-                    ##print "Peak Location:", p[1]
-                    ##print "Width: ", p[2]
-                    ##print ""
 
 
     file_info={}
@@ -404,10 +340,10 @@ if __name__ == '__main__':
     import time
     import scipy.signal as signal
 #    data_array = get_ascii_data(File_Dialog())
-    getChrom = False
+    getChrom = True
     if getChrom:
         data_array = get_ascii_data('chrom1D.csv')
-#        y = data_array[20000:]
+        y = data_array[20000:25000]
         y = data_array
         y = sFunc.normalize(y)
         x = N.arange(len(y))
@@ -420,7 +356,7 @@ if __name__ == '__main__':
 
 
     P.plot(x,y, 'r', alpha=0.5)
-    peak_info=findPeaks(x, y, peakWidth = 500, minSNR = 10, smthKern = 13, minFrac = 2, factor = 10)
+    peak_info=findPeaks(x, y, peakWidth = 25, minSNR = 5, smthKern = 7, minFrac = 2, factor = 5)
 #    print len(peak_info['peak_location'])
 
     resampleX = peak_info['resampleX']
@@ -442,7 +378,7 @@ if __name__ == '__main__':
     peakLoc = []
     for m in tempLocEst[:-1]:#need to exclude last element so we don't get an IndexError for the rowDeriv array
         if N.sign(deriv[m]) > N.sign(deriv[m+1]):
-            if ampThresh[m]>0.1:
+            if ampThresh[m]>0.1:#check to see if noise estimate is reasonable
                 if resampleX[m] >= ampThresh[m]:
                     peakLoc.append(resampleX[m])
 

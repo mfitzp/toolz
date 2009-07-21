@@ -2758,6 +2758,7 @@ class FindPeaksThread(QtCore.QThread):
             self.xData = None
             self.yData = None
             self.lowRes = False
+            self.autoSave = False
             self.paramDict = {'scales':None,
                               'minSNR':None,
                               'minRow':None,
@@ -2811,7 +2812,7 @@ class FindPeaksThread(QtCore.QThread):
                 t0 = time.clock()
                 for dataItem in self.dataItemList:
                     if self.lowRes:
-                        peakInfo = PF.peakHelper(dataItem.y, minSNR = self.minSNR, slopeThresh = self.slopeThresh, \
+                        peakInfo = PF.peakHelper(dataItem.x, dataItem.y, minSNR = self.minSNR, slopeThresh = self.slopeThresh, \
                                                  smthKern = self.smthKern, fitWidth = None, peakWidth = self.peakWidth,\
                                                  ampThresh = self.ampThresh)
                         if peakInfo.has_key('peak_location'):
