@@ -198,8 +198,11 @@ class Finger_Widget(QtGui.QWidget, ui_fingerPrint.Ui_fingerPlotWidget):
                 if curData.pkListOk:
                     try:
                         pkList = curData.peakList
+#                        print "Cur Spectrum: %s"%curSpecNum
                         self.xLoc = N.append(self.xLoc, pkList[:,0])
                         self.yLoc = N.append(self.yLoc, pkList[:,1])
+#                        print "Peaks X: ",self.xLoc
+#                        print "\n"
                         self.specNum = N.append(self.specNum, N.zeros_like(pkList[:,0])+curSpecNum)
                     except:
                         print "Peak List Error"
@@ -216,7 +219,13 @@ class Finger_Widget(QtGui.QWidget, ui_fingerPrint.Ui_fingerPlotWidget):
             self.mzTol = self.mzTol_SB.value()
             self.stdDevTol = self.stdDev_SB.value()
             groups, gNum = groupOneD(self.xLoc, self.mzTol, origOrder = self.specNum)
-            for g in xrange(gNum):
+
+#            for i, loc in enumerate(self.xLoc):
+#                print loc, self.specNum[i]
+#            print groups
+
+            for g in xrange(gNum+1):
+#                print g
                 self._updatePlotColor_()
                 subInd = N.where(groups == g)[0]
                 curXMean = self.xLoc[subInd].mean()
