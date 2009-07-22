@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #import wx
 import os
+import sys
+import traceback
 
 from scipy import optimize, signal
 import numpy as N
@@ -138,20 +140,21 @@ def findPeaks(data_arrayX, data_arrayY, peakWidth, minSNR = 3, slopeThresh = Non
     if peakWidth/factor < 2:
         factor = peakWidth/2
 
-    numSegs = peakWidth/factor#first approximation
-    peakWidth/=round(peakWidth/numSegs)#scale for the resampling
+    numSegs = int(round(len(data_arrayY)*0.01))#first approximation
+    print numSegs
+    peakWidth/=int(round(peakWidth/factor))#scale for the resampling
     #resample returns the Y,X resampled arrays
     if resample:
-        resampleY, resampleX = signal.resample(data_arrayY, len(data_arrayY)/numSegs, data_arrayX)
+        resampleY, resampleX = signal.resample(data_arrayY, numSegs, data_arrayX)
     else:
         resampleY = data_arrayY
         resampleX = data_arrayX
     smoothed_data = SF.savitzky_golay(resampleY, kernel = smthKern, order = 4)
-    ampThreshold, minNoise = SplitNSmooth(smoothed_data, len(resampleY)/numSegs, minSNR)
+    ampThreshold, minNoise = SplitNSmooth(smoothed_data, numSegs, minSNR)
     d = derivative(smoothed_data)
 
 
-    criterion = (d <= 0.5) & (d >= -0.5) & (resampleY[:-1] >= ampThreshold[:-1])
+    criterion = (d <= 5) & (d >= -5) & (resampleY[:-1] >= ampThreshold[:-1])
     tempLocEst = N.where(criterion)[0]
 
     peakLoc = []
@@ -160,7 +163,7 @@ def findPeaks(data_arrayX, data_arrayY, peakWidth, minSNR = 3, slopeThresh = Non
         if N.sign(d[m]) > N.sign(d[m+1]):
             if ampThreshold[m]>0.1:#check to see if noise threshold is reasonable
 #                if resampleY[m] >= ampThreshold[m]:
-                if smoothed_data[m] >= ampThreshold[m]:
+                if smoothed_data[m] >= ampThreshold[m]*1.25:
                     peakLoc.append(resampleX[m])
                     peakIndex.append(m)
 
@@ -238,36 +241,57 @@ def findPeaks(data_arrayX, data_arrayY, peakWidth, minSNR = 3, slopeThresh = Non
 #            stopX = len(resampleX)
 
         xx = resampleX[startX:stopX]
-        yy = resampleY[startX:stopX]
+#        yy = resampleY[startX:stopX]
+        yy = smoothed_data[startX:stopX]
+
 
         try:
-            p = CM.fit_gaussian(xx, yy)
-
-            if pFrac >= 0.25:#pInd == val:
-                print "Index @ %s"%pInd
-                print resampleY[pInd]
-                print p
-
-            if p[0]>=minFrac:
-                peak_intensity.append(p[0])
-                peak_loc.append(abs(p[1]))
-                peak_width.append(p[2])
-                peak_area.append(N.trapz(yy, xx))
-            else:
-                if yy.max()>=minFrac:
+            '''
+            The peak fitting is shifting to right for linear TOF data so we are just going
+            to use the derivative as a peak location.
+            '''
+            if yy.max()>=minFrac:
 #                    print "GO JOE"
 #                    print yy.max(), xx[yy.argmax()]
-                    if (yy.max()/ymax)>=0.1:#10% Threshold
+                if (yy.max()/yMax)>=0.1:#10% Threshold
 #                        print "BOO"
-                        peak_intensity.append(yy.max())
-#                        peak_loc.append(xx[yy.argmax()])
-                        peak_loc.append(xx[0])
-                        peak_width.append(0)
-                        peak_area.append(N.trapz(yy, xx))
+                    peak_intensity.append(yy.max())
+                    peak_loc.append(xx[yy.argmax()])
+                    peak_width.append(0)
+                    peak_area.append(N.trapz(yy, xx))
+#            p = CM.fit_gaussian(xx, yy)#This isn't working quite right.  Need to re-evaluate
+#
+#            if pFrac >= 0.25:#pInd == val:
+#                print "Index @ %s"%pInd
+#                print "Intensity: ",resampleY[pInd]
+#                print "Fit Intensity, Fit Loc, Fit width: ", p
+##                for i,xVal in enumerate(xx):
+##                    print "%s, %s"%(xVal, yy[i])
+#
+#            if p[0]>=minFrac:
+#                peak_intensity.append(p[0])
+#                peak_loc.append(abs(p[1]))
+#                peak_width.append(p[2])
+#                peak_area.append(N.trapz(yy, xx))
+#            else:
+#                if yy.max()>=minFrac:
+##                    print "GO JOE"
+##                    print yy.max(), xx[yy.argmax()]
+#                    if (yy.max()/ymax)>=0.1:#10% Threshold
+##                        print "BOO"
+#                        peak_intensity.append(yy.max())
+##                        peak_loc.append(xx[yy.argmax()])
+#                        peak_loc.append(xx[0])
+#                        peak_width.append(0)
+#                        peak_area.append(N.trapz(yy, xx))
 
         except:
-            print yy.max(), xx[yy.argmax()]
+            exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+            traceback.print_exception(exceptionType, exceptionValue, exceptionTraceback, file=sys.stdout)
+            errorMsg = "Sorry: %s\n\n:%s\n%s\n"%(exceptionType, exceptionValue, exceptionTraceback)
             print "Fit Exception"
+            print yy.max(), xx[yy.argmax()]
+            print errorMsg
             continue
 
 
@@ -281,6 +305,7 @@ def findPeaks(data_arrayX, data_arrayY, peakWidth, minSNR = 3, slopeThresh = Non
     file_info['resampleX'] = resampleX
     file_info['resampleY'] = resampleY
     file_info['ampThresh'] = ampThreshold
+    file_info['tempLoc'] = N.array(peakLoc)
 
     return file_info
 
@@ -340,7 +365,7 @@ if __name__ == '__main__':
     import time
     import scipy.signal as signal
 #    data_array = get_ascii_data(File_Dialog())
-    getChrom = True
+    getChrom = False
     if getChrom:
         data_array = get_ascii_data('chrom1D.csv')
         y = data_array[20000:25000]
@@ -348,15 +373,18 @@ if __name__ == '__main__':
         y = sFunc.normalize(y)
         x = N.arange(len(y))
     else:
-        data_array = get_ascii_data('linTOF.csv')
+        data_array = get_ascii_data('linTOF_tHat.csv')
         x = data_array[:,0]
         y = data_array[:,1]
+#        y = y[3000:10000]
+#        x = x[3000:10000]
         y = sFunc.roundLen(y)
+        y = sFunc.normalize(y)
         x = x[0:len(y)]
 
 
-    P.plot(x,y, 'r', alpha=0.5)
-    peak_info=findPeaks(x, y, peakWidth = 25, minSNR = 5, smthKern = 7, minFrac = 2, factor = 5)
+    P.plot(x,y, 'r', alpha=0.8)
+    peak_info=findPeaks(x, y, peakWidth = 100, minSNR = 10, smthKern = 17, minFrac = 2, factor = 5, resample = True)
 #    print len(peak_info['peak_location'])
 
     resampleX = peak_info['resampleX']
@@ -364,52 +392,15 @@ if __name__ == '__main__':
     ampThresh = peak_info['ampThresh']
     smoothed_data = peak_info['smoothed_data']
     deriv = peak_info['smoothed_deriv']
+    tempLoc = peak_info['tempLoc']
+    tempLocY = N.zeros_like(tempLoc)
 
     P.plot(peak_info['peak_location'], peak_info['peak_intensity'], 'go')
     P.plot(peak_info['resampleX'], peak_info['smoothed_data'], 'b')
     P.plot(peak_info['resampleX'][:-1], peak_info['smoothed_deriv'], 'm')
     P.plot(peak_info['resampleX'], peak_info['ampThresh'], 'y')
+    P.plot(tempLoc, tempLocY, 'ko')
 
-
-    criterion = (deriv < 5) & (deriv > -5) & (resampleY[:-1] >= ampThresh[:-1])
-#    criterion = resampleX >= ampThresh
-    tempLocEst = N.where(criterion)[0]
-
-    peakLoc = []
-    for m in tempLocEst[:-1]:#need to exclude last element so we don't get an IndexError for the rowDeriv array
-        if N.sign(deriv[m]) > N.sign(deriv[m+1]):
-            if ampThresh[m]>0.1:#check to see if noise estimate is reasonable
-                if resampleX[m] >= ampThresh[m]:
-                    peakLoc.append(resampleX[m])
-
-    peakLoc = N.array(peakLoc)
-    peakLocY = N.zeros_like(peakLoc)
-    P.plot(peakLoc, peakLocY, 'ko')
-#    print peak_info
-
-#    numSegs = len(y)/500
-#    baseline, minNoise = SplitNSmooth(y, numSegs, sigThresh = 3)
-#    resampleY, resampleX = signal.resample(y, numSegs*10, x)
-#    print "Baseline Done"
-#    smoothed_data = SF.savitzky_golay(resampleY, kernel = 15, order = 4)
-#    deriv = derivative(smoothed_data)
-##    print len(baseline), len(y), len(deriv)
-#    print "Start Plotting"
-#
-#    y = y/y.max()*100
-#    deriv = deriv/deriv.max()*100
-#
-#    P.plot(resampleX, resampleY, 'g', alpha = 0.5)
-##    P.plot(x,baseline, 'b', alpha = 0.5)
-#    P.plot(resampleX, smoothed_data, 'b', alpha = 0.7)
-#    P.plot(resampleX[:-1], deriv, 'y', alpha = 0.7)
-#    P.show()
-#    P.plot(x,y)
-#    t1 = time.clock()
-#    peak_info=findPeaks(y, peakWidth = 500, minSNR = 5, smthKern = None, peakWin = None, slopeThresh = 20)
-#    t2 = time.clock()
-#    print t2 - t1
-#    plot_results(x, y, peak_info)
 
     P.show()
 

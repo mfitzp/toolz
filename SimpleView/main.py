@@ -2791,6 +2791,7 @@ class FindPeaksThread(QtCore.QThread):
                 self.smthKern = self.lowResParamDict['smthKern']
                 self.peakWidth = self.lowResParamDict['peakWidth']
                 self.ampThresh = self.lowResParamDict['ampThresh']
+                self.autoSave = self.paramDict['autoSave']
             else:
                 self.scales = self.paramDict['scales']
                 self.minSNR = self.paramDict['minSNR']
@@ -2832,6 +2833,7 @@ class FindPeaksThread(QtCore.QThread):
 #                                dataItem.setPeakParams(self.paramDict)#not doing this because it is low res need to fix!!!!!!!!!
                                 dataItem.pkListOk = boolAns
                                 if self.autoSave:
+                                    print "AutoSave? ",self.autoSave
                                     dataItem.savePkList()
                                 self.numItems += -1
                                 self.iteration +=1
