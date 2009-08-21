@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Documents and Settings\d3p483\workspace\SimpleView\main.ui'
 #
-# Created: Tue Jul 14 15:36:03 2009
+# Created: Fri Aug 21 15:52:57 2009
 #      by: PyQt4 UI code generator 4.4.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -316,7 +316,7 @@ class Ui_MainWindow(object):
         self.lowResMinSNR_SB = QtGui.QSpinBox(self.optionsTab)
         self.lowResMinSNR_SB.setMinimum(2)
         self.lowResMinSNR_SB.setMaximum(250000)
-        self.lowResMinSNR_SB.setProperty("value", QtCore.QVariant(3))
+        self.lowResMinSNR_SB.setProperty("value", QtCore.QVariant(5))
         self.lowResMinSNR_SB.setObjectName("lowResMinSNR_SB")
         self._5.addWidget(self.lowResMinSNR_SB)
         self.gridLayout.addLayout(self._5, 2, 3, 1, 1)
@@ -394,7 +394,7 @@ class Ui_MainWindow(object):
         self.lowResPeakWidth_SB = QtGui.QSpinBox(self.optionsTab)
         self.lowResPeakWidth_SB.setMinimum(3)
         self.lowResPeakWidth_SB.setMaximum(200000)
-        self.lowResPeakWidth_SB.setProperty("value", QtCore.QVariant(500))
+        self.lowResPeakWidth_SB.setProperty("value", QtCore.QVariant(100))
         self.lowResPeakWidth_SB.setObjectName("lowResPeakWidth_SB")
         self._8.addWidget(self.lowResPeakWidth_SB)
         self.gridLayout.addLayout(self._8, 5, 3, 1, 1)
@@ -512,6 +512,7 @@ class Ui_MainWindow(object):
         self.hboxlayout14.addWidget(self.snrNoiseEst_SB)
         self.vboxlayout2.addLayout(self.hboxlayout14)
         self.autoSavePkList_CB = QtGui.QCheckBox(self.optionsTab)
+        self.autoSavePkList_CB.setChecked(True)
         self.autoSavePkList_CB.setObjectName("autoSavePkList_CB")
         self.vboxlayout2.addWidget(self.autoSavePkList_CB)
         self.plotNoiseEst_CB = QtGui.QCheckBox(self.optionsTab)

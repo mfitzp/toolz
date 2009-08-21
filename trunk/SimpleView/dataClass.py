@@ -112,6 +112,8 @@ class DataClass(object):
 
     def applyTopHat(self):
         self.y = SF.topHat(self.y, 0.01)
+        #need to normalize after topHat
+        self.normalize()
 
     def interpData(self):
         #this of course slows loading down but is necessary for the peak picking using CWT
