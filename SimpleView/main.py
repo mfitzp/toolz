@@ -1143,7 +1143,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                 return QtGui.QMessageBox.information(self, "Degree of Association", infoMsg)
 
     def plotFPDendro(self, dataMatrix, dataLabels = None, probDict = None):
-        simPlot = CT.DataTable(dataMatrix.transpose(),dataLabels, dataLabels)
+        simPlot = CT.DataTable(dataMatrix.transpose(), dataLabels, dataLabels)
 #        simPlot.plotWidget.enableEdit()
         simPlot.plotWidget.canvas.fig.subplots_adjust(right=0.7, left = 0.1)
         simPlot.setWindowTitle('Fingerprint Comparison')
@@ -1186,6 +1186,9 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 #                    ax1.annotate(label, xy=(x, y),  size = 10)
 
         ax1.set_xlim(xmin = 2, xmax = -0.3)#need to reverse based upon the flow of the dendrogram
+        xloc = ax1.get_xlim()[0]*1
+        yloc = ax1.get_ylim()[1]*1
+        ax1.text(xloc, yloc,'Freq. Cutoff: %s'%str(self.freqCutoff_SB.value()), fontsize=8)
         simPlot.plotWidget.canvas.format_labels()
         simPlot.plotWidget.canvas.draw()
         simPlot.show()

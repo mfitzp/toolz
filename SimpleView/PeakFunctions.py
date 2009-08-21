@@ -129,7 +129,7 @@ def findPeaks(data_arrayX, data_arrayY, peakWidth, minSNR = 3, slopeThresh = Non
 
     data_arrayX = data_arrayX.astype(N.float32)
     data_arrayY = data_arrayY.astype(N.float32)
-    data_arrayY = sFunc.normalize(data_arrayY)
+#    data_arrayY = sFunc.normalize(data_arrayY)
     smthKern = smthKern
     peakWidth = peakWidth
     minFrac = minFrac
