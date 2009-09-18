@@ -12,7 +12,7 @@ AppPublisher=Death Star Inc.
 DefaultDirName={pf}\Bruker2mzXML
 DefaultGroupName=Bruker2mzXML
 OutputBaseFilename=Bruker2mzXML_Setup
-SetupIconFile=C:\SVN\icons\Clone.ico
+;SetupIconFile=C:\SVN\icons\Clone.ico
 Compression=lzma
 SolidCompression=yes
 

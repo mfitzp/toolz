@@ -12,7 +12,11 @@ import time
 #except:
 #    print "Pysco not installed, try easy_install psyco at your command prompt"
 
-def getBrukerFiles(directory = None):
+def getBrukerFiles(directory = None, DEBUG = False):
+    '''
+    Parses Autoflex II Generated data file structure to provide
+    a list of files to be converted to mzXML by CompassXport
+    '''
     if directory == None:
         directory= str(QFileDialog.getExistingDirectory())
 
@@ -39,10 +43,18 @@ def getBrukerFiles(directory = None):
                     datadir = path.abspath(path.join(root1,  dir1,  file1))
 
                     splitDir = datadir.split(path.sep)
+                    '''
+                    Example path:
+                    C:\\Sandbox\\Heme\\Heme_S1\\0_A2\\1\\1SRef\\fid
+                    '''
                     if 'LIFT' not in datadir:
-                        fn = splitDir[-4]
+                        tempFN = splitDir[-4]
+                        coreFN = tempFN.split('_')[-1]
+                        fn = splitDir[-5]+'_'+coreFN+'_'+splitDir[-3]
                     else:
-                        fn = splitDir[-5]+'.'+splitDir[-3]
+                        tempFN = splitDir[-5]
+                        coreFN = tempFN[-2:]#tempFN.split('_')[-1]
+                        fn = splitDir[-6]+'_'+coreFN+'.'+splitDir[-3]
 
                     dirList.append((datadir, fn))
                 elif '1SLin' in dir:
@@ -56,6 +68,9 @@ def getBrukerFiles(directory = None):
                     fn = splitDir[-4]
 
                     dirList.append((datadir, fn))
+    if DEBUG:
+        for item in dirList:
+            print item
     return dirList
 
 
@@ -76,7 +91,9 @@ def getSubFolders(directory):
 def run_main():
     app = QApplication(sys.argv)
     try:
-        getBrukerFiles()
+        dir = 'C:\\Sandbox\\Peptide_ID_spectra'
+        #dir = 'C:\\Sandbox\\Heme\\Heme_S1'
+        getBrukerFiles(dir, DEBUG = True)
         sys.exit(app.exec_())
     except:
         raise
