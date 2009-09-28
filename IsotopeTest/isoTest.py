@@ -10,8 +10,10 @@ def corrIsoPatt(isoMZ, isoAbund, peakLoc):
 	locDiff = isoMZ[0]-peakLoc
 	return locDiff
 
+def plotIsoProfile(tempX, tempY, color = 'r'):
+	P.plot(tempX, tempY, color)
 
-def getIsoProfile(xArray, yArray, isoCentroids, isoAmplitudes, mzDiff, mzRes, charge=1):
+def getIsoProfile(xArray, yArray, isoCentroids, isoAmplitudes, mzDiff, mzResGlobal, mzResCalc, charge=1):
 	'''
 	returns Gaussian profile of the isotope pattern that was provided as a series of centroids
 	mzDiff -- the difference between each mz value in the x dimension
@@ -19,11 +21,13 @@ def getIsoProfile(xArray, yArray, isoCentroids, isoAmplitudes, mzDiff, mzRes, ch
 			 defines as the centroid/FWHM.
 	charge -- is the charge state of the isotope pattern
 	'''
-	mzResMain = mzRes
+	mzResMain = mzResGlobal
 	for i, iso in enumerate(isoCentroids):
 
+
 		if i == 0:
-			pkWidth = iso/mzRes#FWHM = 2.35*sigma
+			print "MonoIso: ", iso
+			pkWidth = iso/mzResCalc#FWHM = 2.35*sigma
 			criterion = (xArray <= iso+(pkWidth*3)) & (xArray >= iso-(pkWidth*3))
 			xInd = N.where(criterion)[0]
 			tempXProfile = xArray[xInd]#N.arange(iso-(pkWidth*3), iso+(pkWidth*3), mzDiff)
@@ -37,8 +41,9 @@ def getIsoProfile(xArray, yArray, isoCentroids, isoAmplitudes, mzDiff, mzRes, ch
 						pkWidth = iso/(mzResMain/1.5)
 						fitSuccess, fitParams, monoIsoFit = GF.fitGauss(tempXProfile, tempYProfile, isoAmplitudes[i], iso, pkWidth)
 						if fitSuccess != 5:
-							P.plot(tempXProfile, monoIsoFit, '-r')
-							mzRes = iso/fitParams[2]
+							plotIsoProfile(tempXProfile, monoIsoFit, color = '-r')
+							mzResCalc = iso/fitParams[2]
+							print "Success Achieved on Second Try!"
 							continue
 						else:
 							continue
@@ -47,24 +52,29 @@ def getIsoProfile(xArray, yArray, isoCentroids, isoAmplitudes, mzDiff, mzRes, ch
 						pkWidth = iso/(mzResMain*1.5)
 						fitSuccess, fitParams, monoIsoFit = GF.fitGauss(tempXProfile, tempYProfile, isoAmplitudes[i], iso, pkWidth)
 						if fitSuccess != 5:
-							P.plot(tempXProfile, monoIsoFit, '-r')
-							mzRes = iso/fitParams[2]
+							print "Success Achieved on Third Try!"
+							plotIsoProfile(tempXProfile, monoIsoFit, color = '-r')
+							mzResCalc = iso/fitParams[2]
 							continue
 						else:
+							print "Total Fit Failure"
 							continue
 			else:
-				P.plot(tempXProfile, monoIsoFit, '-r')
-				mzRes = iso/fitParams[2]
-			print "Res: ", mzRes
-			print "FitParams: ", fitParams
+				plotIsoProfile(tempXProfile, monoIsoFit, color = '-r')
+				mzResCalc = iso/fitParams[2]
+			print "Res: ", mzResCalc
+			#print "FitParams: ", fitParams
 			print "Fit:", fitSuccess
+			print " "
 
 		else:
-			pkWidth = iso/mzRes#FWHM = 2.35*sigma
+			pkWidth = iso/mzResCalc#FWHM = 2.35*sigma
 			#fullWidth = (pkWidth/2.35)*4
 			tempXProfile = N.arange(iso-(pkWidth*3), iso+(pkWidth*3), mzDiff)#N.arange(start, stop, step)
 			tempYProfile = GF.getGauss(tempXProfile, iso, pkWidth, amp = isoAmplitudes[i])
-			P.plot(tempXProfile, tempYProfile, 'y')
+			plotIsoProfile(tempXProfile, tempYProfile, color = '-y')
+	return mzResCalc
+
 
 
 
@@ -96,14 +106,15 @@ if __name__ == "__main__":
 	21455,
 	35542,
 	40849]
-
+	pks.sort()
 	mzPks = mz[pks]
 
 	P.plot(mz, abund)
 	P.vlines(mzPks, 0, 100, 'g', linestyle = 'dashed')
 
 	t1 = time.clock()
-
+	mzResGlobal = 6000#need to add a function to fit this
+	mzResCalc = 6000#need to add a function to fit this
 	for i, pk in enumerate(mzPks):
 		chargeStates = [1]#[1,2]
 		colors = ['r','m']
@@ -117,8 +128,8 @@ if __name__ == "__main__":
 					isoPeaks[1]*=scaleVal
 					localDiff = corrIsoPatt(isoPeaks[0], isoPeaks[1], pk)
 					P.vlines(isoPeaks[0]-localDiff, 0, isoPeaks[1], colors[j])
-					mzRes = 5000#need to add a function to fit this
-					getIsoProfile(mz, abund, isoPeaks[0]-localDiff, isoPeaks[1], mzDiff, mzRes, charge=1)
+
+					mzRezCalc = getIsoProfile(mz, abund, isoPeaks[0]-localDiff, isoPeaks[1], mzDiff, mzResGlobal, mzResCalc, charge=1)
 
 
 					#the following is dependent upon the resolution and we want to

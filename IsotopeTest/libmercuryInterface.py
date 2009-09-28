@@ -9,10 +9,10 @@
  * A C++ library for the calculation of accurate masses
  * and abundances of isotopic peaks
  *
- * Copyright (c) 2006 
+ * Copyright (c) 2006
  * 	Marc Kirchner <marc.kirchner@iwr.uni-heidelberg.de>
  *
- * Based on the emass implementation of Perttu Haimi 
+ * Based on the emass implementation of Perttu Haimi
  * (see Copyright notice below).
  *
  * This code may be distributed under the terms of the
@@ -21,29 +21,35 @@
  *
  * Based on an algorithm developed by Alan L. Rockwood.
  *
- * Published in 
- * Rockwood, A.L. and Haimi, P.: "Efficent calculation of 
+ * Published in
+ * Rockwood, A.L. and Haimi, P.: "Efficent calculation of
  * Accurate Masses of Isotopic Peaks",
  * Journal of The American Society for Mass Spectrometry
  * JASMS 03-2263, 2006
- 
+
   See that included cpp file
 '''
 #wrapped to by python by Brian H. Clowers
-#ideally we'd like to get a direct numpy interface to the std::vector class but 
+#ideally we'd like to get a direct numpy interface to the std::vector class but
 #I was having a heck of time getting this to work on windows so this will have to suffice for now
+import sys
+if sys.platform == 'win32':
+    print 'win32'
+    import libmercury_win32 as LM
+else:
+    import libmercury as LM
 
-import libmercury as LM
 import numpy as N
+
 
 def mercury(elemComp, charge, pruneLim = 1e-5):
 	'''
-	elemComp is a python list that defines the number of 
+	elemComp is a python list that defines the number of
 	atoms in a given molecule
 	elemComp = [Hydrogens, Carbons, Nitrogens, Oxygens, Sulfurs]
-	
+
 	charge is the number of charges on the ion
-	
+
 	pruneLim is the minimum percentage to be considered in the
 	isotope patter returned
 	'''
@@ -52,7 +58,7 @@ def mercury(elemComp, charge, pruneLim = 1e-5):
 	elemCompCPP = LM.UnsignedIntVector()
 	for elem in elemComp:
 		elemCompCPP.push_back(elem)
-		
+
 	retVal = LM.mercury(mzCPP, abundCPP, elemCompCPP, charge, pruneLim)
 	#if retVal is 0, success, otherwise fail
 	#print 'Start Size ', mzCPP.size(), abundCPP.size()
