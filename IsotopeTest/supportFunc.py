@@ -58,9 +58,10 @@ def interpolate_spectrum_XY(X, Y, length = None): #data array contains two colum
     f=interp1d(x,y)
     #subtract one from the max otherwise some rounding errors can cause the length of the x_new to be 1 too many.
     if length == None:
-        x_new = N.arange(x.min(), x.max(), ((x.max()-x.min())/(2*len(x)-1)))
+        x_new = N.arange(x.min(), x.max(), ((x.max()-x.min())/(2*len(x))))
     else:
-        x_new = N.arange(x.min(), x.max(), ((x.max()-x.min())/(length-1)))
+        x_new = N.arange(x.min(), x.max(), ((x.max()-x.min())/(length)))
+
 #    print "Interp Test"
 #    print len(x_new), len(x), len(y)
 #    print f

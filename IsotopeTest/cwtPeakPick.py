@@ -320,7 +320,7 @@ if __name__ == "__main__":
 
     t1 = time.clock()
     loadA = False
-    normOk = False
+    normOk = True
     #loadA = True
     if loadA:
     #    ms = P.load('N3_Norm.txt')
@@ -335,11 +335,12 @@ if __name__ == "__main__":
         'BSA_XY_Full.csv'
         'J15.csv'
         'Tryptone.csv'
-        ms = P.load('Tryptone.csv', delimiter = ',')
+        ms = P.load('BSA_Sum5.csv', delimiter = ',')
 
         x = ms[:,0]
         ms = ms[:,1]
-#        x, ms = interpolate_spectrum(ms)
+        #x, ms = interpolate_spectrum(ms)
+        x, ms = SF.interpolate_spectrum_XY(x, ms)
         msMax = ms.max()
         print len(ms)
         print "MS Max", msMax
@@ -354,7 +355,7 @@ if __name__ == "__main__":
     print len(ms)
 
     #s = N.arange(2,32,2)#changed to 8 from 32
-    s1 = N.arange(2,64,8)
+    s1 = N.arange(2,50,4)
     s2 = N.arange(32,64,8)
     #Best for BSA High Res TOF
     #s1 = N.arange(2,8,2)
@@ -415,6 +416,7 @@ if __name__ == "__main__":
         mNoise = 3*stdNoise+mNoise
     print "minNoiseEst: ", minNoise
     peakLoc, peakInt, rawPeakInd, cwtPeakLoc, cClass, boolAns = getCWTPeaks(cwt, x, ms, noiseEst, minRow = 1, minClust = 4, minNoiseEst = minNoise, EPS = None, debug = True)
+    print "peaksFound"
     if boolAns:
         ax2.plot(cwtPeakLoc[:,0], cwtPeakLoc[:,1], 'oy', ms = 3, alpha = 0.4)
         if cClass != None:
@@ -425,6 +427,7 @@ if __name__ == "__main__":
                 ax2.plot(temp[:,0],temp[:,1],'-s', alpha = 0.7, ms = 3)
             if len(peakLoc) != 0:
                 ax.vlines(peakLoc, 0, 100, 'r', linestyle = 'dashed', alpha = 0.5)
+
 		for pk in peakLoc:
 			print pk
         #ax.plot(x, cwt[0], 'b', alpha = 0.7)
