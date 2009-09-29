@@ -14,6 +14,7 @@ To Do:
 
 Need to find a way to get the monoisotopic peak when it is no longer the maximum peak in the distribution
 Run more than once and on more than a single charge state
+how to deal with abnormally low resolutions.
 
 '''
 def corrIsoPatt(xArray, yArray, isoMZ, isoAbund, peakLoc, charge, padWindow = 2):
@@ -21,15 +22,20 @@ def corrIsoPatt(xArray, yArray, isoMZ, isoAbund, peakLoc, charge, padWindow = 2)
 	locDiff = isoMZ[0]-peakLoc#get the peaks close
 	isoMZ -=locDiff
 	tempX, tempY = getLocalIsoPattern(xArray, yArray, isoMZ[0], charge, padWindow)
-	P.plot(tempX, tempY, ':k')
+	#P.plot(tempX, tempY, ':k')
 	corr = N.correlate(isoAbund, tempY)
+	corrOrder = corr.argsort()
 	#return the difference between the actual values and the maximum correlation
 	#narrow the value down to even tighter
-	#print "Corr Values: ",len(corr), len(isoMZ), corr.argmax(), len(tempY), tempX[corr.argmax()+1]
+	corrHist = N.histogram(corr, int(len(corr)/10))
+	P.figure()
+	P.hist(corr, int(len(corr)/10))
+
+	print "Corr Values: ",len(corr), len(isoMZ), corr.argmax(), len(tempY), tempX[corrOrder[-1]], tempX[corrOrder[-2]]
 	if (corr.argmax()+1) <= len(corr):
-		fineDiff = isoMZ[0]-tempX[corr.argmax()+1]
+		fineDiff = isoMZ[0]-tempX[corrOrder[-1]]
 	else:
-		fineDiff = isoMZ[0]-tempX[corr.argmax()]
+		fineDiff = isoMZ[0]-tempX[corrOrder[-1]]
 
 	isoMZ -=fineDiff
 	return isoMZ
@@ -163,10 +169,10 @@ def getIsoProfile(xArray, yArray, isoCentroids, isoAmplitudes, mzDiff, mzResGlob
 	#	print val, tempX[i]
 	print "Corr Coef: ", N.corrcoef(tempY, returnY)[0][1]
 	print " "
-	tempY+=3
-	returnY+=2
+	tempY+=4
+	returnY+=3
 	plotIsoProfile(returnX, returnY, color = '-g')
-	plotIsoProfile(tempX, tempY, color = '-m')
+	#plotIsoProfile(tempX, tempY, color = '-m')
 	return mzResCalc
 
 
@@ -263,14 +269,10 @@ if __name__ == "__main__":
 					#tempX, tempY = getLocalIsoPattern(mz, abound, isoCentroid, charge, padWindow)
 
 					isoPeaks[0] = corrIsoPatt(mz, abund, isoPeaks[0], isoPeaks[1], pk, charge)
-					P.vlines(isoPeaks[0], 0, isoPeaks[1], colors[j])
+					#P.vlines(isoPeaks[0], 0, isoPeaks[1], colors[j])
 
-					mzRezCalc = getIsoProfile(mz, abund, isoPeaks[0], isoPeaks[1], mzDiff, mzResGlobal, mzResCalc, charge=1)
+					#mzRezCalc = getIsoProfile(mz, abund, isoPeaks[0], isoPeaks[1], mzDiff, mzResGlobal, mzResCalc, charge=1)
 
-
-					#the following is dependent upon the resolution and we want to
-					#P.vlines(isoPeaks[0]-localDiff+0.25, 0, isoPeaks[1], 'm', linestyle = 'dashed')
-					#P.vlines(isoPeaks[0]-localDiff-0.25, 0, isoPeaks[1], 'm', linestyle = 'dashed')
 
 	print time.clock()-t1
 	P.show()
