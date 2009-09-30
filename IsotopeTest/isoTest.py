@@ -17,19 +17,49 @@ Run more than once and on more than a single charge state
 how to deal with abnormally low resolutions.
 
 '''
+
+def courseShiftIsoPatt(isoPeaks, peakLoc):
+	locDiff = isoPeaks[0]-peakLoc
+	isoPeaks -= locDiff
+	return isoPeaks
+
+def fineShiftIsoPatt(expXArray, expYArray, isoArray, currMonoPeak, charge, debug = False):
+	'''
+	Attempts to shift the pattern to maximally correspond to the theoretical and experimantal data
+	'''
+	corr = N.correlate(expYArray, isoArray, mode = 'same')
+	shift = N.round(corr.argmax()-len(expYArray)/2-1)
+	mzShift = shift*(expXArray[1]-expXArray[0])
+	P.vlines([currMonoPeak+mzShift],0,100,'r', linestyle = 'dashed')
+	#print corr
+	#corrOrder = corr.argsort()
+	print "Fine Corr Shift: ", mzShift, currMonoPeak+mzShift,shift, expXArray[shift], len(expYArray), len(corr)#corrOrder[-1], expXArray[corrOrder[-1]], len(corr), len(expYArray), len(isoArray)
+	if debug:
+		if int(currMonoPeak) == int(1783.10285512):
+			P.figure()
+			P.plot(SF.normalize(corr), 'b', label = '%s %s'%(currMonoPeak, int(len(expYArray/2))/2))
+			P.plot(SF.normalize(expYArray), 'r')
+			#P.plot(SF.normalize(isoArray), 'g')
+			P.legend()
+	#account for small shifts that are not real
+	if N.abs(mzShift)<charge/2:
+		return 0
+	else:
+		return mzShift
+
 def corrIsoPatt(xArray, yArray, isoMZ, isoAbund, peakLoc, charge, padWindow = 2):
 	#Correlate the isotope patterns
 	locDiff = isoMZ[0]-peakLoc#get the peaks close
 	isoMZ -=locDiff
 	tempX, tempY = getLocalIsoPattern(xArray, yArray, isoMZ[0], charge, padWindow)
 	#P.plot(tempX, tempY, ':k')
-	corr = N.correlate(isoAbund, tempY)
+	corr = N.correlate(isoAbund, tempY, mode = 'full')
 	corrOrder = corr.argsort()
 	#return the difference between the actual values and the maximum correlation
 	#narrow the value down to even tighter
-	corrHist = N.histogram(corr, int(len(corr)/10))
-	P.figure()
-	P.hist(corr, int(len(corr)/10))
+	#corrHist = N.histogram(corr, int(len(corr)/10))
+	#P.figure()
+	#P.hist(corr, int(len(corr)/10))
 
 	print "Corr Values: ",len(corr), len(isoMZ), corr.argmax(), len(tempY), tempX[corrOrder[-1]], tempX[corrOrder[-2]]
 	if (corr.argmax()+1) <= len(corr):
@@ -61,10 +91,11 @@ def getLocalIsoPattern(xArray, yArray, isoCentroid, charge, padWindow = 2):
 
 
 def plotIsoProfile(tempX, tempY, color = 'r', alpha = 1.0):
+	#return True
 	P.plot(tempX, tempY, color, alpha = alpha)
 
 
-def getIsoProfile(xArray, yArray, isoCentroids, isoAmplitudes, mzDiff, mzResGlobal, mzResCalc, charge=1):
+def getIsoProfile(xArray, yArray, isoCentroids, isoAmplitudes, mzDiff, mzResGlobal, mzResCalc, charge=1, padWindow=1):
 	'''
 	returns Gaussian profile of the isotope pattern that was provided as a series of centroids
 	mzDiff -- the difference between each mz value in the x dimension
@@ -86,7 +117,7 @@ def getIsoProfile(xArray, yArray, isoCentroids, isoAmplitudes, mzDiff, mzResGlob
 			'''
 			print "MonoIso: ", iso
 			pkWidth = iso/mzResCalc#FWHM = 2.35*sigma
-			criterion = (xArray <= iso+(pkWidth*4)) & (xArray >= iso-(pkWidth*4))
+			criterion = (xArray >= iso-(pkWidth*4)-padWindow/charge) & (xArray <= iso+(pkWidth*4))
 			xInd = N.where(criterion)[0]
 			startInd = xInd[0]#used at the end to extract total original data "matching" the isotope pattern
 			tempXProfile = xArray[xInd]#N.arange(iso-(pkWidth*3), iso+(pkWidth*3), mzDiff)
@@ -139,12 +170,12 @@ def getIsoProfile(xArray, yArray, isoCentroids, isoAmplitudes, mzDiff, mzResGlob
 			returnX.append(tempXProfile)
 			returnY.append(tempYProfile)
 			#plotIsoProfile(tempXProfile, tempYProfile, color = '-y')
-	returnX = N.array(SF.flattenX(returnX))
-	returnY = N.array(SF.flattenX(returnY))
+	returnX = N.array(SF.flattenX(returnX))#theoretical profile X
+	returnY = N.array(SF.flattenX(returnY))#theoretical profile Y
 	indSort = returnX.argsort()
 	returnX = returnX[indSort]
 	returnY = returnY[indSort]
-	#returnX, returnY = SF.interpolate_spectrum_XY(returnX, returnY)
+	returnX, returnY = SF.interpolate_spectrum_XY(returnX, returnY)
 
 	endMZ = returnX.max()
 	endInd = N.where(xArray<=endMZ)[0][-1]
@@ -155,7 +186,7 @@ def getIsoProfile(xArray, yArray, isoCentroids, isoAmplitudes, mzDiff, mzResGlob
 
 	#tempX, tempY = SF.interpolate_spectrum_XY(X, Y, len()
 	#print "Vector Lengths: ", len(returnX), len(tempY)
-	#print "Vector X Diffs: ", returnX[1]-returnX[0], tempX[1]-tempX[0]
+	print "Vector X Diffs: ", returnX[1]-returnX[0], tempX[1]-tempX[0]
 	tempZeros = N.zeros(N.abs(len(returnX)-len(tempX)))
 	if len(returnX)>len(tempX):
 		tempX = N.append(tempX, tempZeros+tempX.max())
@@ -164,14 +195,22 @@ def getIsoProfile(xArray, yArray, isoCentroids, isoAmplitudes, mzDiff, mzResGlob
 		returnX = N.append(returnX, tempZeros+returnX.max())
 		returnY = N.append(returnY, tempZeros)
 
-
+	fineMZShift = fineShiftIsoPatt(tempX, tempY, returnY, isoCentroids[0], charge)
+	returnX+=fineMZShift
+	isoCentroids+=fineMZShift
 	#for i, val in enumerate(returnX):
 	#	print val, tempX[i]
 	print "Corr Coef: ", N.corrcoef(tempY, returnY)[0][1]
 	print " "
 	tempY+=4
-	returnY+=3
-	plotIsoProfile(returnX, returnY, color = '-g')
+	returnY+=4
+
+
+	#isoCentroids = corrIsoPatt(tempX, tempY, isoCentroids, isoAmplitudes, isoCentroids[0], charge)
+
+	P.vlines(isoCentroids, 0, isoAmplitudes, 'k')
+
+	#plotIsoProfile(returnX, returnY, color = '-g')
 	#plotIsoProfile(tempX, tempY, color = '-m')
 	return mzResCalc
 
@@ -186,14 +225,15 @@ def normalize(npArray):
 
 if __name__ == "__main__":
 
-	#"BSA_Sum5.csv"
-	data = P.load('Tryptone.csv', delimiter = ',')
+	#data = P.load('Tryptone.csv', delimiter = ',')
+	#data = P.load('BSA_Sum5.csv', delimiter = ',')
+	data = P.load('I5.csv', delimiter = ',')
 
 	mz = data[:,0]
 	mzDiff = mz[1]-mz[0]
 	print "m/z Diff: ", mzDiff
 	abund = data[:,1]
-	P.plot(mz, SF.normalize(abund), 'g', alpha = 0.5)
+
 	mz, abund = SF.interpolate_spectrum_XY(mz, abund)
 	abund = SF.normalize(abund)
 
@@ -208,7 +248,7 @@ if __name__ == "__main__":
 	mNoise = 3*stdNoise+mNoise
 
 	peakLoc, peakInt, rawPeakInd, cwtPeakLoc, cClass, boolAns = CWT.getCWTPeaks(cwt, mz, abund, noiseEst, minRow = 1, minClust = 4, minNoiseEst = minNoise, EPS = None, debug = True)
-	if boolAns:
+	#if boolAns:
 #        ax2.plot(cwtPeakLoc[:,0], cwtPeakLoc[:,1], 'oy', ms = 3, alpha = 0.4)
 #        if cClass != None:
 #            i = cClass.max()
@@ -218,18 +258,31 @@ if __name__ == "__main__":
 #                ax2.plot(temp[:,0],temp[:,1],'-s', alpha = 0.7, ms = 3)
 #            if len(peakLoc) != 0:
 #                ax.vlines(peakLoc, 0, 100, 'r', linestyle = 'dashed', alpha = 0.5)
+#
+#		for pk in peakLoc:
+#			print pk
 
-		for pk in peakLoc:
-			print pk
-	P.vlines(peakLoc, 0, N.array(peakInt)*1.5, 'r', linestyle = 'dashed', alpha = 0.5)
+
 	mzPks = N.array(peakLoc)
 	abundPks = N.array(peakInt)
 	peakOrder = mzPks.argsort()
 	mzPks = mzPks[peakOrder]
 	abundPks = abundPks[peakOrder]
+
+#	mzPks = N.array([  686.40688458,   756.36696924,   784.36302718,   788.45121317,  1052.64021234,
+#					 1377.79127898,  1488.87370501,  1556.84981706,  1668.97432972,  1690.9182692,
+#					 1783.10285512,  2037.09142945,  2069.09551287,  2169.17590897,  2185.24809113])
+#	abundPks = N.array([   1.28591711,    1.26585702,    1.43095886,    1.19203978,   12.62451346,
+#					    7.30007314,   85.8765913,     2.15042644,  100.,            1.01928368,
+#					    24.51163459,    1.38676941,    1.05888408,    4.68080701,    1.37690154])
+
+	P.plot(mz, abund, 'g', alpha = 0.5)
+	#P.vlines(mzPks, 0, abundPks*1.5, 'r', linestyle = 'dashed', alpha = 0.5)
+
 #	print type(mzPks)
 #	print mzPks.shape
 	print mzPks
+	print abundPks
 
 #	#print len(mz)
 #
@@ -268,10 +321,11 @@ if __name__ == "__main__":
 					tempY = []
 					#tempX, tempY = getLocalIsoPattern(mz, abound, isoCentroid, charge, padWindow)
 
-					isoPeaks[0] = corrIsoPatt(mz, abund, isoPeaks[0], isoPeaks[1], pk, charge)
+					#isoPeaks[0] = corrIsoPatt(mz, abund, isoPeaks[0], isoPeaks[1], pk, charge)
+					isoPeaks[0] = courseShiftIsoPatt(isoPeaks[0], pk)
 					#P.vlines(isoPeaks[0], 0, isoPeaks[1], colors[j])
 
-					#mzRezCalc = getIsoProfile(mz, abund, isoPeaks[0], isoPeaks[1], mzDiff, mzResGlobal, mzResCalc, charge=1)
+					mzRezCalc = getIsoProfile(mz, abund, isoPeaks[0], isoPeaks[1], mzDiff, mzResGlobal, mzResCalc, charge=1)
 
 
 	print time.clock()-t1
