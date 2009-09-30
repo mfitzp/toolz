@@ -335,7 +335,7 @@ if __name__ == "__main__":
         'BSA_XY_Full.csv'
         'J15.csv'
         'Tryptone.csv'
-        ms = P.load('BSA_Sum5.csv', delimiter = ',')
+        ms = P.load('J5.csv', delimiter = ',')
 
         x = ms[:,0]
         ms = ms[:,1]
@@ -346,8 +346,8 @@ if __name__ == "__main__":
         print "MS Max", msMax
         ms = SF.normalize(SF.topHat(ms, 0.01))
         ms = SF.roundLen(ms)
-        start = 0#63000
-        stop = int(len(ms)*1)##79000#len(ms)*.75
+        start = 100000#0
+        stop = 250000#int(len(ms)*1)##79000#len(ms)*.75
         ms = ms[start:stop]
         x = x[start:stop]
         x = N.arange(len(x))
@@ -355,7 +355,7 @@ if __name__ == "__main__":
     print len(ms)
 
     #s = N.arange(2,32,2)#changed to 8 from 32
-    s1 = N.arange(2,50,4)
+    s1 = N.arange(2,64,8)
     s2 = N.arange(32,64,8)
     #Best for BSA High Res TOF
     #s1 = N.arange(2,8,2)

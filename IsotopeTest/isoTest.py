@@ -228,6 +228,8 @@ if __name__ == "__main__":
 	#data = P.load('Tryptone.csv', delimiter = ',')
 	#data = P.load('BSA_Sum5.csv', delimiter = ',')
 	data = P.load('I5.csv', delimiter = ',')
+	#data = P.load('J1_LIFT.csv', delimiter = ',')
+	#data = P.load('J5.csv', delimiter = ',')
 
 	mz = data[:,0]
 	mzDiff = mz[1]-mz[0]
@@ -247,8 +249,13 @@ if __name__ == "__main__":
 	stdNoise = SF.normalize(cwt[0]).std()
 	mNoise = 3*stdNoise+mNoise
 
+
+
 	peakLoc, peakInt, rawPeakInd, cwtPeakLoc, cClass, boolAns = CWT.getCWTPeaks(cwt, mz, abund, noiseEst, minRow = 1, minClust = 4, minNoiseEst = minNoise, EPS = None, debug = True)
-	#if boolAns:
+#	if boolAns:
+#		fig1 = P.figure()
+#		ax = fig1.add_subplot(211)
+#		ax2 = fig1.add_subplot(212,sharex=ax)
 #        ax2.plot(cwtPeakLoc[:,0], cwtPeakLoc[:,1], 'oy', ms = 3, alpha = 0.4)
 #        if cClass != None:
 #            i = cClass.max()
@@ -276,7 +283,7 @@ if __name__ == "__main__":
 #					    7.30007314,   85.8765913,     2.15042644,  100.,            1.01928368,
 #					    24.51163459,    1.38676941,    1.05888408,    4.68080701,    1.37690154])
 
-	P.plot(mz, abund, 'g', alpha = 0.5)
+#	P.plot(mz, abund, 'g', alpha = 0.5)
 	#P.vlines(mzPks, 0, abundPks*1.5, 'r', linestyle = 'dashed', alpha = 0.5)
 
 #	print type(mzPks)
@@ -285,7 +292,7 @@ if __name__ == "__main__":
 	print abundPks
 
 #	#print len(mz)
-#
+#	#Peaks for Tryptone
 #	pks = N.array([32125,
 #	40883,
 #	44041,
@@ -298,34 +305,36 @@ if __name__ == "__main__":
 #	pks.sort()
 #	pks-=10
 #	mzPks = mz[pks]
-
+	P.figure()
 	P.plot(mz, abund, alpha = 0.5)
-	P.vlines(mzPks, 0, 100, 'g', linestyle = 'dashed')
-
 	t1 = time.clock()
-	mzResGlobal = 6000#need to add a function to fit this
-	mzResCalc = 6000#need to add a function to fit this
-	for i, pk in enumerate(mzPks):
-		chargeStates = [1]#[1,2]
-		colors = ['r','m']
-		for j,charge in enumerate(chargeStates):
-			isoAns = A.averagineCalc(pk, charge = charge)
-			if isoAns != None:
-				if isoAns[0] == 0:#successful isotope pattern exit code
-					isoPeaks = isoAns[1]
-					#scaleVal = abund[pks[i]]
-					scaleVal = abundPks[i]
-					normalize(isoPeaks[1])
-					isoPeaks[1]*=scaleVal
-					tempX = []
-					tempY = []
-					#tempX, tempY = getLocalIsoPattern(mz, abound, isoCentroid, charge, padWindow)
+	if len(mzPks)>0:
+		P.vlines(mzPks, 0, 100, 'g', linestyle = 'dashed')
 
-					#isoPeaks[0] = corrIsoPatt(mz, abund, isoPeaks[0], isoPeaks[1], pk, charge)
-					isoPeaks[0] = courseShiftIsoPatt(isoPeaks[0], pk)
-					#P.vlines(isoPeaks[0], 0, isoPeaks[1], colors[j])
 
-					mzRezCalc = getIsoProfile(mz, abund, isoPeaks[0], isoPeaks[1], mzDiff, mzResGlobal, mzResCalc, charge=1)
+		mzResGlobal = 6000#need to add a function to fit this
+		mzResCalc = 6000#need to add a function to fit this
+		for i, pk in enumerate(mzPks):
+			chargeStates = [1]#[1,2]
+			colors = ['r','m']
+			for j,charge in enumerate(chargeStates):
+				isoAns = A.averagineCalc(pk, charge = charge)
+				if isoAns != None:
+					if isoAns[0] == 0:#successful isotope pattern exit code
+						isoPeaks = isoAns[1]
+						#scaleVal = abund[pks[i]]
+						scaleVal = abundPks[i]
+						normalize(isoPeaks[1])
+						isoPeaks[1]*=scaleVal
+						tempX = []
+						tempY = []
+						#tempX, tempY = getLocalIsoPattern(mz, abound, isoCentroid, charge, padWindow)
+
+						#isoPeaks[0] = corrIsoPatt(mz, abund, isoPeaks[0], isoPeaks[1], pk, charge)
+						isoPeaks[0] = courseShiftIsoPatt(isoPeaks[0], pk)
+						#P.vlines(isoPeaks[0], 0, isoPeaks[1], colors[j])
+
+						mzRezCalc = getIsoProfile(mz, abund, isoPeaks[0], isoPeaks[1], mzDiff, mzResGlobal, mzResCalc, charge=1)
 
 
 	print time.clock()-t1
