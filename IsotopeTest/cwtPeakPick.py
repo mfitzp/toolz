@@ -248,7 +248,7 @@ def getCWTPeaks(scaledCWT, X, Y, noiseEst, minSNR = 3,\
     return peakLoc, peakInt, rawPeakInd, cwtPeakLoc, cClass, True
 
 
-def consolidatePeaks(peakLoc, peakInt, rawPeakInd, diffCutoff = 2.50):
+def consolidatePeaks(peakLoc, peakInt, rawPeakInd, diffCutoff = 1.25):
     '''
     Designed to find the monoisotopic peak
     This is a hack, not a good solution but it works for now

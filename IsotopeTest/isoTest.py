@@ -42,33 +42,35 @@ def fineShiftIsoPatt(expXArray, expYArray, isoArray, currMonoPeak, charge, debug
 			#P.plot(SF.normalize(isoArray), 'g')
 			P.legend()
 	#account for small shifts that are not real
-	if N.abs(mzShift)<charge/2:
+	#divide by 2 so you don't confuse different charge states
+	#multiply by 1.5 to try and catch 1Da mis-haps common with THRASHing
+	if N.abs(mzShift)<charge/2 or N.abs(mzShift)<charge*1.25:
 		return 0
 	else:
 		return mzShift
 
-def corrIsoPatt(xArray, yArray, isoMZ, isoAbund, peakLoc, charge, padWindow = 2):
-	#Correlate the isotope patterns
-	locDiff = isoMZ[0]-peakLoc#get the peaks close
-	isoMZ -=locDiff
-	tempX, tempY = getLocalIsoPattern(xArray, yArray, isoMZ[0], charge, padWindow)
-	#P.plot(tempX, tempY, ':k')
-	corr = N.correlate(isoAbund, tempY, mode = 'full')
-	corrOrder = corr.argsort()
-	#return the difference between the actual values and the maximum correlation
-	#narrow the value down to even tighter
-	#corrHist = N.histogram(corr, int(len(corr)/10))
-	#P.figure()
-	#P.hist(corr, int(len(corr)/10))
-
-	print "Corr Values: ",len(corr), len(isoMZ), corr.argmax(), len(tempY), tempX[corrOrder[-1]], tempX[corrOrder[-2]]
-	if (corr.argmax()+1) <= len(corr):
-		fineDiff = isoMZ[0]-tempX[corrOrder[-1]]
-	else:
-		fineDiff = isoMZ[0]-tempX[corrOrder[-1]]
-
-	isoMZ -=fineDiff
-	return isoMZ
+#def corrIsoPatt(xArray, yArray, isoMZ, isoAbund, peakLoc, charge, padWindow = 2):
+#	#Correlate the isotope patterns
+#	locDiff = isoMZ[0]-peakLoc#get the peaks close
+#	isoMZ -=locDiff
+#	tempX, tempY = getLocalIsoPattern(xArray, yArray, isoMZ[0], charge, padWindow)
+#	#P.plot(tempX, tempY, ':k')
+#	corr = N.correlate(isoAbund, tempY, mode = 'full')
+#	corrOrder = corr.argsort()
+#	#return the difference between the actual values and the maximum correlation
+#	#narrow the value down to even tighter
+#	#corrHist = N.histogram(corr, int(len(corr)/10))
+#	#P.figure()
+#	#P.hist(corr, int(len(corr)/10))
+#
+#	print "Corr Values: ",len(corr), len(isoMZ), corr.argmax(), len(tempY), tempX[corrOrder[-1]], tempX[corrOrder[-2]]
+#	if (corr.argmax()+1) <= len(corr):
+#		fineDiff = isoMZ[0]-tempX[corrOrder[-1]]
+#	else:
+#		fineDiff = isoMZ[0]-tempX[corrOrder[-1]]
+#
+#	isoMZ -=fineDiff
+#	return isoMZ
 
 def getLocalIsoPattern(xArray, yArray, isoCentroid, charge, padWindow = 2):
 	'''
@@ -88,17 +90,11 @@ def getLocalIsoPattern(xArray, yArray, isoCentroid, charge, padWindow = 2):
 	tempY = yArray[xInd]
 	return tempX, tempY
 
+
+
 def plotIsoProfile(tempX, tempY, color = 'r', alpha = 1.0):
 	#return True
 	P.plot(tempX, tempY, color, alpha = alpha)
-
-def truncateIsoProfile(isoX, isoY, cutOff = 0.25):
-	'''
-	this function truncates the isotopic profile so that it may be subtracted from the
-	major spectrum prior to a subsequent round of peak picking after the isotopic ranges have been subtracted
-	'''
-	validInd = N.where((100*isoY/isoY.max())>cutOff)[0]
-	return isoX[validInd[0]:validInd[-1]], isoY[validInd[0]:validInd[-1]]
 
 def concatenateIsos(isoListX, isoListY):
 	'''
@@ -119,14 +115,7 @@ def concatenateIsos(isoListX, isoListY):
 			isoListY[i+1]=N.delete(nextIsoY, delInd)
 		returnX = N.array(SF.flattenX(isoListX))#theoretical profile X
 		returnY = N.array(SF.flattenX(isoListY))#theoretical profile Y
-		#we need to sort the theoretical profiles so that a correlation coef can be obtained
-		indSort = returnX.argsort()
-		returnX = returnX[indSort]
-		returnY = returnY[indSort]
-		#get points above 0.5 so the array is not too long to the right or left of isotope pattern
-
 		return returnX, returnY
-
 	else:
 		print "Concatenate Isos Failed"
 		returnX = N.array(SF.flattenX(isoListX))#theoretical profile X
@@ -204,20 +193,29 @@ def getIsoProfile(xArray, yArray, isoCentroids, isoAmplitudes, mzDiff, mzResGlob
 		else:
 			pkWidth = iso/mzResCalc#FWHM = 2.35*sigma
 			#fullWidth = (pkWidth/2.35)*4
-			tempXProfile = N.arange(iso-(pkWidth*3), iso+(pkWidth*3), mzDiff)#N.arange(start, stop, step)
+			tempXProfile = N.arange(iso-(pkWidth*4), iso+(pkWidth*4), mzDiff)#N.arange(start, stop, step)
 			tempYProfile = GF.getGauss(tempXProfile, iso, pkWidth, amp = isoAmplitudes[i])
 			#tempXProfile, tempYProfile = concatenateIsos(returnX[-1], tempXProfile, tempYProfile)
 			returnX.append(tempXProfile)
 			returnY.append(tempYProfile)
 			#plotIsoProfile(tempXProfile, tempYProfile, color = '-y')
 	returnX, returnY = concatenateIsos(returnX, returnY)
-
-
+	#returnX = N.array(SF.flattenX(returnX))#theoretical profile X
+	#returnY = N.array(SF.flattenX(returnY))#theoretical profile Y
+	#returnDiff = N.diff(returnY)
+	#diffInd = N.where(N.abs(returnDiff)>0.1)[0]
+	#print returnDiff
+	#zeroInd = N.where(returnY <1e-5)[0]
+	#print returnY
+	#returnX = N.delete(returnX, diffInd)
+	#returnY = N.delete(returnY, diffInd)
+	#we need to sort the theoretical profiles so that a correlation coef can be obtained
+	indSort = returnX.argsort()
+	returnX = returnX[indSort]
+	returnY = returnY[indSort]
 	#returnX, returnY = SF.interpolate_spectrum_XY(returnX, returnY)
 
-	startMZ = returnX.min()
 	endMZ = returnX.max()
-	startInd = N.where(xArray>=startMZ)[0][0]
 	endInd = N.where(xArray<=endMZ)[0][-1]
 	tempX = xArray[startInd:endInd]
 	tempY = yArray[startInd:endInd]
@@ -275,11 +273,12 @@ def normalize(npArray):
 
 if __name__ == "__main__":
 
-	data = P.load('Tryptone.csv', delimiter = ',')
+	#data = P.load('Tryptone.csv', delimiter = ',')
 	#data = P.load('BSA_Sum5.csv', delimiter = ',')
 	#data = P.load('I5.csv', delimiter = ',')
 	#data = P.load('J1_LIFT.csv', delimiter = ',')
 	#data = P.load('J5.csv', delimiter = ',')
+	data = P.load('H4.csv', delimiter = ',')
 
 	mz = data[:,0]
 	mzDiff = mz[1]-mz[0]
@@ -290,49 +289,49 @@ if __name__ == "__main__":
 	abund = SF.normalize(abund)
 
 	#scales = N.arange(2,32,4)
-#	scales = N.array([2,8,12,16,20,24,32])#,4)
-#	cwt = CWT.cwtMS(abund, scales, staticThresh = (2/abund.max())*100)
-#	minSNR = 2
-#	numSegs = len(abund)/10
-#
-#	noiseEst, minNoise = GB.SplitNSmooth(abund,numSegs, minSNR)
-#	mNoise = SF.normalize(cwt[0]).mean()
-#	stdNoise = SF.normalize(cwt[0]).std()
-#	mNoise = 3*stdNoise+mNoise
-#
-#
-#
-#	peakLoc, peakInt, rawPeakInd, cwtPeakLoc, cClass, boolAns = CWT.getCWTPeaks(cwt, mz, abund, noiseEst, minRow = 1, minClust = 3, minNoiseEst = minNoise, EPS = None, debug = True)
-##	if boolAns:
-##		fig1 = P.figure()
-##		ax = fig1.add_subplot(211)
-##		ax2 = fig1.add_subplot(212,sharex=ax)
-##        ax2.plot(cwtPeakLoc[:,0], cwtPeakLoc[:,1], 'oy', ms = 3, alpha = 0.4)
-##        if cClass != None:
-##            i = cClass.max()
-##            for m in xrange(int(i)+1):
-##                ind = N.where(m == cClass)
-##                temp = cwtPeakLoc[ind]
-##                ax2.plot(temp[:,0],temp[:,1],'-s', alpha = 0.7, ms = 3)
-##            if len(peakLoc) != 0:
-##                ax.vlines(peakLoc, 0, 100, 'r', linestyle = 'dashed', alpha = 0.5)
-##
-##		for pk in peakLoc:
-##			print pk
-#
-#
-#	mzPks = N.array(peakLoc)
-#	abundPks = N.array(peakInt)
-#	peakOrder = mzPks.argsort()
-#	mzPks = mzPks[peakOrder]
-#	abundPks = abundPks[peakOrder]
+	scales = N.array([2,10,18,26,34,42,50,58])#,4)
+	cwt = CWT.cwtMS(abund, scales, staticThresh = (2/abund.max())*100)
+	minSNR = 2
+	numSegs = len(abund)/10
 
-	mzPks = N.array([  686.40688458,   756.36696924,   784.36302718,   788.45121317,  1052.64021234,
-					 1377.79127898,  1488.87370501,  1556.84981706,  1668.97432972,  1690.9182692,
-					 1783.10285512,  2037.09142945,  2069.09551287,  2169.17590897,  2185.24809113])
-	abundPks = N.array([   1.28591711,    1.26585702,    1.43095886,    1.19203978,   12.62451346,
-					    7.30007314,   85.8765913,     2.15042644,  100.,            1.01928368,
-					    24.51163459,    1.38676941,    1.05888408,    4.68080701,    1.37690154])
+	noiseEst, minNoise = GB.SplitNSmooth(abund,numSegs, minSNR)
+	mNoise = SF.normalize(cwt[0]).mean()
+	stdNoise = SF.normalize(cwt[0]).std()
+	mNoise = 3*stdNoise+mNoise
+
+
+
+	peakLoc, peakInt, rawPeakInd, cwtPeakLoc, cClass, boolAns = CWT.getCWTPeaks(cwt, mz, abund, noiseEst, minRow = 1, minClust = 3, minNoiseEst = minNoise, EPS = None, debug = True)
+#	if boolAns:
+#		fig1 = P.figure()
+#		ax = fig1.add_subplot(211)
+#		ax2 = fig1.add_subplot(212,sharex=ax)
+#        ax2.plot(cwtPeakLoc[:,0], cwtPeakLoc[:,1], 'oy', ms = 3, alpha = 0.4)
+#        if cClass != None:
+#            i = cClass.max()
+#            for m in xrange(int(i)+1):
+#                ind = N.where(m == cClass)
+#                temp = cwtPeakLoc[ind]
+#                ax2.plot(temp[:,0],temp[:,1],'-s', alpha = 0.7, ms = 3)
+#            if len(peakLoc) != 0:
+#                ax.vlines(peakLoc, 0, 100, 'r', linestyle = 'dashed', alpha = 0.5)
+#
+#		for pk in peakLoc:
+#			print pk
+
+
+	mzPks = N.array(peakLoc)
+	abundPks = N.array(peakInt)
+	peakOrder = mzPks.argsort()
+	mzPks = mzPks[peakOrder]
+	abundPks = abundPks[peakOrder]
+
+#	mzPks = N.array([  686.40688458,   756.36696924,   784.36302718,   788.45121317,  1052.64021234,
+#					 1377.79127898,  1488.87370501,  1556.84981706,  1668.97432972,  1690.9182692,
+#					 1783.10285512,  2037.09142945,  2069.09551287,  2169.17590897,  2185.24809113])
+#	abundPks = N.array([   1.28591711,    1.26585702,    1.43095886,    1.19203978,   12.62451346,
+#					    7.30007314,   85.8765913,     2.15042644,  100.,            1.01928368,
+#					    24.51163459,    1.38676941,    1.05888408,    4.68080701,    1.37690154])
 
 #	P.plot(mz, abund, 'g', alpha = 0.5)
 	#P.vlines(mzPks, 0, abundPks*1.5, 'r', linestyle = 'dashed', alpha = 0.5)
@@ -389,11 +388,10 @@ if __name__ == "__main__":
 						#P.vlines(isoPeaks[0], 0, isoPeaks[1], colors[j])
 
 						mzRezCalc, tempIsoX, tempIsoY, startInd = getIsoProfile(mz, abund, isoPeaks[0], isoPeaks[1], mzDiff, mzResGlobal, mzResCalc, charge=1)
-						tempIsoX, tempIsoY = truncateIsoProfile(tempIsoX, tempIsoY)
+
 						isoX.append(tempIsoX)
 						isoY.append(tempIsoY)
 						startPnts.append(startInd)
-
 
 	newYArray = abund.copy()
 	print len(isoX)
