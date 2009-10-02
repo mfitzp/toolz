@@ -88,11 +88,17 @@ def getLocalIsoPattern(xArray, yArray, isoCentroid, charge, padWindow = 2):
 	tempY = yArray[xInd]
 	return tempX, tempY
 
-
-
 def plotIsoProfile(tempX, tempY, color = 'r', alpha = 1.0):
 	#return True
 	P.plot(tempX, tempY, color, alpha = alpha)
+
+def truncateIsoProfile(isoX, isoY, cutOff = 0.25):
+	'''
+	this function truncates the isotopic profile so that it may be subtracted from the
+	major spectrum prior to a subsequent round of peak picking after the isotopic ranges have been subtracted
+	'''
+	validInd = N.where((100*isoY/isoY.max())>cutOff)[0]
+	return isoX[validInd[0]:validInd[-1]], isoY[validInd[0]:validInd[-1]]
 
 def concatenateIsos(isoListX, isoListY):
 	'''
@@ -113,7 +119,14 @@ def concatenateIsos(isoListX, isoListY):
 			isoListY[i+1]=N.delete(nextIsoY, delInd)
 		returnX = N.array(SF.flattenX(isoListX))#theoretical profile X
 		returnY = N.array(SF.flattenX(isoListY))#theoretical profile Y
+		#we need to sort the theoretical profiles so that a correlation coef can be obtained
+		indSort = returnX.argsort()
+		returnX = returnX[indSort]
+		returnY = returnY[indSort]
+		#get points above 0.5 so the array is not too long to the right or left of isotope pattern
+
 		return returnX, returnY
+
 	else:
 		print "Concatenate Isos Failed"
 		returnX = N.array(SF.flattenX(isoListX))#theoretical profile X
@@ -198,22 +211,13 @@ def getIsoProfile(xArray, yArray, isoCentroids, isoAmplitudes, mzDiff, mzResGlob
 			returnY.append(tempYProfile)
 			#plotIsoProfile(tempXProfile, tempYProfile, color = '-y')
 	returnX, returnY = concatenateIsos(returnX, returnY)
-	#returnX = N.array(SF.flattenX(returnX))#theoretical profile X
-	#returnY = N.array(SF.flattenX(returnY))#theoretical profile Y
-	#returnDiff = N.diff(returnY)
-	#diffInd = N.where(N.abs(returnDiff)>0.1)[0]
-	#print returnDiff
-	#zeroInd = N.where(returnY <1e-5)[0]
-	#print returnY
-	#returnX = N.delete(returnX, diffInd)
-	#returnY = N.delete(returnY, diffInd)
-	#we need to sort the theoretical profiles so that a correlation coef can be obtained
-	indSort = returnX.argsort()
-	returnX = returnX[indSort]
-	returnY = returnY[indSort]
+
+
 	#returnX, returnY = SF.interpolate_spectrum_XY(returnX, returnY)
 
+	startMZ = returnX.min()
 	endMZ = returnX.max()
+	startInd = N.where(xArray>=startMZ)[0][0]
 	endInd = N.where(xArray<=endMZ)[0][-1]
 	tempX = xArray[startInd:endInd]
 	tempY = yArray[startInd:endInd]
@@ -385,7 +389,7 @@ if __name__ == "__main__":
 						#P.vlines(isoPeaks[0], 0, isoPeaks[1], colors[j])
 
 						mzRezCalc, tempIsoX, tempIsoY, startInd = getIsoProfile(mz, abund, isoPeaks[0], isoPeaks[1], mzDiff, mzResGlobal, mzResCalc, charge=1)
-
+						tempIsoX, tempIsoY = truncateIsoProfile(tempIsoX, tempIsoY)
 						isoX.append(tempIsoX)
 						isoY.append(tempIsoY)
 						startPnts.append(startInd)
