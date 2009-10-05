@@ -87,13 +87,16 @@ def SplitNSmooth(spec, numSegs, sigThresh = 5):
 
 
 if __name__ == '__main__':
-
+    import pylab as P
 #    ms = P.load('J15.csv', delimiter = ',')
 #    x, ms = interpolate_spectrum(ms)
 #    ms = SF.normalize(SF.topHat(ms, 0.01))
 #    ms = SF.roundLen(ms)
 #    ms = P.load('N3_Norm.txt')
-    ms = P.load('exampleMS.txt')
+    dat = P.load('J5.csv', delimiter = ',')
+    x = dat[:,0]
+    ms = dat[:,1]
+    x, mz = SF.interpolate_spectrum_XY(x, ms)
     print ms.max(), len(ms)
 #    x = N.arange(len(ms))
 #    print ms.shape, x.shape
@@ -106,10 +109,12 @@ if __name__ == '__main__':
 #    cj = cspline1d(y)
 #    newy = cspline1d_eval(cj, newx, dx=dx,x0=x[0])
 #    print x.shape, newx.shape, cj.shape
-    numSegs = int(len(ms)*0.0015)
+    print x[-2]-x[-1], x[1]-x[0]
+    numSegs = int(len(ms)*(x[1]-x[0]))
     print "Numsegs: ", numSegs
 #    x, msSm = SplitNSmooth(ms, numSegs, 5)
-    noise,minNoise = SplitNSmooth(ms, 500, 5)
+    noise,minNoise = SplitNSmooth(ms, numSegs, 1.5)
+
     print minNoise
 
 #    noise = N.zeros_like(ms)
@@ -119,7 +124,7 @@ if __name__ == '__main__':
 
 #    print len(ms), numSegs
 
-    P.plot(ms, 'r:')
+    P.plot(ms, 'r', alpha = 0.5)
 #    P.plot(x, msSm, 'ob', alpha = 0.5)
     P.plot(noise, '-b', alpha = 0.5)
 
