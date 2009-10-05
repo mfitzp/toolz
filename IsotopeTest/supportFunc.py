@@ -24,7 +24,12 @@ def derivative(y_data):
     return N.append(dy,dy.mean())
 
 def normalize(data):
-    data/=data.max()
+    dMax = data.max()
+    dMin = data.min()
+    if N.abs(dMin)>dMax:
+        data/=N.abs(dMin)
+    else:
+        data/=dMax
     data*=100
     return data
 

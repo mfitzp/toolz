@@ -8,7 +8,7 @@ import sys,traceback
 import pylab as P
 import numpy as N
 
-from iwavelets import pycwt as W
+import pycwt as W
 
 from interpolate import interpolate_spectrum
 
@@ -27,7 +27,7 @@ from mpl_image_widget import MPL_Widget as MPL_CWT
 #except:
 #    print "Pysco not installed, try easy_install psyco at your command prompt"
 
-def cwtMS(Y, scales, sampleScale = 1.0, wlet = 'Mexican Hat', maxClip = 1000., staticThresh = None):
+def cwtMS(Y, scales, sampleScale = 1.0, wlet = 'MexHat', maxClip = 1000., staticThresh = None):
     '''
     Y is the INTERPOLATED intensity array from a mass spectrum.
     interpolation IS necessary especially for TOF data as the m/z domain is non-linear.
@@ -55,8 +55,9 @@ def cwtMS(Y, scales, sampleScale = 1.0, wlet = 'Mexican Hat', maxClip = 1000., s
 #            print "Clipped", len(yTemp)
 
 
-        scaledCWT=N.clip(N.fabs(ans.real), 0., maxClip)#N.fabs get the element-wise absolute values
-        return scaledCWT
+#        scaledCWT=N.clip(N.fabs(ans.real), 0., maxClip)#N.fabs get the element-wise absolute values
+#        return scaledCWT
+        return ans.real
     except:
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
         traceback.print_exception(exceptionType, exceptionValue, exceptionTraceback, file=sys.stdout)
@@ -115,34 +116,38 @@ def getCWTPeaks(scaledCWT, X, Y, noiseEst, minSNR = 3,\
         print "minNoiseEst", minNoiseEst
         print "EPS: ", EPS
     cwtPeakLoc = []
+    peakLoc = []
+    peakInt = []
+    rawPeakInd = []
     print "Shape: ",scaledCWT.shape
 
     revRowArray = N.arange((scaledCWT.shape[0]-1),1,-1)#steps backwards
     for i in revRowArray:
         row = scaledCWT[i]
+
         if i> minRow:
             normRow = SF.normalize(row)
-            rowDeriv = SF.derivative(normRow)
+            #rowDeriv = SF.derivative(normRow)
+            rowDeriv = normRow
+            #P.plot(rowDeriv, '-', alpha = 0.5)
             t3 = time.clock()
             'criterion 1 -- above the threshold and a zero crossing in the derivative'
-            criterion = (rowDeriv < 0.5) & (rowDeriv > -0.5) & (normRow >= minNoiseEst)
-            tempLocEst = N.where(criterion)[0]
+            criterion = (rowDeriv < 0.5) & (rowDeriv > -0.5)# & (normRow >= minNoiseEst)
+            tempLocEst = N.where(N.round(rowDeriv) == 0.0)[0]
+            print tempLocEst, len(tempLocEst), len(rowDeriv)
 
             for m in tempLocEst[:-1]:#need to exclude last element so we don't get an IndexError for the rowDeriv array
                 if N.sign(rowDeriv[m]) > N.sign(rowDeriv[m+1]):
-                    if normRow[m] >= noiseEst[m]:
-                        cwtPeakLoc.append([m,i])
+                    #if normRow[m] >= noiseEst[m]:
+                    cwtPeakLoc.append([m,i])
 
 #            print "Zero Crossing", time.clock()-t3
 
 
     cwtPeakLoc = N.array(cwtPeakLoc)
+    print "cwtPeakLoc: ", cwtPeakLoc
 #    ax2.plot(cwtPeakLoc[:,0], cwtPeakLoc[:,1], 'oy', alpha = 0.4)
 #    print 'Peak Finding: ', time.clock() - t2
-
-    peakLoc = []
-    peakInt = []
-    rawPeakInd = []
 
     t3 = time.clock()
     try:
@@ -242,10 +247,11 @@ def getCWTPeaks(scaledCWT, X, Y, noiseEst, minSNR = 3,\
     peakOrder = peakLoc.argsort()
     peakLoc = peakLoc[peakOrder]
     peakInt = peakInt[peakOrder]
-#    rawPeakInd = rawPeakInd[peakOrder]
-    peakLoc, peakInt, rawPeakInd = consolidatePeaks(peakLoc, peakInt, rawPeakInd)
+    rawPeakInd = rawPeakInd[peakOrder]
+    #peakLoc, peakInt, rawPeakInd = consolidatePeaks(peakLoc, peakInt, rawPeakInd)
 
     return peakLoc, peakInt, rawPeakInd, cwtPeakLoc, cClass, True
+    #return None, None, None, None, None, False
 
 
 def consolidatePeaks(peakLoc, peakInt, rawPeakInd, diffCutoff = 1.25):
@@ -321,50 +327,40 @@ if __name__ == "__main__":
     t1 = time.clock()
     loadA = False
     normOk = True
-    #loadA = True
-    if loadA:
-    #    ms = P.load('N3_Norm.txt')
-        ms = P.load('exampleMS.txt')
-        x = N.arange(len(ms))
-        ms = SF.normalize(ms)
-        ms = SF.topHat(ms, 0.01)
-    #    ms = ms[8000:8500]
-    ##    ms = ms[7000:9000]
-    else:
-        'Noisy_IMS_XY.csv'
-        'BSA_XY_Full.csv'
-        'J15.csv'
-        'Tryptone.csv'
-        ms = P.load('J5.csv', delimiter = ',')
 
-        x = ms[:,0]
-        ms = ms[:,1]
-        #x, ms = interpolate_spectrum(ms)
-        x, ms = SF.interpolate_spectrum_XY(x, ms)
-        msMax = ms.max()
-        print len(ms)
-        print "MS Max", msMax
-        ms = SF.normalize(SF.topHat(ms, 0.01))
-        ms = SF.roundLen(ms)
-        start = 100000#0
-        stop = 250000#int(len(ms)*1)##79000#len(ms)*.75
-        ms = ms[start:stop]
-        x = x[start:stop]
-        x = N.arange(len(x))
+    'Noisy_IMS_XY.csv'
+    'BSA_XY_Full.csv'
+    'J15.csv'
+    'Tryptone.csv'
+    dat = P.load('Tryptone.csv', delimiter = ',')
 
-    print len(ms)
+    xArray = dat[:,0]
+    yArray = dat[:,1]
+    xArray, yArray = SF.interpolate_spectrum_XY(xArray, yArray)
+    if normOk:
+        yArray = SF.normalize(yArray)
+    abundMax = yArray.max()
+    print len(yArray)
+    print "Y Max", abundMax
+    #yArray = SF.normalize(SF.topHat(yArray, 0.01))
+    yArray = SF.roundLen(yArray)
+    start = 0#100000#0
+    stop = int(len(yArray)*1)##79000#len(ms)*.75
+    yArray = yArray[start:stop]
+    #xArray = xArray[start:stop]
+    xArray = N.arange(len(yArray))
+
+    print len(yArray)
 
     #s = N.arange(2,32,2)#changed to 8 from 32
-    s1 = N.arange(2,64,8)
-    s2 = N.arange(32,64,8)
+    #s1 = N.arange(2,64,8)
+    #s2 = N.arange(32,64,8)
+    s3 = N.array([1,2,4,8,12,16])
     #Best for BSA High Res TOF
-    #s1 = N.arange(2,8,2)
-    #s2 = N.arange(12,48,4)
-    print len(s1), len(s2)
-    s = N.append(s1, s2)
-#    print type(s), s
+    #print len(s1), len(s2)
+    #s = N.append(s1, s2)
     #CWT.cwtMS(dataItem.y, self.scales, staticThresh = (self.staticThresh/dataItem.normFactor)*100)
-    cwt = cwtMS(ms, s1, staticThresh = (2/msMax)*100)
+    cwt = cwtMS(yArray, s3, staticThresh = (2/abundMax)*100, wlet='DOG')
 
     print "wavelet complete"
     print time.clock()-t1, 'seconds'
@@ -375,47 +371,27 @@ if __name__ == "__main__":
     ax2 = fig1.add_subplot(212,sharex=ax)
     print "CWT Max", cwt.max(axis=0).max()
     intMax = cwt.max(axis=0).max()*0.05
-    im=ax2.imshow(cwt,vmax = intMax, cmap=P.cm.jet,aspect='auto')
-    #ax2.plot(plotcwt[1], alpha = 0.7, label = '1')
-    #ax.plot(plotcwt[0], alpha = 0.7, label = '0')
+    im=ax2.imshow(cwt, vmax = intMax, cmap=P.cm.jet,aspect='auto')
+
     minSNR = 5
-    numSegs = len(ms)/10
-    #numSegs = len(ms)/10#int(len(plotcwt[0])*0.0015)
-#    if numSegs < 1000 and len(ms) > 1000:
-#        numSegs = 1000
-#    else:
-#        numSegs = len(ms)/5
-    print "Length of ms, numSegs: ", len(ms), numSegs
-    if normOk:
-    #    ax.plot(SF.normalize(plotcwt[0]),'b', label = '0')
-    #    ax.plot(SF.normalize(plotcwt[1]),'r', label = '1')
+    numSegs = len(yArray)/10
+    print "Length of ms, numSegs: ", len(yArray), numSegs
 
-        noiseEst, minNoise = GB.SplitNSmooth(SF.normalize(ms),numSegs, minSNR)
-        ax.plot(x, noiseEst, '-r', alpha = 0.5, label = 'smoothed')
-    #    minNoise*=3
-    #    ax.hlines(minNoise, 0, len(ms))
-        ax.plot(x, SF.normalize(ms), 'g',alpha = 0.7, label = 'ms')
-        print 'Normalized'
-        mNoise = SF.normalize(cwt[0]).mean()
-        stdNoise = SF.normalize(cwt[0]).std()
-        mNoise = 3*stdNoise+mNoise
+    noiseEst, minNoise = GB.SplitNSmooth(yArray ,numSegs, minSNR)
+    if len(xArray) == len(noiseEst):
+        ax.plot(xArray, noiseEst, '-r', alpha = 0.5, label = 'smoothed')
+#    minNoise*=3
+#    ax.hlines(minNoise, 0, len(ms))
+    ax.plot(xArray, yArray, 'g',alpha = 0.7, label = 'ms')
+    #NEED TO FIX THE NOISE ESTIMATE
+    mNoise = SF.normalize(cwt[0]).mean()
+    stdNoise = SF.normalize(cwt[0]).std()
+    mNoise = 3*stdNoise+mNoise
 
-    else:
-    #    ax.plot(plotcwt[0],'b', label = '0')
-    #    ax.plot(plotcwt[1],'r', label = '1')
-
-        noiseEst, minNoise = GB.SplitNSmooth(ms,numSegs, minSNR)
-        print len(x), len(noiseEst)
-        ax.plot(x, noiseEst, '-r', alpha = 0.5, label = 'smoothed')
-    #    minNoise*=3
-    #    ax.hlines(minNoise, 0, len(ms))
-    #    print minNoise
-        ax.plot(x,ms, 'g',alpha = 0.7, label = 'ms')
-        mNoise = cwt[0].mean()
-        stdNoise = cwt[0].std()
-        mNoise = 3*stdNoise+mNoise
-    print "minNoiseEst: ", minNoise
-    peakLoc, peakInt, rawPeakInd, cwtPeakLoc, cClass, boolAns = getCWTPeaks(cwt, x, ms, noiseEst, minRow = 1, minClust = 4, minNoiseEst = minNoise, EPS = None, debug = True)
+    #P.figure()
+    peakLoc, peakInt, rawPeakInd, cwtPeakLoc, cClass, boolAns = getCWTPeaks(cwt, xArray, yArray, noiseEst, minRow = 1, minClust = 3, minNoiseEst = minNoise, EPS = None, debug = True)
+    print peakLoc
+    print cwtPeakLoc
     print "peaksFound"
     if boolAns:
         ax2.plot(cwtPeakLoc[:,0], cwtPeakLoc[:,1], 'oy', ms = 3, alpha = 0.4)
@@ -428,8 +404,8 @@ if __name__ == "__main__":
             if len(peakLoc) != 0:
                 ax.vlines(peakLoc, 0, 100, 'r', linestyle = 'dashed', alpha = 0.5)
 
-		for pk in peakLoc:
-			print pk
+        for pk in peakLoc:
+            print pk
         #ax.plot(x, cwt[0], 'b', alpha = 0.7)
 
     P.show()
