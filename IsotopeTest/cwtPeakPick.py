@@ -133,7 +133,7 @@ def getCWTPeaks(scaledCWT, X, Y, noiseEst, minSNR = 3,\
                 if tempAxis != None:
                     tempAxis.plot(row, '-', alpha = 0.5)
             #print len(row), len(yArray), len(noiseEst)
-            criterion = (row <= 5) & (row >= -5) & (yArray[0:len(row)] >= noiseEst[0:len(row)])
+            criterion = (row <= 5) & (row >= -5) & (Y[0:len(row)] >= noiseEst[0:len(row)])
             tempLocEst = N.where(criterion)[0]
 
             for m in tempLocEst[:-1]:#need to exclude last element so we don't get an IndexError for the derivative array
@@ -145,13 +145,13 @@ def getCWTPeaks(scaledCWT, X, Y, noiseEst, minSNR = 3,\
                     else:
                         xStart = 0
 
-                    if (m+pntPad) < len(yArray):
+                    if (m+pntPad) < len(Y):
                         xStop = m+pntPad
                     else:
-                        xStop = len(yArray)
+                        xStop = len(Y)
 
 
-                    tempVals = yArray[xStart:xStop]#BHC added 3/25/09
+                    tempVals = Y[xStart:xStop]#BHC added 3/25/09
                     if len(tempVals)>0:
                         localMaxInd = tempVals.argmax()
 
@@ -179,11 +179,11 @@ def getCWTPeaks(scaledCWT, X, Y, noiseEst, minSNR = 3,\
 #                                cwtPeakLoc.append([xArray[yMaxInd],i])
 #
 #                        else:
-                        if yArray[yMaxInd] >= noiseEst[yMaxInd]*minSNR:#minSNR/2:# and Y[yMaxInd] >= staticCut:
+                        if Y[yMaxInd] >= noiseEst[yMaxInd]*minSNR:#minSNR/2:# and Y[yMaxInd] >= staticCut:
 #        #                    if Y[xVal]>=scaledCWT[0][xVal]*minSNR/2 and Y[xVal] >= noiseEst[xVal]*minSNR/2:
-                            peakLoc.append(xArray[yMaxInd])
-                            peakInt.append(yArray[yMaxInd])
-                            cwtPeakLoc.append([xArray[yMaxInd],i])
+                            peakLoc.append(X[yMaxInd])
+                            peakInt.append(Y[yMaxInd])
+                            cwtPeakLoc.append([X[yMaxInd],i])
 
 
 #                    if row[m]>0.002:# and (yArray[m] >= noiseEst[m]*1.25):#check to see if noise threshold is reasonable
@@ -314,6 +314,7 @@ def getCWTPeaks(scaledCWT, X, Y, noiseEst, minSNR = 3,\
     peakInt = peakInt[peakOrder]
     rawPeakInd = rawPeakInd[peakOrder]
     #peakLoc, peakInt, rawPeakInd = consolidatePeaks(peakLoc, peakInt, rawPeakInd)
+    peakLoc, peakInt = removeDuplicatePeaks(peakLoc, peakInt)
     cClass = None
 
 
@@ -321,6 +322,15 @@ def getCWTPeaks(scaledCWT, X, Y, noiseEst, minSNR = 3,\
     return peakLoc, peakInt, rawPeakInd, cwtPeakLoc, cClass, True
     #return None, None, None, None, None, False
 
+def removeDuplicatePeaks(peakLoc, peakInt):
+    peakOrder = peakLoc.argsort()
+    peakLoc = peakLoc[peakOrder]
+    peakInt = peakInt[peakOrder]
+    peakLocDiff = N.diff(peakLoc)
+    duplicateInd = N.where(peakLocDiff == 0)[0]
+    peakLoc = N.delete(peakLoc, duplicateInd)
+    peakInt = N.delete(peakInt, duplicateInd)
+    return peakLoc, peakInt
 
 def consolidatePeaks(peakLoc, peakInt, rawPeakInd, diffCutoff = 1.25):
     '''
@@ -393,6 +403,7 @@ def consolidatePeaks(peakLoc, peakInt, rawPeakInd, diffCutoff = 1.25):
 if __name__ == "__main__":
 
     import smoothingFilter as SmoothF
+    import scipy.signal as signal
 
     t1 = time.clock()
     loadA = False
@@ -407,11 +418,17 @@ if __name__ == "__main__":
     xArray = dat[:,0]
     yArray = dat[:,1]
     xArray, yArray = SF.interpolate_spectrum_XY(xArray, yArray)
+    #xArray = N.arange(len(yArray))
+    #xArray, yArray = signal.resample(yArray, len(xArray)/4, xArray)
+    xArray, yArray = SF.interpolate_spectrum_by_diff(xArray, yArray, xArray.min(), xArray.max(), 0.025)
+    xDiffNew = xArray[1]-xArray[0]
+    print "X Diff New: ", xDiffNew
+
     if normOk:
         yArray = SF.normalize(yArray)
     abundMax = yArray.max()
-    print len(yArray)
-    print "Y Max", abundMax
+    #print len(yArray)
+    #print "Y Max", abundMax
     #yArray = SF.normalize(SF.topHat(yArray, 0.01))
     yArray = SF.roundLen(yArray)
     start = 0#100000#0
@@ -419,7 +436,7 @@ if __name__ == "__main__":
     #start = 48000
     #stop = 58000
     yArray = yArray[start:stop]
-    #xArray = xArray[start:stop]
+    xArray = xArray[start:stop]
     numSegs = int(len(xArray)*(xArray[1]-xArray[0]))
     print "Length of ms, numSegs: ", len(yArray), numSegs
     xArray = N.arange(len(yArray))
@@ -429,11 +446,10 @@ if __name__ == "__main__":
     #s = N.arange(2,32,2)#changed to 8 from 32
     #s1 = N.arange(2,64,8)
     #s2 = N.arange(32,64,8)
-    s3 = N.array([4,6,8,16])
+    s3 = N.array([1,2,4,6,8,12,16])
     #Best for BSA High Res TOF
     #print len(s1), len(s2)
     #s = N.append(s1, s2)
-    #CWT.cwtMS(dataItem.y, self.scales, staticThresh = (self.staticThresh/dataItem.normFactor)*100)
     cwt = cwtMS(yArray, s3, staticThresh = (2/abundMax)*100, wlet='DOG')
 
     print "wavelet complete"
@@ -453,8 +469,9 @@ if __name__ == "__main__":
 
 
     #smoothed_data = SmoothF.savitzky_golay(yArray, kernel = 31, order = 7)
-
+    t1 = time.clock()
     noiseEst, minNoise = GB.SplitNSmooth(yArray ,numSegs, minSNR)
+    print "SplitNSmooth: ", time.clock()-t1
     if len(xArray) == len(noiseEst):
         ax.plot(xArray, noiseEst, '-r', alpha = 0.5, label = 'smoothed')
 #    minNoise*=3
@@ -466,10 +483,12 @@ if __name__ == "__main__":
 #    mNoise = SF.normalize(cwt[0]).mean()
 #    stdNoise = SF.normalize(cwt[0]).std()
 #    mNoise = 3*stdNoise+mNoise
-
+    t1 = time.clock()
     peakLoc, peakInt, rawPeakInd, cwtPeakLoc, cClass, boolAns = getCWTPeaks(cwt, xArray, yArray, noiseEst, minRow = 0, minClust = 2, minNoiseEst = minNoise, EPS = None, debug = True, tempAxis = ax2)
-    print peakLoc
-    print cwtPeakLoc
+    print "getCWTPeaks: ", time.clock()-t1
+    print "# peaks found: ", len(peakLoc)
+#    print peakLoc
+#    print cwtPeakLoc
     print "peaksFound"
     if boolAns:
         ax3.plot(cwtPeakLoc[:,0], cwtPeakLoc[:,1], 'ob', ms = 3, alpha = 0.7)
@@ -483,8 +502,8 @@ if __name__ == "__main__":
             if len(peakLoc) != 0:
                 ax.vlines(peakLoc, 0, 100, 'r', linestyle = 'dashed', alpha = 0.5)
 
-        for pk in peakLoc:
-            print pk
+#        for pk in peakLoc:
+#            print pk
 
     P.show()
 

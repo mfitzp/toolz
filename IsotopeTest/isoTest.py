@@ -44,7 +44,7 @@ def fineShiftIsoPatt(expXArray, expYArray, isoArray, currMonoPeak, charge, debug
 	#account for small shifts that are not real
 	#divide by 2 so you don't confuse different charge states
 	#multiply by 1.5 to try and catch 1Da mis-haps common with THRASHing
-	if N.abs(mzShift)<charge/2 or N.abs(mzShift)<charge*1.25:
+	if N.abs(mzShift)<charge/2.1 or N.abs(mzShift)<charge*1.25:
 		return 0
 	else:
 		return mzShift
@@ -130,6 +130,7 @@ def getIsoProfile(xArray, yArray, isoCentroids, isoAmplitudes, mzDiff, mzResGlob
 			 defines as the centroid/FWHM.
 	charge -- is the charge state of the isotope pattern
 	'''
+	fitOk = True
 	mzResMain = mzResGlobal
 	returnX = []
 	returnY = []
@@ -177,6 +178,7 @@ def getIsoProfile(xArray, yArray, isoCentroids, isoAmplitudes, mzDiff, mzResGlob
 							mzResCalc = iso/fitParams[2]
 							continue
 						else:
+							fitOk = False
 							print "Total Fit Failure"
 							continue
 			else:
@@ -199,68 +201,71 @@ def getIsoProfile(xArray, yArray, isoCentroids, isoAmplitudes, mzDiff, mzResGlob
 			returnX.append(tempXProfile)
 			returnY.append(tempYProfile)
 			#plotIsoProfile(tempXProfile, tempYProfile, color = '-y')
-	returnX, returnY = concatenateIsos(returnX, returnY)
-	#returnX = N.array(SF.flattenX(returnX))#theoretical profile X
-	#returnY = N.array(SF.flattenX(returnY))#theoretical profile Y
-	#returnDiff = N.diff(returnY)
-	#diffInd = N.where(N.abs(returnDiff)>0.1)[0]
-	#print returnDiff
-	#zeroInd = N.where(returnY <1e-5)[0]
-	#print returnY
-	#returnX = N.delete(returnX, diffInd)
-	#returnY = N.delete(returnY, diffInd)
-	#we need to sort the theoretical profiles so that a correlation coef can be obtained
-	indSort = returnX.argsort()
-	returnX = returnX[indSort]
-	returnY = returnY[indSort]
-	#returnX, returnY = SF.interpolate_spectrum_XY(returnX, returnY)
+	if fitOk:
+		returnX, returnY = concatenateIsos(returnX, returnY)
+		#returnX = N.array(SF.flattenX(returnX))#theoretical profile X
+		#returnY = N.array(SF.flattenX(returnY))#theoretical profile Y
+		#returnDiff = N.diff(returnY)
+		#diffInd = N.where(N.abs(returnDiff)>0.1)[0]
+		#print returnDiff
+		#zeroInd = N.where(returnY <1e-5)[0]
+		#print returnY
+		#returnX = N.delete(returnX, diffInd)
+		#returnY = N.delete(returnY, diffInd)
+		#we need to sort the theoretical profiles so that a correlation coef can be obtained
+		indSort = returnX.argsort()
+		returnX = returnX[indSort]
+		returnY = returnY[indSort]
+		#returnX, returnY = SF.interpolate_spectrum_XY(returnX, returnY)
 
-	endMZ = returnX.max()
-	endInd = N.where(xArray<=endMZ)[0][-1]
-	tempX = xArray[startInd:endInd]
-	tempY = yArray[startInd:endInd]
-	tempX, tempY = SF.interpolate_spectrum_by_diff(tempX, tempY, tempX[0], tempX.max(), (returnX[1]-returnX[0]))
-	#tempX, tempY = SF.interpolate_spectrum_XY(tempX, tempY, len(returnX))
+		endMZ = returnX.max()
+		endInd = N.where(xArray<=endMZ)[0][-1]
+		tempX = xArray[startInd:endInd]
+		tempY = yArray[startInd:endInd]
+		tempX, tempY = SF.interpolate_spectrum_by_diff(tempX, tempY, tempX[0], tempX.max(), (returnX[1]-returnX[0]))
+		#tempX, tempY = SF.interpolate_spectrum_XY(tempX, tempY, len(returnX))
 
-	#tempX, tempY = SF.interpolate_spectrum_XY(X, Y, len()
-	#print "Vector Lengths: ", len(returnX), len(tempY)
-	print "Vector X Diffs: ", returnX[1]-returnX[0], tempX[1]-tempX[0]
+		#tempX, tempY = SF.interpolate_spectrum_XY(X, Y, len()
+		#print "Vector Lengths: ", len(returnX), len(tempY)
+		print "Vector X Diffs: ", returnX[1]-returnX[0], tempX[1]-tempX[0]
 
-	#the following loop pads the respective arrays so that a correlation coeff can be calculated
-	#there well may be better metrics to measure the "goodness of fit" but this is used as a first pass.
-	tempZeros = N.zeros(N.abs(len(returnX)-len(tempX)))
-	if len(returnX)>len(tempX):
-		tempX = N.append(tempX, tempZeros+tempX.max())
-		tempY = N.append(tempY, tempZeros)
+		#the following loop pads the respective arrays so that a correlation coeff can be calculated
+		#there well may be better metrics to measure the "goodness of fit" but this is used as a first pass.
+		tempZeros = N.zeros(N.abs(len(returnX)-len(tempX)))
+		if len(returnX)>len(tempX):
+			tempX = N.append(tempX, tempZeros+tempX.max())
+			tempY = N.append(tempY, tempZeros)
+		else:
+			returnX = N.append(returnX, tempZeros+returnX.max())
+			returnY = N.append(returnY, tempZeros)
+
+		fineMZShift = fineShiftIsoPatt(tempX, tempY, returnY, isoCentroids[0], charge)
+		returnX+=fineMZShift
+		isoCentroids+=fineMZShift
+		#for i, val in enumerate(returnX):
+		#	print val, tempX[i]
+		print "Corr Coef: ", N.corrcoef(tempY, returnY)[0][1]
+		print " "
+		tempY+=4
+		#returnY+=4
+
+
+		#isoCentroids = corrIsoPatt(tempX, tempY, isoCentroids, isoAmplitudes, isoCentroids[0], charge)
+
+		P.vlines(isoCentroids, 0, isoAmplitudes, 'k')
+
+		plotIsoProfile(returnX, returnY, color = '-g')
+		#newYArray = yArray
+		#replaceInd = N.where(xArray == tempX)[0]
+		#newYArray[replaceInd] -= returnY
+	#	P.figure()
+	#	P.plot(xArray, yArray, 'b', alpha = 0.5)
+	#	P.plot(xArray, newYArray, 'r')
+
+		#plotIsoProfile(tempX, tempY, color = '-m')
+		return mzResCalc, returnX, returnY, startInd, fitOk
 	else:
-		returnX = N.append(returnX, tempZeros+returnX.max())
-		returnY = N.append(returnY, tempZeros)
-
-	fineMZShift = fineShiftIsoPatt(tempX, tempY, returnY, isoCentroids[0], charge)
-	returnX+=fineMZShift
-	isoCentroids+=fineMZShift
-	#for i, val in enumerate(returnX):
-	#	print val, tempX[i]
-	print "Corr Coef: ", N.corrcoef(tempY, returnY)[0][1]
-	print " "
-	tempY+=4
-	#returnY+=4
-
-
-	#isoCentroids = corrIsoPatt(tempX, tempY, isoCentroids, isoAmplitudes, isoCentroids[0], charge)
-
-	P.vlines(isoCentroids, 0, isoAmplitudes, 'k')
-
-	plotIsoProfile(returnX, returnY, color = '-g')
-	#newYArray = yArray
-	#replaceInd = N.where(xArray == tempX)[0]
-	#newYArray[replaceInd] -= returnY
-#	P.figure()
-#	P.plot(xArray, yArray, 'b', alpha = 0.5)
-#	P.plot(xArray, newYArray, 'r')
-
-	#plotIsoProfile(tempX, tempY, color = '-m')
-	return mzResCalc, returnX, returnY, startInd
+		return None, None, None, None, fitOk
 
 
 
@@ -289,12 +294,14 @@ if __name__ == "__main__":
 	abund = SF.normalize(abund)
 
 	#scales = N.arange(2,32,4)
-	scales = N.array([2,10,18,26,34,42,50,58])#,4)
+	#scales = N.array([2,10,18,26,34,42,50,58])#,4)
+	scales = N.array([1,2,4,6,8])
 	cwt = CWT.cwtMS(abund, scales, staticThresh = (2/abund.max())*100)
-	minSNR = 2
-	numSegs = len(abund)/10
+	minSNR = 3
+	#numSegs = len(abund)/10
+	numSegs = int(len(mz)*(mz[1]-mz[0]))
 
-	noiseEst, minNoise = GB.SplitNSmooth(abund,numSegs, minSNR)
+	noiseEst, minNoise = GB.SplitNSmooth(abund, numSegs, minSNR)
 	mNoise = SF.normalize(cwt[0]).mean()
 	stdNoise = SF.normalize(cwt[0]).std()
 	mNoise = 3*stdNoise+mNoise
@@ -365,8 +372,8 @@ if __name__ == "__main__":
 		P.vlines(mzPks, 0, 100, 'g', linestyle = 'dashed')
 
 
-		mzResGlobal = 6000#need to add a function to fit this
-		mzResCalc = 6000#need to add a function to fit this
+		mzResGlobal = 10000#need to add a function to fit this
+		mzResCalc = 10000#need to add a function to fit this
 		for i, pk in enumerate(mzPks):
 			chargeStates = [1]#[1,2]
 			colors = ['r','m']
@@ -387,30 +394,31 @@ if __name__ == "__main__":
 						isoPeaks[0] = courseShiftIsoPatt(isoPeaks[0], pk)
 						#P.vlines(isoPeaks[0], 0, isoPeaks[1], colors[j])
 
-						mzRezCalc, tempIsoX, tempIsoY, startInd = getIsoProfile(mz, abund, isoPeaks[0], isoPeaks[1], mzDiff, mzResGlobal, mzResCalc, charge=1)
+						mzRezCalc, tempIsoX, tempIsoY, startInd, fitOk = getIsoProfile(mz, abund, isoPeaks[0], isoPeaks[1], mzDiff, mzResGlobal, mzResCalc, charge=1)
 
-						isoX.append(tempIsoX)
-						isoY.append(tempIsoY)
-						startPnts.append(startInd)
+						if fitOk:
+							isoX.append(tempIsoX)
+							isoY.append(tempIsoY)
+							startPnts.append(startInd)
 
 	newYArray = abund.copy()
 	print len(isoX)
 	print startPnts
-	P.figure()
-	for k, pnt in enumerate(startPnts):
-		P.plot(isoX[k], isoY[k]+3, 'g')
-		for m, yVal in enumerate(isoY[k]):
-			newYArray[pnt+m]=0#-=yVal
-	newYArray = SF.normalize(newYArray)
-#	for k,isoArray in enumerate(isoY):
-#		for m, pnt in enumerate(newYArray[startPnts[k]:startInd[k]+len(isoArray)]):
-#			pnt -= isoArray[m]
-		#newYArray[startPnts[k]:startInd[k]+len(isoArray)]-=isoArray
-		#newYArray[replaceInd] -= isoY[k]
-
-
-	P.plot(mz, abund, 'b', alpha = 0.5)
-	P.plot(mz, newYArray, 'r')
+#	P.figure()
+#	for k, pnt in enumerate(startPnts):
+#		P.plot(isoX[k], isoY[k]+3, 'g')
+#		for m, yVal in enumerate(isoY[k]):
+#			newYArray[pnt+m]=0#-=yVal
+#	newYArray = SF.normalize(newYArray)
+##	for k,isoArray in enumerate(isoY):
+##		for m, pnt in enumerate(newYArray[startPnts[k]:startInd[k]+len(isoArray)]):
+##			pnt -= isoArray[m]
+#		#newYArray[startPnts[k]:startInd[k]+len(isoArray)]-=isoArray
+#		#newYArray[replaceInd] -= isoY[k]
+#
+#
+#	P.plot(mz, abund, 'b', alpha = 0.5)
+#	P.plot(mz, newYArray, 'r')
 
 
 	print time.clock()-t1
