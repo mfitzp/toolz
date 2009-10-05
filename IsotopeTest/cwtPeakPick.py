@@ -420,7 +420,7 @@ if __name__ == "__main__":
     xArray, yArray = SF.interpolate_spectrum_XY(xArray, yArray)
     #xArray = N.arange(len(yArray))
     #xArray, yArray = signal.resample(yArray, len(xArray)/4, xArray)
-    xArray, yArray = SF.interpolate_spectrum_by_diff(xArray, yArray, xArray.min(), xArray.max(), 0.025)
+    #xArray, yArray = SF.interpolate_spectrum_by_diff(xArray, yArray, xArray.min(), xArray.max(), 0.025)
     xDiffNew = xArray[1]-xArray[0]
     print "X Diff New: ", xDiffNew
 

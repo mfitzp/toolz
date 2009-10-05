@@ -44,7 +44,7 @@ def fineShiftIsoPatt(expXArray, expYArray, isoArray, currMonoPeak, charge, debug
 	#account for small shifts that are not real
 	#divide by 2 so you don't confuse different charge states
 	#multiply by 1.5 to try and catch 1Da mis-haps common with THRASHing
-	if N.abs(mzShift)<charge/2.1 or N.abs(mzShift)<charge*1.25:
+	if N.abs(mzShift)<charge/2 or mzShift>charge*0.9:
 		return 0
 	else:
 		return mzShift
@@ -283,32 +283,36 @@ if __name__ == "__main__":
 	#data = P.load('I5.csv', delimiter = ',')
 	#data = P.load('J1_LIFT.csv', delimiter = ',')
 	#data = P.load('J5.csv', delimiter = ',')
-	data = P.load('H4.csv', delimiter = ',')
+	data = P.load('Tryptone.csv', delimiter = ',')
 
 	mz = data[:,0]
 	mzDiff = mz[1]-mz[0]
 	print "m/z Diff: ", mzDiff
 	abund = data[:,1]
 
+	abund = SF.roundLen(abund)
+	mz = mz[0:len(abund)]
+
 	mz, abund = SF.interpolate_spectrum_XY(mz, abund)
 	abund = SF.normalize(abund)
 
 	#scales = N.arange(2,32,4)
 	#scales = N.array([2,10,18,26,34,42,50,58])#,4)
-	scales = N.array([1,2,4,6,8])
-	cwt = CWT.cwtMS(abund, scales, staticThresh = (2/abund.max())*100)
-	minSNR = 3
+	scales = N.array([1,2,4,6,8,12,16])
+	cwt = CWT.cwtMS(abund, scales, staticThresh = (2/abund.max())*100, wlet='DOG')
+	#cwt = cwtMS(yArray, s3, staticThresh = (2/abundMax)*100, wlet='DOG')
+	minSNR = 1.5
 	#numSegs = len(abund)/10
 	numSegs = int(len(mz)*(mz[1]-mz[0]))
 
 	noiseEst, minNoise = GB.SplitNSmooth(abund, numSegs, minSNR)
-	mNoise = SF.normalize(cwt[0]).mean()
-	stdNoise = SF.normalize(cwt[0]).std()
-	mNoise = 3*stdNoise+mNoise
+#	mNoise = SF.normalize(cwt[0]).mean()
+#	stdNoise = SF.normalize(cwt[0]).std()
+#	mNoise = 3*stdNoise+mNoise
 
 
 
-	peakLoc, peakInt, rawPeakInd, cwtPeakLoc, cClass, boolAns = CWT.getCWTPeaks(cwt, mz, abund, noiseEst, minRow = 1, minClust = 3, minNoiseEst = minNoise, EPS = None, debug = True)
+	peakLoc, peakInt, rawPeakInd, cwtPeakLoc, cClass, boolAns = CWT.getCWTPeaks(cwt, mz, abund, noiseEst, minRow = 0, minClust = 3, minNoiseEst = minNoise, EPS = None, debug = True)
 #	if boolAns:
 #		fig1 = P.figure()
 #		ax = fig1.add_subplot(211)
