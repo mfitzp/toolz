@@ -13,9 +13,8 @@
 import numpy
 from numpy.fft import fft, ifft, fftfreq
 
-#try:
-#    from scipy.special import gamma
-#except:
+
+from scipy.special import gamma
 import supportFunc as SF
 
 

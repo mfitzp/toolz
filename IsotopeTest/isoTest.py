@@ -5,7 +5,7 @@ import averagine as A
 import time
 import gaussFunctions as GF
 import supportFunc as SF
-import cwtPeakPick as CWT
+import cwtPeakPickDOG as CWT
 import getBaseline as GB
 
 
@@ -32,7 +32,7 @@ def fineShiftIsoPatt(expXArray, expYArray, isoArray, currMonoPeak, charge, debug
 	mzShift = shift*(expXArray[1]-expXArray[0])
 	#P.vlines([currMonoPeak+mzShift],0,100,'r', linestyle = 'dashed')
 	#print corr
-	print "Fine Corr Shift: ", mzShift, currMonoPeak+mzShift,shift, expXArray[shift], len(expYArray), len(corr)#corrOrder[-1], expXArray[corrOrder[-1]], len(corr), len(expYArray), len(isoArray)
+	#print "Fine Corr Shift: ", mzShift, currMonoPeak+mzShift,shift, expXArray[shift], len(expYArray), len(corr)#corrOrder[-1], expXArray[corrOrder[-1]], len(corr), len(expYArray), len(isoArray)
 	if debug:
 		if int(currMonoPeak) == int(1783.10285512):
 			P.figure()
@@ -43,9 +43,10 @@ def fineShiftIsoPatt(expXArray, expYArray, isoArray, currMonoPeak, charge, debug
 	#account for small shifts that are not real
 	#divide by 2 so you don't confuse different charge states
 	#multiply by 1.5 to try and catch 1Da mis-haps common with THRASHing
-	if N.abs(mzShift)<charge/2 or mzShift>charge*0.9:
+	if N.abs(mzShift)<charge/2 or N.abs(mzShift)>charge*1.1:
 		return 0
 	else:
+		print "m/z fine Shift: ", mzShift
 		return mzShift
 
 def getLocalIsoPattern(xArray, yArray, isoCentroid, charge, padWindow = 2):
@@ -71,6 +72,32 @@ def plotIsoProfile(tempX, tempY, color = 'r', alpha = 1.0):
 	#return True
 	P.plot(tempX, tempY, color, alpha = alpha)
 
+def concatenateIsos2(isoListX, isoListY):
+        '''
+        Takes into account overlaps in the fitting and removes redundancies
+        This is not ideal as it tends to truncate the right hand parts of the Gaussian fits
+        Some sort of averaging would be best but the same X values would be needed to get this right
+        and or interpolation which is of course more computationally expensive
+        '''
+        if len(isoListX)>1:
+                isoListX.reverse()
+                isoListY.reverse()
+                for i,iso in enumerate(isoListX[:-1]):#iterate through all but the last item in the list in this case the first isotope
+                        nextIsoX = isoListX[i+1]
+                        nextIsoY = isoListY[i+1]
+                        curMin = iso.min()
+                        delInd = N.where(nextIsoX>curMin)[0]
+                        isoListX[i+1]=N.delete(nextIsoX, delInd)
+                        isoListY[i+1]=N.delete(nextIsoY, delInd)
+                returnX = N.array(SF.flattenX(isoListX))#theoretical profile X
+                returnY = N.array(SF.flattenX(isoListY))#theoretical profile Y
+                return returnX, returnY
+        else:
+                print "Concatenate Isos Failed"
+                returnX = N.array(SF.flattenX(isoListX))#theoretical profile X
+                returnY = N.array(SF.flattenX(isoListY))#theoretical profile Y
+                return returnX, returnY
+
 def concatenateIsos(isoListX, isoListY):
 	'''
 	Takes into account overlaps in the fitting and removes redundancies
@@ -79,15 +106,40 @@ def concatenateIsos(isoListX, isoListY):
 	and or interpolation which is of course more computationally expensive
 	'''
 	if len(isoListX)>1:
-		isoListX.reverse()
-		isoListY.reverse()
-		for i,iso in enumerate(isoListX[:-1]):#iterate through all but the last item in the list in this case the first isotope
+		#isoListX.reverse()
+		#isoListY.reverse()
+		for i in xrange(len(isoListX)-1):#iterate through all but the last item in the list in this case the first isotope
+			isoX = isoListX[i]
+			isoY = isoListY[i]
 			nextIsoX = isoListX[i+1]
 			nextIsoY = isoListY[i+1]
-			curMin = iso.min()
-			delInd = N.where(nextIsoX>curMin)[0]
-			isoListX[i+1]=N.delete(nextIsoX, delInd)
-			isoListY[i+1]=N.delete(nextIsoY, delInd)
+			nextMin = nextIsoX.min()
+			curMax = isoX.max()
+			curMin = isoX.min()
+			targetInd = N.where(isoX>nextMin)[0]
+			#targetInd = N.where(nextIsoX<curMin)[0]
+			#tempInd = []
+
+			for j,ind in enumerate(targetInd):
+				#assumes the differences in X values is negligible
+				#and that the indicies are in sequential order
+				curVal = isoY[ind]#intensity value of the current isotope
+
+				nextVal = nextIsoY[j]#intensity value of the next isotope
+
+				if curVal > nextVal:
+					isoListX[i+1][j] = isoX[ind]
+					isoListY[i+1][j] = curVal
+					#tempInd.append(j)
+#				else:
+#					isoListX[i][ind] = isoX[ind]
+#					isoListY[i][ind] = isoY[ind]
+
+
+
+
+			isoListX[i]=N.delete(isoX, targetInd)
+			isoListY[i]=N.delete(isoY, targetInd)
 		returnX = N.array(SF.flattenX(isoListX))#theoretical profile X
 		returnY = N.array(SF.flattenX(isoListY))#theoretical profile Y
 		return returnX, returnY
@@ -118,7 +170,8 @@ def getIsoProfile(xArray, yArray, isoCentroids, isoAmplitudes,
 			then use the fitted value to calculate the remaining heavier isotope profiles.
 			From here we can use the end result to compare to the original data to find the "best fit"
 			'''
-			print "MonoIso: ", iso
+			#print "MonoIso: ", iso
+			pkWidthPrev = iso/mzResCalc#for re-use if fit fails
 			pkWidth = iso/mzResCalc#FWHM = 2.35*sigma
 			criterion = (xArray >= iso-(pkWidth*4)-padWindow/charge) & (xArray <= iso+(pkWidth*4))
 			xInd = N.where(criterion)[0]
@@ -137,9 +190,9 @@ def getIsoProfile(xArray, yArray, isoCentroids, isoAmplitudes,
 				fitSuccess = 5
 
 			if fitSuccess == 5:
-				for j, k in enumerate(xrange(4)):
+				for j, k in enumerate(xrange(5)):
 					if j == 0:
-						print "Fit Failed Once"
+						#print "Fit Failed Once"
 						pkWidth = iso/(mzResMain/1.5)
 						fitSuccess, fitParams, monoIsoFit = GF.fitGauss(tempXProfile, tempYProfile, isoAmplitudes[i], iso, pkWidth)
 						if fitSuccess != 5:
@@ -147,47 +200,58 @@ def getIsoProfile(xArray, yArray, isoCentroids, isoAmplitudes,
 							returnY.append(monoIsoFit)
 							#plotIsoProfile(tempXProfile, monoIsoFit, color = '-r')
 							mzResCalc = iso/fitParams[2]
-							print "Success Achieved on Second Try!"
+							#print "Success Achieved on Second Try!"
 							continue
 						else:
 							continue
 					if j == 1:
-						print "Fit Failed Twice"
+						#print "Fit Failed Twice"
 						pkWidth = iso/(mzResMain*1.5)
 						fitSuccess, fitParams, monoIsoFit = GF.fitGauss(tempXProfile, tempYProfile, isoAmplitudes[i], iso, pkWidth)
 						if fitSuccess != 5:
-							print "Success Achieved on Third Try!"
+							#print "Success Achieved on Third Try!"
 							returnX.append(tempXProfile)
 							returnY.append(monoIsoFit)
 							#plotIsoProfile(tempXProfile, monoIsoFit, color = '-r')
 							mzResCalc = iso/fitParams[2]
 							continue
 					if j == 2:
-						print "Fit Failed Three Times"
+						#print "Fit Failed Three Times"
 						pkWidth = iso/(mzResMain*10)
 						fitSuccess, fitParams, monoIsoFit = GF.fitGauss(tempXProfile, tempYProfile, isoAmplitudes[i], iso, pkWidth)
 						if fitSuccess != 5:
-							print "Success Achieved on Third Try!"
+							#print "Success Achieved on Third Try!"
 							returnX.append(tempXProfile)
 							returnY.append(monoIsoFit)
 							#plotIsoProfile(tempXProfile, monoIsoFit, color = '-r')
 							mzResCalc = iso/fitParams[2]
 							continue
 					if j == 3:
-						print "Fit Failed Four Times"
+						#print "Fit Failed Four Times"
 						pkWidth = iso/(mzResMain/10)
 						fitSuccess, fitParams, monoIsoFit = GF.fitGauss(tempXProfile, tempYProfile, isoAmplitudes[i], iso, pkWidth)
 						if fitSuccess != 5:
-							print "Success Achieved on Third Try!"
+							#print "Success Achieved on Third Try!"
 							returnX.append(tempXProfile)
 							returnY.append(monoIsoFit)
 							#plotIsoProfile(tempXProfile, monoIsoFit, color = '-r')
 							mzResCalc = iso/fitParams[2]
 							continue
 						else:
-							fitOk = False
+							fitOk = True
 							print "Total Fit Failure"
 							continue
+					if j == 4:
+						print "Total Failure, Attempting to Fix\n"
+						pkWidth = pkWidthPrev/2
+						mzResCalc = iso/pkWidth
+
+						monoIsoFit = GF.getGauss(tempXProfile, iso, pkWidth, amp = isoAmplitudes[i])
+						returnX.append(tempXProfile)
+						returnY.append(monoIsoFit)
+						continue
+
+
 			else:
 				mzResCalc = iso/fitParams[2]
 				returnX.append(tempXProfile)
@@ -212,18 +276,22 @@ def getIsoProfile(xArray, yArray, isoCentroids, isoAmplitudes,
 		indSort = returnX.argsort()
 		returnX = returnX[indSort]
 		returnY = returnY[indSort]
-		#returnX, returnY = SF.interpolate_spectrum_XY(returnX, returnY)
 
 		endMZ = returnX.max()
+		#print "XArray max: ", returnX.max(), xArray.max()
 		endInd = N.where(xArray<=endMZ)[0][-1]
 		tempX = xArray[startInd:endInd]
+
 		tempY = yArray[startInd:endInd]
-		tempX, tempY = SF.interpolate_spectrum_by_diff(tempX, tempY, tempX[0], tempX.max(), (returnX[1]-returnX[0]))
-		#print "Vector X Diffs: ", returnX[1]-returnX[0], tempX[1]-tempX[0]
+		returnDiff = N.diff(returnX).max()
+
+		tempX, tempY = SF.interpolate_spectrum_by_diff(tempX, tempY, tempX[0], tempX.max(), returnDiff)
+
 
 		#the following loop pads the respective arrays so that a correlation coeff can be calculated
 		#there well may be better metrics to measure the "goodness of fit" but this is used as a first pass.
 		tempZeros = N.zeros(N.abs(len(returnX)-len(tempX)))
+
 		if len(returnX)>len(tempX):
 			tempX = N.append(tempX, tempZeros+tempX.max())
 			tempY = N.append(tempY, tempZeros)
@@ -236,22 +304,67 @@ def getIsoProfile(xArray, yArray, isoCentroids, isoAmplitudes,
 		isoCentroids+=fineMZShift
 
 
-		corrFactor = N.corrcoef(tempY, returnY)[0][1]
+		corrResult = N.corrcoef(tempY, returnY)[0]
+		corrFactor = corrResult[1]
 		corrCutOff = corrCutOff
-
-		if corrFactor <= corrCutOff:
-			return None, None, None, None, False
-		print "Corr Coef: ", corrFactor
+		print "m/z, Corr Coef: ", isoCentroids[0], corrFactor, corrResult[0]
 		print " "
+#		if corrFactor <= corrCutOff:
+#			return None, None, None, None, False
+
+
 		#P.vlines(isoCentroids, 0, isoAmplitudes, 'k')
 		#plotIsoProfile(returnX, returnY, color = '-g')
 
-		return mzResCalc, returnX, returnY, startInd, fitOk
+		return mzResCalc, returnX, returnY, startInd, corrFactor, fitOk
 	else:
 		return None, None, None, None, fitOk
 
 def normalize2One(datArray):
 	return datArray/datArray.max()
+
+def sortPeaks(X,Y, profileX, profileY, corrFactors, xTol):
+	'''
+	Sorts and deletes entries in the found peaks that differ by less than a user defined cutoff
+	X -- peak centroids
+	Y -- peak intensities
+	profileX -- fit profile in x domain
+	profileY -- fit profile in y domain
+	xTol -- tolerance used to group peaks, default is 2 times the increment used in the x-dimension
+
+	The idea here would be to group the peaks together that are essentially the same and return the one within
+	the group with the best "fit" to the actual data.
+
+	The problem with this is that the correlation coefficient is not necessarily the best measure....
+
+
+	Most likely you could remove the sorting but I did this to be sure
+	'''
+	centX = []
+	centY = []
+	for i,xVals in enumerate(X):
+		centX.append(xVals[0])
+		centY.append(Y[i][0])
+	centX = N.array(centX)
+	centY = N.array(centY)
+
+	sortOrder = centX.argsort()
+	xSort = centX[sortOrder]
+	ySort = centY[sortOrder]
+	xDiff = N.diff(xSort)
+	indArray = []
+	j = 0
+	for k, diff in enumerate(xDiff):
+		if diff <= xTol:
+			indArray.append(j)
+		else:
+			j+=1
+			indArray.append(j)
+
+		print centX[k], diff, corrFactors[k], j
+
+	peakGroups = []
+
 
 def processSpectrum(X, Y, scales, minSNR, pkResEst, corrCutOff):
 	'''
@@ -262,6 +375,11 @@ def processSpectrum(X, Y, scales, minSNR, pkResEst, corrCutOff):
 	scales -- the scales used in the CWT
 	minSNR -- the minimum SNR used for noise estimate and peak picking
 	pkResEst -- the estimate peak resolution measured in peak location/FWHM
+
+	To Do:
+
+	need to adjust so that isotopes that are found but no valid fit is achieved are
+	also returned.
 	'''
 
 
@@ -270,9 +388,10 @@ def processSpectrum(X, Y, scales, minSNR, pkResEst, corrCutOff):
 	numSegs = int(len(X)*(X[1]-X[0]))
 	noiseEst, minNoise = GB.SplitNSmooth(Y, numSegs, minSNR)
 
+
 	yMax = Y.max()
 	xDiff = X[1]-X[0]
-	cwt = CWT.cwtMS(Y, scales, staticThresh = (2/abund.max())*100, wlet='DOG')
+	cwt = CWT.cwtMS(Y, scales, staticThresh = (2/Y.max())*100, wlet='DOG')
 
 	ANS = CWT.getCWTPeaks(cwt, X, Y, noiseEst, minRow = 0, minClust = 3,
 						  minNoiseEst = minNoise, EPS = None, debug = True)
@@ -289,6 +408,7 @@ def processSpectrum(X, Y, scales, minSNR, pkResEst, corrCutOff):
 	centY = []#will store the peak intensities after correction
 	isoX = []#will hold the profiles for the fitted isotope patterns in the m/z dimension
 	isoY = []#will hold the intensity profiles for the fitted isotope patterns
+	corrFactors=[]#cross correlation factors between the theoretical and actual data
 	startPnts = []
 
 
@@ -312,51 +432,68 @@ def processSpectrum(X, Y, scales, minSNR, pkResEst, corrCutOff):
 							isoPeaks[0] = courseShiftIsoPatt(isoPeaks[0], pk)#sometimes there are big shifts needed
 
 							isoAns = getIsoProfile(X, Y, isoPeaks[0], isoPeaks[1], xDiff, resGlobal, resCalc, charge=charge, corrCutOff = corrCutOff)
-							rezCalc, tempIsoX, tempIsoY, startInd, fitOk = isoAns
+							rezCalc, tempIsoX, tempIsoY, startInd, corrFactor, fitOk = isoAns
 
 							if fitOk:
 								isoX.append(tempIsoX)
 								isoY.append(tempIsoY)
 								centX.append(isoPeaks[0])
 								centY.append(isoPeaks[1])
+								corrFactors.append(corrFactor)
 								startPnts.append(startInd)
 
-			return centX, centY, isoX, isoY
+			returnANS = [centX, centY, isoX, isoY, corrFactors]
+
+
+			#sortPeaks(returnANS[0],returnANS[1], returnANS[2], returnANS[3], returnANS[4], xTol = xDiff*2)
+
+			return returnANS
 
 if __name__ == "__main__":
 
-	#data = P.load('Tryptone.csv', delimiter = ',')
-	#data = P.load('BSA_Sum5.csv', delimiter = ',')
-	#data = P.load('I5.csv', delimiter = ',')
-	#data = P.load('J1_LIFT.csv', delimiter = ',')
-	#data = P.load('J5.csv', delimiter = ',')
 	data = P.load('Tryptone.csv', delimiter = ',')
 
 	mz = data[:,0]
-	mzDiff = mz[1]-mz[0]
-	print "m/z Diff: ", mzDiff
+
+
 	abund = data[:,1]
+	abund = SF.topHat(abund, 0.01)
 
 	abund = SF.roundLen(abund)
 	mz = mz[0:len(abund)]
 
 	mz, abund = SF.interpolate_spectrum_XY(mz, abund)
+
+	mzDiff = mz[1]-mz[0]
+	print "m/z Diff: ", mzDiff, mz[-1]-mz[-2]
+	print len(mz)
+	start = 0
+	stop = len(mz)
+	#start = 270000
+	#stop = 277000
+	mz = mz[start:stop]
+	abund = abund[start:stop]
 	abund = SF.normalize(abund)
+	#mz = N.arange(len(mz))
 
 	#scales = N.arange(2,32,4)
 	#scales = N.array([2,10,18,26,34,42,50,58])#,4)
 	scales = N.array([1,2,4,6,8,12,16])
 	minSNR = 1.5
 	resEst = 10000
-	corrCutOff = 0.5
+	corrCutOff = 0.4
+	t1 = time.clock()
 	ANS = processSpectrum(mz, abund, scales, minSNR, resEst, corrCutOff = corrCutOff)
+	print "Peak Picking and Isotopic Fitting Time: ", time.clock()-t1
 
-	centX, centY, isoX, isoY = ANS
-
-	print " "
 	P.figure()
 	P.plot(mz, abund, 'b', alpha = 0.6)
-	for i, centroid in enumerate(centX):
-		P.vlines(centroid, 0, centY[i]*1.1, 'g', linestyle = 'dashed')
-		P.plot(isoX[i], isoY[i], 'r', alpha = 0.5)
+
+	print " "
+	if ANS != None:
+		centX, centY, isoX, isoY, corrFits = ANS
+		if len(centX)>0:
+			for i, centroid in enumerate(centX):
+				P.vlines(centroid, 0, centY[i]*1.1, 'g', linestyle = 'dashed')
+				P.plot(isoX[i], isoY[i], 'r', alpha = 0.5)
 	P.show()
