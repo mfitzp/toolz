@@ -39,7 +39,6 @@ def roundLen(data):
     newdl = N.round(dl,-place)#rounds to nearest tenth use -1, hundredth use -2
     if newdl > dl:
         newdl -= N.power(10,place)
-#    print newdl,dl
     return data[0:newdl]
 
 
@@ -69,9 +68,6 @@ def interpolate_spectrum_XY(X, Y, length = None): #data array contains two colum
     else:
         x_new = N.arange(x.min(), x.max(), ((x.max()-x.min())/(length)))
 
-#    print "Interp Test"
-#    print len(x_new), len(x), len(y)
-#    print f
     y_new=f(x_new)
     return (x_new, y_new)
 
