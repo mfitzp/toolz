@@ -481,7 +481,7 @@ if __name__ == "__main__":
 	scales = N.array([1,2,4,6,8,12,16])
 	minSNR = 1.5
 	resEst = 10000
-	corrCutOff = 0.4
+	corrCutOff = 0.
 	t1 = time.clock()
 	ANS = processSpectrum(mz, abund, scales, minSNR, resEst, corrCutOff = corrCutOff)
 	print "Peak Picking and Isotopic Fitting Time: ", time.clock()-t1
