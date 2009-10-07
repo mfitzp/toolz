@@ -12,9 +12,11 @@ import getBaseline as GB
 '''
 To Do:
 
-Need to find a way to get the monoisotopic peak when it is no longer the maximum peak in the distribution
-Run more than once and on more than a single charge state
+Need to find a way to reliably get the monoisotopic peak when it is no longer the maximum peak in the distribution
+Run more than once and on more than a single charge state?
 how to deal with abnormally low resolutions.
+Right now if the resolution of the original data is poor, this may not be right approach, then again
+deisotoping is not a good idea if you don't have isotopes to look at.
 
 '''
 
@@ -486,14 +488,18 @@ if __name__ == "__main__":
 	ANS = processSpectrum(mz, abund, scales, minSNR, resEst, corrCutOff = corrCutOff)
 	print "Peak Picking and Isotopic Fitting Time: ", time.clock()-t1
 
-	P.figure()
-	P.plot(mz, abund, 'b', alpha = 0.6)
+	fig = P.figure()
+	ax = fig.add_subplot(111)
+	ax.plot(mz, abund, 'b', alpha = 0.6)
+
 
 	print " "
 	if ANS != None:
 		centX, centY, isoX, isoY, corrFits = ANS
 		if len(centX)>0:
 			for i, centroid in enumerate(centX):
-				P.vlines(centroid, 0, centY[i]*1.1, 'g', linestyle = 'dashed')
-				P.plot(isoX[i], isoY[i], 'r', alpha = 0.5)
+				ax.vlines(centroid, 0, centY[i]*1.1, 'g', linestyle = 'dashed')
+				ax.plot(isoX[i], isoY[i], 'r', alpha = 0.5)
+				#plots the correlation value above the "monoisotopic" peak
+				ax.text(centroid[0], centY[i][0]*1.1, '%.3f'%corrFits[i])
 	P.show()
