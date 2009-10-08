@@ -51,7 +51,7 @@ def averagineCalc(avgMass, charge = 1):
 	print "Actual Mass, Deviation: ", actualMass, modelDev
 
 	if libmercuryOk:
-		mercAns = LMI.mercury(modelComp, charge, 1e-5)
+		mercAns = LMI.mercury(modelComp, charge, 1e-3)
 		if mercAns[0] == 0:
 			return mercAns
 
