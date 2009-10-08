@@ -7,6 +7,8 @@ import gaussFunctions as GF
 import supportFunc as SF
 import cwtPeakPickDOG as CWT
 import getBaseline as GB
+import scipy.stats as stats
+import scipy.signal as signal
 
 
 '''
@@ -273,7 +275,7 @@ def getIsoProfile(xArray, yArray, isoCentroids, isoAmplitudes,
 			returnY.append(tempYProfile)
 			#plotIsoProfile(tempXProfile, tempYProfile, color = '-y')
 	if fitOk:
-		returnX, returnY = concatenateIsos(returnX, returnY)
+		returnX, returnY = concatenateIsos(returnX, returnY)#returnX and Y are the theoretical isotope patterns
 		#we need to sort the theoretical profiles so that a correlation coef can be obtained
 		indSort = returnX.argsort()
 		returnX = returnX[indSort]
@@ -288,10 +290,19 @@ def getIsoProfile(xArray, yArray, isoCentroids, isoAmplitudes,
 		returnDiff = N.diff(returnX).max()
 
 		tempX, tempY = SF.interpolate_spectrum_by_diff(tempX, tempY, tempX[0], tempX.max(), returnDiff)
+		returnX, returnY = SF.interpolate_spectrum_by_diff(returnX, returnY, tempX[0], tempX.max(), returnDiff)
+		returnX+=returnDiff
+		isoCentroids+=returnDiff
 
 
 		#the following loop pads the respective arrays so that a correlation coeff can be calculated
 		#there well may be better metrics to measure the "goodness of fit" but this is used as a first pass.
+
+		#THIS IS THE PROBLEM, THE PADDING IS SCREWING WITH THE SYSTEM
+		#RESAMPLE?
+
+#		tempX = signal.resample(tempX, len(returnX))
+#		tempY = signal.resample(tempY, len(returnX))
 		tempZeros = N.zeros(N.abs(len(returnX)-len(tempX)))
 
 		if len(returnX)>len(tempX):
@@ -306,21 +317,39 @@ def getIsoProfile(xArray, yArray, isoCentroids, isoAmplitudes,
 		isoCentroids+=fineMZShift
 
 
-		corrResult = N.corrcoef(tempY, returnY)[0]
-		corrFactor = corrResult[1]
+		corrScipy = stats.pearsonr(tempY, returnY)
+#		print "Corr Scipy: ", corrScipy
+
+#		fig = P.figure()
+#		ax = fig.add_subplot(311)
+#		ax2 = fig.add_subplot(312)
+#		ax3 = fig.add_subplot(313)
+#		ax.plot(returnY1, tempY, 'bo', label = '%s'%corrScipy[0])
+#		ax.legend()
+#		ax2.plot(tempX, tempY)
+#		ax2.plot(returnX1, returnY1)
+#		ax3.plot(returnY1)
+#		ax3.plot(tempY)
+
+#		print "Relative Lengths", len(tempY), len(returnY)
+
+
+
+#		corrResult = N.corrcoef(tempY, returnY)[0]
+#		corrFactor = corrResult[1]
 		corrCutOff = corrCutOff
-		print "m/z, Corr Coef: ", isoCentroids[0], corrFactor, corrResult[0]
+		print "m/z, Corr Coef: ", isoCentroids[0], corrScipy[0]
 		print " "
-#		if corrFactor <= corrCutOff:
-#			return None, None, None, None, False
+		if corrScipy[0] <= corrCutOff:
+			return None, None, None, None, None, False
+		else:
+			#P.vlines(isoCentroids, 0, isoAmplitudes, 'k')
+			#plotIsoProfile(returnX, returnY, color = '-g')
 
-
-		#P.vlines(isoCentroids, 0, isoAmplitudes, 'k')
-		#plotIsoProfile(returnX, returnY, color = '-g')
-
-		return mzResCalc, returnX, returnY, startInd, corrFactor, fitOk
+			#return mzResCalc, returnX, returnY, startInd, corrFactor, fitOk
+			return mzResCalc, returnX, returnY, startInd, corrScipy[0], fitOk
 	else:
-		return None, None, None, None, fitOk
+		return None, None, None, None, None, fitOk
 
 def normalize2One(datArray):
 	return datArray/datArray.max()
@@ -471,8 +500,8 @@ if __name__ == "__main__":
 	print len(mz)
 	start = 0
 	stop = len(mz)
-	#start = 270000
-	#stop = 277000
+#	start = 10000
+#	stop = 20000
 	mz = mz[start:stop]
 	abund = abund[start:stop]
 	abund = SF.normalize(abund)
@@ -483,7 +512,7 @@ if __name__ == "__main__":
 	scales = N.array([1,2,4,6,8,12,16])
 	minSNR = 1.5
 	resEst = 10000
-	corrCutOff = 0.
+	corrCutOff = 0.5
 	t1 = time.clock()
 	ANS = processSpectrum(mz, abund, scales, minSNR, resEst, corrCutOff = corrCutOff)
 	print "Peak Picking and Isotopic Fitting Time: ", time.clock()-t1
@@ -502,4 +531,14 @@ if __name__ == "__main__":
 				ax.plot(isoX[i], isoY[i], 'r', alpha = 0.5)
 				#plots the correlation value above the "monoisotopic" peak
 				ax.text(centroid[0], centY[i][0]*1.1, '%.3f'%corrFits[i])
+
+#	startInd = N.where(mz>=isoX[2].min())[0][0]
+#	endInd = N.where(mz<=isoX[2].max())[0][-1]
+#	print startInd, endInd
+#	P.figure()
+#	subX = mz[startInd:endInd]
+#	subY = abund[startInd:endInd]
+#	P.plot(subY, 'og', alpha = 0.7)
+#	P.plot(isoY[2], 'or', alpha = 0.6)
+#	print len(isoX[2]), len(subX)
 	P.show()
