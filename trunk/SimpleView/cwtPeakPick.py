@@ -8,7 +8,7 @@ import sys,traceback
 import pylab as P
 import numpy as N
 
-from iwavelets import pycwt as W
+import pycwt as W
 
 from interpolate import interpolate_spectrum
 
@@ -27,7 +27,7 @@ from mpl_image_widget import MPL_Widget as MPL_CWT
 #except:
 #    print "Pysco not installed, try easy_install psyco at your command prompt"
 
-def cwtMS(Y, scales, sampleScale = 1.0, wlet = 'Mexican Hat', maxClip = 1000., staticThresh = None):
+def cwtMS(Y, scales, sampleScale = 1.0, wlet = 'MexHat', maxClip = 1000., staticThresh = None):
     '''
     Y is the INTERPOLATED intensity array from a mass spectrum.
     interpolation IS necessary especially for TOF data as the m/z domain is non-linear.
@@ -48,7 +48,7 @@ def cwtMS(Y, scales, sampleScale = 1.0, wlet = 'Mexican Hat', maxClip = 1000., s
             print "Y Index Max", yMax+yMod
             ans = W.cwt_a(SF.roundLen(Y[0:(yMax+yMod)]), scales, sampling_scale = sampleScale)#, wavelet = wlet)
         else:
-            ans = W.cwt_a(Y, scales, sampling_scale = sampleScale)#, wavelet = wlet)
+            ans = W.cwt_a(Y, scales, sampling_scale = sampleScale, wavelet = wlet)
             #Y[yIndex] *= 0.#set them to 0
 #            yTemp = Y[0:yIndex[-1]]#clip length of Y to make it faster
 #            yTemp = SF.roundLen(yTemp)
