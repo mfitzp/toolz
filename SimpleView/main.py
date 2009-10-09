@@ -73,6 +73,8 @@ from dataClass import DataClass
 import supportFunc as SF
 import getBaseline as GB
 import cwtPeakPick as CWT
+import cwtPeakPickDOG as CWT_HR
+import isoInterface as ISO
 #import peafFindThread as PFT
 import PeakFunctions as PF
 import customTable as CT
@@ -135,6 +137,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.curFPWidget = FP.Finger_Widget(parent = self)
         self.fingerPlots.append(self.curFPWidget)
         self.peakParams = None
+        self.resType = None #will be a string for High, Standard, and Low Resolution
         self.setupPeakPick()
         ###FP Related Vars:
         self.expandFPBool = False
@@ -307,7 +310,43 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
         QtCore.QObject.connect(self.peakSetting_CB, QtCore.SIGNAL("currentIndexChanged(QString)"), self.peakComboChanged)
 
+        QtCore.QObject.connect(self.peakPick_CB, QtCore.SIGNAL("currentIndexChanged(QString)"), self.setPPTab)
+
+        QtCore.QObject.connect(self.tabPeakTable, QtCore.SIGNAL("itemSelectionChanged()"), self.peakTableSelect)
+
+
         self.useDefaultScale_CB.nextCheckState()
+        self.peakPick_CB.setCurrentIndex(0)
+        self.setPPTab('High Resolution')
+
+    def peakTableSelect(self):
+        curRow = self.tabPeakTable.currentRow()
+        curItem = self.tabPeakTable.item(curRow,0)#row, column
+        curVal = N.float(str(curItem.text()))
+        print curVal
+
+
+
+    def setPPTab(self, selectedStr):
+
+        selectedStr = str(selectedStr)
+        self.resType = selectedStr
+        settingsKey = {'High Resolution':0,
+                       'Standard Resolution':1,
+                       'Low Resolution':2
+                       }
+        selIndex = settingsKey[selectedStr]
+
+        #guiOptions = [self.hiResPP_CB, self.standardResPP_CB, self.lowResPP_CB]
+
+#        for i,guiElement in enumerate(guiOptions):
+#
+#            if i == selIndex:
+#                guiElement.setCheckState(QtCore.Qt.Checked)
+#            else:
+#                guiElement.setCheckState(QtCore.Qt.Unchecked)
+
+        self.tabWidget_PP.setCurrentIndex(selIndex)
 
 
     def _getDir_(self):
@@ -2189,7 +2228,10 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
         if len(self.scales) < 1:
             QtGui.QMessageBox.warning(self, "Error creating Scales",  "You Created and Empty Scale\nUsing Defaults.")
-            self.scales = N.arange(2,64,8)
+            if str(self.peakPick_CB.currentText()) == 'High Resolution':
+                self.scales = N.array([1,2,4,6,8,12,16])
+            else:
+                self.scales = N.arange(2,64,8)
         self.setupScaleTable()
 
     def scaleSetup(self, value=None):
@@ -2203,7 +2245,11 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             self.scaleFactor_SB.setEnabled(False)
             self.makeScales_Btn.setEnabled(False)
 
-            self.scales = N.arange(2,64,8)
+
+            if str(self.peakPick_CB.currentText()) == 'High Resolution':
+                self.scales = N.array([1,2,4,6,8,12,16])
+            else:
+                self.scales = N.arange(2,64,8)
             self.setupScaleTable()
 
         elif value == 0:
@@ -2217,7 +2263,10 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
             self.makeUserScale()
         else:
-            self.scales = N.arange(2,64,8)
+            if str(self.peakPick_CB.currentText()) == 'High Resolution':
+                self.scales = N.array([1,2,4,6,8,12,16])
+            else:
+                self.scales = N.arange(2,64,8)
             self.setupScaleTable()
 
     def setupScaleTable(self):
@@ -2270,20 +2319,22 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             self.dbScanEPS = None#this is done because if no EPS is passed autocalculate is enabled.
         if self.scales != None:
             if len(self.scales) > 0:
-                self.peakParams = {'scales':self.scales,
-                                  'minSNR':self.snrNoiseEst,
-                                  'minRow':self.minRow,
-                                  'minClust':self.minClust,
-                                  'rowThresh':self.rowThresh,
-                                  'noiseFactor':self.noiseSplitFactor,
-                                  'dbscanEPS':self.dbScanEPS,
-                                  'staticThresh':self.staticThresh,
-                                  'autoSave':self.autoSavePks
-                                  }
-#                for # need to get dataItemList self.dataDict[curDataName]
-#                print self.peakParams
+                if self.resType == 'Standard Resolution':#setup parameters for low res peak picking
+                    self.peakParams = {'scales':self.scales,
+                                      'minSNR':self.snrNoiseEst,
+                                      'minRow':self.minRow,
+                                      'minClust':self.minClust,
+                                      'rowThresh':self.rowThresh,
+                                      'noiseFactor':self.noiseSplitFactor,
+                                      'dbscanEPS':self.dbScanEPS,
+                                      'staticThresh':self.staticThresh,
+                                      'autoSave':self.autoSavePks
+                                      }
+    #                for # need to get dataItemList self.dataDict[curDataName]
+    #                print self.peakParams
 
-                if self.lowResPP_CB.isChecked():#setup parameters for low res peak picking
+    #                if self.lowResPP_CB.isChecked():#setup parameters for low res peak picking
+                elif self.resType == 'Low Resolution':#setup parameters for low res peak picking
                     self.peakParams = {'minSNR':self.lowResMinSNR_SB.value(),
                                        'slopeThresh':None,
                                        'smthKern':self.lowResSmthKern_SB.value(),
@@ -2292,15 +2343,24 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                                        'ampThresh':None,
                                        'autoSave':self.autoSavePks
                                        }
+                elif self.resType == 'High Resolution':#setup parameters for low res peak picking
+                    self.peakParams = {'scales':self.scales,
+                                      'minSNR':self.snrNoiseEst,
+                                      'minRow':self.minRow,
+                                      'minClust':self.minClust,
+                                      'noiseFactor':self.noiseSplitFactor,
+                                      'staticThresh':self.staticThresh,
+                                      'autoSave':self.autoSavePks
+                                      }
                 if len(dataItemList) == 1:
-                    if self.FPT.updateThread(dataItemList, self.peakParams, plotCWT = self.showCWT_CB.isChecked(), parent = self, lowRes = self.lowResPP_CB.isChecked()):
+                    if self.FPT.updateThread(dataItemList, self.peakParams, plotCWT = self.showCWT_CB.isChecked(), parent = self, resType = self.resType):#lowRes = self.lowResPP_CB.isChecked()):
                         self.toggleProgressBar(True)
                         self.progressMax = N.float(len(dataItemList))
                         print self.progressMax
                         self.FPT.start()
                 else:
-                    self.showCWT_CB.isChecked()
-                    if self.FPT.updateThread(dataItemList, self.peakParams, lowRes = self.lowResPP_CB.isChecked()):
+                    #self.showCWT_CB.isChecked()
+                    if self.FPT.updateThread(dataItemList, self.peakParams, restType = self.resType):#lowRes = self.lowResPP_CB.isChecked()):
                         self.toggleProgressBar(True)
                         self.progressMax = N.float(len(dataItemList))
                         print self.progressMax
@@ -2760,7 +2820,8 @@ class FindPeaksThread(QtCore.QThread):
             self.dataList = None
             self.xData = None
             self.yData = None
-            self.lowRes = False
+            self.resType = None
+            #self.lowRes = False
             self.autoSave = False
             self.paramDict = {'scales':None,
                               'minSNR':None,
@@ -2780,14 +2841,23 @@ class FindPeaksThread(QtCore.QThread):
                                     'ampThresh':None,
                                     'autoSave':None
                                     }
+            self.hiResParamDict = {'minSNR':None,
+                                   'slopeThresh':None,
+                                   'smthKern':None,
+                                   'fitWidth':None,
+                                   'peakWidth':None,
+                                   'ampThresh':None,
+                                   'autoSave':None
+                                   }
 
-        def updateThread(self, dataItemList, paramDict, plotCWT = False, parent = None, lowRes = False):
+        def updateThread(self, dataItemList, paramDict, plotCWT = False, parent = None, resType = 'Standard Resolution'):
             self.iteration = 0
             self.dataItemList = dataItemList
-#            self.dataItemDict = dataItemDict
             self.numItems = len(self.dataItemList)
             self.paramDict = paramDict
-            if lowRes:
+            self.resType = resType
+            #if lowRes:
+            if self.resType == 'Low Resolution':
                 self.lowResParamDict = paramDict
                 self.minSNR = self.lowResParamDict['minSNR']
                 self.slopeThresh = self.lowResParamDict['slopeThresh']
@@ -2795,7 +2865,7 @@ class FindPeaksThread(QtCore.QThread):
                 self.peakWidth = self.lowResParamDict['peakWidth']
                 self.ampThresh = self.lowResParamDict['ampThresh']
                 self.autoSave = self.paramDict['autoSave']
-            else:
+            elif self.resType == 'Standard Resolution':
                 self.scales = self.paramDict['scales']
                 self.minSNR = self.paramDict['minSNR']
                 self.minRow = self.paramDict['minRow']
@@ -2805,9 +2875,18 @@ class FindPeaksThread(QtCore.QThread):
                 self.EPS = self.paramDict['dbscanEPS']
                 self.staticThresh = self.paramDict['staticThresh']
                 self.autoSave = self.paramDict['autoSave']
+            elif self.resType == 'High Resolution':
+                self.hiResParamDict = paramDict
+                self.scales = self.paramDict['scales']
+                self.minSNR = self.paramDict['minSNR']
+                self.minRow = self.paramDict['minRow']
+                self.noiseFactor = self.paramDict['noiseFactor']
+                self.staticThresh = self.paramDict['staticThresh']
+                self.autoSave = self.paramDict['autoSave']
+
             self.parent = parent
             self.plotCWT = plotCWT
-            self.lowRes = lowRes#whether or not low resolution peak picking is turned on.
+            #self.lowRes = lowRes#whether or not low resolution peak picking is turned on.
             self.ready = True
             return True
 
@@ -2815,7 +2894,8 @@ class FindPeaksThread(QtCore.QThread):
             if self.ready:
                 t0 = time.clock()
                 for dataItem in self.dataItemList:
-                    if self.lowRes:
+                    #if self.lowRes:
+                    if self.resType == 'Low Resolution':
                         peakInfo = PF.peakHelper(dataItem.x, dataItem.y, minSNR = self.minSNR, slopeThresh = self.slopeThresh, \
                                                  smthKern = self.smthKern, fitWidth = None, peakWidth = self.peakWidth,\
                                                  ampThresh = self.ampThresh)
@@ -2842,10 +2922,7 @@ class FindPeaksThread(QtCore.QThread):
                                 self.iteration +=1
                                 self.emit(QtCore.SIGNAL("progress(int)"),self.iteration)
                                 self.ready = False
-                    else:
-
-    #                    dataItem = self.dataItemDict[name]
-
+                    elif self.resType == 'Standard Resolution':
     #                    print "Length of Y: ", len(dataItem.y)
     #                    print "Thresh: ", self.staticThresh/dataItem.normFactor, dataItem.normFactor, self.staticThresh
                         self.cwt = CWT.cwtMS(dataItem.y, self.scales, staticThresh = (self.staticThresh/dataItem.normFactor)*100)
@@ -2900,6 +2977,72 @@ class FindPeaksThread(QtCore.QThread):
     #                        print "Error with CWT"
     #                        self.emit(QtCore.SIGNAL("returnPeakList(PyQt_PyObject)"),None)
                     #emit finished signal
+                    elif self.resType == 'High Resolution':
+                        print "high resoltion"
+
+                        ANS, boolAns= ISO.processSpectrum(dataItem.x, dataItem.y, scales = self.scales, minSNR = self.minSNR, pkResEst = 10000, corrCutOff = -5)
+                        if boolAns:
+                            centX, centY, isoX, isoY, corrFits = ANS
+                            tempCentX = N.zeros(len(centX))
+                            tempCentY = N.zeros(len(centX))
+                            for i,cent in enumerate(centX):
+                                tempCentX[i] = cent[0]
+                                tempCentY[i] = centY[i][0]
+                            dataItem.setPeakList(N.column_stack((tempCentX,tempCentY)))
+                            dataItem.setPeakParams(self.paramDict)
+                            self.numItems += -1
+                            self.iteration +=1
+                            self.emit(QtCore.SIGNAL("progress(int)"),self.iteration)
+                            self.ready = False
+
+
+
+#                        self.cwt = CWT_HR.cwtMS(dataItem.y, self.scales, wlet = 'DOG', staticThresh = (self.staticThresh/dataItem.normFactor)*100)
+#                        if self.cwt != None:
+#                            if not dataItem.noiseOK:
+#                                numSegs = len(dataItem.x)/self.noiseFactor
+#                                dataItem.getNoise(numSegs,self.minSNR)
+#                            #static Thresh is scaled for each individual spectrum and uses the normFactor or maximum of the
+#                            # Y values to compute where a spectrum should be cut
+##                            boolAns = getCWTPeaks(cwt, xArray, yArray,
+##                                                  noiseEst, minRow = 0,
+##                                                  minClust = 2, minNoiseEst = minNoise,
+##                                                  EPS = None, debug = True, tempAxis = ax2)
+#                            cwtResult = CWT_HR.getCWTPeaks(self.cwt, dataItem.x, dataItem.y,\
+#                                                        dataItem.noiseEst, minSNR = self.minSNR,\
+#                                                        minRow = 0, minClust =2,\
+#                                                        pntPad = dataItem.mzPad,\
+#                                                        minNoiseEst = dataItem.minNoiseEst,\
+#                                                        EPS = None, debug = True)
+#
+#    #                        def getCWTPeaks(scaledCWT, X, Y, noiseEst, minSNR = 3,\
+#    #                                        minRow = 3, minClust = 4, rowThresh = 3,\
+#    #                                        pntPad = 50, staticThresh = 0.2, minNoiseEst = 0.025,
+#    #                                        EPS = None):
+#                            peakLoc, peakInt, rawPeakInd, cwtPeakLoc, cClass, boolAns = cwtResult
+#                            print len(cClass)
+#                            if boolAns:
+#                                if cClass != None and len(cClass)>0:
+#                                    if len(peakLoc) != 0:
+#    #                                    print "Peak Locations", peakLoc
+#    #                                    print "Peak Intensity", peakInt
+#    #                                    print "Raw Peak Index", rawPeakInd
+#    #                                    print "Peaks from DataItem.x", dataItem.x[rawPeakInd]
+#                                        dataItem.setPeakList(N.column_stack((peakLoc,peakInt)))
+#                                        dataItem.setPeakParams(self.hiResParamDict)
+#                                        dataItem.pkListOk = boolAns
+#                                        if self.autoSave:
+#                                            dataItem.savePkList()
+#                                        self.numItems += -1
+#                                        self.iteration +=1
+#                                        self.emit(QtCore.SIGNAL("progress(int)"),self.iteration)
+#                                        self.ready = False
+#                                else:
+#
+#                                    print "Error with Peak Picking"
+#                                if self.parent != None and self.plotCWT:
+#                                    self.emit(QtCore.SIGNAL("returnCWT(PyQt_PyObject)"),[self.cwt, cwtResult])
+
                 print "Peak Find Time: ", time.clock()-t0
                 self.emit(QtCore.SIGNAL("finished(bool)"),True)
 
