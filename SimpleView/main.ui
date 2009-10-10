@@ -1,7 +1,8 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>MainWindow</class>
- <widget class="QMainWindow" name="MainWindow" >
-  <property name="geometry" >
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
@@ -9,44 +10,44 @@
     <height>765</height>
    </rect>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>SpectrumViewer</string>
   </property>
-  <property name="windowIcon" >
-   <iconset resource="icons.qrc" >
+  <property name="windowIcon">
+   <iconset resource="icons.qrc">
     <normaloff>:/new/prefix1/Retro Mario World_32.png</normaloff>:/new/prefix1/Retro Mario World_32.png</iconset>
   </property>
-  <widget class="QWidget" name="centralwidget" >
-   <layout class="QGridLayout" >
-    <item row="0" column="1" >
-     <widget class="QTabWidget" name="tabWidget" >
-      <property name="enabled" >
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QGridLayout">
+    <item row="0" column="1">
+     <widget class="QTabWidget" name="tabWidget">
+      <property name="enabled">
        <bool>true</bool>
       </property>
-      <property name="currentIndex" >
+      <property name="currentIndex">
        <number>0</number>
       </property>
-      <widget class="QWidget" name="plotTab" >
-       <attribute name="title" >
+      <widget class="QWidget" name="plotTab">
+       <attribute name="title">
         <string>Plot</string>
        </attribute>
-       <layout class="QGridLayout" >
-        <item row="0" column="0" >
-         <layout class="QHBoxLayout" >
+       <layout class="QGridLayout">
+        <item row="0" column="0">
+         <layout class="QHBoxLayout">
           <item>
-           <layout class="QVBoxLayout" >
+           <layout class="QVBoxLayout">
             <item>
-             <layout class="QHBoxLayout" >
+             <layout class="QHBoxLayout">
               <item>
-               <widget class="QLabel" name="label_2" >
-                <property name="text" >
+               <widget class="QLabel" name="label_2">
+                <property name="text">
                  <string>Spectrum Location:</string>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QLineEdit" name="specNameEdit" >
-                <property name="readOnly" >
+               <widget class="QLineEdit" name="specNameEdit">
+                <property name="readOnly">
                  <bool>true</bool>
                 </property>
                </widget>
@@ -54,9 +55,9 @@
              </layout>
             </item>
             <item>
-             <widget class="MPL_Widget" native="1" name="plotWidget" >
-              <property name="sizePolicy" >
-               <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
+             <widget class="MPL_Widget" name="plotWidget" native="true">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
@@ -66,110 +67,110 @@
            </layout>
           </item>
           <item>
-           <widget class="QTabWidget" name="tabWidget_2" >
-            <property name="sizePolicy" >
-             <sizepolicy vsizetype="Expanding" hsizetype="Minimum" >
+           <widget class="QTabWidget" name="tabWidget_2">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
-            <property name="maximumSize" >
+            <property name="maximumSize">
              <size>
               <width>200</width>
               <height>16777215</height>
              </size>
             </property>
-            <property name="currentIndex" >
+            <property name="currentIndex">
              <number>0</number>
             </property>
-            <widget class="QWidget" name="tab_4" >
-             <attribute name="title" >
+            <widget class="QWidget" name="tab_4">
+             <attribute name="title">
               <string>Spectra</string>
              </attribute>
-             <layout class="QGridLayout" >
-              <item row="0" column="0" >
-               <widget class="QTreeWidget" name="groupTreeWidget" >
-                <property name="maximumSize" >
+             <layout class="QGridLayout">
+              <item row="0" column="0">
+               <widget class="QTreeWidget" name="groupTreeWidget">
+                <property name="maximumSize">
                  <size>
                   <width>200</width>
                   <height>16777215</height>
                  </size>
                 </property>
-                <property name="selectionMode" >
+                <property name="selectionMode">
                  <enum>QAbstractItemView::ExtendedSelection</enum>
                 </property>
-                <property name="sortingEnabled" >
+                <property name="sortingEnabled">
                  <bool>true</bool>
                 </property>
-                <property name="headerHidden" >
+                <property name="headerHidden">
                  <bool>false</bool>
                 </property>
-                <property name="columnCount" >
+                <property name="columnCount">
                  <number>1</number>
                 </property>
                 <column>
-                 <property name="text" >
+                 <property name="text">
                   <string>1</string>
                  </property>
                 </column>
                </widget>
               </item>
-              <item row="1" column="0" >
-               <widget class="QCheckBox" name="multiPlot_CB" >
-                <property name="toolTip" >
-                 <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+              <item row="1" column="0">
+               <widget class="QCheckBox" name="multiPlot_CB">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
-&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">Enable if multiple spectral overlays are desired.  Keep in mind the memory requirments.&lt;/p>&lt;/body>&lt;/html></string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Enable if multiple spectral overlays are desired.  Keep in mind the memory requirments.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                 </property>
-                <property name="text" >
+                <property name="text">
                  <string>Enable Multiplot?</string>
                 </property>
                </widget>
               </item>
              </layout>
             </widget>
-            <widget class="QWidget" name="tab_5" >
-             <attribute name="title" >
+            <widget class="QWidget" name="tab_5">
+             <attribute name="title">
               <string>Peak Table</string>
              </attribute>
-             <layout class="QVBoxLayout" name="verticalLayout_9" >
+             <layout class="QVBoxLayout" name="verticalLayout_9">
               <item>
-               <widget class="CustomTable" name="tabPeakTable" />
+               <widget class="CustomTable" name="tabPeakTable"/>
               </item>
               <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_4" >
+               <layout class="QHBoxLayout" name="horizontalLayout_4">
                 <item>
-                 <widget class="QLabel" name="label_26" >
-                  <property name="text" >
+                 <widget class="QLabel" name="label_26">
+                  <property name="text">
                    <string>Zoom Window (%)</string>
                   </property>
                  </widget>
                 </item>
                 <item>
-                 <widget class="QComboBox" name="comboBox_2" >
+                 <widget class="QComboBox" name="zoomPercent_CB">
                   <item>
-                   <property name="text" >
+                   <property name="text">
                     <string>0.5</string>
                    </property>
                   </item>
                   <item>
-                   <property name="text" >
+                   <property name="text">
                     <string>1</string>
                    </property>
                   </item>
                   <item>
-                   <property name="text" >
+                   <property name="text">
                     <string>5</string>
                    </property>
                   </item>
                   <item>
-                   <property name="text" >
+                   <property name="text">
                     <string>10</string>
                    </property>
                   </item>
                   <item>
-                   <property name="text" >
+                   <property name="text">
                     <string>20</string>
                    </property>
                   </item>
@@ -183,350 +184,350 @@ p, li { white-space: pre-wrap; }
           </item>
          </layout>
         </item>
-        <item row="1" column="0" >
-         <layout class="QGridLayout" >
-          <property name="horizontalSpacing" >
+        <item row="1" column="0">
+         <layout class="QGridLayout">
+          <property name="horizontalSpacing">
            <number>3</number>
           </property>
-          <property name="verticalSpacing" >
+          <property name="verticalSpacing">
            <number>2</number>
           </property>
-          <item row="0" column="3" >
-           <widget class="QLineEdit" name="cALabelLE" >
-            <property name="maximumSize" >
+          <item row="0" column="3">
+           <widget class="QLineEdit" name="cALabelLE">
+            <property name="maximumSize">
              <size>
               <width>16777215</width>
               <height>17</height>
              </size>
             </property>
-            <property name="font" >
+            <property name="font">
              <font>
               <pointsize>7</pointsize>
              </font>
             </property>
-            <property name="readOnly" >
+            <property name="readOnly">
              <bool>true</bool>
             </property>
            </widget>
           </item>
-          <item row="0" column="5" >
-           <widget class="QLineEdit" name="cAIndexLE" >
-            <property name="maximumSize" >
+          <item row="0" column="5">
+           <widget class="QLineEdit" name="cAIndexLE">
+            <property name="maximumSize">
              <size>
               <width>16777215</width>
               <height>17</height>
              </size>
             </property>
-            <property name="font" >
+            <property name="font">
              <font>
               <pointsize>7</pointsize>
              </font>
             </property>
-            <property name="text" >
+            <property name="text">
              <string/>
             </property>
-            <property name="readOnly" >
+            <property name="readOnly">
              <bool>true</bool>
             </property>
            </widget>
           </item>
-          <item row="0" column="7" >
-           <widget class="QLineEdit" name="cA_XLE" >
-            <property name="maximumSize" >
+          <item row="0" column="7">
+           <widget class="QLineEdit" name="cA_XLE">
+            <property name="maximumSize">
              <size>
               <width>16777215</width>
               <height>17</height>
              </size>
             </property>
-            <property name="font" >
+            <property name="font">
              <font>
               <pointsize>7</pointsize>
              </font>
             </property>
-            <property name="readOnly" >
+            <property name="readOnly">
              <bool>true</bool>
             </property>
            </widget>
           </item>
-          <item row="0" column="9" >
-           <widget class="QLineEdit" name="cA_YLE" >
-            <property name="maximumSize" >
+          <item row="0" column="9">
+           <widget class="QLineEdit" name="cA_YLE">
+            <property name="maximumSize">
              <size>
               <width>16777215</width>
               <height>17</height>
              </size>
             </property>
-            <property name="font" >
+            <property name="font">
              <font>
               <pointsize>7</pointsize>
              </font>
             </property>
-            <property name="readOnly" >
+            <property name="readOnly">
              <bool>true</bool>
             </property>
            </widget>
           </item>
-          <item row="1" column="3" >
-           <widget class="QLineEdit" name="cBLabelLE" >
-            <property name="maximumSize" >
+          <item row="1" column="3">
+           <widget class="QLineEdit" name="cBLabelLE">
+            <property name="maximumSize">
              <size>
               <width>16777215</width>
               <height>17</height>
              </size>
             </property>
-            <property name="font" >
+            <property name="font">
              <font>
               <pointsize>7</pointsize>
              </font>
             </property>
-            <property name="readOnly" >
+            <property name="readOnly">
              <bool>true</bool>
             </property>
            </widget>
           </item>
-          <item row="1" column="5" >
-           <widget class="QLineEdit" name="cBIndexLE" >
-            <property name="maximumSize" >
+          <item row="1" column="5">
+           <widget class="QLineEdit" name="cBIndexLE">
+            <property name="maximumSize">
              <size>
               <width>16777215</width>
               <height>17</height>
              </size>
             </property>
-            <property name="font" >
+            <property name="font">
              <font>
               <pointsize>7</pointsize>
              </font>
             </property>
-            <property name="readOnly" >
+            <property name="readOnly">
              <bool>true</bool>
             </property>
            </widget>
           </item>
-          <item row="1" column="7" >
-           <widget class="QLineEdit" name="cB_XLE" >
-            <property name="maximumSize" >
+          <item row="1" column="7">
+           <widget class="QLineEdit" name="cB_XLE">
+            <property name="maximumSize">
              <size>
               <width>16777215</width>
               <height>17</height>
              </size>
             </property>
-            <property name="font" >
+            <property name="font">
              <font>
               <pointsize>7</pointsize>
              </font>
             </property>
-            <property name="readOnly" >
+            <property name="readOnly">
              <bool>true</bool>
             </property>
            </widget>
           </item>
-          <item row="1" column="9" >
-           <widget class="QLineEdit" name="cB_YLE" >
-            <property name="maximumSize" >
+          <item row="1" column="9">
+           <widget class="QLineEdit" name="cB_YLE">
+            <property name="maximumSize">
              <size>
               <width>16777215</width>
               <height>17</height>
              </size>
             </property>
-            <property name="font" >
+            <property name="font">
              <font>
               <pointsize>7</pointsize>
              </font>
             </property>
-            <property name="readOnly" >
+            <property name="readOnly">
              <bool>true</bool>
             </property>
            </widget>
           </item>
-          <item row="0" column="2" >
-           <widget class="QLabel" name="label_3" >
-            <property name="font" >
+          <item row="0" column="2">
+           <widget class="QLabel" name="label_3">
+            <property name="font">
              <font>
               <pointsize>8</pointsize>
              </font>
             </property>
-            <property name="text" >
+            <property name="text">
              <string>Label:</string>
             </property>
-            <property name="alignment" >
+            <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
             </property>
            </widget>
           </item>
-          <item row="1" column="2" >
-           <widget class="QLabel" name="label_4" >
-            <property name="font" >
+          <item row="1" column="2">
+           <widget class="QLabel" name="label_4">
+            <property name="font">
              <font>
               <pointsize>8</pointsize>
              </font>
             </property>
-            <property name="text" >
+            <property name="text">
              <string>Label:</string>
             </property>
-            <property name="alignment" >
+            <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
             </property>
            </widget>
           </item>
-          <item row="0" column="4" >
-           <widget class="QLabel" name="label_5" >
-            <property name="font" >
+          <item row="0" column="4">
+           <widget class="QLabel" name="label_5">
+            <property name="font">
              <font>
               <pointsize>8</pointsize>
              </font>
             </property>
-            <property name="text" >
+            <property name="text">
              <string>Index:</string>
             </property>
-            <property name="alignment" >
+            <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
             </property>
            </widget>
           </item>
-          <item row="0" column="6" >
-           <widget class="QLabel" name="label_6" >
-            <property name="font" >
+          <item row="0" column="6">
+           <widget class="QLabel" name="label_6">
+            <property name="font">
              <font>
               <pointsize>8</pointsize>
              </font>
             </property>
-            <property name="text" >
+            <property name="text">
              <string>X:</string>
             </property>
-            <property name="alignment" >
+            <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
             </property>
            </widget>
           </item>
-          <item row="0" column="8" >
-           <widget class="QLabel" name="label_7" >
-            <property name="font" >
+          <item row="0" column="8">
+           <widget class="QLabel" name="label_7">
+            <property name="font">
              <font>
               <pointsize>8</pointsize>
              </font>
             </property>
-            <property name="text" >
+            <property name="text">
              <string>Y:</string>
             </property>
-            <property name="alignment" >
+            <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
             </property>
            </widget>
           </item>
-          <item row="1" column="4" >
-           <widget class="QLabel" name="label_8" >
-            <property name="font" >
+          <item row="1" column="4">
+           <widget class="QLabel" name="label_8">
+            <property name="font">
              <font>
               <pointsize>8</pointsize>
              </font>
             </property>
-            <property name="text" >
+            <property name="text">
              <string>Index:</string>
             </property>
-            <property name="alignment" >
+            <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
             </property>
            </widget>
           </item>
-          <item row="1" column="6" >
-           <widget class="QLabel" name="label_9" >
-            <property name="font" >
+          <item row="1" column="6">
+           <widget class="QLabel" name="label_9">
+            <property name="font">
              <font>
               <pointsize>8</pointsize>
              </font>
             </property>
-            <property name="text" >
+            <property name="text">
              <string>X:</string>
             </property>
-            <property name="alignment" >
+            <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
             </property>
            </widget>
           </item>
-          <item row="1" column="8" >
-           <widget class="QLabel" name="label_10" >
-            <property name="font" >
+          <item row="1" column="8">
+           <widget class="QLabel" name="label_10">
+            <property name="font">
              <font>
               <pointsize>8</pointsize>
              </font>
             </property>
-            <property name="text" >
+            <property name="text">
              <string>Y:</string>
             </property>
-            <property name="alignment" >
+            <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
             </property>
            </widget>
           </item>
-          <item row="0" column="10" >
-           <widget class="QLabel" name="label_11" >
-            <property name="font" >
+          <item row="0" column="10">
+           <widget class="QLabel" name="label_11">
+            <property name="font">
              <font>
               <pointsize>8</pointsize>
              </font>
             </property>
-            <property name="text" >
+            <property name="text">
              <string>dx:</string>
             </property>
-            <property name="alignment" >
+            <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
             </property>
            </widget>
           </item>
-          <item row="1" column="10" >
-           <widget class="QLabel" name="label_12" >
-            <property name="font" >
+          <item row="1" column="10">
+           <widget class="QLabel" name="label_12">
+            <property name="font">
              <font>
               <pointsize>8</pointsize>
              </font>
             </property>
-            <property name="text" >
+            <property name="text">
              <string>dy:</string>
             </property>
-            <property name="alignment" >
+            <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
             </property>
            </widget>
           </item>
-          <item row="0" column="11" >
-           <widget class="QLineEdit" name="dxLE" >
-            <property name="maximumSize" >
+          <item row="0" column="11">
+           <widget class="QLineEdit" name="dxLE">
+            <property name="maximumSize">
              <size>
               <width>16777215</width>
               <height>17</height>
              </size>
             </property>
-            <property name="font" >
+            <property name="font">
              <font>
               <pointsize>7</pointsize>
              </font>
             </property>
-            <property name="readOnly" >
+            <property name="readOnly">
              <bool>true</bool>
             </property>
            </widget>
           </item>
-          <item row="1" column="11" >
-           <widget class="QLineEdit" name="dyLE" >
-            <property name="maximumSize" >
+          <item row="1" column="11">
+           <widget class="QLineEdit" name="dyLE">
+            <property name="maximumSize">
              <size>
               <width>16777215</width>
               <height>17</height>
              </size>
             </property>
-            <property name="font" >
+            <property name="font">
              <font>
               <pointsize>7</pointsize>
              </font>
             </property>
-            <property name="readOnly" >
+            <property name="readOnly">
              <bool>true</bool>
             </property>
            </widget>
           </item>
-          <item row="0" column="0" >
-           <widget class="QCheckBox" name="cursACB" >
-            <property name="font" >
+          <item row="0" column="0">
+           <widget class="QCheckBox" name="cursACB">
+            <property name="font">
              <font>
               <family>Arial</family>
               <pointsize>9</pointsize>
@@ -535,17 +536,17 @@ p, li { white-space: pre-wrap; }
               <bold>true</bold>
              </font>
             </property>
-            <property name="layoutDirection" >
+            <property name="layoutDirection">
              <enum>Qt::RightToLeft</enum>
             </property>
-            <property name="text" >
+            <property name="text">
              <string>Cursor A</string>
             </property>
            </widget>
           </item>
-          <item row="1" column="0" >
-           <widget class="QCheckBox" name="cursBCB" >
-            <property name="font" >
+          <item row="1" column="0">
+           <widget class="QCheckBox" name="cursBCB">
+            <property name="font">
              <font>
               <family>Arial</family>
               <pointsize>9</pointsize>
@@ -554,10 +555,10 @@ p, li { white-space: pre-wrap; }
               <bold>true</bold>
              </font>
             </property>
-            <property name="layoutDirection" >
+            <property name="layoutDirection">
              <enum>Qt::RightToLeft</enum>
             </property>
-            <property name="text" >
+            <property name="text">
              <string>Cursor B</string>
             </property>
            </widget>
@@ -566,155 +567,155 @@ p, li { white-space: pre-wrap; }
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="optionsTab" >
-       <attribute name="title" >
+      <widget class="QWidget" name="optionsTab">
+       <attribute name="title">
         <string>Options</string>
        </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_8" >
+       <layout class="QVBoxLayout" name="verticalLayout_8">
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_3" >
+         <layout class="QHBoxLayout" name="horizontalLayout_3">
           <item>
-           <layout class="QGridLayout" name="gridLayout" >
-            <item row="0" column="0" >
-             <widget class="QCheckBox" name="loadmzXMLCB" >
-              <property name="toolTip" >
-               <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+           <layout class="QGridLayout" name="gridLayout">
+            <item row="0" column="0">
+             <widget class="QCheckBox" name="loadmzXMLCB">
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
-&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">Uncheck to load Bruker fid files.&lt;/p>
-&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">Keep in mind that only LIFT files&lt;/p>
-&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">that have been converted to mzXML&lt;/p>
-&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">can be loaded.&lt;/p>&lt;/body>&lt;/html></string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Uncheck to load Bruker fid files.&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Keep in mind that only LIFT files&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;that have been converted to mzXML&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;can be loaded.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
-              <property name="text" >
+              <property name="text">
                <string>Load mzXML</string>
               </property>
-              <property name="checked" >
+              <property name="checked">
                <bool>true</bool>
               </property>
              </widget>
             </item>
-            <item row="0" column="1" >
-             <widget class="QCheckBox" name="plotLegendCB" >
-              <property name="toolTip" >
-               <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+            <item row="0" column="1">
+             <widget class="QCheckBox" name="plotLegendCB">
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
-&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">Include plot legend by default?&lt;/p>&lt;/body>&lt;/html></string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Include plot legend by default?&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
-              <property name="text" >
+              <property name="text">
                <string>Plot Legend</string>
               </property>
-              <property name="checked" >
+              <property name="checked">
                <bool>true</bool>
               </property>
              </widget>
             </item>
-            <item row="0" column="2" >
-             <widget class="QCheckBox" name="plotPkListCB" >
-              <property name="text" >
+            <item row="0" column="2">
+             <widget class="QCheckBox" name="plotPkListCB">
+              <property name="text">
                <string>Plot Peak List</string>
               </property>
-              <property name="checked" >
+              <property name="checked">
                <bool>true</bool>
               </property>
              </widget>
             </item>
-            <item row="0" column="3" >
-             <widget class="QCheckBox" name="autoSavePkList_CB" >
-              <property name="toolTip" >
-               <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+            <item row="0" column="3">
+             <widget class="QCheckBox" name="autoSavePkList_CB">
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
-&lt;p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">&lt;/p>&lt;/body>&lt;/html></string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
-              <property name="text" >
+              <property name="text">
                <string>Auto-save Found Peaks?</string>
               </property>
-              <property name="checked" >
+              <property name="checked">
                <bool>true</bool>
               </property>
              </widget>
             </item>
-            <item row="1" column="0" >
-             <widget class="QCheckBox" name="excludeLIFTCB" >
-              <property name="toolTip" >
-               <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+            <item row="1" column="0">
+             <widget class="QCheckBox" name="excludeLIFTCB">
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
-&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">Ignore LIFT files when loading data?&lt;/p>&lt;/body>&lt;/html></string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Ignore LIFT files when loading data?&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
-              <property name="text" >
+              <property name="text">
                <string>Exclude LIFT MS/MS Files</string>
               </property>
              </widget>
             </item>
-            <item row="1" column="1" >
-             <widget class="QCheckBox" name="labelPeak_CB" >
-              <property name="toolTip" >
-               <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+            <item row="1" column="1">
+             <widget class="QCheckBox" name="labelPeak_CB">
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
-&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">Label picked peaks when plotting?&lt;/p>&lt;/body>&lt;/html></string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Label picked peaks when plotting?&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
-              <property name="text" >
+              <property name="text">
                <string>Label Peaks?</string>
               </property>
-              <property name="checked" >
+              <property name="checked">
                <bool>false</bool>
               </property>
              </widget>
             </item>
-            <item row="1" column="2" >
-             <widget class="QCheckBox" name="plotNoiseEst_CB" >
-              <property name="toolTip" >
-               <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+            <item row="1" column="2">
+             <widget class="QCheckBox" name="plotNoiseEst_CB">
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
-&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">Include noise estimate when plotting?&lt;/p>&lt;/body>&lt;/html></string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Include noise estimate when plotting?&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
-              <property name="text" >
+              <property name="text">
                <string>Show Noise Estimate</string>
               </property>
-              <property name="checked" >
+              <property name="checked">
                <bool>false</bool>
               </property>
              </widget>
             </item>
-            <item row="1" column="3" >
-             <widget class="QCheckBox" name="invertCompCB" >
-              <property name="text" >
+            <item row="1" column="3">
+             <widget class="QCheckBox" name="invertCompCB">
+              <property name="text">
                <string>Invert Single Comparison</string>
               </property>
-              <property name="checked" >
+              <property name="checked">
                <bool>true</bool>
               </property>
              </widget>
             </item>
-            <item row="2" column="3" >
-             <layout class="QHBoxLayout" >
+            <item row="2" column="3">
+             <layout class="QHBoxLayout">
               <item>
-               <widget class="QLabel" name="label_18" >
-                <property name="text" >
+               <widget class="QLabel" name="label_18">
+                <property name="text">
                  <string>Global ppm Error:</string>
                 </property>
-                <property name="alignment" >
+                <property name="alignment">
                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QDoubleSpinBox" name="globalPPM_SB" >
-                <property name="minimum" >
+               <widget class="QDoubleSpinBox" name="globalPPM_SB">
+                <property name="minimum">
                  <double>0.010000000000000</double>
                 </property>
-                <property name="maximum" >
+                <property name="maximum">
                  <double>50000.000000000000000</double>
                 </property>
-                <property name="singleStep" >
+                <property name="singleStep">
                  <double>10.000000000000000</double>
                 </property>
-                <property name="value" >
+                <property name="value">
                  <double>500.000000000000000</double>
                 </property>
                </widget>
@@ -724,11 +725,11 @@ p, li { white-space: pre-wrap; }
            </layout>
           </item>
           <item>
-           <spacer name="horizontalSpacer" >
-            <property name="orientation" >
+           <spacer name="horizontalSpacer">
+            <property name="orientation">
              <enum>Qt::Horizontal</enum>
             </property>
-            <property name="sizeHint" stdset="0" >
+            <property name="sizeHint" stdset="0">
              <size>
               <width>40</width>
               <height>20</height>
@@ -737,37 +738,37 @@ p, li { white-space: pre-wrap; }
            </spacer>
           </item>
           <item>
-           <layout class="QVBoxLayout" >
+           <layout class="QVBoxLayout">
             <item>
-             <layout class="QHBoxLayout" >
+             <layout class="QHBoxLayout">
               <item>
-               <widget class="QLabel" name="label_13" >
-                <property name="layoutDirection" >
+               <widget class="QLabel" name="label_13">
+                <property name="layoutDirection">
                  <enum>Qt::LeftToRight</enum>
                 </property>
-                <property name="text" >
+                <property name="text">
                  <string>m/z Lo:</string>
                 </property>
-                <property name="alignment" >
+                <property name="alignment">
                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QDoubleSpinBox" name="mzLo_SB" >
-                <property name="decimals" >
+               <widget class="QDoubleSpinBox" name="mzLo_SB">
+                <property name="decimals">
                  <number>3</number>
                 </property>
-                <property name="minimum" >
+                <property name="minimum">
                  <double>1.000000000000000</double>
                 </property>
-                <property name="maximum" >
+                <property name="maximum">
                  <double>100000.000000000000000</double>
                 </property>
-                <property name="singleStep" >
+                <property name="singleStep">
                  <double>0.050000000000000</double>
                 </property>
-                <property name="value" >
+                <property name="value">
                  <double>1295.000000000000000</double>
                 </property>
                </widget>
@@ -775,35 +776,35 @@ p, li { white-space: pre-wrap; }
              </layout>
             </item>
             <item>
-             <layout class="QHBoxLayout" >
+             <layout class="QHBoxLayout">
               <item>
-               <widget class="QLabel" name="label_14" >
-                <property name="text" >
+               <widget class="QLabel" name="label_14">
+                <property name="text">
                  <string>m/z Hi:</string>
                 </property>
-                <property name="alignment" >
+                <property name="alignment">
                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QDoubleSpinBox" name="mzHi_SB" >
-                <property name="toolTip" >
+               <widget class="QDoubleSpinBox" name="mzHi_SB">
+                <property name="toolTip">
                  <string>If this value is set to -1 then a TIC starting from m/z Lo will be returned</string>
                 </property>
-                <property name="decimals" >
+                <property name="decimals">
                  <number>3</number>
                 </property>
-                <property name="minimum" >
+                <property name="minimum">
                  <double>-1.000000000000000</double>
                 </property>
-                <property name="maximum" >
+                <property name="maximum">
                  <double>100000.000000000000000</double>
                 </property>
-                <property name="singleStep" >
+                <property name="singleStep">
                  <double>0.050000000000000</double>
                 </property>
-                <property name="value" >
+                <property name="value">
                  <double>1297.000000000000000</double>
                 </property>
                </widget>
@@ -811,26 +812,26 @@ p, li { white-space: pre-wrap; }
              </layout>
             </item>
             <item>
-             <layout class="QHBoxLayout" >
+             <layout class="QHBoxLayout">
               <item>
-               <widget class="QPushButton" name="getEIC_Btn" >
-                <property name="toolTip" >
-                 <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+               <widget class="QPushButton" name="getEIC_Btn">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
-&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">Create an EIC for all members within a selected group.&lt;/p>&lt;/body>&lt;/html></string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Create an EIC for all members within a selected group.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                 </property>
-                <property name="text" >
+                <property name="text">
                  <string>Fetch EIC</string>
                 </property>
                </widget>
               </item>
               <item>
                <spacer>
-                <property name="orientation" >
+                <property name="orientation">
                  <enum>Qt::Horizontal</enum>
                 </property>
-                <property name="sizeHint" stdset="0" >
+                <property name="sizeHint" stdset="0">
                  <size>
                   <width>40</width>
                   <height>20</height>
@@ -845,52 +846,52 @@ p, li { white-space: pre-wrap; }
          </layout>
         </item>
         <item>
-         <widget class="QFrame" name="frame" >
-          <property name="frameShape" >
+         <widget class="QFrame" name="frame">
+          <property name="frameShape">
            <enum>QFrame::StyledPanel</enum>
           </property>
-          <property name="frameShadow" >
+          <property name="frameShadow">
            <enum>QFrame::Sunken</enum>
           </property>
-          <property name="lineWidth" >
+          <property name="lineWidth">
            <number>2</number>
           </property>
-          <property name="midLineWidth" >
+          <property name="midLineWidth">
            <number>2</number>
           </property>
-          <layout class="QVBoxLayout" name="verticalLayout_7" >
+          <layout class="QVBoxLayout" name="verticalLayout_7">
            <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_2" >
+            <layout class="QHBoxLayout" name="horizontalLayout_2">
              <item>
-              <layout class="QVBoxLayout" name="verticalLayout_6" >
+              <layout class="QVBoxLayout" name="verticalLayout_6">
                <item>
-                <layout class="QVBoxLayout" name="verticalLayout" >
+                <layout class="QVBoxLayout" name="verticalLayout">
                  <item>
-                  <layout class="QHBoxLayout" name="_2" >
+                  <layout class="QHBoxLayout" name="_2">
                    <item>
-                    <widget class="QLabel" name="label_20" >
-                     <property name="text" >
+                    <widget class="QLabel" name="label_20">
+                     <property name="text">
                       <string>Peak Picking Algorithm:</string>
                      </property>
-                     <property name="alignment" >
+                     <property name="alignment">
                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                      </property>
                     </widget>
                    </item>
                    <item>
-                    <widget class="QComboBox" name="peakPick_CB" >
+                    <widget class="QComboBox" name="peakPick_CB">
                      <item>
-                      <property name="text" >
+                      <property name="text">
                        <string>High Resolution</string>
                       </property>
                      </item>
                      <item>
-                      <property name="text" >
+                      <property name="text">
                        <string>Standard Resolution</string>
                       </property>
                      </item>
                      <item>
-                      <property name="text" >
+                      <property name="text">
                        <string>Low Resolution</string>
                       </property>
                      </item>
@@ -899,38 +900,38 @@ p, li { white-space: pre-wrap; }
                   </layout>
                  </item>
                  <item>
-                  <layout class="QHBoxLayout" >
+                  <layout class="QHBoxLayout">
                    <item>
-                    <widget class="QLabel" name="label_16" >
-                     <property name="toolTip" >
+                    <widget class="QLabel" name="label_16">
+                     <property name="toolTip">
                       <string>SNR value used for noise estimate</string>
                      </property>
-                     <property name="text" >
+                     <property name="text">
                       <string>SNR Noise Estimation:</string>
                      </property>
-                     <property name="alignment" >
+                     <property name="alignment">
                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                      </property>
                     </widget>
                    </item>
                    <item>
-                    <widget class="QDoubleSpinBox" name="snrNoiseEst_SB" >
-                     <property name="toolTip" >
-                      <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+                    <widget class="QDoubleSpinBox" name="snrNoiseEst_SB">
+                     <property name="toolTip">
+                      <string>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
-&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">&lt;span style=" font-size:8pt;">SNR value used for noise estimate&lt;/span>&lt;/p>&lt;/body>&lt;/html></string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;SNR value used for noise estimate&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                      </property>
-                     <property name="decimals" >
+                     <property name="decimals">
                       <number>1</number>
                      </property>
-                     <property name="minimum" >
+                     <property name="minimum">
                       <double>1.000000000000000</double>
                      </property>
-                     <property name="maximum" >
+                     <property name="maximum">
                       <double>5000.000000000000000</double>
                      </property>
-                     <property name="value" >
+                     <property name="value">
                       <double>3.000000000000000</double>
                      </property>
                     </widget>
@@ -938,44 +939,44 @@ p, li { white-space: pre-wrap; }
                   </layout>
                  </item>
                  <item>
-                  <layout class="QHBoxLayout" >
+                  <layout class="QHBoxLayout">
                    <item>
-                    <widget class="QLabel" name="label_17" >
-                     <property name="toolTip" >
-                      <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+                    <widget class="QLabel" name="label_17">
+                     <property name="toolTip">
+                      <string>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
-&lt;p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">&lt;/p>&lt;/body>&lt;/html></string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                      </property>
-                     <property name="text" >
+                     <property name="text">
                       <string>Wavelet Type:</string>
                      </property>
-                     <property name="alignment" >
+                     <property name="alignment">
                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                      </property>
                     </widget>
                    </item>
                    <item>
-                    <widget class="QComboBox" name="comboBox" >
-                     <property name="enabled" >
+                    <widget class="QComboBox" name="comboBox">
+                     <property name="enabled">
                       <bool>true</bool>
                      </property>
-                     <property name="toolTip" >
-                      <string>&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">
-&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+                     <property name="toolTip">
+                      <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
-&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;">DOG -- Derivative of Gaussian&lt;/p>
-&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;">Mexican Hat&lt;/p>
-&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;">More later...&lt;/p>&lt;/body>&lt;/html></string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;DOG -- Derivative of Gaussian&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;Mexican Hat&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;More later...&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                      </property>
                      <item>
-                      <property name="text" >
+                      <property name="text">
                        <string>DOG</string>
                       </property>
                      </item>
                      <item>
-                      <property name="text" >
+                      <property name="text">
                        <string>Mexican Hat</string>
                       </property>
                      </item>
@@ -986,154 +987,154 @@ p, li { white-space: pre-wrap; }
                 </layout>
                </item>
                <item>
-                <widget class="QTabWidget" name="tabWidget_PP" >
-                 <property name="currentIndex" >
+                <widget class="QTabWidget" name="tabWidget_PP">
+                 <property name="currentIndex">
                   <number>0</number>
                  </property>
-                 <widget class="QWidget" name="tab" >
-                  <attribute name="title" >
+                 <widget class="QWidget" name="tab">
+                  <attribute name="title">
                    <string>High Res.</string>
                   </attribute>
-                  <widget class="QWidget" name="layoutWidget_3" >
-                   <property name="geometry" >
+                  <widget class="QWidget" name="layoutWidget_3">
+                   <property name="geometry">
                     <rect>
                      <x>120</x>
                      <y>200</y>
-                     <width>103</width>
-                     <height>22</height>
+                     <width>126</width>
+                     <height>30</height>
                     </rect>
                    </property>
-                   <layout class="QHBoxLayout" name="horizontalLayout_6" >
+                   <layout class="QHBoxLayout" name="horizontalLayout_6">
                     <item>
-                     <widget class="QLabel" name="label_32" >
-                      <property name="text" >
+                     <widget class="QLabel" name="label_32">
+                      <property name="text">
                        <string>TextLabel</string>
                       </property>
                      </widget>
                     </item>
                     <item>
-                     <widget class="QDoubleSpinBox" name="doubleSpinBox_2" />
+                     <widget class="QDoubleSpinBox" name="doubleSpinBox_2"/>
                     </item>
                    </layout>
                   </widget>
-                  <widget class="QWidget" name="layoutWidget_4" >
-                   <property name="geometry" >
+                  <widget class="QWidget" name="layoutWidget_4">
+                   <property name="geometry">
                     <rect>
                      <x>120</x>
                      <y>260</y>
-                     <width>103</width>
-                     <height>22</height>
+                     <width>126</width>
+                     <height>30</height>
                     </rect>
                    </property>
-                   <layout class="QHBoxLayout" name="horizontalLayout_7" >
+                   <layout class="QHBoxLayout" name="horizontalLayout_7">
                     <item>
-                     <widget class="QLabel" name="label_33" >
-                      <property name="text" >
+                     <widget class="QLabel" name="label_33">
+                      <property name="text">
                        <string>TextLabel</string>
                       </property>
                      </widget>
                     </item>
                     <item>
-                     <widget class="QDoubleSpinBox" name="doubleSpinBox_3" />
+                     <widget class="QDoubleSpinBox" name="doubleSpinBox_3"/>
                     </item>
                    </layout>
                   </widget>
-                  <widget class="QWidget" name="" >
-                   <property name="geometry" >
+                  <widget class="QWidget" name="layoutWidget">
+                   <property name="geometry">
                     <rect>
                      <x>100</x>
                      <y>130</y>
-                     <width>103</width>
-                     <height>22</height>
+                     <width>126</width>
+                     <height>30</height>
                     </rect>
                    </property>
-                   <layout class="QHBoxLayout" name="horizontalLayout_5" >
+                   <layout class="QHBoxLayout" name="horizontalLayout_5">
                     <item>
-                     <widget class="QLabel" name="label_31" >
-                      <property name="text" >
+                     <widget class="QLabel" name="label_31">
+                      <property name="text">
                        <string>TextLabel</string>
                       </property>
                      </widget>
                     </item>
                     <item>
-                     <widget class="QDoubleSpinBox" name="doubleSpinBox" />
+                     <widget class="QDoubleSpinBox" name="doubleSpinBox"/>
                     </item>
                    </layout>
                   </widget>
                  </widget>
-                 <widget class="QWidget" name="tab_6" >
-                  <attribute name="title" >
+                 <widget class="QWidget" name="tab_6">
+                  <attribute name="title">
                    <string>Standard Res.</string>
                   </attribute>
-                  <layout class="QVBoxLayout" name="verticalLayout_5" >
+                  <layout class="QVBoxLayout" name="verticalLayout_5">
                    <item>
-                    <layout class="QVBoxLayout" name="verticalLayout_2" >
+                    <layout class="QVBoxLayout" name="verticalLayout_2">
                      <item>
-                      <layout class="QHBoxLayout" >
+                      <layout class="QHBoxLayout">
                        <item>
-                        <widget class="QLabel" name="label_25" >
-                         <property name="toolTip" >
-                          <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+                        <widget class="QLabel" name="label_25">
+                         <property name="toolTip">
+                          <string>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
-&lt;p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">&lt;/p>&lt;/body>&lt;/html></string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                          </property>
-                         <property name="text" >
+                         <property name="text">
                           <string>Auto Peak Setting:</string>
                          </property>
-                         <property name="alignment" >
+                         <property name="alignment">
                           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                          </property>
                         </widget>
                        </item>
                        <item>
-                        <widget class="QComboBox" name="peakSetting_CB" >
-                         <property name="toolTip" >
-                          <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+                        <widget class="QComboBox" name="peakSetting_CB">
+                         <property name="toolTip">
+                          <string>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
-&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">Peak Picking Presets&lt;/p>&lt;/body>&lt;/html></string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Peak Picking Presets&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                          </property>
                         </widget>
                        </item>
                       </layout>
                      </item>
                      <item>
-                      <layout class="QHBoxLayout" >
+                      <layout class="QHBoxLayout">
                        <item>
-                        <widget class="QLabel" name="label_21" >
-                         <property name="toolTip" >
-                          <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+                        <widget class="QLabel" name="label_21">
+                         <property name="toolTip">
+                          <string>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
-&lt;p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">&lt;/p>&lt;/body>&lt;/html></string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                          </property>
-                         <property name="text" >
+                         <property name="text">
                           <string>End of Wavelet Noise Rows:</string>
                          </property>
-                         <property name="alignment" >
+                         <property name="alignment">
                           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                          </property>
                         </widget>
                        </item>
                        <item>
-                        <widget class="QSpinBox" name="minRow_SB" >
-                         <property name="toolTip" >
-                          <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+                        <widget class="QSpinBox" name="minRow_SB">
+                         <property name="toolTip">
+                          <string>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
-&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">&lt;span style=" font-size:8pt;">Last row of the wavelet to be considered noise.&lt;/span>&lt;/p>
-&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;">Must be less than the number of scales.&lt;/p>
-&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;">A smaller number means more peaks,&lt;/p>
-&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;">but not necessarily better results.&lt;/p>&lt;/body>&lt;/html></string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Last row of the wavelet to be considered noise.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;Must be less than the number of scales.&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;A smaller number means more peaks,&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;but not necessarily better results.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                          </property>
-                         <property name="minimum" >
+                         <property name="minimum">
                           <number>1</number>
                          </property>
-                         <property name="maximum" >
+                         <property name="maximum">
                           <number>100</number>
                          </property>
-                         <property name="value" >
+                         <property name="value">
                           <number>1</number>
                          </property>
                         </widget>
@@ -1141,38 +1142,38 @@ p, li { white-space: pre-wrap; }
                       </layout>
                      </item>
                      <item>
-                      <layout class="QHBoxLayout" >
+                      <layout class="QHBoxLayout">
                        <item>
-                        <widget class="QLabel" name="label_22" >
-                         <property name="toolTip" >
-                          <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+                        <widget class="QLabel" name="label_22">
+                         <property name="toolTip">
+                          <string>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
-&lt;p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">&lt;/p>&lt;/body>&lt;/html></string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                          </property>
-                         <property name="text" >
+                         <property name="text">
                           <string>Minimum Wavelet Cluster Size:</string>
                          </property>
-                         <property name="alignment" >
+                         <property name="alignment">
                           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                          </property>
                         </widget>
                        </item>
                        <item>
-                        <widget class="QSpinBox" name="minClust_SB" >
-                         <property name="toolTip" >
+                        <widget class="QSpinBox" name="minClust_SB">
+                         <property name="toolTip">
                           <string>Minimum number of peaks to be found during the wavelet transform for each MS peak.
 Must be less than the number of scales.
 Half the number of scales appears to be a good approximation.
 Higher numbers mean fewer peaks.</string>
                          </property>
-                         <property name="minimum" >
+                         <property name="minimum">
                           <number>1</number>
                          </property>
-                         <property name="maximum" >
+                         <property name="maximum">
                           <number>100</number>
                          </property>
-                         <property name="value" >
+                         <property name="value">
                           <number>4</number>
                          </property>
                         </widget>
@@ -1180,35 +1181,35 @@ Higher numbers mean fewer peaks.</string>
                       </layout>
                      </item>
                      <item>
-                      <layout class="QHBoxLayout" >
+                      <layout class="QHBoxLayout">
                        <item>
-                        <widget class="QLabel" name="label_19" >
-                         <property name="toolTip" >
-                          <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+                        <widget class="QLabel" name="label_19">
+                         <property name="toolTip">
+                          <string>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
-&lt;p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">&lt;/p>&lt;/body>&lt;/html></string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                          </property>
-                         <property name="text" >
+                         <property name="text">
                           <string>Wavelet Row Tolerance:</string>
                          </property>
-                         <property name="alignment" >
+                         <property name="alignment">
                           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                          </property>
                         </widget>
                        </item>
                        <item>
-                        <widget class="QSpinBox" name="waveletRowTol_SB" >
-                         <property name="toolTip" >
-                          <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+                        <widget class="QSpinBox" name="waveletRowTol_SB">
+                         <property name="toolTip">
+                          <string>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
-&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">Allowed tolerance for each peak found in each subsequent row of the wavelet transform.  A smaller number requires tighter grouping of peaks for each scale of the CWT in order for a peak to be located.  Too large a number creates more peaks, but at a cost.&lt;/p>&lt;/body>&lt;/html></string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Allowed tolerance for each peak found in each subsequent row of the wavelet transform.  A smaller number requires tighter grouping of peaks for each scale of the CWT in order for a peak to be located.  Too large a number creates more peaks, but at a cost.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                          </property>
-                         <property name="minimum" >
+                         <property name="minimum">
                           <number>1</number>
                          </property>
-                         <property name="value" >
+                         <property name="value">
                           <number>3</number>
                          </property>
                         </widget>
@@ -1216,38 +1217,38 @@ p, li { white-space: pre-wrap; }
                       </layout>
                      </item>
                      <item>
-                      <layout class="QHBoxLayout" >
+                      <layout class="QHBoxLayout">
                        <item>
-                        <widget class="QLabel" name="label_23" >
-                         <property name="toolTip" >
-                          <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+                        <widget class="QLabel" name="label_23">
+                         <property name="toolTip">
+                          <string>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
-&lt;p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">&lt;/p>&lt;/body>&lt;/html></string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                          </property>
-                         <property name="text" >
+                         <property name="text">
                           <string>Clustering Distance Threshold:</string>
                          </property>
-                         <property name="alignment" >
+                         <property name="alignment">
                           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                          </property>
                         </widget>
                        </item>
                        <item>
-                        <widget class="QSpinBox" name="dbscanEPS_SB" >
-                         <property name="toolTip" >
-                          <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+                        <widget class="QSpinBox" name="dbscanEPS_SB">
+                         <property name="toolTip">
+                          <string>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
-&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;">Distance to be used for a clustering cutoff.  Set to -1 for auto-calculation.  A smaller number means fewer peaks while a larger number includes more surrounding neighbors.  Be careful...&lt;/p>&lt;/body>&lt;/html></string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;Distance to be used for a clustering cutoff.  Set to -1 for auto-calculation.  A smaller number means fewer peaks while a larger number includes more surrounding neighbors.  Be careful...&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                          </property>
-                         <property name="minimum" >
+                         <property name="minimum">
                           <number>-1</number>
                          </property>
-                         <property name="maximum" >
+                         <property name="maximum">
                           <number>1000</number>
                          </property>
-                         <property name="value" >
+                         <property name="value">
                           <number>-1</number>
                          </property>
                         </widget>
@@ -1255,41 +1256,41 @@ p, li { white-space: pre-wrap; }
                       </layout>
                      </item>
                      <item>
-                      <layout class="QHBoxLayout" >
+                      <layout class="QHBoxLayout">
                        <item>
-                        <widget class="QLabel" name="label_15" >
-                         <property name="toolTip" >
-                          <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+                        <widget class="QLabel" name="label_15">
+                         <property name="toolTip">
+                          <string>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
-&lt;p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">&lt;/p>&lt;/body>&lt;/html></string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                          </property>
-                         <property name="text" >
+                         <property name="text">
                           <string>Noise Split Factor:</string>
                          </property>
-                         <property name="alignment" >
+                         <property name="alignment">
                           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                          </property>
                         </widget>
                        </item>
                        <item>
-                        <widget class="QSpinBox" name="noiseFactor_SB" >
-                         <property name="toolTip" >
-                          <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+                        <widget class="QSpinBox" name="noiseFactor_SB">
+                         <property name="toolTip">
+                          <string>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
-&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;">Factor by which the spectrum will be split in order to estimate local noise.  More is better but slower. For example:&lt;/p>
-&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;">if the length of a MS spectrum = 10000&lt;/p>
-&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;">and Noise Split Factor = 10&lt;/p>
-&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;">the number of segments used = 1000&lt;/p>&lt;/body>&lt;/html></string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;Factor by which the spectrum will be split in order to estimate local noise.  More is better but slower. For example:&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;if the length of a MS spectrum = 10000&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;and Noise Split Factor = 10&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;the number of segments used = 1000&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                          </property>
-                         <property name="minimum" >
+                         <property name="minimum">
                           <number>1</number>
                          </property>
-                         <property name="maximum" >
+                         <property name="maximum">
                           <number>100</number>
                          </property>
-                         <property name="value" >
+                         <property name="value">
                           <number>10</number>
                          </property>
                         </widget>
@@ -1297,35 +1298,35 @@ p, li { white-space: pre-wrap; }
                       </layout>
                      </item>
                      <item>
-                      <layout class="QHBoxLayout" >
+                      <layout class="QHBoxLayout">
                        <item>
-                        <widget class="QLabel" name="label_24" >
-                         <property name="toolTip" >
-                          <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+                        <widget class="QLabel" name="label_24">
+                         <property name="toolTip">
+                          <string>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
-&lt;p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">&lt;/p>&lt;/body>&lt;/html></string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                          </property>
-                         <property name="text" >
+                         <property name="text">
                           <string>Static Cutoff:</string>
                          </property>
-                         <property name="alignment" >
+                         <property name="alignment">
                           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                          </property>
                         </widget>
                        </item>
                        <item>
-                        <widget class="QSpinBox" name="staticCutoff_SB" >
-                         <property name="toolTip" >
-                          <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+                        <widget class="QSpinBox" name="staticCutoff_SB">
+                         <property name="toolTip">
+                          <string>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
-&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;">This is the minimum value in absolute counts (i.e. not normalized) to be considered for peak picking.&lt;/p>&lt;/body>&lt;/html></string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;This is the minimum value in absolute counts (i.e. not normalized) to be considered for peak picking.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                          </property>
-                         <property name="maximum" >
+                         <property name="maximum">
                           <number>1000000</number>
                          </property>
-                         <property name="value" >
+                         <property name="value">
                           <number>100</number>
                          </property>
                         </widget>
@@ -1333,18 +1334,18 @@ p, li { white-space: pre-wrap; }
                       </layout>
                      </item>
                      <item>
-                      <widget class="QCheckBox" name="showCWT_CB" >
-                       <property name="text" >
+                      <widget class="QCheckBox" name="showCWT_CB">
+                       <property name="text">
                         <string>Show CWT with Peak Picking?</string>
                        </property>
                       </widget>
                      </item>
                      <item>
                       <spacer>
-                       <property name="orientation" >
+                       <property name="orientation">
                         <enum>Qt::Vertical</enum>
                        </property>
-                       <property name="sizeHint" stdset="0" >
+                       <property name="sizeHint" stdset="0">
                         <size>
                          <width>20</width>
                          <height>40</height>
@@ -1356,34 +1357,34 @@ p, li { white-space: pre-wrap; }
                    </item>
                   </layout>
                  </widget>
-                 <widget class="QWidget" name="tab_7" >
-                  <attribute name="title" >
+                 <widget class="QWidget" name="tab_7">
+                  <attribute name="title">
                    <string>Low Res.</string>
                   </attribute>
-                  <layout class="QVBoxLayout" name="verticalLayout_4" >
+                  <layout class="QVBoxLayout" name="verticalLayout_4">
                    <item>
-                    <layout class="QVBoxLayout" name="verticalLayout_3" >
+                    <layout class="QVBoxLayout" name="verticalLayout_3">
                      <item>
-                      <layout class="QHBoxLayout" name="_5" >
+                      <layout class="QHBoxLayout" name="_5">
                        <item>
-                        <widget class="QLabel" name="label_27" >
-                         <property name="text" >
+                        <widget class="QLabel" name="label_27">
+                         <property name="text">
                           <string>Minimum Signal-to-Noise:</string>
                          </property>
-                         <property name="alignment" >
+                         <property name="alignment">
                           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                          </property>
                         </widget>
                        </item>
                        <item>
-                        <widget class="QSpinBox" name="lowResMinSNR_SB" >
-                         <property name="minimum" >
+                        <widget class="QSpinBox" name="lowResMinSNR_SB">
+                         <property name="minimum">
                           <number>2</number>
                          </property>
-                         <property name="maximum" >
+                         <property name="maximum">
                           <number>250000</number>
                          </property>
-                         <property name="value" >
+                         <property name="value">
                           <number>5</number>
                          </property>
                         </widget>
@@ -1391,23 +1392,23 @@ p, li { white-space: pre-wrap; }
                       </layout>
                      </item>
                      <item>
-                      <layout class="QHBoxLayout" name="_6" >
+                      <layout class="QHBoxLayout" name="_6">
                        <item>
-                        <widget class="QLabel" name="label_28" >
-                         <property name="enabled" >
+                        <widget class="QLabel" name="label_28">
+                         <property name="enabled">
                           <bool>false</bool>
                          </property>
-                         <property name="text" >
+                         <property name="text">
                           <string>Slope Threshold:</string>
                          </property>
-                         <property name="alignment" >
+                         <property name="alignment">
                           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                          </property>
                         </widget>
                        </item>
                        <item>
-                        <widget class="QDoubleSpinBox" name="slopeThreshSB" >
-                         <property name="enabled" >
+                        <widget class="QDoubleSpinBox" name="slopeThreshSB">
+                         <property name="enabled">
                           <bool>false</bool>
                          </property>
                         </widget>
@@ -1415,20 +1416,20 @@ p, li { white-space: pre-wrap; }
                       </layout>
                      </item>
                      <item>
-                      <layout class="QHBoxLayout" name="_7" >
+                      <layout class="QHBoxLayout" name="_7">
                        <item>
-                        <widget class="QLabel" name="label_29" >
-                         <property name="text" >
+                        <widget class="QLabel" name="label_29">
+                         <property name="text">
                           <string>Smoothing Kernel Length:</string>
                          </property>
-                         <property name="alignment" >
+                         <property name="alignment">
                           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                          </property>
                         </widget>
                        </item>
                        <item>
-                        <widget class="QSpinBox" name="lowResSmthKern_SB" >
-                         <property name="value" >
+                        <widget class="QSpinBox" name="lowResSmthKern_SB">
+                         <property name="value">
                           <number>15</number>
                          </property>
                         </widget>
@@ -1436,26 +1437,26 @@ p, li { white-space: pre-wrap; }
                       </layout>
                      </item>
                      <item>
-                      <layout class="QHBoxLayout" name="_8" >
+                      <layout class="QHBoxLayout" name="_8">
                        <item>
-                        <widget class="QLabel" name="label_30" >
-                         <property name="text" >
+                        <widget class="QLabel" name="label_30">
+                         <property name="text">
                           <string>Approximate Peak Width (in points):</string>
                          </property>
-                         <property name="alignment" >
+                         <property name="alignment">
                           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                          </property>
                         </widget>
                        </item>
                        <item>
-                        <widget class="QSpinBox" name="lowResPeakWidth_SB" >
-                         <property name="minimum" >
+                        <widget class="QSpinBox" name="lowResPeakWidth_SB">
+                         <property name="minimum">
                           <number>3</number>
                          </property>
-                         <property name="maximum" >
+                         <property name="maximum">
                           <number>200000</number>
                          </property>
-                         <property name="value" >
+                         <property name="value">
                           <number>100</number>
                          </property>
                         </widget>
@@ -1463,11 +1464,11 @@ p, li { white-space: pre-wrap; }
                       </layout>
                      </item>
                      <item>
-                      <spacer name="spacer" >
-                       <property name="orientation" >
+                      <spacer name="spacer">
+                       <property name="orientation">
                         <enum>Qt::Vertical</enum>
                        </property>
-                       <property name="sizeHint" stdset="0" >
+                       <property name="sizeHint" stdset="0">
                         <size>
                          <width>20</width>
                          <height>40</height>
@@ -1484,49 +1485,49 @@ p, li { white-space: pre-wrap; }
               </layout>
              </item>
              <item>
-              <layout class="QHBoxLayout" name="horizontalLayout" >
+              <layout class="QHBoxLayout" name="horizontalLayout">
                <item>
-                <layout class="QVBoxLayout" >
+                <layout class="QVBoxLayout">
                  <item>
-                  <widget class="QCheckBox" name="useDefaultScale_CB" >
-                   <property name="text" >
+                  <widget class="QCheckBox" name="useDefaultScale_CB">
+                   <property name="text">
                     <string>Use Default Scales for CWT</string>
                    </property>
-                   <property name="checked" >
+                   <property name="checked">
                     <bool>false</bool>
                    </property>
                   </widget>
                  </item>
                  <item>
-                  <layout class="QHBoxLayout" >
+                  <layout class="QHBoxLayout">
                    <item>
-                    <widget class="QLabel" name="scaleStartLbl" >
-                     <property name="toolTip" >
+                    <widget class="QLabel" name="scaleStartLbl">
+                     <property name="toolTip">
                       <string>Factor by which the spectrum will be split in order to estimate local noise</string>
                      </property>
-                     <property name="text" >
+                     <property name="text">
                       <string>Scale Start:</string>
                      </property>
-                     <property name="alignment" >
+                     <property name="alignment">
                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                      </property>
                     </widget>
                    </item>
                    <item>
-                    <widget class="QSpinBox" name="scaleStart_SB" >
-                     <property name="toolTip" >
-                      <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+                    <widget class="QSpinBox" name="scaleStart_SB">
+                     <property name="toolTip">
+                      <string>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
-&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">&lt;span style=" font-size:8pt;">Starting point for scales&lt;/span>&lt;/p>&lt;/body>&lt;/html></string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Starting point for scales&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                      </property>
-                     <property name="minimum" >
+                     <property name="minimum">
                       <number>1</number>
                      </property>
-                     <property name="maximum" >
+                     <property name="maximum">
                       <number>10000</number>
                      </property>
-                     <property name="value" >
+                     <property name="value">
                       <number>2</number>
                      </property>
                     </widget>
@@ -1534,35 +1535,35 @@ p, li { white-space: pre-wrap; }
                   </layout>
                  </item>
                  <item>
-                  <layout class="QHBoxLayout" >
+                  <layout class="QHBoxLayout">
                    <item>
-                    <widget class="QLabel" name="scaleEndLbl" >
-                     <property name="toolTip" >
+                    <widget class="QLabel" name="scaleEndLbl">
+                     <property name="toolTip">
                       <string>Factor by which the spectrum will be split in order to estimate local noise</string>
                      </property>
-                     <property name="text" >
+                     <property name="text">
                       <string>Scale End:</string>
                      </property>
-                     <property name="alignment" >
+                     <property name="alignment">
                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                      </property>
                     </widget>
                    </item>
                    <item>
-                    <widget class="QSpinBox" name="scaleStop_SB" >
-                     <property name="toolTip" >
-                      <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+                    <widget class="QSpinBox" name="scaleStop_SB">
+                     <property name="toolTip">
+                      <string>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
-&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">&lt;span style=" font-size:8pt;">End point for scales.&lt;/span>&lt;/p>&lt;/body>&lt;/html></string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;End point for scales.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                      </property>
-                     <property name="minimum" >
+                     <property name="minimum">
                       <number>1</number>
                      </property>
-                     <property name="maximum" >
+                     <property name="maximum">
                       <number>10000</number>
                      </property>
-                     <property name="value" >
+                     <property name="value">
                       <number>64</number>
                      </property>
                     </widget>
@@ -1570,36 +1571,36 @@ p, li { white-space: pre-wrap; }
                   </layout>
                  </item>
                  <item>
-                  <layout class="QHBoxLayout" >
+                  <layout class="QHBoxLayout">
                    <item>
-                    <widget class="QLabel" name="scaleFactorLbl" >
-                     <property name="toolTip" >
+                    <widget class="QLabel" name="scaleFactorLbl">
+                     <property name="toolTip">
                       <string>Factor by which the spectrum will be split in order to estimate local noise</string>
                      </property>
-                     <property name="text" >
+                     <property name="text">
                       <string>Scale Factor:</string>
                      </property>
-                     <property name="alignment" >
+                     <property name="alignment">
                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                      </property>
                     </widget>
                    </item>
                    <item>
-                    <widget class="QSpinBox" name="scaleFactor_SB" >
-                     <property name="toolTip" >
-                      <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+                    <widget class="QSpinBox" name="scaleFactor_SB">
+                     <property name="toolTip">
+                      <string>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
-&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">&lt;span style=" font-size:8pt;">Don't Mess with this unless you know what you're doing!&lt;/span>&lt;/p>
-&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;">Making too many scales will slow things WAAAY down!&lt;/p>&lt;/body>&lt;/html></string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Don't Mess with this unless you know what you're doing!&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;Making too many scales will slow things WAAAY down!&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                      </property>
-                     <property name="minimum" >
+                     <property name="minimum">
                       <number>1</number>
                      </property>
-                     <property name="maximum" >
+                     <property name="maximum">
                       <number>100</number>
                      </property>
-                     <property name="value" >
+                     <property name="value">
                       <number>4</number>
                      </property>
                     </widget>
@@ -1607,38 +1608,38 @@ p, li { white-space: pre-wrap; }
                   </layout>
                  </item>
                  <item>
-                  <layout class="QHBoxLayout" >
+                  <layout class="QHBoxLayout">
                    <item>
-                    <layout class="QVBoxLayout" >
+                    <layout class="QVBoxLayout">
                      <item>
-                      <widget class="QPushButton" name="makeScales_Btn" >
-                       <property name="toolTip" >
-                        <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+                      <widget class="QPushButton" name="makeScales_Btn">
+                       <property name="toolTip">
+                        <string>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
-&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;">Try to keep the total number of scales below 10,&lt;/p>
-&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;">otherwise peak picking could take a while.&lt;/p>
-&lt;p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;">&lt;/p>
-&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;">Example of use:&lt;/p>
-&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;">Scale Start: 2&lt;/p>
-&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;">Scale End: 32&lt;/p>
-&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;">Scale Factor: 4&lt;/p>
-&lt;p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;">&lt;/p>
-&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;">Output Scales:&lt;/p>
-&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;">[ 2,  6, 10, 14, 18, 22, 26, 30]&lt;/p>
-&lt;p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;">&lt;/p>&lt;/body>&lt;/html></string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;Try to keep the total number of scales below 10,&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;otherwise peak picking could take a while.&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;Example of use:&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;Scale Start: 2&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;Scale End: 32&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;Scale Factor: 4&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;Output Scales:&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;[ 2,  6, 10, 14, 18, 22, 26, 30]&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                        </property>
-                       <property name="text" >
+                       <property name="text">
                         <string>Create Scales</string>
                        </property>
                       </widget>
                      </item>
                      <item>
                       <spacer>
-                       <property name="orientation" >
+                       <property name="orientation">
                         <enum>Qt::Vertical</enum>
                        </property>
-                       <property name="sizeHint" stdset="0" >
+                       <property name="sizeHint" stdset="0">
                         <size>
                          <width>20</width>
                          <height>40</height>
@@ -1650,10 +1651,10 @@ p, li { white-space: pre-wrap; }
                    </item>
                    <item>
                     <spacer>
-                     <property name="orientation" >
+                     <property name="orientation">
                       <enum>Qt::Horizontal</enum>
                      </property>
-                     <property name="sizeHint" stdset="0" >
+                     <property name="sizeHint" stdset="0">
                       <size>
                        <width>40</width>
                        <height>20</height>
@@ -1666,30 +1667,30 @@ p, li { white-space: pre-wrap; }
                 </layout>
                </item>
                <item>
-                <layout class="QHBoxLayout" >
+                <layout class="QHBoxLayout">
                  <item>
-                  <layout class="QVBoxLayout" >
+                  <layout class="QVBoxLayout">
                    <item>
-                    <widget class="QTableWidget" name="scalesTable" >
-                     <property name="sizePolicy" >
-                      <sizepolicy vsizetype="Expanding" hsizetype="Minimum" >
+                    <widget class="QTableWidget" name="scalesTable">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
                        <horstretch>0</horstretch>
                        <verstretch>0</verstretch>
                       </sizepolicy>
                      </property>
-                     <property name="maximumSize" >
+                     <property name="maximumSize">
                       <size>
                        <width>250</width>
                        <height>16777215</height>
                       </size>
                      </property>
-                     <property name="frameShape" >
+                     <property name="frameShape">
                       <enum>QFrame::StyledPanel</enum>
                      </property>
-                     <property name="rowCount" >
+                     <property name="rowCount">
                       <number>8</number>
                      </property>
-                     <property name="columnCount" >
+                     <property name="columnCount">
                       <number>1</number>
                      </property>
                      <row/>
@@ -1707,10 +1708,10 @@ p, li { white-space: pre-wrap; }
                  </item>
                  <item>
                   <spacer>
-                   <property name="orientation" >
+                   <property name="orientation">
                     <enum>Qt::Horizontal</enum>
                    </property>
-                   <property name="sizeHint" stdset="0" >
+                   <property name="sizeHint" stdset="0">
                     <size>
                      <width>80</width>
                      <height>20</height>
@@ -1729,123 +1730,123 @@ p, li { white-space: pre-wrap; }
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="tab_2" >
-       <attribute name="title" >
+      <widget class="QWidget" name="tab_2">
+       <attribute name="title">
         <string>Fingerprint</string>
        </attribute>
-       <layout class="QGridLayout" >
-        <item row="0" column="0" >
-         <widget class="QSplitter" name="splitter" >
-          <property name="orientation" >
+       <layout class="QGridLayout">
+        <item row="0" column="0">
+         <widget class="QSplitter" name="splitter">
+          <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
-          <widget class="QWidget" name="layoutWidget" >
-           <layout class="QVBoxLayout" >
+          <widget class="QWidget" name="layoutWidget">
+           <layout class="QVBoxLayout">
             <item>
-             <layout class="QVBoxLayout" >
+             <layout class="QVBoxLayout">
               <item>
-               <widget class="QLabel" name="label" >
-                <property name="text" >
+               <widget class="QLabel" name="label">
+                <property name="text">
                  <string>Available Fingerprints:</string>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QListWidget" name="fpListWidget" >
-                <property name="selectionMode" >
+               <widget class="QListWidget" name="fpListWidget">
+                <property name="selectionMode">
                  <enum>QAbstractItemView::ExtendedSelection</enum>
                 </property>
                </widget>
               </item>
               <item>
-               <layout class="QGridLayout" >
-                <item row="0" column="0" >
-                 <layout class="QHBoxLayout" >
+               <layout class="QGridLayout">
+                <item row="0" column="0">
+                 <layout class="QHBoxLayout">
                   <item>
-                   <widget class="QLabel" name="label_42" >
-                    <property name="text" >
+                   <widget class="QLabel" name="label_42">
+                    <property name="text">
                      <string>Freq Cutoff:</string>
                     </property>
-                    <property name="alignment" >
+                    <property name="alignment">
                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                     </property>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QDoubleSpinBox" name="freqCutoff_SB" >
-                    <property name="decimals" >
+                   <widget class="QDoubleSpinBox" name="freqCutoff_SB">
+                    <property name="decimals">
                      <number>2</number>
                     </property>
-                    <property name="minimum" >
+                    <property name="minimum">
                      <double>0.010000000000000</double>
                     </property>
-                    <property name="maximum" >
+                    <property name="maximum">
                      <double>1.000000000000000</double>
                     </property>
-                    <property name="singleStep" >
+                    <property name="singleStep">
                      <double>0.050000000000000</double>
                     </property>
-                    <property name="value" >
+                    <property name="value">
                      <double>0.500000000000000</double>
                     </property>
                    </widget>
                   </item>
                  </layout>
                 </item>
-                <item row="0" column="2" >
-                 <layout class="QHBoxLayout" >
+                <item row="0" column="2">
+                 <layout class="QHBoxLayout">
                   <item>
-                   <widget class="QLabel" name="label_43" >
-                    <property name="text" >
+                   <widget class="QLabel" name="label_43">
+                    <property name="text">
                      <string>Min # of Spectra:</string>
                     </property>
-                    <property name="alignment" >
+                    <property name="alignment">
                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                     </property>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QSpinBox" name="minSpectra_SB_6" >
-                    <property name="enabled" >
+                   <widget class="QSpinBox" name="minSpectra_SB_6">
+                    <property name="enabled">
                      <bool>false</bool>
                     </property>
-                    <property name="minimum" >
+                    <property name="minimum">
                      <number>1</number>
                     </property>
-                    <property name="value" >
+                    <property name="value">
                      <number>3</number>
                     </property>
                    </widget>
                   </item>
                  </layout>
                 </item>
-                <item row="0" column="1" >
-                 <layout class="QHBoxLayout" >
+                <item row="0" column="1">
+                 <layout class="QHBoxLayout">
                   <item>
-                   <widget class="QLabel" name="label_41" >
-                    <property name="text" >
+                   <widget class="QLabel" name="label_41">
+                    <property name="text">
                      <string>Significance Level:</string>
                     </property>
-                    <property name="alignment" >
+                    <property name="alignment">
                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                     </property>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QDoubleSpinBox" name="alphaLvl_SB" >
-                    <property name="decimals" >
+                   <widget class="QDoubleSpinBox" name="alphaLvl_SB">
+                    <property name="decimals">
                      <number>2</number>
                     </property>
-                    <property name="minimum" >
+                    <property name="minimum">
                      <double>0.010000000000000</double>
                     </property>
-                    <property name="maximum" >
+                    <property name="maximum">
                      <double>1.000000000000000</double>
                     </property>
-                    <property name="singleStep" >
+                    <property name="singleStep">
                      <double>0.050000000000000</double>
                     </property>
-                    <property name="value" >
+                    <property name="value">
                      <double>0.050000000000000</double>
                     </property>
                    </widget>
@@ -1855,33 +1856,33 @@ p, li { white-space: pre-wrap; }
                </layout>
               </item>
               <item>
-               <layout class="QHBoxLayout" >
+               <layout class="QHBoxLayout">
                 <item>
-                 <widget class="QPushButton" name="loadFP_Btn" >
-                  <property name="text" >
+                 <widget class="QPushButton" name="loadFP_Btn">
+                  <property name="text">
                    <string>Load Fingerprint</string>
                   </property>
                  </widget>
                 </item>
                 <item>
-                 <widget class="QCheckBox" name="loadRawFPData_CB" >
-                  <property name="toolTip" >
-                   <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+                 <widget class="QCheckBox" name="loadRawFPData_CB">
+                  <property name="toolTip">
+                   <string>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
-&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">By checking this box, if you open a saved FP, all of the raw data will also be loaded.  This can be useful if a new FP is needed.  Be aware that for large FP this could significantly slow your machine...&lt;/p>&lt;/body>&lt;/html></string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;By checking this box, if you open a saved FP, all of the raw data will also be loaded.  This can be useful if a new FP is needed.  Be aware that for large FP this could significantly slow your machine...&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                   </property>
-                  <property name="text" >
+                  <property name="text">
                    <string>Load Raw Data From FP?</string>
                   </property>
                  </widget>
                 </item>
                 <item>
                  <spacer>
-                  <property name="orientation" >
+                  <property name="orientation">
                    <enum>Qt::Horizontal</enum>
                   </property>
-                  <property name="sizeHint" stdset="0" >
+                  <property name="sizeHint" stdset="0">
                    <size>
                     <width>40</width>
                     <height>20</height>
@@ -1894,17 +1895,17 @@ p, li { white-space: pre-wrap; }
              </layout>
             </item>
             <item>
-             <layout class="QHBoxLayout" >
+             <layout class="QHBoxLayout">
               <item>
-               <widget class="QCheckBox" name="autoLoadFP_CB" >
-                <property name="text" >
+               <widget class="QCheckBox" name="autoLoadFP_CB">
+                <property name="text">
                  <string>Auto Load Fingerprints</string>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QLineEdit" name="curFPName_LE" >
-                <property name="readOnly" >
+               <widget class="QLineEdit" name="curFPName_LE">
+                <property name="readOnly">
                  <bool>true</bool>
                 </property>
                </widget>
@@ -1912,46 +1913,46 @@ p, li { white-space: pre-wrap; }
              </layout>
             </item>
             <item>
-             <widget class="CustomTable" name="fingerPTable" />
+             <widget class="CustomTable" name="fingerPTable"/>
             </item>
            </layout>
           </widget>
-          <widget class="QWidget" name="layoutWidget" >
-           <layout class="QHBoxLayout" >
+          <widget class="QWidget" name="layoutWidget">
+           <layout class="QHBoxLayout">
             <item>
-             <layout class="QVBoxLayout" >
+             <layout class="QVBoxLayout">
               <item>
-               <widget class="QToolButton" name="doPCA_Btn" >
-                <property name="minimumSize" >
+               <widget class="QToolButton" name="doPCA_Btn">
+                <property name="minimumSize">
                  <size>
                   <width>30</width>
                   <height>30</height>
                  </size>
                 </property>
-                <property name="text" >
+                <property name="text">
                  <string>PCA</string>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QToolButton" name="doFP_Btn" >
-                <property name="minimumSize" >
+               <widget class="QToolButton" name="doFP_Btn">
+                <property name="minimumSize">
                  <size>
                   <width>30</width>
                   <height>30</height>
                  </size>
                 </property>
-                <property name="text" >
+                <property name="text">
                  <string>FP</string>
                 </property>
                </widget>
               </item>
               <item>
                <spacer>
-                <property name="orientation" >
+                <property name="orientation">
                  <enum>Qt::Vertical</enum>
                 </property>
-                <property name="sizeHint" stdset="0" >
+                <property name="sizeHint" stdset="0">
                  <size>
                   <width>20</width>
                   <height>40</height>
@@ -1962,22 +1963,22 @@ p, li { white-space: pre-wrap; }
              </layout>
             </item>
             <item>
-             <layout class="QVBoxLayout" >
+             <layout class="QVBoxLayout">
               <item>
-               <layout class="QHBoxLayout" >
+               <layout class="QHBoxLayout">
                 <item>
-                 <widget class="QPushButton" name="expand_Btn" >
-                  <property name="text" >
+                 <widget class="QPushButton" name="expand_Btn">
+                  <property name="text">
                    <string>Expand or Collapse All</string>
                   </property>
                  </widget>
                 </item>
                 <item>
                  <spacer>
-                  <property name="orientation" >
+                  <property name="orientation">
                    <enum>Qt::Horizontal</enum>
                   </property>
-                  <property name="sizeHint" stdset="0" >
+                  <property name="sizeHint" stdset="0">
                    <size>
                     <width>40</width>
                     <height>20</height>
@@ -1988,27 +1989,27 @@ p, li { white-space: pre-wrap; }
                </layout>
               </item>
               <item>
-               <widget class="QTreeWidget" name="fpSpecTreeWidget" >
-                <property name="maximumSize" >
+               <widget class="QTreeWidget" name="fpSpecTreeWidget">
+                <property name="maximumSize">
                  <size>
                   <width>200</width>
                   <height>16777215</height>
                  </size>
                 </property>
-                <property name="selectionMode" >
+                <property name="selectionMode">
                  <enum>QAbstractItemView::ExtendedSelection</enum>
                 </property>
-                <property name="sortingEnabled" >
+                <property name="sortingEnabled">
                  <bool>true</bool>
                 </property>
-                <property name="headerHidden" >
+                <property name="headerHidden">
                  <bool>false</bool>
                 </property>
-                <property name="columnCount" >
+                <property name="columnCount">
                  <number>1</number>
                 </property>
                 <column>
-                 <property name="text" >
+                 <property name="text">
                   <string>1</string>
                  </property>
                 </column>
@@ -2022,30 +2023,30 @@ p, li { white-space: pre-wrap; }
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="tab_3" >
-       <attribute name="title" >
+      <widget class="QWidget" name="tab_3">
+       <attribute name="title">
         <string>Preferences</string>
        </attribute>
-       <layout class="QVBoxLayout" >
+       <layout class="QVBoxLayout">
         <item>
-         <layout class="QGridLayout" >
-          <item row="0" column="0" >
-           <layout class="QVBoxLayout" >
+         <layout class="QGridLayout">
+          <item row="0" column="0">
+           <layout class="QVBoxLayout">
             <item>
-             <layout class="QHBoxLayout" >
+             <layout class="QHBoxLayout">
               <item>
-               <widget class="QPushButton" name="fpFolder_Btn" >
-                <property name="enabled" >
+               <widget class="QPushButton" name="fpFolder_Btn">
+                <property name="enabled">
                  <bool>true</bool>
                 </property>
-                <property name="text" >
+                <property name="text">
                  <string>Default Fingerprint Folder:</string>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QLineEdit" name="fpFolder_LE" >
-                <property name="readOnly" >
+               <widget class="QLineEdit" name="fpFolder_LE">
+                <property name="readOnly">
                  <bool>true</bool>
                 </property>
                </widget>
@@ -2053,27 +2054,27 @@ p, li { white-space: pre-wrap; }
              </layout>
             </item>
             <item>
-             <layout class="QHBoxLayout" >
+             <layout class="QHBoxLayout">
               <item>
-               <widget class="QPushButton" name="savePref_Btn" >
-                <property name="text" >
+               <widget class="QPushButton" name="savePref_Btn">
+                <property name="text">
                  <string>Save Preferences</string>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QPushButton" name="revert_Btn" >
-                <property name="text" >
+               <widget class="QPushButton" name="revert_Btn">
+                <property name="text">
                  <string>Revert to Defaults</string>
                 </property>
                </widget>
               </item>
               <item>
                <spacer>
-                <property name="orientation" >
+                <property name="orientation">
                  <enum>Qt::Horizontal</enum>
                 </property>
-                <property name="sizeHint" stdset="0" >
+                <property name="sizeHint" stdset="0">
                  <size>
                   <width>40</width>
                   <height>20</height>
@@ -2085,12 +2086,12 @@ p, li { white-space: pre-wrap; }
             </item>
            </layout>
           </item>
-          <item row="0" column="1" >
+          <item row="0" column="1">
            <spacer>
-            <property name="orientation" >
+            <property name="orientation">
              <enum>Qt::Horizontal</enum>
             </property>
-            <property name="sizeHint" stdset="0" >
+            <property name="sizeHint" stdset="0">
              <size>
               <width>40</width>
               <height>20</height>
@@ -2098,12 +2099,12 @@ p, li { white-space: pre-wrap; }
             </property>
            </spacer>
           </item>
-          <item row="1" column="0" >
+          <item row="1" column="0">
            <spacer>
-            <property name="orientation" >
+            <property name="orientation">
              <enum>Qt::Vertical</enum>
             </property>
-            <property name="sizeHint" stdset="0" >
+            <property name="sizeHint" stdset="0">
              <size>
               <width>20</width>
               <height>40</height>
@@ -2119,109 +2120,109 @@ p, li { white-space: pre-wrap; }
     </item>
    </layout>
   </widget>
-  <widget class="QMenuBar" name="menubar" >
-   <property name="geometry" >
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
      <width>910</width>
-     <height>21</height>
+     <height>25</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menu_File" >
-    <property name="title" >
+   <widget class="QMenu" name="menu_File">
+    <property name="title">
      <string>&amp;File</string>
     </property>
-    <addaction name="action_Open" />
-    <addaction name="separator" />
-    <addaction name="actionExit_Program" />
+    <addaction name="action_Open"/>
+    <addaction name="separator"/>
+    <addaction name="actionExit_Program"/>
    </widget>
-   <widget class="QMenu" name="menuTools" >
-    <property name="title" >
+   <widget class="QMenu" name="menuTools">
+    <property name="title">
      <string>Tools</string>
     </property>
-    <addaction name="actionCursor_A" />
-    <addaction name="actionCursor_B" />
-    <addaction name="actionClear_Cursors" />
-    <addaction name="separator" />
-    <addaction name="actionLabel_Peak" />
-    <addaction name="separator" />
-    <addaction name="actionFind_Peaks" />
-    <addaction name="separator" />
-    <addaction name="actionCopy_to_Clipboard" />
+    <addaction name="actionCursor_A"/>
+    <addaction name="actionCursor_B"/>
+    <addaction name="actionClear_Cursors"/>
+    <addaction name="separator"/>
+    <addaction name="actionLabel_Peak"/>
+    <addaction name="separator"/>
+    <addaction name="actionFind_Peaks"/>
+    <addaction name="separator"/>
+    <addaction name="actionCopy_to_Clipboard"/>
    </widget>
-   <widget class="QMenu" name="menu_Help" >
-    <property name="title" >
+   <widget class="QMenu" name="menu_Help">
+    <property name="title">
      <string>&amp;Help</string>
     </property>
-    <addaction name="actionRead_Me" />
+    <addaction name="actionRead_Me"/>
    </widget>
-   <addaction name="menu_File" />
-   <addaction name="menuTools" />
-   <addaction name="menu_Help" />
+   <addaction name="menu_File"/>
+   <addaction name="menuTools"/>
+   <addaction name="menu_Help"/>
   </widget>
-  <widget class="QStatusBar" name="statusbar" />
-  <action name="action_Open" >
-   <property name="text" >
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="action_Open">
+   <property name="text">
     <string>&amp;Open</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+O</string>
    </property>
   </action>
-  <action name="actionCursor_A" >
-   <property name="text" >
+  <action name="actionCursor_A">
+   <property name="text">
     <string>Cursor A</string>
    </property>
   </action>
-  <action name="actionCursor_B" >
-   <property name="text" >
+  <action name="actionCursor_B">
+   <property name="text">
     <string>Cursor B</string>
    </property>
   </action>
-  <action name="actionLabel_Peak" >
-   <property name="text" >
+  <action name="actionLabel_Peak">
+   <property name="text">
     <string>Label Peak</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+D</string>
    </property>
   </action>
-  <action name="actionCopy_to_Clipboard" >
-   <property name="text" >
+  <action name="actionCopy_to_Clipboard">
+   <property name="text">
     <string>Copy Plot to Clipboard</string>
    </property>
   </action>
-  <action name="actionClear_Cursors" >
-   <property name="text" >
+  <action name="actionClear_Cursors">
+   <property name="text">
     <string>Clear Cursors</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+Alt+C</string>
    </property>
   </action>
-  <action name="actionRead_Me" >
-   <property name="text" >
+  <action name="actionRead_Me">
+   <property name="text">
     <string>Read Me</string>
    </property>
   </action>
-  <action name="actionPeak_Picking" >
-   <property name="text" >
+  <action name="actionPeak_Picking">
+   <property name="text">
     <string>About Peak Picking</string>
    </property>
   </action>
-  <action name="actionFind_Peaks" >
-   <property name="text" >
+  <action name="actionFind_Peaks">
+   <property name="text">
     <string>Find Peaks</string>
    </property>
   </action>
-  <action name="actionExit_Program" >
-   <property name="text" >
+  <action name="actionExit_Program">
+   <property name="text">
     <string>Exit Program</string>
    </property>
   </action>
-  <action name="actionHelpFingerPrint" >
-   <property name="text" >
+  <action name="actionHelpFingerPrint">
+   <property name="text">
     <string>Finger Printing</string>
    </property>
   </action>
@@ -2230,17 +2231,17 @@ p, li { white-space: pre-wrap; }
   <customwidget>
    <class>CustomTable</class>
    <extends>QTableWidget</extends>
-   <header>customTable</header>
+   <header location="global">customTable</header>
   </customwidget>
   <customwidget>
    <class>MPL_Widget</class>
    <extends>QWidget</extends>
-   <header>mpl_pyqt4_widget</header>
+   <header location="global">mpl_pyqt4_widget</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="icons.qrc" />
+  <include location="icons.qrc"/>
  </resources>
  <connections/>
 </ui>

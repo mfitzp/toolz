@@ -41,6 +41,11 @@ Double check peakfind thread
 
 make fingerprint folder work
 fix topHat, threadit?
+
+/usr/bin/pyuic4 /home/clowers/workspace/SimpleView/main.ui  -o /home/clowers/workspace/SimpleView/ui_main.py
+/usr/bin/pyuic4 /usr/bin/pyuic4 /home/clowers/Z-Programming/Book \Exercises/pyqt/chap17/newimagedlg.ui  -o /home/clowers/Z-Programming/Book \Exercises/pyqt/chap17/ui_newimagedlg.py
+
+
 '''
 ###################################
 import os, sys, traceback
@@ -321,8 +326,18 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
     def peakTableSelect(self):
         curRow = self.tabPeakTable.currentRow()
-        curItem = self.tabPeakTable.item(curRow,0)#row, column
-        curVal = N.float(str(curItem.text()))
+        curItemX = self.tabPeakTable.item(curRow,0)#row, column
+        curItemY = self.tabPeakTable.item(curRow,1)#row, column
+        curValX = N.float(str(curItemX.text()))
+        curValY = N.float(str(curItemY.text()))
+        #curInt =
+
+        xLims = self.plotWidget.canvas.ax.get_xlim()
+        zoomVal = N.float(str(self.zoomPercent_CB.currentIndex()))/100
+        zoomRange = zoomVal*xLims[1]
+        self.plotWidget.canvas.ax.set_xlim(curValX-zoomRange, curValX+zoomRange)
+        self.plotWidget.canvas.ax.set_ylim(0, curValY*1.25)
+        self.plotWidget.canvas.draw()
         print curVal
 
 
@@ -2360,7 +2375,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                         self.FPT.start()
                 else:
                     #self.showCWT_CB.isChecked()
-                    if self.FPT.updateThread(dataItemList, self.peakParams, restType = self.resType):#lowRes = self.lowResPP_CB.isChecked()):
+                    if self.FPT.updateThread(dataItemList, self.peakParams, resType = self.resType):#lowRes = self.lowResPP_CB.isChecked()):
                         self.toggleProgressBar(True)
                         self.progressMax = N.float(len(dataItemList))
                         print self.progressMax
@@ -2980,7 +2995,8 @@ class FindPeaksThread(QtCore.QThread):
                     elif self.resType == 'High Resolution':
                         print "high resoltion"
 
-                        ANS, boolAns= ISO.processSpectrum(dataItem.x, dataItem.y, scales = self.scales, minSNR = self.minSNR, pkResEst = 10000, corrCutOff = -5)
+                        ANS, boolAns= ISO.processSpectrum(dataItem.x, dataItem.y, scales = self.scales, \
+                                                          minSNR = self.minSNR, pkResEst = 10000, corrCutOff = -1)
                         if boolAns:
                             centX, centY, isoX, isoY, corrFits = ANS
                             tempCentX = N.zeros(len(centX))
