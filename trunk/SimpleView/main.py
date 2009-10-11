@@ -342,7 +342,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         print curValX
 
 
-
     def setPPTab(self, selectedStr):
 
         selectedStr = str(selectedStr)
@@ -1830,6 +1829,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                     if item.childCount() == 0:#test to see if the object is a leaf
                         self.multiPlotList.append(str(item.toolTip(0)))#get the toolTip which is a key to the dataDict
                 if len(self.multiPlotList)>0:
+
                     self.plotByList(multiPlot = True)
 
                 self.PCTProgress("")#reset status label
@@ -1866,36 +1866,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
     #                        curData.plot(curAx, pColor = self.plotColor)
                         #the following makes it so the change is ignored and the plot does not update
                         self.specNameEdit.setText(curData.path)#use dataList to get the name?
-    #                    self.ignoreSignal = True
-    #                    self.indexHSlider.setValue(i)
-    #                    self.indexSpinBox.setValue(i)
-    #                    self.ignoreSignal = False
-    #            else:
-    #                if plotIndex == None:
-    #                    plotIndex = self.initIndex
-    #                if plotIndex == self.indexSpinBox.value():#this is just to see if the user is still sliding things around before updating plot
-    #                    self._updatePlotColor_()
-    #                    curDataName = self.dataList[plotIndex]
-    #                    curData = self.dataDict[curDataName]
-    #                    #test to see if noise has been calculated, if not do it and then plot.
-    ##                    print self.plotNoiseEst_CB.isChecked()
-    #                    self.plotCurData(curData, curAx)
-
-    #                    if self.plotNoiseEst_CB.isChecked():
-    #                        if curData.noiseOK:
-    #                            curData.plot(curAx, pColor = self.plotColor, plotNoise = True)#, labelPks = False)
-    #                        else:
-    #                            numSegs = len(curData.x)/self.noiseFactor_SB.value()
-    #                            minSNR = self.snrNoiseEst_SB.value()
-    #                            curData.getNoise(numSegs,minSNR)
-    #                            curData.plot(curAx, pColor = self.plotColor, plotNoise = True)#, labelPks = False)
-    #                    else:
-    #                        curData.plot(curAx, pColor = self.plotColor)#, labelPks = False)
-    #                    self.specNameEdit.setText(curData.path)#use dataList to get the name?
-    #                    #the following makes it so the change is ignored and the plot does not update
-    #                    self.ignoreSignal = True
-    #                    self.groupTreeWidget.setCurrentRow(plotIndex)
-    #                    self.ignoreSignal = False
             if self.plotLegendCB.isChecked():
                 curAx.legend(borderaxespad = 0.03, axespad=0.25)
             try:
@@ -1915,9 +1885,10 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                 curAx.set_ylim(ymin = 0)
             self.curDataName = curDataName
             self.plotWidget.canvas.format_labels()
-            self.plotWidget.canvas.draw()
+            #self.plotWidget.canvas.draw()
             self.plotWidget.setFocus()#this is needed so that you can use CTRL+Z to zoom
             self.setupTable()
+            self.autoscale_plot()
 
     def savePeaks(self):
         selectItems = self.groupTreeWidget.selectedItems()
@@ -2219,7 +2190,6 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             self.plotWidget.canvas.xtitle = 'm/z'
             self.plotWidget.canvas.ytitle = 'Intensity'
             self.plotWidget.canvas.format_labels()
-            #self.autoscale_plot(False)
             self.plotWidget.canvas.draw()
             self.plotWidget.setFocus()#this is needed so that you can use CTRL+Z to zoom
 
