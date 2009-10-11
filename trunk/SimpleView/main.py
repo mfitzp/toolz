@@ -181,6 +181,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.peakSetting_CB.addItems(self.peakSettingTypes)
         peakFindInt = self.peakSetting_CB.findText('Med SNR')
         self.peakSetting_CB.setCurrentIndex(peakFindInt)
+        self.zoomPercent_CB.setCurrentIndex(1)
 
         self.selectAllFPs = True#used to toggle the state of all the present FPs
         self.plotWidget.enableEdit()
@@ -338,7 +339,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.plotWidget.canvas.ax.set_xlim(curValX-zoomRange, curValX+zoomRange)
         self.plotWidget.canvas.ax.set_ylim(0, curValY*1.25)
         self.plotWidget.canvas.draw()
-        print curVal
+        print curValX
 
 
 
@@ -1926,7 +1927,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                 curData = self.dataDict[str(item.toolTip(0))]
                 curData.savePkList()
 
-    def autoscale_plot(self):
+    def autoscale_plot(self, draw = True):
 #        print "Cur Group", self.curGroup
 #        print "Group list", self.groupIndex
 #        print "Num Groups", self.numGroups
@@ -1938,7 +1939,8 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             pass
         else:
             curAx.set_ylim(ymin = 0)
-        self.plotWidget.canvas.draw()
+        if draw:
+            self.plotWidget.canvas.draw()
 
 
     def SFDialog(self):
@@ -2190,16 +2192,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 #                    print self.plotNoiseEst_CB.isChecked()
                     self.plotCurData(curData, curAx)
 
-#                    if self.plotNoiseEst_CB.isChecked():
-#                        if curData.noiseOK:
-#                            curData.plot(curAx, pColor = self.plotColor, plotNoise = True)#, labelPks = False)
-#                        else:
-#                            numSegs = len(curData.x)/self.noiseFactor_SB.value()
-#                            minSNR = self.snrNoiseEst_SB.value()
-#                            curData.getNoise(numSegs,minSNR)
-#                            curData.plot(curAx, pColor = self.plotColor, plotNoise = True)#, labelPks = False)
-#                    else:
-#                        curData.plot(curAx, pColor = self.plotColor)#, labelPks = False)
+
                     self.specNameEdit.setText(curData.path)#use dataList to get the name?
                     #the following makes it so the change is ignored and the plot does not update
                     self.ignoreSignal = True
@@ -2226,6 +2219,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             self.plotWidget.canvas.xtitle = 'm/z'
             self.plotWidget.canvas.ytitle = 'Intensity'
             self.plotWidget.canvas.format_labels()
+            #self.autoscale_plot(False)
             self.plotWidget.canvas.draw()
             self.plotWidget.setFocus()#this is needed so that you can use CTRL+Z to zoom
 
@@ -2703,7 +2697,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.tabPeakTable.clear()
         #need to disable sorting as it corrupts data addition
         self.tabPeakTable.setSortingEnabled(False)
-        header = ['m/z', 'Intensity']
+        header = ['m/z', 'Intensity', 'Correlation']
         if self.curDataName != None:
             curData = self.dataDict[self.curDataName]
             if curData.pkListOk:
@@ -2996,7 +2990,7 @@ class FindPeaksThread(QtCore.QThread):
                         print "high resoltion"
 
                         ANS, boolAns= ISO.processSpectrum(dataItem.x, dataItem.y, scales = self.scales, \
-                                                          minSNR = self.minSNR, pkResEst = 10000, corrCutOff = -1)
+                                                          minSNR = self.minSNR, pkResEst = 10000, corrCutOff = -5)
                         if boolAns:
                             centX, centY, isoX, isoY, corrFits = ANS
                             tempCentX = N.zeros(len(centX))
@@ -3004,7 +2998,9 @@ class FindPeaksThread(QtCore.QThread):
                             for i,cent in enumerate(centX):
                                 tempCentX[i] = cent[0]
                                 tempCentY[i] = centY[i][0]
-                            dataItem.setPeakList(N.column_stack((tempCentX,tempCentY)))
+                            #print "Len CentX, CentY, CorrFits: ", len(tempCentX), len(tempCentY), len(corrFits)
+                            dataItem.setPeakList(N.column_stack((tempCentX, tempCentY, corrFits)))
+#                            dataItem.setPeakList(N.column_stack((tempCentX, tempCentY)))
                             dataItem.setPeakParams(self.paramDict)
                             self.numItems += -1
                             self.iteration +=1
