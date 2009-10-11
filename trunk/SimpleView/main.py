@@ -331,7 +331,12 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         curItemY = self.tabPeakTable.item(curRow,1)#row, column
         curValX = N.float(str(curItemX.text()))
         curValY = N.float(str(curItemY.text()))
-        #curInt =
+
+        curData = self.dataDict[self.curDataName]
+        if curData.isoProfileOk:
+            isoProfile = curData.isoProfileDict['%.5f'%N.float(curItemX.text())]
+            self.plotWidget.canvas.ax.plot(isoProfile[0], isoProfile[1], 'r')
+
 
         xLims = self.plotWidget.canvas.ax.get_xlim()
         zoomVal = N.float(str(self.zoomPercent_CB.currentIndex()))/100
@@ -339,7 +344,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.plotWidget.canvas.ax.set_xlim(curValX-zoomRange, curValX+zoomRange)
         self.plotWidget.canvas.ax.set_ylim(0, curValY*1.25)
         self.plotWidget.canvas.draw()
-        print curValX
+        #print curValX
 
 
     def setPPTab(self, selectedStr):
@@ -1808,7 +1813,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.curTreeItem.sortChildren(0,QtCore.Qt.AscendingOrder)#sort column 0 in ascending order
 #        print self.groupDict
 
-    def PFTFinished(self, finishedBool):
+    def PFTFinished(self, finishedBool, debug = False):
 
         self.setStatusLabel("Peak Fitting Completed!")
         selectItems = self.groupTreeWidget.selectedItems()
@@ -1817,6 +1822,21 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         else:
             self.treeViewSelect()
         self.resetProgressBar()
+
+#        if self.resType == 'High Resolution' and debug:
+#                tempPlot = MPL_Widget()
+#                tempPlot.setWindowTitle('IsoProfiles')
+#
+#                ax1 = tempPlot.canvas.ax
+#                plotTitle = 'EIC from %.2f to %.2f'%(mzLo, mzHi)
+#                ax1.set_title(plotTitle)
+#                ax1.title.set_fontsize(10)
+#                ax1.set_xlabel('Data Index', fontstyle = 'italic')
+#                ax1.set_ylabel('Intensity')
+#                ax1.plot(self.curEIC)
+#
+#                eicPlot.show()
+#                self.eicPlots.append(eicPlot)
 
     def treeViewSelect(self, widgetItem=None, index = None):
         if self.ignoreSignal:
@@ -2045,30 +2065,30 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
             self.updateGUI()
 
-    def specListSelect(self, widgetItem=None):
-        if self.ignoreSignal:
-            return
-        else:
-            selectItems = self.specListWidget.selectedItems()
-            #curRow
-            if len(selectItems) > 0:
-                self.multiPlotIndex = []#reset indexes to plot
-                for item in selectItems:
-                    self.multiPlotIndex.append(self.specListWidget.indexFromItem(item).row())
+#    def specListSelect(self, widgetItem=None):
+#        if self.ignoreSignal:
+#            return
+#        else:
+#            selectItems = self.specListWidget.selectedItems()
+#            #curRow
+#            if len(selectItems) > 0:
+#                self.multiPlotIndex = []#reset indexes to plot
+#                for item in selectItems:
+#                    self.multiPlotIndex.append(self.specListWidget.indexFromItem(item).row())
+#
+#                self.plotByIndex(multiPlot = True)
 
-                self.plotByIndex(multiPlot = True)
 
+#    def updatePlotIndex(self):
+#        self.indexSpinBox.setValue(self.indexHSlider.value())
+#        self.plotByIndex(self.indexSpinBox.value())
 
-    def updatePlotIndex(self):
-        self.indexSpinBox.setValue(self.indexHSlider.value())
-        self.plotByIndex(self.indexSpinBox.value())
-
-    def updatePlot(self, index):
-        if self.ignoreSignal:
-            return
-        else:
-            self.initIndex = index
-            QtCore.QTimer.singleShot(500,  self.plotByIndex)
+#    def updatePlot(self, index):
+#        if self.ignoreSignal:
+#            return
+#        else:
+#            self.initIndex = index
+#            QtCore.QTimer.singleShot(500,  self.plotByIndex)
 
     def fetchEIC(self):
         selectItems = self.groupTreeWidget.selectedItems()
@@ -2123,75 +2143,75 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         else:
             curData.plot(curAx, pColor = self.plotColor, plotPks = self.plotPkListCB.isChecked(), labelPks = self.labelPeak_CB.isChecked())
 
-    def plotByIndex(self, plotIndex=None,  multiPlot = False):
-        curDataName = None
-        if self.loadOk:
-            curAx = self.plotWidget.canvas.ax
-            curAx.cla()
-            self.labelPks = self.plotPkListCB.isChecked()
-
-            self.plotColorIndex = 0
-            if multiPlot:
-                if self.invertCompCB.isChecked() and len(self.multiPlotIndex) == 2:
-                    self._updatePlotColor_()
-                    curDataName = self.dataList[self.multiPlotIndex[0]]
-                    self.dataDict[curDataName].plot(curAx, pColor = self.plotColor)
-                    self._updatePlotColor_()
-                    curDataName = self.dataList[self.multiPlotIndex[1]]
-                    self.dataDict[curDataName].plot(curAx, pColor = self.plotColor, invert = True)
-                else:
-                    for i in self.multiPlotIndex:
-                        self._updatePlotColor_()
-                        curDataName = self.dataList[i]
-                        curData = self.dataDict[curDataName]
-                        self.plotCurData(curData, curAx)
-#                        curData.plot(curAx, pColor = self.plotColor)
-                    #the following makes it so the change is ignored and the plot does not update
-                    self.specNameEdit.setText(curData.path)#use dataList to get the name?
-                    self.ignoreSignal = True
-                    self.indexHSlider.setValue(i)
-                    self.indexSpinBox.setValue(i)
-                    self.ignoreSignal = False
-            else:
-                if plotIndex == None:
-                    plotIndex = self.initIndex
-                if plotIndex == self.indexSpinBox.value():#this is just to see if the user is still sliding things around before updating plot
-                    self._updatePlotColor_()
-                    curDataName = self.dataList[plotIndex]
-                    curData = self.dataDict[curDataName]
-                    #test to see if noise has been calculated, if not do it and then plot.
-#                    print self.plotNoiseEst_CB.isChecked()
-                    self.plotCurData(curData, curAx)
-
-
-                    self.specNameEdit.setText(curData.path)#use dataList to get the name?
-                    #the following makes it so the change is ignored and the plot does not update
-                    self.ignoreSignal = True
-                    self.specListWidget.setCurrentRow(plotIndex)
-                    self.ignoreSignal = False
-            if self.plotLegendCB.isChecked():
-                curAx.legend(borderaxespad = 0.03, axespad=0.25)
-            try:
-                minX = curAx.get_lines()[0].get_xdata()[0]
-                self.addPickers(minX)
-            except:
-                errorMsg = "Sorry: %s\n\n:%s\n"%(sys.exc_type, sys.exc_value)
-                print errorMsg
-                self.addPickers()
-            #used so that the scales will not be wonkey
-            if multiPlot:
-                if self.invertCompCB.isChecked() and len(self.multiPlotIndex) == 2:
-                    pass
-                else:
-                    curAx.set_ylim(ymin = 0)
-            else:
-                curAx.set_ylim(ymin = 0)
-            self.curDataName = curDataName
-            self.plotWidget.canvas.xtitle = 'm/z'
-            self.plotWidget.canvas.ytitle = 'Intensity'
-            self.plotWidget.canvas.format_labels()
-            self.plotWidget.canvas.draw()
-            self.plotWidget.setFocus()#this is needed so that you can use CTRL+Z to zoom
+#    def plotByIndex(self, plotIndex=None,  multiPlot = False):
+#        curDataName = None
+#        if self.loadOk:
+#            curAx = self.plotWidget.canvas.ax
+#            curAx.cla()
+#            self.labelPks = self.plotPkListCB.isChecked()
+#
+#            self.plotColorIndex = 0
+#            if multiPlot:
+#                if self.invertCompCB.isChecked() and len(self.multiPlotIndex) == 2:
+#                    self._updatePlotColor_()
+#                    curDataName = self.dataList[self.multiPlotIndex[0]]
+#                    self.dataDict[curDataName].plot(curAx, pColor = self.plotColor)
+#                    self._updatePlotColor_()
+#                    curDataName = self.dataList[self.multiPlotIndex[1]]
+#                    self.dataDict[curDataName].plot(curAx, pColor = self.plotColor, invert = True)
+#                else:
+#                    for i in self.multiPlotIndex:
+#                        self._updatePlotColor_()
+#                        curDataName = self.dataList[i]
+#                        curData = self.dataDict[curDataName]
+#                        self.plotCurData(curData, curAx)
+##                        curData.plot(curAx, pColor = self.plotColor)
+#                    #the following makes it so the change is ignored and the plot does not update
+#                    self.specNameEdit.setText(curData.path)#use dataList to get the name?
+#                    self.ignoreSignal = True
+#                    self.indexHSlider.setValue(i)
+#                    self.indexSpinBox.setValue(i)
+#                    self.ignoreSignal = False
+#            else:
+#                if plotIndex == None:
+#                    plotIndex = self.initIndex
+#                if plotIndex == self.indexSpinBox.value():#this is just to see if the user is still sliding things around before updating plot
+#                    self._updatePlotColor_()
+#                    curDataName = self.dataList[plotIndex]
+#                    curData = self.dataDict[curDataName]
+#                    #test to see if noise has been calculated, if not do it and then plot.
+##                    print self.plotNoiseEst_CB.isChecked()
+#                    self.plotCurData(curData, curAx)
+#
+#
+#                    self.specNameEdit.setText(curData.path)#use dataList to get the name?
+#                    #the following makes it so the change is ignored and the plot does not update
+#                    self.ignoreSignal = True
+#                    self.specListWidget.setCurrentRow(plotIndex)
+#                    self.ignoreSignal = False
+#            if self.plotLegendCB.isChecked():
+#                curAx.legend(borderaxespad = 0.03, axespad=0.25)
+#            try:
+#                minX = curAx.get_lines()[0].get_xdata()[0]
+#                self.addPickers(minX)
+#            except:
+#                errorMsg = "Sorry: %s\n\n:%s\n"%(sys.exc_type, sys.exc_value)
+#                print errorMsg
+#                self.addPickers()
+#            #used so that the scales will not be wonkey
+#            if multiPlot:
+#                if self.invertCompCB.isChecked() and len(self.multiPlotIndex) == 2:
+#                    pass
+#                else:
+#                    curAx.set_ylim(ymin = 0)
+#            else:
+#                curAx.set_ylim(ymin = 0)
+#            self.curDataName = curDataName
+#            self.plotWidget.canvas.xtitle = 'm/z'
+#            self.plotWidget.canvas.ytitle = 'Intensity'
+#            self.plotWidget.canvas.format_labels()
+#            self.plotWidget.canvas.draw()
+#            self.plotWidget.setFocus()#this is needed so that you can use CTRL+Z to zoom
 
 #############FIND PEAKS ELEMENTS#########################
 
@@ -2379,6 +2399,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                     curRow = self.groupTreeWidget.indexFromItem(item).row()
                     curDataName = str(item.toolTip(0))
                     curData = self.dataDict[curDataName]
+
     #                print curData.noiseOK
                     dataItemList.append(curData)
                 #peakPickIndex.append(self.groupTreeWidget.indexFromItem(item).row())
@@ -2970,6 +2991,7 @@ class FindPeaksThread(QtCore.QThread):
                                 tempCentY[i] = centY[i][0]
                             #print "Len CentX, CentY, CorrFits: ", len(tempCentX), len(tempCentY), len(corrFits)
                             dataItem.setPeakList(N.column_stack((tempCentX, tempCentY, corrFits)))
+                            dataItem.setIsotopeProfiles(tempCentX, isoX, isoY)
 #                            dataItem.setPeakList(N.column_stack((tempCentX, tempCentY)))
                             dataItem.setPeakParams(self.paramDict)
                             self.numItems += -1

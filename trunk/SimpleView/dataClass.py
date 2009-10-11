@@ -28,6 +28,8 @@ class DataClass(object):
         self.pkListOk = False
         self.labelPks = False
         self.peakList = None
+        self.isoProfileDict = None
+        self.isoProfileOk = False
         self.peakParams = None
         self.mplAx = None
         self.plotModVal = 1
@@ -88,6 +90,25 @@ class DataClass(object):
     def setPeakParams(self, paramDict):
         if type(paramDict) == dict:
             self.peakParams = paramDict
+
+    def setIsotopeProfiles(self, isoCentroids, isoListX, isoListY):
+        '''
+        Used to store the isotope profiles from fitting routine
+        '''
+        tempDict = {}
+        for i,cent in enumerate(isoCentroids):
+            tempDict['%.5f'%cent] = [isoListX[i], isoListY[i]]
+
+        self.isoProfileDict = tempDict
+        self.isoProfileOk = True
+        print "set isotope patterns"
+
+    def getIsotopeProfiles(self):
+        '''
+        Calculates isotope profiles of the picked peaks
+        '''
+        print 'get isotope profiles'
+
 
     def setPeakList(self, peakList, normalized = True):
         #peak list is two arrays peakLoc and intensity

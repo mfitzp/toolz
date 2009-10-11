@@ -72,9 +72,13 @@ def getLocalIsoPattern(xArray, yArray, isoCentroid, charge, padWindow = 2):
 	return tempX, tempY
 
 
-def plotIsoProfile(tempX, tempY, color = 'r', alpha = 1.0):
+def plotIsoProfile(tempX, tempY, isoListX, isoListY, color = 'r', alpha = 1.0):
 	#return True
+	P.figure()
 	P.plot(tempX, tempY, color, alpha = alpha)
+	for i, tempIsoX in enumerate(isoListX):
+		P.plot(tempIsoX, isoListY[i], 'r')
+	P.show()
 
 def concatenateIsos2(isoListX, isoListY):
         '''
@@ -478,7 +482,7 @@ def processSpectrum(X, Y, scales, minSNR, pkResEst, corrCutOff):
 
 
 				#sortPeaks(returnANS[0],returnANS[1], returnANS[2], returnANS[3], returnANS[4], xTol = xDiff*2)
-
+#				plotIsoProfile(X, Y, isoX, isoY)
 				return returnANS, True
 		return None, False
 	return None, False
@@ -486,7 +490,8 @@ def processSpectrum(X, Y, scales, minSNR, pkResEst, corrCutOff):
 
 if __name__ == "__main__":
 
-	data = P.load('I5.csv', delimiter = ',')
+#	data = P.load('Tryptone.csv', delimiter = ',')
+	data = P.load('A2.csv', delimiter = ',')
 
 	mz = data[:,0]
 
