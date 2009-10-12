@@ -45,6 +45,9 @@ fix topHat, threadit?
 /usr/bin/pyuic4 /home/clowers/workspace/SimpleView/main.ui  -o /home/clowers/workspace/SimpleView/ui_main.py
 /usr/bin/pyuic4 /usr/bin/pyuic4 /home/clowers/Z-Programming/Book \Exercises/pyqt/chap17/newimagedlg.ui  -o /home/clowers/Z-Programming/Book \Exercises/pyqt/chap17/ui_newimagedlg.py
 
+how to better handle preferences
+
+how to calculate Isotope Profiles on the fly (i.e. from a file)
 
 '''
 ###################################
@@ -142,6 +145,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.curFPWidget = FP.Finger_Widget(parent = self)
         self.fingerPlots.append(self.curFPWidget)
         self.peakParams = None
+        self.curIsoPeaks = {}#used to keep track which isotope profiles have already been plotted for a give spectrum
         self.resType = None #will be a string for High, Standard, and Low Resolution
         self.setupPeakPick()
         ###FP Related Vars:
@@ -335,7 +339,10 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         curData = self.dataDict[self.curDataName]
         if curData.isoProfileOk:
             isoProfile = curData.isoProfileDict['%.5f'%N.float(curItemX.text())]
-            self.plotWidget.canvas.ax.plot(isoProfile[0], isoProfile[1], 'r')
+            if self.curIsoPeaks.has_key(str(curValX)):
+                pass
+            else:
+                self.curIsoPeaks[str(curValX)] = self.plotWidget.canvas.ax.plot(isoProfile[0], isoProfile[1], 'r', alpha = 0.3)
 
 
         xLims = self.plotWidget.canvas.ax.get_xlim()
@@ -1859,6 +1866,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         if self.loadOk:
             curAx = self.plotWidget.canvas.ax
             curAx.cla()
+            self.curIsoPeaks = {}#reset to default
             self.labelPks = self.plotPkListCB.isChecked()
             self.plotColorIndex = 0
             if multiPlot:
@@ -2981,7 +2989,7 @@ class FindPeaksThread(QtCore.QThread):
                         print "high resoltion"
 
                         ANS, boolAns= ISO.processSpectrum(dataItem.x, dataItem.y, scales = self.scales, \
-                                                          minSNR = self.minSNR, pkResEst = 10000, corrCutOff = -5)
+                                                          minSNR = self.minSNR, pkResEst = 10000, xDiff = (dataItem.x[1]-dataItem.x[0]), corrCutOff = 0.3)
                         if boolAns:
                             centX, centY, isoX, isoY, corrFits = ANS
                             tempCentX = N.zeros(len(centX))
@@ -2994,6 +3002,8 @@ class FindPeaksThread(QtCore.QThread):
                             dataItem.setIsotopeProfiles(tempCentX, isoX, isoY)
 #                            dataItem.setPeakList(N.column_stack((tempCentX, tempCentY)))
                             dataItem.setPeakParams(self.paramDict)
+                            if self.autoSave:
+                                dataItem.savePkList()
                             self.numItems += -1
                             self.iteration +=1
                             self.emit(QtCore.SIGNAL("progress(int)"),self.iteration)
@@ -3001,51 +3011,6 @@ class FindPeaksThread(QtCore.QThread):
 
 
 
-#                        self.cwt = CWT_HR.cwtMS(dataItem.y, self.scales, wlet = 'DOG', staticThresh = (self.staticThresh/dataItem.normFactor)*100)
-#                        if self.cwt != None:
-#                            if not dataItem.noiseOK:
-#                                numSegs = len(dataItem.x)/self.noiseFactor
-#                                dataItem.getNoise(numSegs,self.minSNR)
-#                            #static Thresh is scaled for each individual spectrum and uses the normFactor or maximum of the
-#                            # Y values to compute where a spectrum should be cut
-##                            boolAns = getCWTPeaks(cwt, xArray, yArray,
-##                                                  noiseEst, minRow = 0,
-##                                                  minClust = 2, minNoiseEst = minNoise,
-##                                                  EPS = None, debug = True, tempAxis = ax2)
-#                            cwtResult = CWT_HR.getCWTPeaks(self.cwt, dataItem.x, dataItem.y,\
-#                                                        dataItem.noiseEst, minSNR = self.minSNR,\
-#                                                        minRow = 0, minClust =2,\
-#                                                        pntPad = dataItem.mzPad,\
-#                                                        minNoiseEst = dataItem.minNoiseEst,\
-#                                                        EPS = None, debug = True)
-#
-#    #                        def getCWTPeaks(scaledCWT, X, Y, noiseEst, minSNR = 3,\
-#    #                                        minRow = 3, minClust = 4, rowThresh = 3,\
-#    #                                        pntPad = 50, staticThresh = 0.2, minNoiseEst = 0.025,
-#    #                                        EPS = None):
-#                            peakLoc, peakInt, rawPeakInd, cwtPeakLoc, cClass, boolAns = cwtResult
-#                            print len(cClass)
-#                            if boolAns:
-#                                if cClass != None and len(cClass)>0:
-#                                    if len(peakLoc) != 0:
-#    #                                    print "Peak Locations", peakLoc
-#    #                                    print "Peak Intensity", peakInt
-#    #                                    print "Raw Peak Index", rawPeakInd
-#    #                                    print "Peaks from DataItem.x", dataItem.x[rawPeakInd]
-#                                        dataItem.setPeakList(N.column_stack((peakLoc,peakInt)))
-#                                        dataItem.setPeakParams(self.hiResParamDict)
-#                                        dataItem.pkListOk = boolAns
-#                                        if self.autoSave:
-#                                            dataItem.savePkList()
-#                                        self.numItems += -1
-#                                        self.iteration +=1
-#                                        self.emit(QtCore.SIGNAL("progress(int)"),self.iteration)
-#                                        self.ready = False
-#                                else:
-#
-#                                    print "Error with Peak Picking"
-#                                if self.parent != None and self.plotCWT:
-#                                    self.emit(QtCore.SIGNAL("returnCWT(PyQt_PyObject)"),[self.cwt, cwtResult])
 
                 print "Peak Find Time: ", time.clock()-t0
                 self.emit(QtCore.SIGNAL("finished(bool)"),True)

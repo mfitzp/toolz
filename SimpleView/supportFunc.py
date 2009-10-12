@@ -45,8 +45,11 @@ def roundLen(data):
 def interpolate_spectrum_by_diff(X, Y, xmin, xmax, diff): #data array contains two columns. x & y, respectively
     x=X
     y=Y
-    f=interp1d(x,y)
+    f=interp1d(x,y, bounds_error = False, fill_value = xmax)
+    #I don't like using the fill_value, but this seems like the least disruptive way to account
+    #for interpolation errors.  It would be better to have a value for the high and low ends of the interpolation
     #subtract one from the max otherwise some rounding errors can cause the length of the x_new to be 1 too many.
+#    x_new = N.arange(xmin-diff, xmax+diff, diff)
     x_new = N.arange(xmin, xmax, diff)
 #    print "Interp Test"
 #    print len(x_new), len(x), len(y)

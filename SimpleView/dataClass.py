@@ -129,7 +129,7 @@ class DataClass(object):
                         self.peakList[:,1] = SF.normalize(self.peakList[:,1])
                     elif type(peakList[0]) == N.float64:
                         self.peakList = N.array([[peakList[0],100.0]])
-        print self.peakList
+        #print self.peakList
 
     def applyTopHat(self):
         self.y = SF.topHat(self.y, 0.01)

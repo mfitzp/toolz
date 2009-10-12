@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/home/clowers/workspace/SimpleView/example_main.ui'
+# Form implementation generated from reading ui file 'C:\Documents and Settings\d3p483\workspace\SimpleView\example_main.ui'
 #
-# Created: Tue Feb 10 20:05:54 2009
+# Created: Mon Oct 12 09:18:36 2009
 #      by: PyQt4 UI code generator 4.4.3
 #
 # WARNING! All changes made in this file will be lost!

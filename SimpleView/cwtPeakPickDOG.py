@@ -248,7 +248,7 @@ if __name__ == "__main__":
     'BSA_XY_Full.csv'
     'J5.csv'
     'Tryptone.csv'
-    dat = P.load('Tryptone.csv', delimiter = ',')
+    dat = P.load('E4.csv', delimiter = ',')
 
     xArray = dat[:,0]
     yArray = dat[:,1]

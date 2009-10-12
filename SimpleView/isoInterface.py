@@ -158,7 +158,7 @@ def concatenateIsos(isoListX, isoListY):
 		return returnX, returnY
 
 def getIsoProfile(xArray, yArray, isoCentroids, isoAmplitudes,
-				  mzDiff, mzResGlobal, mzResCalc, charge=1, padWindow=1, corrCutOff = 0.5):
+				  xDiff, mzResGlobal, mzResCalc, charge=1, padWindow=1, corrCutOff = 0.5):
 	'''
 	returns Gaussian profile of the isotope pattern that was provided as a series of centroids
 	mzDiff -- the difference between each mz value in the x dimension
@@ -272,7 +272,7 @@ def getIsoProfile(xArray, yArray, isoCentroids, isoAmplitudes,
 		else:
 			pkWidth = iso/mzResCalc#FWHM = 2.35*sigma
 			#fullWidth = (pkWidth/2.35)*4
-			tempXProfile = N.arange(iso-(pkWidth*4), iso+(pkWidth*4), mzDiff)#N.arange(start, stop, step)
+			tempXProfile = N.arange(iso-(pkWidth*4), iso+(pkWidth*4), xDiff)#N.arange(start, stop, step)
 			tempYProfile = GF.getGauss(tempXProfile, iso, pkWidth, amp = isoAmplitudes[i])
 			#tempXProfile, tempYProfile = concatenateIsos(returnX[-1], tempXProfile, tempYProfile)
 			returnX.append(tempXProfile)
@@ -291,11 +291,13 @@ def getIsoProfile(xArray, yArray, isoCentroids, isoAmplitudes,
 		tempX = xArray[startInd:endInd]
 
 		tempY = yArray[startInd:endInd]
-		returnDiff = N.diff(returnX).max()
+		returnDiff = xDiff#N.diff(returnX).max()
 
 		#using the index from 1 so that there are no interpolation errors
-		tempX, tempY = SF.interpolate_spectrum_by_diff(tempX, tempY, tempX[1], tempX.max(), returnDiff)
-		returnX, returnY = SF.interpolate_spectrum_by_diff(returnX, returnY, tempX[1], tempX.max(), returnDiff)
+#		tempX, tempY = SF.interpolate_spectrum_by_diff(tempX[1:-1], tempY[1:-1], tempX[1], tempX.max(), returnDiff)#tempX.max(), returnDiff)
+#		returnX, returnY = SF.interpolate_spectrum_by_diff(returnX[1:-1], returnY[1:-1], tempX[1], tempX.max(), returnDiff)
+		tempX, tempY = SF.interpolate_spectrum_by_diff(tempX, tempY, tempX.min(), tempX.max(), returnDiff)#tempX.max(), returnDiff)
+		returnX, returnY = SF.interpolate_spectrum_by_diff(returnX, returnY, tempX.min(), tempX.max(), returnDiff)
 		#returnX+=returnDiff
 		#isoCentroids+=returnDiff
 
@@ -329,13 +331,15 @@ def getIsoProfile(xArray, yArray, isoCentroids, isoAmplitudes,
 #		ax = fig.add_subplot(311)
 #		ax2 = fig.add_subplot(312)
 #		ax3 = fig.add_subplot(313)
-#		ax.plot(returnY1, tempY, 'bo', label = '%s'%corrScipy[0])
+#		ax.plot(returnY, tempY, 'bo', label = '%s'%corrScipy[0])
 #		ax.legend()
 #		ax2.plot(tempX, tempY)
-#		ax2.plot(returnX1, returnY1)
-#		ax3.plot(returnY1)
+#		ax2.plot(returnX, returnY)
+#		ax3.plot(returnY)
 #		ax3.plot(tempY)
 
+#		print returnDiff
+#		print "After Interp m/z Diff: ", returnX[1]-returnX[0], returnX[-1]-returnX[-2], tempX[1]-tempX[0], tempX[-1]-tempX[-2]
 #		print "Relative Lengths", len(tempY), len(returnY)
 
 
@@ -402,7 +406,7 @@ def sortPeaks(X,Y, profileX, profileY, corrFactors, xTol):
 	peakGroups = []
 
 
-def processSpectrum(X, Y, scales, minSNR, pkResEst, corrCutOff):
+def processSpectrum(X, Y, scales, minSNR, pkResEst, xDiff, corrCutOff):
 	'''
 	This is the main function call
 	assumes data have been interpolated (for CWT)
@@ -411,6 +415,8 @@ def processSpectrum(X, Y, scales, minSNR, pkResEst, corrCutOff):
 	scales -- the scales used in the CWT
 	minSNR -- the minimum SNR used for noise estimate and peak picking
 	pkResEst -- the estimate peak resolution measured in peak location/FWHM
+	xDiff -- difference in m/z units between subsequent points
+	corrCutOff -- value below which peaks will be excluded from being returned
 
 	To Do:
 
@@ -426,7 +432,7 @@ def processSpectrum(X, Y, scales, minSNR, pkResEst, corrCutOff):
 
 
 	yMax = Y.max()
-	xDiff = X[1]-X[0]
+	xDiff = xDiff
 	cwt = CWT.cwtMS(Y, scales, staticThresh = (2/Y.max())*100, wlet='DOG')
 
 	ANS = CWT.getCWTPeaks(cwt, X, Y, noiseEst, minRow = 0,
@@ -449,41 +455,41 @@ def processSpectrum(X, Y, scales, minSNR, pkResEst, corrCutOff):
 
 	if boolAns:
 		if len(pkLoc)>0:
+			print peakLoc
+			resGlobal = pkResEst#this is the initial value provided by user
+			resCalc = pkResEst
+			for i, pk in enumerate(pkLoc):
+				#adjust to account for different charge states
+				#not tested as of 10/05/09 BHC
+				chargeStates = [1]#[1,2]
+				for j,charge in enumerate(chargeStates):
+					isoAns = A.averagineCalc(pk, charge = charge)#C++ wrapper to averagine calculation
+					if isoAns != None:
+						if isoAns[0] == 0:#successful isotope pattern exit code
+							isoPeaks = isoAns[1]
+							scaleVal = pkInt[i]
+							isoPeaks[1] = normalize2One(isoPeaks[1])
+							isoPeaks[1] *= scaleVal
 
-				resGlobal = pkResEst#this is the initial value provided by user
-				resCalc = pkResEst
-				for i, pk in enumerate(pkLoc):
-					#adjust to account for different charge states
-					#not tested as of 10/05/09 BHC
-					chargeStates = [1]#[1,2]
-					for j,charge in enumerate(chargeStates):
-						isoAns = A.averagineCalc(pk, charge = charge)#C++ wrapper to averagine calculation
-						if isoAns != None:
-							if isoAns[0] == 0:#successful isotope pattern exit code
-								isoPeaks = isoAns[1]
-								scaleVal = pkInt[i]
-								isoPeaks[1] = normalize2One(isoPeaks[1])
-								isoPeaks[1] *= scaleVal
+							isoPeaks[0] = courseShiftIsoPatt(isoPeaks[0], pk)#sometimes there are big shifts needed
 
-								isoPeaks[0] = courseShiftIsoPatt(isoPeaks[0], pk)#sometimes there are big shifts needed
+							isoAns = getIsoProfile(X, Y, isoPeaks[0], isoPeaks[1], xDiff, resGlobal, resCalc, charge=charge, corrCutOff = corrCutOff)
+							rezCalc, tempIsoX, tempIsoY, startInd, corrFactor, fitOk = isoAns
 
-								isoAns = getIsoProfile(X, Y, isoPeaks[0], isoPeaks[1], xDiff, resGlobal, resCalc, charge=charge, corrCutOff = corrCutOff)
-								rezCalc, tempIsoX, tempIsoY, startInd, corrFactor, fitOk = isoAns
+							if fitOk:
+								isoX.append(tempIsoX)
+								isoY.append(tempIsoY)
+								centX.append(isoPeaks[0])
+								centY.append(isoPeaks[1])
+								corrFactors.append(corrFactor)
+								startPnts.append(startInd)
 
-								if fitOk:
-									isoX.append(tempIsoX)
-									isoY.append(tempIsoY)
-									centX.append(isoPeaks[0])
-									centY.append(isoPeaks[1])
-									corrFactors.append(corrFactor)
-									startPnts.append(startInd)
-
-				returnANS = [centX, centY, isoX, isoY, corrFactors]
+			returnANS = [centX, centY, isoX, isoY, corrFactors]
 
 
 				#sortPeaks(returnANS[0],returnANS[1], returnANS[2], returnANS[3], returnANS[4], xTol = xDiff*2)
 #				plotIsoProfile(X, Y, isoX, isoY)
-				return returnANS, True
+			return returnANS, True
 		return None, False
 	return None, False
 
@@ -491,7 +497,7 @@ def processSpectrum(X, Y, scales, minSNR, pkResEst, corrCutOff):
 if __name__ == "__main__":
 
 #	data = P.load('Tryptone.csv', delimiter = ',')
-	data = P.load('A2.csv', delimiter = ',')
+	data = P.load('E4.csv', delimiter = ',')
 
 	mz = data[:,0]
 
@@ -509,8 +515,8 @@ if __name__ == "__main__":
 	print len(mz)
 	start = 0
 	stop = len(mz)
-#	start = 10000
-#	stop = 20000
+#	start = 0
+#	stop = 22000
 	mz = mz[start:stop]
 	abund = abund[start:stop]
 	abund = SF.normalize(abund)
@@ -520,10 +526,10 @@ if __name__ == "__main__":
 	#scales = N.array([2,10,18,26,34,42,50,58])#,4)
 	scales = N.array([1,2,4,6,8,12,16])
 	minSNR = 1.5
-	resEst = 10000
-	corrCutOff = 0.3
+	resEst = 8000
+	corrCutOff = 0.5
 	t1 = time.clock()
-	ANS, boolAns = processSpectrum(mz, abund, scales, minSNR, resEst, corrCutOff = corrCutOff)
+	ANS, boolAns = processSpectrum(mz, abund, scales, minSNR, resEst, xDiff = mzDiff, corrCutOff = corrCutOff)
 	print "Peak Picking and Isotopic Fitting Time: ", time.clock()-t1
 
 	fig = P.figure()
