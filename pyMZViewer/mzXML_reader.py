@@ -238,8 +238,17 @@ class mzXMLDoc:
         for scan in spectra:
             if scan.find(self.ns+'precursorMz') is None:
                 xTime.append(scan.get('num'))
-                BPC.append(float(scan.get('basePeakIntensity')))
-                TIC.append(float(scan.get('totIonCurrent')))
+                if N.float(scan.get('peaksCount'))>0:
+                    BPC.append(N.float(scan.get('basePeakIntensity')))
+                    TIC.append(N.float(scan.get('totIonCurrent')))
+                #                print scan.get('num'), type(scan)
+##                print scan.get('basePeakIntensity'), type(scan.get('basePeakIntensity'))
+#                if type(scan.get('basePeakIntensity')) == None:
+#
+                else:
+                    BPC.append(0.0)
+                    TIC.append(0.0)
+
 
     # ----
     def handleSpectrum(self, spectrum):

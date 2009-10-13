@@ -22,6 +22,7 @@ class DoubleMyMplCanvas(FigureCanvas):
         self.fig = Figure(figsize = (width, height), dpi=dpi, facecolor = '#FFFFFF')
         self.ax = self.fig.add_subplot(211, sharex = sharex, sharey = sharey)
         self.ax2 = self.fig.add_subplot(212, sharex = sharex, sharey = sharey)
+        self.axList = [self.ax, self.ax2]
         self.fig.subplots_adjust(left=0.1, bottom=0.1, right=0.9, top=0.9)
         self.plotTitle = ''
         self.xtitle="X"#"Drift Time (ms)"
@@ -42,27 +43,28 @@ class DoubleMyMplCanvas(FigureCanvas):
         FigureCanvas.updateGeometry(self)
 
     def format_labels(self, xItalic = False):
-        self.ax.set_title(self.plotTitle)
-        self.ax.title.set_fontsize(10)
-        xLabel = self.xtitle#self.ax.get_xlabel()
-        yLabel = self.ytitle#self.ax.get_ylabel()
-        if xItalic:
-            self.ax.set_xlabel(xLabel, fontsize = 9, fontstyle = 'italic')
-        else:
-            self.ax.set_xlabel(xLabel, fontsize = 9)
-        self.ax.set_ylabel(yLabel, fontsize = 9)
-        labels_x = self.ax.get_xticklabels()
-        labels_y = self.ax.get_yticklabels()
+        for ax in self.axList:
+            ax.set_title(self.plotTitle)
+            ax.title.set_fontsize(10)
+            xLabel = self.xtitle#self.ax.get_xlabel()
+            yLabel = self.ytitle#self.ax.get_ylabel()
+            if xItalic:
+                ax.set_xlabel(xLabel, fontsize = 9, fontstyle = 'italic')
+            else:
+                ax.set_xlabel(xLabel, fontsize = 9)
+            ax.set_ylabel(yLabel, fontsize = 9)
+            labels_x = ax.get_xticklabels()
+            labels_y = ax.get_yticklabels()
 
-        for xlabel in labels_x:
-            xlabel.set_fontsize(8)
-        for ylabel in labels_y:
-            ylabel.set_fontsize(8)
-            ylabel.set_color('b')
-        if self.ax.get_legend() != None:
-            texts = self.ax.get_legend().get_texts()
-            for text in texts:
-                text.set_fontsize(8)
+            for xlabel in labels_x:
+                xlabel.set_fontsize(8)
+            for ylabel in labels_y:
+                ylabel.set_fontsize(8)
+                ylabel.set_color('b')
+            if ax.get_legend() != None:
+                texts = ax.get_legend().get_texts()
+                for text in texts:
+                    text.set_fontsize(8)
 
     def sizeHint(self):
         w, h = self.get_width_height()
@@ -176,7 +178,7 @@ class MPL_Widget(QtGui.QWidget):
         ###############ZOOM CONTROLS ################
 
         self.Zoom = QtGui.QAction("Zoom",  self)
-        self.Zoom.setShortcut("Ctrl+Z")
+        #self.Zoom.setShortcut("Ctrl+Z")
         self.addAction(self.Zoom)
         QtCore.QObject.connect(self.Zoom,QtCore.SIGNAL("triggered()"), self.ZoomToggle)
 
@@ -368,7 +370,7 @@ def getHomeDir():
 def main():
     import sys
     app = QtGui.QApplication(sys.argv)
-    w = MPL_Widget(enableAutoScale = True, enableEdit = True)
+    w = MPL_Widget(enableAutoScale = True, doublePlot = True, enableEdit = True)
     x = N.arange(0, 20, 0.1)
     y = N.sin(x)
     y2 = N.cos(x)

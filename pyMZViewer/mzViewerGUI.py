@@ -57,7 +57,7 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
         self.__setupMZ__()
         self.startup()
 
-        self.drawProfile = True
+        self.drawProfile = False
 
 
     def startup(self):
@@ -74,11 +74,12 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
         self.tempIndex = None
         self.fragScanList = []
         self.fragPlotList = []
+        self.fragTabDict = {}
         self.scanInfoList = []
         self.fragPlotted = 0#used to keep track of whether or not a fragment has been plotted
         self.fragIndex = None
 
-        self.drawProfile = True
+        self.drawProfile = False
 
         self.spectrumTabWidget.setCurrentIndex(0)
         numTabs = self.spectrumTabWidget.count()
@@ -96,16 +97,16 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
         if filename:
             self.fileType= str(filename).split('.')[-1]
         if self.fileType == 'mzXML':
-            try:
+#            try:
 
-                self.curFile = mzXMLDoc(filename)
-                #self.curFile.getDocument(dataFileName)
-                self.initiateChrom()
-                self.getMZScan(0)
-                self.firstLoad = False
+            self.curFile = mzXMLDoc(filename)
+            #self.curFile.getDocument(dataFileName)
+            self.initiateChrom()
+            self.getMZScan(0)
+            self.firstLoad = False
 
-            except:
-                return QtGui.QMessageBox.information(self.MainWindow,'', "Problem loading data, check file")
+#            except:
+#                return QtGui.QMessageBox.information(self.MainWindow,'', "Problem loading data, check file")
         elif self.fileType == 'mzML':
                 print "mzML Selected"
 
@@ -151,6 +152,30 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
         self.textHandle = self.mzWidget.canvas.ax.text(0.03, 0.95, showText, fontsize=7,\
                                         bbox=dict(facecolor='yellow', alpha=0.1),\
                                         transform=self.mzWidget.canvas.ax.transAxes, va='top')
+
+        #handle precursor ion setup
+
+        if self.fragScanList != None:
+            if len(self.fragScanList) > 0:
+                for fragScan in self.fragScanList:
+#                    print "Frag Scan", fragScan
+                    self.scanInfoList.append(self.curFile.getScanInfo(fragScan))
+                    precurMZ = float(self.curFile.getScanInfo(fragScan).get('mz'))
+                    #print precurMZ
+#                    self.mzWidget.canvas.ax.axvline(precurMZ, ls=':', alpha = 0.5,  color='r',  picker = 5)
+    #                        self.mzWidget.cavnas.ax2.histogram(precurMZ)
+                    tabName = "m/z %.1f"%(precurMZ)
+                    if tabName == showText and not self.fragTabDict.has_key(str(fragScan)):
+                    #print tabName
+                        self.spectrumTabWidget.addTab(self.makePrecursorTab(fragScan, tabName), tabName)
+
+                    for i in xrange(self.spectrumTabWidget.count()):
+                        if str(self.spectrumTabWidget.tabText(i)) == tabName:
+                            self.spectrumTabWidget.setCurrentIndex(i)
+                            continue
+
+
+
         self.mzWidget.canvas.ax.set_xlim(curXlim)#needed to prevent autoscale of vline cursor
         self.mzWidget.canvas.draw()
         #self.updateMZTab(self.fragIndex+1)
@@ -242,6 +267,10 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
                 self.mzWidget.canvas.ax.plot(self.mzscan[0], self.mzscan[1],  'b')
             else:
                 self.mzWidget.canvas.ax.vlines(self.mzscan[0], 0, self.mzscan[1],  'b')
+
+
+            self.labelPeaks(self.mzWidget.canvas.ax, self.mzscan)
+
             self.mzWidget.canvas.plotTitle = "Scan #"+self.curScanInfo.get('id')
             #self.mzWidget.canvas.format_labels()
             self.mzYScale = (self.mzscan[1].min(), (self.mzscan[1].max()*1.1))
@@ -268,6 +297,7 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
 
                 self.mzWidget.canvas.ax.cla()
                 self.fragPlotList = []
+                self.fragTabDict = {}
                 self.fragPlotted = 0
                 self.curFragIndex =0
                 self.prevFragIndex = 0
@@ -278,7 +308,7 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
                 j=1
                 for i in range(1, numTabs):#this is a weird loop because each time you kill a tab it reorders the whole bunch
                     self.spectrumTabWidget.removeTab(j)
-
+#
                 if self.fragScanList:
                     for fragScan in self.fragScanList:
                         self.scanInfoList.append(self.curFile.getScanInfo(fragScan))
@@ -286,9 +316,9 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
                         #print precurMZ
                         self.mzWidget.canvas.ax.axvline(precurMZ, ls=':', alpha = 0.5,  color='r',  picker = 5)
 #                        self.mzWidget.cavnas.ax2.histogram(precurMZ)
-                        tabName = "m/z %.1f"%(precurMZ)
-                        #print tabName
-                        self.spectrumTabWidget.addTab(self.makePrecursorTab(fragScan, tabName), tabName)
+#                        tabName = "m/z %.1f"%(precurMZ)
+#                        #print tabName
+#                        self.spectrumTabWidget.addTab(self.makePrecursorTab(fragScan, tabName), tabName)
 
 
                 self.curScanId = int(self.curScanInfo.get('id'))
@@ -310,23 +340,24 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
         fragPlot = MPL_Widget(fragTab, doublePlot = False)
         #fragPlot.enableEdit()
         self.fragPlotList.append(fragPlot)
+        self.fragTabDict[str(fragScan)] = '0'#this is a dummy value, we just want to be able to search quickly through the keys
         QtGui.QHBoxLayout(fragTab).addWidget(fragPlot)
         return fragTab
 
-    def updateMZTab(self, int):
-        self.curFragIndex = int
+    def updateMZTab(self, intVal):
+        self.curFragIndex = intVal
         if self.fragPlotted == len(self.fragPlotList):
-            self.curScanInfo = self.scanInfoList[int]
+            self.curScanInfo = self.scanInfoList[intVal]
             #print "equal"
             #return True
         elif self.curFragIndex == self.prevFragIndex:
-            self.curScanInfo = self.scanInfoList[int]
-        elif int != 0:
-            self.prevFragIndex = int
-            precursorSpec, scanInfo = self.curFile.getPreSpectrum(self.fragScanList[int-1])#minus 1 because we want to keep 0
+            self.curScanInfo = self.scanInfoList[intVal]
+        elif self.curFragIndex != 0:#was int
+            self.prevFragIndex = intVal
+            precursorSpec, scanInfo = self.curFile.getPreSpectrum(self.fragScanList[intVal-1])#minus 1 because we want to keep 0
             #self.scanInfoList.append(scanInfo)
-            self.curScanInfo = self.scanInfoList[int]
-            fragPlot = self.fragPlotList[int-1]
+            self.curScanInfo = self.scanInfoList[intVal]
+            fragPlot = self.fragPlotList[intVal-1]
             if self.drawProfile:
                 fragPlot.canvas.ax.plot(precursorSpec[0], precursorSpec[1])
             else:
@@ -554,11 +585,11 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
         QtCore.QObject.connect(self.spectrumTabWidget,QtCore.SIGNAL("currentChanged(int)"),self.updateMZTab)
         QtCore.QMetaObject.connectSlotsByName(self.MainWindow)
 
-    def testChange(self):
+    def valChange(self):
         self.ignoreSignal = False#reset the value for future
         if self.tempIndex == self.curIndex:
             self.updateScan(self.curIndex)
-            print "Update Scan Go"
+#            print "Update Scan Go"
         else:
             self.customEventHandler(self.curIndex)
 
@@ -567,7 +598,7 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
             return True
         else:
             self.tempIndex = val
-            QtCore.QTimer.singleShot(300, self.testChange)
+            QtCore.QTimer.singleShot(3, self.valChange)
             self.ignoreSignal = True
 
     def scanUp(self):
@@ -577,7 +608,7 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
             The first time self.ignoresignal is set to False
             '''
             self.customEventHandler(self.curIndex)
-            print "Up"
+#            print "Up"
 
     def scanDown(self):
         if self.curScanId:
@@ -589,7 +620,7 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
             #self.curScanId-=1
             #self.getMZScan(self.curScanId,  0)
             #self.scanSBox.setValue(self.curScanId)
-            print "Down"
+#            print "Down"
 
     def updateScan(self, newInd = None):
         self.getMZScan(self.curIndex, 1)
@@ -674,37 +705,38 @@ def consolidatePeaks(peakLoc, peakInt, rawPeakInd, diffCutoff = 2.00):
     cClass, tType, Eps, boolAns = dbscan(N.column_stack((N.zeros_like(peakLoc),peakLoc)), 1, Eps = diffCutoff)
 #    print peakLoc
 #    print cClass
-    print "Consolidate Bool", boolAns
+#    print "Consolidate Bool", boolAns
     newPeakLoc = []
     newIntLoc = []
     newPointLoc = []
     if boolAns:
         singlePnts = N.where(cClass == -1)[0]
-        for pnt in singlePnts:
-            newPeakLoc.append(peakLoc[pnt])
-            newIntLoc.append(peakInt[pnt])
-            newPointLoc.append(rawPeakInd[pnt])
+        if len(singlePnts)>0:
+            for pnt in singlePnts:
+                newPeakLoc.append(peakLoc[pnt])
+                newIntLoc.append(peakInt[pnt])
+                newPointLoc.append(rawPeakInd[pnt])
 
-        if len(cClass)>0:
-            if cClass.max() > 0:#otherwise there is just one outlier
-                for i in xrange(1,int(cClass.max())+1):
-                    tempInd = N.where(i == cClass)[0]
-                    if len(tempInd)>0:
-    #                    print tempInd
-                        maxLoc = peakInt[tempInd].argmax()
-        #                intSort = peakInt[tempInd].argsort()
+            if len(cClass)>0:
+                if cClass.max() > 0:#otherwise there is just one outlier
+                    for i in xrange(1,int(cClass.max())+1):
+                        tempInd = N.where(i == cClass)[0]
+                        if len(tempInd)>0:
+        #                    print tempInd
+                            maxLoc = peakInt[tempInd].argmax()
+            #                intSort = peakInt[tempInd].argsort()
 
-        #                maxLoc = intSort[0]
+            #                maxLoc = intSort[0]
 
-        #                print peakLoc[maxLoc+tempInd[0]], peakInt[maxLoc+tempInd[0]], rawPeakInd[maxLoc+tempInd[0]]
-                        newPeakLoc.append(peakLoc[maxLoc+tempInd[0]])
-                        newIntLoc.append(peakInt[maxLoc+tempInd[0]])
-                        newPointLoc.append(rawPeakInd[maxLoc+tempInd[0]])
+            #                print peakLoc[maxLoc+tempInd[0]], peakInt[maxLoc+tempInd[0]], rawPeakInd[maxLoc+tempInd[0]]
+                            newPeakLoc.append(peakLoc[maxLoc+tempInd[0]])
+                            newIntLoc.append(peakInt[maxLoc+tempInd[0]])
+                            newPointLoc.append(rawPeakInd[maxLoc+tempInd[0]])
 
-#            print newPeakLoc
-#            print newIntLoc
-#            print newPointLoc
-        return newPeakLoc, newIntLoc, newPointLoc, boolAns
+            return newPeakLoc, newIntLoc, newPointLoc, boolAns
+        else:
+            print "Error with Consolidation--using raw peaks"
+            return newPeakLoc, newIntLoc, newPointLoc, False
 #        else:
 #            print "Error with Consolidation--using raw peaks"
 #            return peakLoc, peakInt, rawPeakInd
