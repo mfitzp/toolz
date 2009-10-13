@@ -142,38 +142,49 @@ class MyMplCanvas(FigureCanvas):
 
 
 class MyNavigationToolbar(NavigationToolbar) :
-    def __init__(self , parent , canvas , direction = 'h' ) :
+    def __init__(self, parent, canvas, direction = 'h') :
 
         self.canvas = canvas
-        QWidget.__init__( self, parent )
+        QtGui.QWidget.__init__(self, parent)
 
         if direction=='h' :
-            self.layout = QHBoxLayout( self )
-        else :
-            self.layout = QVBoxLayout( self )
+            self.layout = QtGui.QHBoxLayout(self)
+        else:
+            self.layout = QtGui.QVBoxLayout(self)
 
-        self.layout.setMargin( 2 )
-        self.layout.setSpacing( 0 )
+        self.layout.setMargin(2)
+        self.layout.setSpacing(0)
 
-        NavigationToolbar2.__init__( self, canvas )
+        NavigationToolbar.__init__(self, parent, canvas)
 
 
-    def set_message( self, s ):
+    def set_message(self, s):
         pass
 
 
 class MPL_Widget(QtGui.QWidget):
-    def __init__(self, parent = None, enableAutoScale = False, enableCSV = False, enableEdit = False, doublePlot = False):
+    def __init__(self, parent = None, enableAutoScale = False, enableCSV = False, enableEdit = False, doublePlot = False, layoutDir = 'v'):
         QtGui.QWidget.__init__(self, parent)
         if doublePlot:
             self.canvas = DoubleMyMplCanvas()
         else:
             self.canvas = MyMplCanvas()
         self.toolbar = NavigationToolbar(self.canvas, self.canvas)
-        self.vbox = QtGui.QVBoxLayout()
-        self.vbox.addWidget(self.canvas)
-        self.vbox.addWidget(self.toolbar)
-        self.setLayout(self.vbox)
+        self.iconSize = QtCore.QSize(15,15)
+        self.toolbar.setIconSize(self.iconSize)
+
+        if layoutDir == 'v':
+            self.toolbar.setOrientation(QtCore.Qt.Vertical)
+            self.layout = QtGui.QHBoxLayout()
+
+
+        elif layoutDir == 'h':
+            self.layout = QtGui.QVBoxLayout()
+#            self.layout.addWidget(self.canvas)
+#            self.layout.addWidget(self.toolbar)
+        self.layout.addWidget(self.toolbar)
+        self.layout.addWidget(self.canvas)
+        self.setLayout(self.layout)
 
         ###############ZOOM CONTROLS ################
 
