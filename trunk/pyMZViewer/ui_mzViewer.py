@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Documents and Settings\d3p483\workspace\mzViewer\PyMZViewer\mzViewer.ui'
+# Form implementation generated from reading ui file 'C:\Documents and Settings\d3p483\workspace\pyMZViewer\mzViewer.ui'
 #
-# Created: Fri Jun 19 10:03:44 2009
+# Created: Tue Oct 13 10:58:10 2009
 #      by: PyQt4 UI code generator 4.4.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -12,7 +12,7 @@ from PyQt4 import QtCore, QtGui
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(643, 670)
+        MainWindow.resize(647, 744)
         MainWindow.setMinimumSize(QtCore.QSize(0, 25))
         font = QtGui.QFont()
         font.setFamily("Arial")
@@ -37,14 +37,22 @@ class Ui_MainWindow(object):
         self.chromTabWidget.setObjectName("chromTabWidget")
         self.chromTab = QtGui.QWidget()
         self.chromTab.setObjectName("chromTab")
-        self.verticalLayout_2 = QtGui.QVBoxLayout(self.chromTab)
-        self.verticalLayout_2.setObjectName("verticalLayout_2")
-        self.verticalLayout = QtGui.QVBoxLayout()
+        self.verticalLayout = QtGui.QVBoxLayout(self.chromTab)
         self.verticalLayout.setObjectName("verticalLayout")
+        self.horizontalLayout_3 = QtGui.QHBoxLayout()
+        self.horizontalLayout_3.setObjectName("horizontalLayout_3")
+        spacerItem = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.horizontalLayout_3.addItem(spacerItem)
         self.horizontalLayout_2 = QtGui.QHBoxLayout()
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
-        spacerItem = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
-        self.horizontalLayout_2.addItem(spacerItem)
+        self.label_2 = QtGui.QLabel(self.chromTab)
+        self.label_2.setObjectName("label_2")
+        self.horizontalLayout_2.addWidget(self.label_2)
+        self.spectra_CB = QtGui.QComboBox(self.chromTab)
+        self.spectra_CB.setSizeAdjustPolicy(QtGui.QComboBox.AdjustToContents)
+        self.spectra_CB.setObjectName("spectra_CB")
+        self.horizontalLayout_2.addWidget(self.spectra_CB)
+        self.horizontalLayout_3.addLayout(self.horizontalLayout_2)
         self.horizontalLayout = QtGui.QHBoxLayout()
         self.horizontalLayout.setObjectName("horizontalLayout")
         self.label = QtGui.QLabel(self.chromTab)
@@ -56,12 +64,11 @@ class Ui_MainWindow(object):
         self.scanSBox.setMaximum(10000000)
         self.scanSBox.setObjectName("scanSBox")
         self.horizontalLayout.addWidget(self.scanSBox)
-        self.horizontalLayout_2.addLayout(self.horizontalLayout)
-        self.verticalLayout.addLayout(self.horizontalLayout_2)
+        self.horizontalLayout_3.addLayout(self.horizontalLayout)
+        self.verticalLayout.addLayout(self.horizontalLayout_3)
         self.chromWidget = MPL_Widget(self.chromTab)
         self.chromWidget.setObjectName("chromWidget")
         self.verticalLayout.addWidget(self.chromWidget)
-        self.verticalLayout_2.addLayout(self.verticalLayout)
         self.chromTabWidget.addTab(self.chromTab, "")
         self.scanInfoTab = QtGui.QWidget()
         self.scanInfoTab.setObjectName("scanInfoTab")
@@ -91,7 +98,7 @@ class Ui_MainWindow(object):
         self.hboxlayout.addWidget(self.splitter)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 643, 22))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 647, 22))
         font = QtGui.QFont()
         font.setFamily("Arial")
         font.setWeight(50)
@@ -238,6 +245,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow", "mzViewer", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_2.setText(QtGui.QApplication.translate("MainWindow", "Spectra:", None, QtGui.QApplication.UnicodeUTF8))
         self.label.setText(QtGui.QApplication.translate("MainWindow", "Scan #:", None, QtGui.QApplication.UnicodeUTF8))
         self.chromTabWidget.setTabText(self.chromTabWidget.indexOf(self.chromTab), QtGui.QApplication.translate("MainWindow", "Chromatogram", None, QtGui.QApplication.UnicodeUTF8))
         self.chromTabWidget.setTabText(self.chromTabWidget.indexOf(self.scanInfoTab), QtGui.QApplication.translate("MainWindow", "Scan Info", None, QtGui.QApplication.UnicodeUTF8))

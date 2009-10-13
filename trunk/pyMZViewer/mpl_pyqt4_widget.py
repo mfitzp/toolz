@@ -21,13 +21,16 @@ class EventFilter(QtCore.QObject):
 
     def __init__(self, parent=None):
         QtCore.QObject.__init__(self, parent)
+        if parent != None:
+            self.parent = parent
 
     def eventFilter(self, obj, event):
-#        print event.type(), type(obj)
         if event.type() == QtCore.QEvent.Enter:
-            print "got the focus"
+            obj.focusEvent(self.parent)
+            #print "got the focus"
         elif event.type() == QtCore.QEvent.Leave:
-            print "lost the focus"
+            obj.lossFocusEvent(self.parent)
+            #print "lost the focus"
         return QtCore.QObject.eventFilter(self, obj, event)
 
 
@@ -100,7 +103,7 @@ class MyMplCanvas(FigureCanvas):
     def __init__(self, parent=None, width = 6, height = 5, dpi = 100, sharex = None, sharey = None):
         self.fig = Figure(figsize = (width, height), dpi=dpi, facecolor = '#FFFFFF')
         self.ax = self.fig.add_subplot(111, sharex = sharex, sharey = sharey)
-        self.fig.subplots_adjust(left=0.1, bottom=0.1, right=0.9, top=0.9)
+        self.fig.subplots_adjust(left=0.1, bottom=0.15, right=0.95, top=0.9)
         self.plotTitle = ''
         self.xtitle="X"#"Drift Time (ms)"
         self.ytitle="Y"#"Intensity"
@@ -121,7 +124,7 @@ class MyMplCanvas(FigureCanvas):
 
     def format_labels(self, xItalic = False):
         self.ax.set_title(self.plotTitle)
-        self.ax.title.set_fontsize(10)
+        self.ax.title.set_fontsize(8)
         xLabel = self.xtitle#self.ax.get_xlabel()
         yLabel = self.ytitle#self.ax.get_ylabel()
         if xItalic:
@@ -206,17 +209,14 @@ class MPL_Widget(QtGui.QWidget):
 
         ###############ZOOM CONTROLS ################
 
-        self.Zoom = QtGui.QAction("Zoom",  self)
-        #self.Zoom.setShortcut("Ctrl+Z")
-        self.addAction(self.Zoom)
-        QtCore.QObject.connect(self.Zoom,QtCore.SIGNAL("triggered()"), self.ZoomToggle)
-#        QtCore.QObject.connect(self.focusInEvent,QtCore.SIGNAL('triggered()'),self.focusEvent)
+
 
 
         #This function has been disabled because of the special autoscaling requried for a custom program
         #FIX THIS
         if enableAutoScale:
-            self.enableAutoScale()
+            print "Enable AutoScale"
+            #self.enableAutoScale()
 
 
         self.span = SpanSelector(self.canvas.ax, self.onselect, 'horizontal', minspan =0.01,
@@ -232,10 +232,10 @@ class MPL_Widget(QtGui.QWidget):
         self.tempPath = getHomeDir()
         self.tempPath = os.path.join(self.tempPath,'tempMPL.png')
 
-        self.mpl2ClipAction = QtGui.QAction("Save to Clipboard",  self)
-        self.mpl2ClipAction.setShortcut("Ctrl+C")
-        self.addAction(self.mpl2ClipAction)
-        QtCore.QObject.connect(self.mpl2ClipAction,QtCore.SIGNAL("triggered()"), self.mpl2Clip)
+#        self.mpl2ClipAction = QtGui.QAction("Save to Clipboard",  self)
+#        self.mpl2ClipAction.setShortcut("Ctrl+C")
+#        self.addAction(self.mpl2ClipAction)
+#        QtCore.QObject.connect(self.mpl2ClipAction,QtCore.SIGNAL("triggered()"), self.mpl2Clip)
 
         if enableEdit:
             self.enableEdit()
@@ -254,15 +254,54 @@ class MPL_Widget(QtGui.QWidget):
 #        print "Focus Out"
 
     def focusEvent(self, event):
-        print "Focus In"
-        #self.emit(QtCore.SIGNAL('editingFinished()'))
+        self.enableAutoScale()
+        self.enableZoom()
+        self.enableClip()
+        self.enableCSV()
+        #print "Focus In %s"%self.canvas.plotTitle
+
+    def lossFocusEvent(self, event):
+        self.disableAutoScale()
+        self.disableZoom()
+        self.disableClip()
+        self.disableCSV()
+        #print "Focus Out %s"%self.canvas.plotTitle
+
+    def enableClip(self):
+        self.mpl2ClipAction = QtGui.QAction("Save to Clipboard",  self)
+        self.mpl2ClipAction.setShortcut("Ctrl+C")
+        self.addAction(self.mpl2ClipAction)
+        QtCore.QObject.connect(self.mpl2ClipAction,QtCore.SIGNAL("triggered()"), self.mpl2Clip)
+
+    def disableClip(self):
+        QtCore.QObject.disconnect(self.mpl2ClipAction,QtCore.SIGNAL("triggered()"), self.mpl2Clip)
+        self.removeAction(self.mpl2ClipAction)
+
     def enableEdit(self):
-        print "Edit Enabled"
         self.editAction = QtGui.QAction("Edit Line Properties",  self)
         self.editAction.setShortcut("Ctrl+Alt+E")
         self.addAction(self.editAction)
         QtCore.QObject.connect(self.editAction,QtCore.SIGNAL("triggered()"), self.editPlotProperties)
 
+    def enableEdit(self):
+        QtCore.QObject.disconnect(self.editAction,QtCore.SIGNAL("triggered()"), self.editPlotProperties)
+        self.removeAction(self.editAction)
+
+    def enableZoom(self):
+        self.Zoom = QtGui.QAction("Zoom",  self)
+        self.Zoom.setShortcut("Ctrl+Z")
+        self.addAction(self.Zoom)
+        QtCore.QObject.connect(self.Zoom,QtCore.SIGNAL("triggered()"), self.ZoomToggle)
+
+    def disableZoom(self):
+        if self.Zoom != None:
+            QtCore.QObject.disconnect(self.Zoom,QtCore.SIGNAL("triggered()"), self.ZoomToggle)
+            self.removeAction(self.Zoom)
+
+    def disableAutoScale(self):
+        if self.actionAutoScale != None:
+            QtCore.QObject.disconnect(self.actionAutoScale,QtCore.SIGNAL("triggered()"), self.autoscale_plot)
+            self.removeAction(self.actionAutoScale)
 
     def enableAutoScale(self):
         self.actionAutoScale = QtGui.QAction("AutoScale",  self)#self.MainWindow)
@@ -277,12 +316,19 @@ class MPL_Widget(QtGui.QWidget):
         self.addAction(self.saveCSVAction)
         QtCore.QObject.connect(self.saveCSVAction,QtCore.SIGNAL("triggered()"), self.save2CSV)
 
+    def disableCSV(self):
+        QtCore.QObject.disconnect(self.saveCSVAction,QtCore.SIGNAL("triggered()"), self.save2CSV)
+        self.removeAction(self.saveCSVAction)
+
     def setLineDict(self):
         self.lineDict = {}
         lineList = self.canvas.ax.get_lines()
         if lineList > 0:
             for line in lineList:
                 self.lineDict[line.get_label()]=line
+
+
+
 
     def editPlotProperties(self):
         print "Edit Enabled"
@@ -407,7 +453,7 @@ def getHomeDir():
 def main():
     import sys
     app = QtGui.QApplication(sys.argv)
-    w = MPL_Widget(enableAutoScale = True, doublePlot = True, enableEdit = True)
+    w = MPL_Widget(enableAutoScale = False, doublePlot = True, enableEdit = True)
     x = N.arange(0, 20, 0.1)
     y = N.sin(x)
     y2 = N.cos(x)
