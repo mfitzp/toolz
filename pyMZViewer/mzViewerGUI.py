@@ -19,10 +19,10 @@ use('Qt4Agg')
 
 import numpy as N
 
-#import matplotlib as mymat
 from matplotlib.backends import backend_qt4, backend_qt4agg
 backend_qt4.qApp = QtGui.qApp
-#backend_qt4agg.matplotlib = mymat
+
+
 
 
 #from io import hdfIO
@@ -35,11 +35,14 @@ from matplotlib.widgets import SpanSelector
 import ui_mzViewer
 #from mpl_custom_widget import MPL_Widget
 from mpl_pyqt4_widget import MPL_Widget
-#try:
-#    import psyco
-#    psyco.full()
-#except:
-#    print "Pysco not installed, try easy_install psyco at your command prompt"
+
+
+'''
+ToDo:
+
+Add twin axis for elution time
+requires conversion of XML text to seconds and minutes
+'''
 
 
 class mzViewer(ui_mzViewer.Ui_MainWindow):
@@ -81,6 +84,9 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
 
         self.drawProfile = False
 
+        self.mzWidget.canvas.ax.cla()
+        self.chromWidget.canvas.ax.cla()
+
         self.spectrumTabWidget.setCurrentIndex(0)
         numTabs = self.spectrumTabWidget.count()
         j=1
@@ -99,16 +105,29 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
         if self.fileType == 'mzXML':
 #            try:
 
-            self.curFile = mzXMLDoc(filename)
-            #self.curFile.getDocument(dataFileName)
-            self.initiateChrom()
-            self.getMZScan(0)
-            self.firstLoad = False
+            tempName = os.path.split(str(filename))[-1]
+            if self.dataFileDict.has_key(tempName):
+                print "File Has Already Been Loaded.  Replace?"
+            else:
+                self.dataFileDict[tempName] = mzXMLDoc(filename)
+                self.spectra_CB.addItem(tempName)
+                self.firstLoad = False
+                self.spectra_CB.setCurrentIndex(len(self.dataFileDict)-1)
+                #self.setupDataFile(tempName)
 
 #            except:
 #                return QtGui.QMessageBox.information(self.MainWindow,'', "Problem loading data, check file")
         elif self.fileType == 'mzML':
                 print "mzML Selected"
+
+
+    def setupDataFile(self, fileKey):
+        if self.dataFileDict.has_key(str(fileKey)):
+            self.curFile = self.dataFileDict[str(fileKey)]
+            self.initiateChrom()
+            self.getMZScan(0)
+
+
 
 
     def __readDataFile__(self):
@@ -121,15 +140,13 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
 #
 
         else:
-            if self.__askConfirm__("Data Reset",self.ResetAllDataText):
-                self.mzWidget.canvas.ax.cla()
-                self.chromWidget.canvas.ax.cla()
-                self.startup()
-                dataFileName = QtGui.QFileDialog.getOpenFileName(self.MainWindow,\
+#            if self.__askConfirm__("Data Reset",self.ResetAllDataText):
+            self.startup()
+            dataFileName = QtGui.QFileDialog.getOpenFileName(self.MainWindow,\
                                                                  self.OpenDataText,\
                                                                  self.__curDir, 'mzXML (*.mzXML);;mzML (*.mzML)')
 
-                self.loadFile(dataFileName)
+            self.loadFile(dataFileName)
 
     def OnPickMZ(self, event):
         self.zoomWasTrue = False##
@@ -211,7 +228,8 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
             try:
                 self.handleAline.remove()
             except:
-                print "Remove Line Error"
+                pass
+#                print "Remove Line Error"
         curXlim = self.chromWidget.canvas.ax.get_xlim()
         #self.handleAline  = self.chromWidget.canvas.ax.axvline(x = xdata[self.curIndex], ls='--', alpha=0.4, color='blue')
 
@@ -348,8 +366,6 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
         self.curFragIndex = intVal
         if self.fragPlotted == len(self.fragPlotList):
             self.curScanInfo = self.scanInfoList[intVal]
-            #print "equal"
-            #return True
         elif self.curFragIndex == self.prevFragIndex:
             self.curScanInfo = self.scanInfoList[intVal]
         elif self.curFragIndex != 0:#was int
@@ -535,29 +551,30 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
     def __additionalVariables__(self):
         '''Extra variables that are utilized by other functions'''
         self.__curDir = os.getcwd()
+        self.dataFileDict = {}
         self.firstLoad = True
 
 
     def __additionalConnections__(self):
-        self.hZoom = QtGui.QAction("Horizontal Zoom",  self.MainWindow)
-        self.hZoom.setShortcut("Ctrl+Z")
-        self.spectrumTabWidget.addAction(self.hZoom)
-        QtCore.QObject.connect(self.hZoom,QtCore.SIGNAL("triggered()"), self.hZoomToggle)
-
-        self.actionAutoScale = QtGui.QAction("AutoScale",  self.MainWindow)
-        self.actionAutoScale.setShortcut("Ctrl+A")
-        self.spectrumTabWidget.addAction(self.actionAutoScale)
-        QtCore.QObject.connect(self.actionAutoScale,QtCore.SIGNAL("triggered()"), self.autoscale_plot)
-
-        self.actionAutoScaleChrom = QtGui.QAction("Autoscale",  self.chromWidget)
-        self.chromWidget.addAction(self.actionAutoScaleChrom)
-        self.actionAutoScaleChrom.setShortcut("Ctrl+Shift+A")
-        QtCore.QObject.connect(self.actionAutoScaleChrom,QtCore.SIGNAL("triggered()"), self.autoscaleChrom)
-
-        self.hZoomChrom = QtGui.QAction("Horizontal Zoom",  self.chromWidget)
-        self.chromWidget.addAction(self.hZoomChrom)
-        self.hZoomChrom.setShortcut("Ctrl+Shift+Z")
-        QtCore.QObject.connect(self.hZoomChrom,QtCore.SIGNAL("triggered()"), self.hZoomToggleChrom)
+#        self.hZoom = QtGui.QAction("Horizontal Zoom",  self.MainWindow)
+#        self.hZoom.setShortcut("Ctrl+Z")
+#        self.spectrumTabWidget.addAction(self.hZoom)
+#        QtCore.QObject.connect(self.hZoom,QtCore.SIGNAL("triggered()"), self.hZoomToggle)
+#
+#        self.actionAutoScale = QtGui.QAction("AutoScale",  self.MainWindow)
+#        self.actionAutoScale.setShortcut("Ctrl+A")
+#        self.spectrumTabWidget.addAction(self.actionAutoScale)
+#        QtCore.QObject.connect(self.actionAutoScale,QtCore.SIGNAL("triggered()"), self.autoscale_plot)
+#
+#        self.actionAutoScaleChrom = QtGui.QAction("Autoscale",  self.chromWidget)
+#        self.chromWidget.addAction(self.actionAutoScaleChrom)
+#        self.actionAutoScaleChrom.setShortcut("Ctrl+Shift+A")
+#        QtCore.QObject.connect(self.actionAutoScaleChrom,QtCore.SIGNAL("triggered()"), self.autoscaleChrom)
+#
+#        self.hZoomChrom = QtGui.QAction("Horizontal Zoom",  self.chromWidget)
+#        self.chromWidget.addAction(self.hZoomChrom)
+#        self.hZoomChrom.setShortcut("Ctrl+Shift+Z")
+#        QtCore.QObject.connect(self.hZoomChrom,QtCore.SIGNAL("triggered()"), self.hZoomToggleChrom)
 
         self.actionToggleDraw = QtGui.QAction("Toggle Draw Style",  self.spectrumTabWidget)
         self.spectrumTabWidget.addAction(self.actionToggleDraw)
@@ -583,13 +600,14 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
         QtCore.QObject.connect(self.actionRunScript,QtCore.SIGNAL("triggered()"),self.__showHints__)
         QtCore.QObject.connect(self.action_Exit,QtCore.SIGNAL("triggered()"),self.__exitProgram__)
         QtCore.QObject.connect(self.spectrumTabWidget,QtCore.SIGNAL("currentChanged(int)"),self.updateMZTab)
+        QtCore.QObject.connect(self.spectra_CB,QtCore.SIGNAL("currentIndexChanged (QString)"),self.setupDataFile)
+
         QtCore.QMetaObject.connectSlotsByName(self.MainWindow)
 
     def valChange(self):
         self.ignoreSignal = False#reset the value for future
         if self.tempIndex == self.curIndex:
             self.updateScan(self.curIndex)
-#            print "Update Scan Go"
         else:
             self.customEventHandler(self.curIndex)
 
@@ -608,19 +626,11 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
             The first time self.ignoresignal is set to False
             '''
             self.customEventHandler(self.curIndex)
-#            print "Up"
 
     def scanDown(self):
         if self.curScanId:
             self.curIndex-=1
             self.customEventHandler(self.curIndex)
-            #self.curScanId+=1
-#            self.getMZScan(self.curIndex, 1)
-            #self.scanSBox.setValue(self.curScanId)
-            #self.curScanId-=1
-            #self.getMZScan(self.curScanId,  0)
-            #self.scanSBox.setValue(self.curScanId)
-#            print "Down"
 
     def updateScan(self, newInd = None):
         self.getMZScan(self.curIndex, 1)
@@ -653,11 +663,11 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
                                              "<p> 2. I haven't incorporated MS^n (where n >= 3) spectrum views at this point--I didn't have an example file to test.</p>"
                                              "<p>3.  If the program is too slow, remember python is not or ever intended to be C.</p>"
                                              "<p>4.  I have not incorporated a reader for mzData files as this format does not explictly store base peak and TIC values for chromatogram generation.  In order to do this each scan must be read simply to construct the TIC/BPC.  This is very slow.  The new mzML format will be supported in the very near future.</p>"
-                                             "<p>5.  Yes, the slider is not working just yet, but give it some time...</p>"))
+                                             ""))
 
     def __showAbout__(self):
         return QtGui.QMessageBox.information(self.MainWindow,
-                                            ("mzViewer V.0.2, August, 2008"),
+                                            ("mzViewer V.0.4, October, 2009"),
                                             ("<p><b>mzViewer</b> was written in Python by Brian H. Clowers (bhclowers@gmail.com).</p>"
         "<p>Please keep in mind that the entire effort is very much a"
         " work in progress and that Brian won't quit his day job for programming."
@@ -735,13 +745,11 @@ def consolidatePeaks(peakLoc, peakInt, rawPeakInd, diffCutoff = 2.00):
 
             return newPeakLoc, newIntLoc, newPointLoc, boolAns
         else:
-            print "Error with Consolidation--using raw peaks"
-            return newPeakLoc, newIntLoc, newPointLoc, False
-#        else:
 #            print "Error with Consolidation--using raw peaks"
-#            return peakLoc, peakInt, rawPeakInd
+            return newPeakLoc, newIntLoc, newPointLoc, False
+
     else:
-        print "Error with Consolidation--using raw peaks"
+        #print "Error with Consolidation--using raw peaks"
         return peakLoc, peakInt, rawPeakInd, boolAns
 
 def groupOneD(oneDVec, tol, origOrder):
