@@ -56,8 +56,8 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
         self.__additionalConnections__()
         self.__setMessages__()
         self.__initContextMenus__()
-        self.__setupChrom__()
-        self.__setupMZ__()
+#        self.__setupChrom__()
+#        self.__setupMZ__()
         self.startup()
 
         self.drawProfile = False
@@ -75,6 +75,7 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
         self.curIndex = None
         self.ignoreSignal = False
         self.tempIndex = None
+        self.yMax = 1.0#will be the maximum for the Y scale after autozoom
         self.fragScanList = []
         self.fragPlotList = []
         self.fragTabDict = {}
@@ -83,9 +84,7 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
         self.fragIndex = None
 
         self.drawProfile = False
-
-        self.mzWidget.canvas.ax.cla()
-        self.chromWidget.canvas.ax.cla()
+        self.tableWidget.clear()
 
         self.spectrumTabWidget.setCurrentIndex(0)
         numTabs = self.spectrumTabWidget.count()
@@ -102,10 +101,12 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
     def loadFile(self,  filename):
         if filename:
             self.fileType= str(filename).split('.')[-1]
+            self.__curDir = os.path.dirname(str(filename))
         if self.fileType == 'mzXML':
 #            try:
 
-            tempName = os.path.split(str(filename))[-1]
+            #tempName = os.path.split(str(filename))[-1]
+            tempName = os.path.basename(str(filename))
             if self.dataFileDict.has_key(tempName):
                 print "File Has Already Been Loaded.  Replace?"
             else:
@@ -124,6 +125,8 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
     def setupDataFile(self, fileKey):
         if self.dataFileDict.has_key(str(fileKey)):
             self.curFile = self.dataFileDict[str(fileKey)]
+            self.__setupChrom__()
+            self.__setupMZ__()
             self.initiateChrom()
             self.getMZScan(0)
 
@@ -145,8 +148,8 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
             dataFileName = QtGui.QFileDialog.getOpenFileName(self.MainWindow,\
                                                                  self.OpenDataText,\
                                                                  self.__curDir, 'mzXML (*.mzXML);;mzML (*.mzML)')
-
-            self.loadFile(dataFileName)
+            if dataFileName:
+                self.loadFile(dataFileName)
 
     def OnPickMZ(self, event):
         self.zoomWasTrue = False##
@@ -240,6 +243,8 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
         self.chromWidget.canvas.draw()
 
     def __setupChrom__(self):
+
+        self.chromWidget.canvas.ax.cla()
         self.handleA,  = self.chromWidget.canvas.ax.plot([0], [0], 'o',\
                                         ms=8, alpha=.5, color='yellow', visible=False,  label = 'Cursor A')
         self.handleAline  = self.chromWidget.canvas.ax.axvline(0, ls='--',\
@@ -249,8 +254,10 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
                                  useblit=True, rectprops=dict(alpha=0.5, facecolor='#C6DEFF') )
         self.chromSpan.visible = False
         self.is_hZoomChrom = False
+        self.chromWidget.canvas.ax.draw()
 
     def __setupMZ__(self):
+        self.mzWidget.canvas.ax.cla()
         # set useblit True on gtkagg for enhanced performance
         self.span = SpanSelector(self.mzWidget.canvas.ax, self.onselect, 'horizontal',
                                  useblit=True, rectprops=dict(alpha=0.5, facecolor='#C6DEFF') )
@@ -261,6 +268,7 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
         self.zoomWasTrue = False
         self.mzWidget.canvas.xtitle="m/z"
         self.mzWidget.canvas.ytitle="Intensity"
+        self.mzWidget.canvas.ax.draw()
 
     def initiateChrom(self):
         if self.basePeak:
@@ -300,6 +308,7 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
     def getMZScan(self, index, curIndexdjust=None):#0 is subtract, 1 is add
         self.scanInfoList = []
         if self.curFile:
+                #print self.curFile.data.get('')
                 if curIndexdjust:
                     if curIndexdjust == 0:
                         self.curParentScan = self.curFile.scanList[(index-1)]
@@ -326,17 +335,14 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
                 j=1
                 for i in range(1, numTabs):#this is a weird loop because each time you kill a tab it reorders the whole bunch
                     self.spectrumTabWidget.removeTab(j)
-#
+
                 if self.fragScanList:
+#                    self.yMax = N.float(self.curScanInfo.get('basePeakIntensity'))
                     for fragScan in self.fragScanList:
                         self.scanInfoList.append(self.curFile.getScanInfo(fragScan))
-                        precurMZ = float(self.curFile.getScanInfo(fragScan).get('mz'))
-                        #print precurMZ
-                        self.mzWidget.canvas.ax.axvline(precurMZ, ls=':', alpha = 0.5,  color='r',  picker = 5)
-#                        self.mzWidget.cavnas.ax2.histogram(precurMZ)
-#                        tabName = "m/z %.1f"%(precurMZ)
-#                        #print tabName
-#                        self.spectrumTabWidget.addTab(self.makePrecursorTab(fragScan, tabName), tabName)
+                        precurMZ = N.float(self.curFile.getScanInfo(fragScan).get('mz'))
+
+                        self.mzWidget.canvas.ax.axvline(precurMZ, ls=':', alpha = 0.7,  color='r',  picker = 3)
 
 
                 self.curScanId = int(self.curScanInfo.get('id'))
@@ -490,6 +496,10 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
                     self.chromWidget.canvas.ax.set_xlim(xmin,  xmax)
                 self.chromWidget.canvas.draw()
 
+    def scaleYAxis(self, boolAns):
+        if boolAns:
+            self.autoscale_plot()
+
     def autoscale_plot(self):
         #self.rescale_plot()
         self.mzWidget.canvas.ax.autoscale_view(tight = False, scalex=True, scaley=True)
@@ -511,34 +521,61 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
             self.getMZScan(self.curIndex)
             print "Profile Draw Enabled"
 
+    def removeFile(self):
+        #get current index value and text for popping and removing of data
+        curIndex = self.spectra_CB.currentIndex()
+        curText = str(self.spectra_CB.itemText(curIndex))
+        #set next value to move to so we can avoid conflicts regarding deletion of data that is currently plotted
+        if (self.spectra_CB.count()-1) == 0:#if the current index is 0 then after deletion there will be no data
+            self.startup()
+            self.chromWidget.autoscale_plot()
+            self.mzWidget.autoscale_plot()
+
+        else:
+            nextIndex = curIndex - 1
+            self.spectra_CB.setCurrentIndex(nextIndex)
+
+        if self.dataFileDict.has_key(curText):
+            self.dataFileDict.pop(curText)
+            self.spectra_CB.removeItem(curIndex)
+
+
     def __initContextMenus__(self):
         #self.mzWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.spectrumTabWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.chromWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.spectra_CB.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         #self.mzWidget.connect(self.mzWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self.mzWidgetContext)
         self.chromWidget.connect(self.chromWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self.chromWidgetContext)
         self.spectrumTabWidget.connect(self.spectrumTabWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self.spectrumTabContext)
+        self.spectra_CB.connect(self.spectra_CB, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self.fileListContext)
+
+    def fileListContext(self, point):
+        flct_menu = QtGui.QMenu("Menu", self.spectra_CB)
+        flct_menu.addAction(self.removeFileAction)
+        flct_menu.exec_(self.spectra_CB.mapToGlobal(point))
 
     def mzWidgetContext(self, point):
         '''Create a menu for mzWidget'''
         mzct_menu = QtGui.QMenu("Menu", self.mzWidget)
-        mzct_menu.addAction(self.hZoom)
-        mzct_menu.addAction(self.actionAutoScale)
+        mzct_menu.addAction(self.mzWidget.Zoom)
+        mzct_menu.addAction(self.mzWidget.actionAutoScale)
         mzct_menu.exec_(self.mzWidget.mapToGlobal(point))
 
     def chromWidgetContext(self, point):
         '''Create a menu for mzWidget'''
         chromct_menu = QtGui.QMenu("Menu", self.chromWidget)
-        chromct_menu.addAction(self.hZoomChrom)
-        chromct_menu.addAction(self.actionAutoScaleChrom)
+        chromct_menu.addAction(self.chromWidget.Zoom)
+        chromct_menu.addAction(self.chromWidget.actionAutoScale)
+        #chromct_menu.addAction(self.removeFileAction)
         chromct_menu.exec_(self.chromWidget.mapToGlobal(point))
 
     def spectrumTabContext(self, point):
         '''Create a menu for spectrumTabWidget'''
         STct_menu = QtGui.QMenu("Menu", self.spectrumTabWidget)
-        STct_menu.addAction(self.hZoom)
-        STct_menu.addAction(self.actionAutoScale)
-        STct_menu.addAction(self.actionToggleDraw)
+#        STct_menu.addAction(self.hZoom)
+#        STct_menu.addAction(self.actionAutoScale)
+#        STct_menu.addAction(self.actionToggleDraw)
         STct_menu.exec_(self.spectrumTabWidget.mapToGlobal(point))
 
     def __setMessages__(self):
@@ -576,6 +613,10 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
 #        self.hZoomChrom.setShortcut("Ctrl+Shift+Z")
 #        QtCore.QObject.connect(self.hZoomChrom,QtCore.SIGNAL("triggered()"), self.hZoomToggleChrom)
 
+        self.removeFileAction = QtGui.QAction("Remove File",  self.spectra_CB)
+        self.spectra_CB.addAction(self.removeFileAction)
+        QtCore.QObject.connect(self.removeFileAction, QtCore.SIGNAL("triggered()"), self.removeFile)
+
         self.actionToggleDraw = QtGui.QAction("Toggle Draw Style",  self.spectrumTabWidget)
         self.spectrumTabWidget.addAction(self.actionToggleDraw)
         self.actionToggleDraw.setShortcut("Ctrl+D")
@@ -601,6 +642,9 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
         QtCore.QObject.connect(self.action_Exit,QtCore.SIGNAL("triggered()"),self.__exitProgram__)
         QtCore.QObject.connect(self.spectrumTabWidget,QtCore.SIGNAL("currentChanged(int)"),self.updateMZTab)
         QtCore.QObject.connect(self.spectra_CB,QtCore.SIGNAL("currentIndexChanged (QString)"),self.setupDataFile)
+
+        #I know this scaling mechanism is a hack but in order to allow for the axvlines to work appropriately this will have to do.
+        QtCore.QObject.connect(self.mzWidget,QtCore.SIGNAL("autoScaleAxis(bool)"),self.scaleYAxis)
 
         QtCore.QMetaObject.connectSlotsByName(self.MainWindow)
 

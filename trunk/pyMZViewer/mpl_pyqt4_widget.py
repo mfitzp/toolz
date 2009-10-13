@@ -328,8 +328,6 @@ class MPL_Widget(QtGui.QWidget):
                 self.lineDict[line.get_label()]=line
 
 
-
-
     def editPlotProperties(self):
         print "Edit Enabled"
         self.setLineDict()
@@ -357,6 +355,7 @@ class MPL_Widget(QtGui.QWidget):
         #self.toolbar.home() #implements the classic return to home
         self.canvas.ax.autoscale_view(tight = False, scalex=True, scaley=True)
         self.canvas.draw()
+        self.emit(QtCore.SIGNAL("autoScaleAxis(bool)"),True)
 
     def onclick(self, event):
         #sets up the maximum Y level to be displayed after the zoom.
