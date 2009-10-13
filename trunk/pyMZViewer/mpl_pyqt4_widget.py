@@ -17,6 +17,20 @@ from Plot_Options_Line2D import Plot_Options_Dialog as POD
 import numpy as N
 
 
+class EventFilter(QtCore.QObject):
+
+    def __init__(self, parent=None):
+        QtCore.QObject.__init__(self, parent)
+
+    def eventFilter(self, obj, event):
+#        print event.type(), type(obj)
+        if event.type() == QtCore.QEvent.Enter:
+            print "got the focus"
+        elif event.type() == QtCore.QEvent.Leave:
+            print "lost the focus"
+        return QtCore.QObject.eventFilter(self, obj, event)
+
+
 class DoubleMyMplCanvas(FigureCanvas):
     def __init__(self, parent=None, width = 6, height = 5, dpi = 100, sharex = None, sharey = None):
         self.fig = Figure(figsize = (width, height), dpi=dpi, facecolor = '#FFFFFF')
@@ -41,6 +55,8 @@ class DoubleMyMplCanvas(FigureCanvas):
             QtGui.QSizePolicy.Expanding,
             QtGui.QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(self)
+
+
 
     def format_labels(self, xItalic = False):
         for ax in self.axList:
@@ -163,7 +179,7 @@ class MyNavigationToolbar(NavigationToolbar) :
 
 
 class MPL_Widget(QtGui.QWidget):
-    def __init__(self, parent = None, enableAutoScale = False, enableCSV = False, enableEdit = False, doublePlot = False, layoutDir = 'v'):
+    def __init__(self, parent = None, enableAutoScale = False, enableCSV = False, enableEdit = False, doublePlot = False, layoutDir = 'h'):
         QtGui.QWidget.__init__(self, parent)
         if doublePlot:
             self.canvas = DoubleMyMplCanvas()
@@ -172,6 +188,8 @@ class MPL_Widget(QtGui.QWidget):
         self.toolbar = NavigationToolbar(self.canvas, self.canvas)
         self.iconSize = QtCore.QSize(15,15)
         self.toolbar.setIconSize(self.iconSize)
+
+        self.installEventFilter(EventFilter(self))
 
         if layoutDir == 'v':
             self.toolbar.setOrientation(QtCore.Qt.Vertical)
@@ -192,6 +210,8 @@ class MPL_Widget(QtGui.QWidget):
         #self.Zoom.setShortcut("Ctrl+Z")
         self.addAction(self.Zoom)
         QtCore.QObject.connect(self.Zoom,QtCore.SIGNAL("triggered()"), self.ZoomToggle)
+#        QtCore.QObject.connect(self.focusInEvent,QtCore.SIGNAL('triggered()'),self.focusEvent)
+
 
         #This function has been disabled because of the special autoscaling requried for a custom program
         #FIX THIS
@@ -230,6 +250,12 @@ class MPL_Widget(QtGui.QWidget):
 
 
         ########### HELPER FUNCTIONS #########################
+#    def focusOutEvent(self, event):
+#        print "Focus Out"
+
+    def focusEvent(self, event):
+        print "Focus In"
+        #self.emit(QtCore.SIGNAL('editingFinished()'))
     def enableEdit(self):
         print "Edit Enabled"
         self.editAction = QtGui.QAction("Edit Line Properties",  self)
