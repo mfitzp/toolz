@@ -327,6 +327,7 @@ class mzXMLDoc:
             self.data['notes'] += '\nPrecursor Mass: %s' % (scanInfo['mz'])
             self.data['notes'] += '\nPrecursor Charge: %s' % (scanInfo['charge'])
             self.data['notes'] += '\nPrecursor Polarity: %s' % (scanInfo['polarity'])
+            self.data['notes'] += '\nBase Peak Intensity: %s' % (scanInfo['basePeakIntensity'])
 
         return True
     # ----
@@ -344,7 +345,7 @@ class mzXMLDoc:
             scanInfo = self.getScanInfo(scan)
 
             # ID, time, range, MS level, prec.mass, pre.charge, spec. type
-            scans.append(['---', '---', '---', '---', '---', '---', '---', '---'])
+            scans.append(['---', '---', '---', '---', '---', '---', '---', '---', '---'])
             scans[x][0] = scanInfo['id']
             scans[x][1] = scanInfo['time']
             scans[x][2] = scanInfo['range']
@@ -353,6 +354,7 @@ class mzXMLDoc:
             scans[x][5] = scanInfo['mz']
             scans[x][6] = scanInfo['charge']
             scans[x][7] = scanInfo['type']
+            scans[x][8] = scanInfo['basePeakIntensity']
 
 
         return scans
@@ -373,6 +375,7 @@ class mzXMLDoc:
         scanInfo['mz'] = '---'
         scanInfo['charge'] = '---'
         scanInfo['method'] = '---'
+        scanInfo['basePeakIntensity'] = '---'
 
         # get ID
         scanInfo['id'] = scan.get('num')
@@ -388,6 +391,9 @@ class mzXMLDoc:
 
         # get retention time
         scanInfo['time'] = scan.get('retentionTime')
+
+        #get base peak intensity
+        scanInfo['basePeakIntensity'] = scan.get('basePeakIntensity')
 
         # get range
         lowMz = scan.get('lowMz')
