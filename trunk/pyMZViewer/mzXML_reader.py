@@ -68,7 +68,7 @@ class mzXMLDoc:
                     'expTime':[],
                     'BPC':[],
                     'TIC':[],
-                    'XIC':[],
+                    'XIC':{},
                     'xicVal':''
                     }
         self.filename = path
@@ -204,7 +204,6 @@ class mzXMLDoc:
         """ Get list of spectra from <spectrumList> element. """
 
         # get all spectra
-        #spectra = elements.getElementsByTagName('scan')
         spectra = elements
         if not spectra:
             return False
@@ -216,7 +215,7 @@ class mzXMLDoc:
 
         # get spectrum from list
         #else:
-        self.getChrom(spectra)
+        self.getChrom(spectra)#self.scanList
         return True
 
 
@@ -239,19 +238,42 @@ class mzXMLDoc:
                     BPC.append(0.0)
                     TIC.append(0.0)
 
+    def getXIC(self, spectra, mzValLo, mzValHi):
+        '''Create the chromatogram, Base Peak, and Total Ion'''
+        xicDict = self.data.get('XIC')
+        curXIC = []
+        xicDict['%.2f%.2f'%(mzValLo,mzValHi)] = curXIC#store xic as a key of the high and low mzVals
+        for scan in spectra:
+            if scan.find(self.ns+'precursorMz') is None:#case for msLevel == 1 scan
+                if N.float(scan.get('peaksCount'))>0:
+                    xicVal, xicBool = self.handleXIC(scan, mzValLo, mzValHi)
+                    if xicBool:
+                        curXIC.append(xicVal)
+                    else:
+                        curXIC.append(0.0)
+                #                print scan.get('num'), type(scan)
+##                print scan.get('basePeakIntensity'), type(scan.get('basePeakIntensity'))
+#                if type(scan.get('basePeakIntensity')) == None:
+#
+                else:
+                    curXIC.append(0.0)
+
+
     def handleXIC(self, spectrum, mzValLo, mzValHi):
         """
         Get spectrum data from <spectrum> element.
         Needs to be a parent ion scan
         use numpy.where
         return intensity val for that range (use sum?)
+
+        Get GUI and code from SimpleViewer
         """
 
         # get data element
         peaks = spectrum.find(self.ns+'peaks')
 
         if peaks == None:
-            return False
+            return None, False
 
         # get endian or use default(!)
         if peaks.get('byteOrder') == 'network':
@@ -272,7 +294,7 @@ class mzXMLDoc:
             #print type(data[0:20])
             data = base64.b64decode(data)
         except:
-            return False
+            return None, False
 
         # convert from binary format
         try:
@@ -283,7 +305,7 @@ class mzXMLDoc:
             #print data[0:5]
             #print type(data[0:5])
         except:
-            return False
+            return None, False
 #        print type(data)
 #        for i in xrange(20):
 #            print data[i]
@@ -295,19 +317,20 @@ class mzXMLDoc:
 
         # check data
         if not mzData or not intData or (len(mzData) != len(intData)):
-            return False
+            return None, False
 
-        # "zip" mzData and intData
-        formatedData = [N.array(mzData), N.array(intData)]
-        #formatedData = zip(mzData, intData)
+        mzArray = N.array(mzData)
+        intArray = N.array(intData)
 
-        # set data as spectrum or peaklist
-        if not self.elmName:
-            self.data['spectrum'] = formatedData
-            # else:
-                # self.data['peaklist'] = self.convertSpectrumToPeaklist(formatedData)
-        elif self.elmName == 'spectrum':
-                self.data['spectrum'] = formatedData
+        criteria = (mzArray >= mzValLo) & (mzArray <= mzValHi)
+        validInd = N.where(criteria)[0]
+        if len(validInd)>0:
+            intVal = intArray[validInd].sum()
+            return intVal, True
+        else:
+            return 0.0, True
+
+
 
 
         return True
@@ -647,44 +670,30 @@ if __name__ == "__main__":
         xvalues = mzx.data.get('expTime')
 
         fig = P.figure(figsize=(8,6))
-        ax = fig.add_subplot(211, axisbg='#FFFFCC')
-        selectHandleA,  = ax.plot([0], [0], 'o',\
-                                        ms=8, alpha=.4, color='yellow', visible=False,  label = 'Cursor A')
-        fig.canvas.mpl_connect('pick_event', OnPick)
+        ax = fig.add_subplot(111, axisbg='#FFFFCC')
 
         #x = npy.arange(0.0, 5.0, 0.01)
         #y = npy.sin(2*npy.pi*x) + 0.5*npy.random.randn(len(x))
         if len(BPC) >=1:
-            ax.plot(N.array(xvalues), N.array(BPC), 'ro-', picker = 5)
+            ax.plot(N.array(xvalues), N.array(BPC), 'r-', picker = 5)
         #ax.set_ylim(-2,2)
         #ax.set_title('Press left mouse button and drag to test')
+        mzValLo = 835.1
+        mzValHi = 875.1
+        xicKey1 = '%.2f%.2f'%(mzValLo,mzValHi)
+        mzx.getXIC(mzx.scanList, mzValLo, mzValHi)
+
+        mzValLo = 600
+        mzValHi = 675
+        mzx.getXIC(mzx.scanList, mzValLo, mzValHi)
+
+        xicKey2 = '%.2f%.2f'%(mzValLo,mzValHi)
+        #xicY = mzx.data.get('XIC')[xicKey]
+        xicDict = mzx.data.get('XIC')
+        for xic in xicDict.itervalues():
+            ax.plot(N.array(xvalues), N.array(xic))
 
 
-        subspec = N.column_stack(spectrum)
-        subspec = subspec.flatten()
-        if sys.byteorder != 'big':
-            subspec.byteswap()
-        #print len(subspec)
-        outStr = encodeData(subspec)
-        reconSpec = decodeData(outStr)
-        #print reconSpec[0:2]
-#        print subspec[0:5]
-#        print type(subspec[0:5])
-#        #print outStr
-#        print outStr[0:20]
-#        print type(outStr[0:20])
-        #print reconSpec[0][0:5]
-        #print type(reconSpec[0][0:5])
-        #print subspec
-        #print outStr
-        print reconSpec[0] == spectrum[0]
-        print reconSpec[1] == spectrum[1]
-
-        ax2 = fig.add_subplot(212)
-        if len(spectrum[0]) >= 1:
-            line2, = ax2.plot(reconSpec[0], reconSpec[1], '-')
-            line3, = ax2.plot(spectrum[0], spectrum[1], 'o')
-        #P.plot(spectrum[0], spectrum[1])
         P.show()
     #print mzx.data
     sys.exit(app.exec_())
