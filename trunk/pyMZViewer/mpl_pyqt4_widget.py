@@ -283,9 +283,10 @@ class MPL_Widget(QtGui.QWidget):
         self.addAction(self.editAction)
         QtCore.QObject.connect(self.editAction,QtCore.SIGNAL("triggered()"), self.editPlotProperties)
 
-    def enableEdit(self):
-        QtCore.QObject.disconnect(self.editAction,QtCore.SIGNAL("triggered()"), self.editPlotProperties)
-        self.removeAction(self.editAction)
+    def disableEdit(self):
+        if self.editAction:
+            QtCore.QObject.disconnect(self.editAction,QtCore.SIGNAL("triggered()"), self.editPlotProperties)
+            self.removeAction(self.editAction)
 
     def enableZoom(self):
         self.Zoom = QtGui.QAction("Zoom",  self)
