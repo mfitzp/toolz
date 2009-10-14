@@ -49,7 +49,7 @@ def open_file():
 class mzXMLDoc:
     """ Get and format data from mzXML document. """
 
-    # ----
+
     def __init__(self, path, parent=None):
         if parent:
             self.parent = parent
@@ -67,17 +67,16 @@ class mzXMLDoc:
                     'totalScans':'',
                     'expTime':[],
                     'BPC':[],
-                    'TIC':[]
+                    'TIC':[],
+                    'XIC':[],
+                    'xicVal':''
                     }
         self.filename = path
         self.ns = None #namespace
         self.elmName = None
         self.scanList = None
         self.getDocument(self.filename)
-    # ----
 
-
-    # ----
     def getDocument(self, path):
         """ Read and parse all data from document. """
 
@@ -120,10 +119,7 @@ class mzXMLDoc:
             self.handleDescription(instrument)
 
         #return self.data
-    # ----
 
-
-    # ----
     def getElement(self, name, path):
         """ Read and parse selected elements' data from document. """
 
@@ -161,10 +157,7 @@ class mzXMLDoc:
                     return None
 
         #return self.data
-    # ----
 
-
-    # ----
     def handleDescription(self, elements):
         """ Get document description from <msInstrument> element. """
 
@@ -206,10 +199,7 @@ class mzXMLDoc:
             #self.data['contact'] = '%s %s %s' % (operator[0].getAttribute('phone'), operator[0].getAttribute('email'), operator[0].getAttribute('URI'))
 
         return True
-    # ----
 
-
-    # ----
     def handleSpectrumList(self, elements):
         """ Get list of spectra from <spectrumList> element. """
 
@@ -228,7 +218,7 @@ class mzXMLDoc:
         #else:
         self.getChrom(spectra)
         return True
-    # ----
+
 
     def getChrom(self, spectra):
         '''Create the chromatogram, Base Peak, and Total Ion'''
@@ -249,8 +239,79 @@ class mzXMLDoc:
                     BPC.append(0.0)
                     TIC.append(0.0)
 
+    def handleXIC(self, spectrum, mzValLo, mzValHi):
+        """
+        Get spectrum data from <spectrum> element.
+        Needs to be a parent ion scan
+        use numpy.where
+        return intensity val for that range (use sum?)
+        """
 
-    # ----
+        # get data element
+        peaks = spectrum.find(self.ns+'peaks')
+
+        if peaks == None:
+            return False
+
+        # get endian or use default(!)
+        if peaks.get('byteOrder') == 'network':
+            endian = '!'
+        elif peaks.get('byteOrder') == 'little':
+            endian = '<'
+        elif peaks.get('byteOrder') == 'big':
+            endian = '>'
+        else:
+            endian = '!'
+
+        # get raw data
+        data = peaks.text
+
+        # decode data
+        try:
+            #print data[0:20]
+            #print type(data[0:20])
+            data = base64.b64decode(data)
+        except:
+            return False
+
+        # convert from binary format
+        try:
+#            print len(data)
+            pointsCount = len(data)/struct.calcsize(endian+'f')
+            start, end = 0, len(data)
+            data = struct.unpack(endian+'f'*pointsCount, data[start:end])
+            #print data[0:5]
+            #print type(data[0:5])
+        except:
+            return False
+#        print type(data)
+#        for i in xrange(20):
+#            print data[i]
+
+        # split data to m/z and intensity
+        mzData = data[::2]
+        #print type(mzData)
+        intData = data[1::2]
+
+        # check data
+        if not mzData or not intData or (len(mzData) != len(intData)):
+            return False
+
+        # "zip" mzData and intData
+        formatedData = [N.array(mzData), N.array(intData)]
+        #formatedData = zip(mzData, intData)
+
+        # set data as spectrum or peaklist
+        if not self.elmName:
+            self.data['spectrum'] = formatedData
+            # else:
+                # self.data['peaklist'] = self.convertSpectrumToPeaklist(formatedData)
+        elif self.elmName == 'spectrum':
+                self.data['spectrum'] = formatedData
+
+
+        return True
+
     def handleSpectrum(self, spectrum):
         """ Get spectrum data from <spectrum> element. """
 
@@ -330,10 +391,7 @@ class mzXMLDoc:
             self.data['notes'] += '\nBase Peak Intensity: %s' % (scanInfo['basePeakIntensity'])
 
         return True
-    # ----
 
-
-    # ----
     def getScans(self, spectra):
         """ Get basic info about all the ms scans. """
 
@@ -358,10 +416,7 @@ class mzXMLDoc:
 
 
         return scans
-    # ----
 
-
-    # ----
     def getScanInfo(self, scan):
         """ Get basic info about selected scan. """
 
@@ -415,7 +470,7 @@ class mzXMLDoc:
             #pscanInfo['intensity'] = precursorMz.get('basePeakIntensity')
 
         return scanInfo
-    # ----
+
 
 ##########################################
     def getPreSpectrum(self, spectrum):
@@ -484,7 +539,6 @@ class mzXMLDoc:
 
 #######################################
 
-    # ----
     def getText(self, nodelist):
         """ Get text from node list. """
 
@@ -495,10 +549,7 @@ class mzXMLDoc:
                 buff += node.data
 
         return buff
-    # ----
 
-
-    # ----
     def convertSpectrumToPeaklist(self, spectrum):
         """ Convert spectrum to peaklist. """
 
@@ -507,7 +558,6 @@ class mzXMLDoc:
             peaklist.append([point[0], point[1], '', 0])
 
         return peaklist
-    # ----
 
 def encodeData(numpyArray):
     # decode data
