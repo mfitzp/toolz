@@ -242,7 +242,9 @@ class mzXMLDoc:
         '''Create the chromatogram, Base Peak, and Total Ion'''
         xicDict = self.data.get('XIC')
         curXIC = []
-        xicDict['%.2f%.2f'%(mzValLo,mzValHi)] = curXIC#store xic as a key of the high and low mzVals
+        curXICKey = '%.2f - %.2f'%(mzValLo,mzValHi)
+        print 'curXICKey: ',curXICKey
+        xicDict[curXICKey] = curXIC#store xic as a key of the high and low mzVals
         for scan in spectra:
             if scan.find(self.ns+'precursorMz') is None:#case for msLevel == 1 scan
                 if N.float(scan.get('peaksCount'))>0:
@@ -680,14 +682,14 @@ if __name__ == "__main__":
         #ax.set_title('Press left mouse button and drag to test')
         mzValLo = 835.1
         mzValHi = 875.1
-        xicKey1 = '%.2f%.2f'%(mzValLo,mzValHi)
+        xicKey1 = '%.2f% - .2f'%(mzValLo,mzValHi)
         mzx.getXIC(mzx.scanList, mzValLo, mzValHi)
 
         mzValLo = 600
         mzValHi = 675
         mzx.getXIC(mzx.scanList, mzValLo, mzValHi)
 
-        xicKey2 = '%.2f%.2f'%(mzValLo,mzValHi)
+        xicKey2 = '%.2f% -.2f'%(mzValLo,mzValHi)
         #xicY = mzx.data.get('XIC')[xicKey]
         xicDict = mzx.data.get('XIC')
         for xic in xicDict.itervalues():
