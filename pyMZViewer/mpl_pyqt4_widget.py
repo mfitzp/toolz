@@ -143,7 +143,7 @@ class MyMplCanvas(FigureCanvas):
         if self.ax.get_legend() != None:
             texts = self.ax.get_legend().get_texts()
             for text in texts:
-                text.set_fontsize(8)
+                text.set_fontsize(7)
 
     def sizeHint(self):
         w, h = self.get_width_height()

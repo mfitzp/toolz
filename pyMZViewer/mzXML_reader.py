@@ -261,7 +261,7 @@ class mzXMLDoc:
                     curXIC.append(0.0)
 
 
-    def handleXIC(self, spectrum, mzValLo, mzValHi):
+    def handleXIC(self, spectrum, mzValLo, mzValHi, sum = True):
         """
         Get spectrum data from <spectrum> element.
         Needs to be a parent ion scan
@@ -327,7 +327,10 @@ class mzXMLDoc:
         criteria = (mzArray >= mzValLo) & (mzArray <= mzValHi)
         validInd = N.where(criteria)[0]
         if len(validInd)>0:
-            intVal = intArray[validInd].sum()
+            if sum:
+                intVal = intArray[validInd].sum()
+            else:
+                intVal = intArray[validInd].max()
             return intVal, True
         else:
             return 0.0, True
