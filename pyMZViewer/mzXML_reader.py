@@ -653,6 +653,10 @@ if __name__ == "__main__":
     fn = open_file()
 
 
+    def convertScanNum(val):
+        return val/60
+
+
     def OnPick(event):
         if not isinstance(event.artist, Line2D):
             return True
@@ -676,6 +680,7 @@ if __name__ == "__main__":
 
         fig = P.figure(figsize=(8,6))
         ax = fig.add_subplot(111, axisbg='#FFFFCC')
+        ax2 = ax.twinx()
 
         #x = npy.arange(0.0, 5.0, 0.01)
         #y = npy.sin(2*npy.pi*x) + 0.5*npy.random.randn(len(x))
@@ -698,6 +703,13 @@ if __name__ == "__main__":
         for xic in xicDict.itervalues():
             ax.plot(N.array(xvalues), N.array(xic))
 
+#        def updateTwinAx(ax):
+#           y1, y2 = ax.get_ylim()
+#           ax2.set_ylim(convertTwinAx(y1), convertScanNum(y2))
+#           ax2.figure.canvas.draw()
+#
+#    # automatically update ylim of ax2 when ylim of ax1 changes.
+#        ax.callbacks.connect("ylim_changed", updateTwinAx)
 
         P.show()
     #print mzx.data
