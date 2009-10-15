@@ -44,6 +44,11 @@ Add twin axis for elution time
 requires conversion of XML text to seconds and minutes
 '''
 
+COLORS = ['#297AA3','#A3293D','#3B9DCE','#293DA3','#5229A3','#8F29A3','#A3297A',
+'#7AA329','#3DA329','#29A352','#29A38F','#A38F29','#3B9DCE','#6CB6DA','#CE6C3B','#DA916C',
+'#0080FF','#0000FF','#7ABDFF','#8000FF','#FF0080','#FF0000','#FF8000','#FFFF00','#A35229','#80FF00',
+'#00FF00','#00FF80','#00FFFF','#3D9EFF','#FF9E3D','#FFBD7A']
+
 
 class mzViewer(ui_mzViewer.Ui_MainWindow):
     def __init__(self, MainWindow):
@@ -79,6 +84,7 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
         self.fragScanList = []
         self.fragPlotList = []
         self.fragTabDict = {}
+        self.xicDict = {}
         self.scanInfoList = []
         self.fragPlotted = 0#used to keep track of whether or not a fragment has been plotted
         self.fragIndex = None
@@ -246,7 +252,7 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
 
         self.chromWidget.canvas.ax.cla()
         self.handleA,  = self.chromWidget.canvas.ax.plot([0], [0], 'o',\
-                                        ms=8, alpha=.5, color='yellow', visible=False,  label = 'Cursor A')
+                                        ms=8, alpha=.5, color='yellow', visible=False,  label = '_nolegend_')
         self.handleAline  = self.chromWidget.canvas.ax.axvline(0, ls='--',\
                                         alpha=.5, color='blue', visible=False)
 
@@ -277,7 +283,7 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
             #self.scanHSlider.setMaximum(len(self.BPC))
             if len(self.BPC) >=1:
                 self.xvalues = N.array(self.curFile.data.get('expTime'))
-                self.chromLine, = self.chromWidget.canvas.ax.plot(self.xvalues, self.BPC, 'r', picker = 5)
+                self.chromLine, = self.chromWidget.canvas.ax.plot(self.xvalues, self.BPC, 'r', picker = 5, label = 'BPC')
                 #self.chromYScale = (BPC.min(), (BPC.max()*1.1))
                 #self.chromWidget.canvas.ax.set_ylim(self.chromYScale[0], self.chromYScale[1])
                 self.chromWidget.canvas.xtitle="Scan #"
@@ -643,10 +649,72 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
         QtCore.QObject.connect(self.spectrumTabWidget,QtCore.SIGNAL("currentChanged(int)"),self.updateMZTab)
         QtCore.QObject.connect(self.spectra_CB,QtCore.SIGNAL("currentIndexChanged (QString)"),self.setupDataFile)
 
+        QtCore.QObject.connect(self.xicList_CB,QtCore.SIGNAL("currentIndexChanged (QString)"),self.setupXIC)
+        QtCore.QObject.connect(self.getXIC_Btn,QtCore.SIGNAL("clicked()"),self.getXIC)
+
+
         #I know this scaling mechanism is a hack but in order to allow for the axvlines to work appropriately this will have to do.
         QtCore.QObject.connect(self.mzWidget,QtCore.SIGNAL("autoScaleAxis(bool)"),self.scaleYAxis)
 
         QtCore.QMetaObject.connectSlotsByName(self.MainWindow)
+
+        #self.xicList_CB.setDuplicatesEnabled(False)
+
+    def getXIC(self):
+        if self.curFile != None:
+            hiVal = self.mzHi_SB.value()
+            loVal = self.mzLo_SB.value()
+            if hiVal <= loVal:
+                return QtGui.QMessageBox.warning(self.MainWindow, "XIC Error", "The High m/z value entered is lower than the Lo m/z value\nTry Again!")
+            else:
+                #executes getXIC for a given file
+                xicKey = '%.2f - %.2f'%(loVal,hiVal)
+                findVal = self.xicList_CB.findText(xicKey, QtCore.Qt.MatchExactly)
+                if findVal == -1:#case where no value is found
+                    self.curFile.getXIC(self.curFile.scanList, loVal, hiVal)
+                    self.xicList_CB.addItem(xicKey)
+                    self.xicList_CB.setCurrentIndex(self.xicList_CB.count()-1)
+                else:
+                    self.xicList_CB.setCurrentIndex(findVal)
+
+
+    def setupXIC(self, curString):
+        if self.curFile != None:
+            curString = str(curString)#in case the curString is a QString
+            if curString == 'None':
+                #need to clear chromWidget
+                if len(self.xicDict)>0:
+                    for key in self.xicDict.keys():
+                        curLine = self.xicDict[key]
+                        if curLine:
+                            try:
+                                curLine.remove()
+                            except:
+                                pass
+
+                self.chromWidget.canvas.ax.legend_ = None
+                self.chromWidget.canvas.format_labels()
+                self.chromWidget.autoscale_plot()
+                self.chromTabWidget.setCurrentIndex(0)
+
+                return True
+            else:
+                plotKey = 'm/z %s'%curString
+                xicDict = self.curFile.data.get('XIC')
+                print xicDict.keys()
+                if xicDict.has_key(curString):
+                    xicVals = N.array(self.curFile.data.get('XIC')[curString])
+                    if xicVals != None:
+                        if len(self.xvalues) == len(xicVals):
+                            #need to add instance where it is already plotted
+                            curIndex = self.xicList_CB.currentIndex()
+                            self.xicDict[plotKey], = self.chromWidget.canvas.ax.plot(self.xvalues, xicVals, color = COLORS[curIndex], label = curString, alpha = 0.6)
+
+                            self.chromWidget.canvas.ax.legend(borderaxespad = 0.03, axespad=0.25)
+                            self.chromWidget.canvas.format_labels()
+                            self.chromWidget.autoscale_plot()
+                            self.chromTabWidget.setCurrentIndex(0)
+
 
     def valChange(self):
         self.ignoreSignal = False#reset the value for future
