@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/home/clowers/workspace/pyMZViewer/mzViewer.ui'
+# Form implementation generated from reading ui file 'C:\Documents and Settings\d3p483\workspace\pyMZViewer\mzViewer.ui'
 #
-# Created: Thu Oct 15 20:55:41 2009
-#      by: PyQt4 UI code generator 4.4.4
+# Created: Fri Oct 16 12:19:59 2009
+#      by: PyQt4 UI code generator 4.4.3
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -162,7 +162,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_2.addWidget(self.splitter)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 647, 23))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 647, 22))
         font = QtGui.QFont()
         font.setFamily("Arial")
         font.setWeight(50)
@@ -303,7 +303,7 @@ class Ui_MainWindow(object):
         self.toolBar.addAction(self.actionRunScript)
 
         self.retranslateUi(MainWindow)
-        self.chromTabWidget.setCurrentIndex(2)
+        self.chromTabWidget.setCurrentIndex(0)
         self.spectrumTabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 

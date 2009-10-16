@@ -301,6 +301,7 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
                 self.curLine, = self.chromWidget.canvas.ax.plot(self.xvalues, self.BPC, 'r', picker = 5, label = 'BPC')
                 self.bpcOk = True
                 self.chromLine = self.curLine
+                self.chromMax = self.BPC.max()*1.1
                 #self.chromYScale = (BPC.min(), (BPC.max()*1.1))
                 #self.chromWidget.canvas.ax.set_ylim(self.chromYScale[0], self.chromYScale[1])
                 self.chromWidget.canvas.xtitle="Scan #"
@@ -522,11 +523,18 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
                     self.chromWidget.canvas.ax.set_xlim(xmin,  xmax)
                 self.chromWidget.canvas.draw()
 
-    def scaleYAxis(self, boolAns):
+    def scaleMZYAxis(self, boolAns):
         if boolAns:
-            self.autoscale_plot()
+            self.autoscaleMZ()
 
-    def autoscale_plot(self):
+    def scaleChromYAxis(self, boolAns):
+        if boolAns:
+            self.chromWidget.canvas.ax.autoscale_view(tight = False, scalex=True, scaley=True)
+            self.chromWidget.canvas.ax.set_ylim(0, self.chromMax)
+            self.chromWidget.canvas.draw()
+
+
+    def autoscaleMZ(self):
         #self.rescale_plot()
         self.mzWidget.canvas.ax.autoscale_view(tight = False, scalex=True, scaley=True)
         self.mzWidget.canvas.ax.set_ylim(self.mzYScale[0], self.mzYScale[1])
@@ -675,7 +683,9 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
 
 
         #I know this scaling mechanism is a hack but in order to allow for the axvlines to work appropriately this will have to do.
-        QtCore.QObject.connect(self.mzWidget,QtCore.SIGNAL("autoScaleAxis(bool)"),self.scaleYAxis)
+        QtCore.QObject.connect(self.mzWidget,QtCore.SIGNAL("autoScaleAxis(bool)"),self.scaleMZYAxis)
+
+        QtCore.QObject.connect(self.chromWidget,QtCore.SIGNAL("autoScaleAxis(bool)"),self.scaleChromYAxis)
 
         QtCore.QMetaObject.connectSlotsByName(self.MainWindow)
 
@@ -742,6 +752,7 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
                             #need to add instance where it is already plotted
                             curIndex = self.xicList_CB.currentIndex()
                             self.xicDict[plotKey], = self.chromWidget.canvas.ax.plot(self.xvalues, xicVals, color = COLORS[curIndex], label = curString, alpha = 0.6, picker = 5)
+                            self.chromMax = xicVals.max()*1.1
                             self.curLine = self.xicDict[plotKey]
                             self.chromWidget.canvas.ax.legend(borderaxespad = 0.03, axespad=0.25)
                             self.chromWidget.canvas.format_labels()
