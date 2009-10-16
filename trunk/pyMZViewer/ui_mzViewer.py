@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Documents and Settings\d3p483\workspace\pyMZViewer\mzViewer.ui'
+# Form implementation generated from reading ui file '/home/clowers/workspace/pyMZViewer/mzViewer.ui'
 #
-# Created: Thu Oct 15 11:14:26 2009
-#      by: PyQt4 UI code generator 4.4.3
+# Created: Thu Oct 15 20:55:41 2009
+#      by: PyQt4 UI code generator 4.4.4
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -80,10 +80,10 @@ class Ui_MainWindow(object):
         self.chromTabWidget.addTab(self.scanInfoTab, "")
         self.tab = QtGui.QWidget()
         self.tab.setObjectName("tab")
-        self.widget = QtGui.QWidget(self.tab)
-        self.widget.setGeometry(QtCore.QRect(10, 20, 187, 164))
-        self.widget.setObjectName("widget")
-        self.verticalLayout_5 = QtGui.QVBoxLayout(self.widget)
+        self.layoutWidget = QtGui.QWidget(self.tab)
+        self.layoutWidget.setGeometry(QtCore.QRect(10, 20, 275, 164))
+        self.layoutWidget.setObjectName("layoutWidget")
+        self.verticalLayout_5 = QtGui.QVBoxLayout(self.layoutWidget)
         self.verticalLayout_5.setObjectName("verticalLayout_5")
         self.horizontalLayout_5 = QtGui.QHBoxLayout()
         self.horizontalLayout_5.setObjectName("horizontalLayout_5")
@@ -91,11 +91,11 @@ class Ui_MainWindow(object):
         self.verticalLayout_4.setObjectName("verticalLayout_4")
         self._3 = QtGui.QHBoxLayout()
         self._3.setObjectName("_3")
-        self.label_13 = QtGui.QLabel(self.widget)
+        self.label_13 = QtGui.QLabel(self.layoutWidget)
         self.label_13.setLayoutDirection(QtCore.Qt.LeftToRight)
         self.label_13.setObjectName("label_13")
         self._3.addWidget(self.label_13)
-        self.mzLo_SB = QtGui.QDoubleSpinBox(self.widget)
+        self.mzLo_SB = QtGui.QDoubleSpinBox(self.layoutWidget)
         self.mzLo_SB.setDecimals(3)
         self.mzLo_SB.setMinimum(1.0)
         self.mzLo_SB.setMaximum(100000.0)
@@ -106,10 +106,10 @@ class Ui_MainWindow(object):
         self.verticalLayout_4.addLayout(self._3)
         self._4 = QtGui.QHBoxLayout()
         self._4.setObjectName("_4")
-        self.label_14 = QtGui.QLabel(self.widget)
+        self.label_14 = QtGui.QLabel(self.layoutWidget)
         self.label_14.setObjectName("label_14")
         self._4.addWidget(self.label_14)
-        self.mzHi_SB = QtGui.QDoubleSpinBox(self.widget)
+        self.mzHi_SB = QtGui.QDoubleSpinBox(self.layoutWidget)
         self.mzHi_SB.setDecimals(3)
         self.mzHi_SB.setMinimum(1.0)
         self.mzHi_SB.setMaximum(100000.0)
@@ -120,7 +120,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_4.addLayout(self._4)
         self._5 = QtGui.QHBoxLayout()
         self._5.setObjectName("_5")
-        self.getXIC_Btn = QtGui.QPushButton(self.widget)
+        self.getXIC_Btn = QtGui.QPushButton(self.layoutWidget)
         self.getXIC_Btn.setObjectName("getXIC_Btn")
         self._5.addWidget(self.getXIC_Btn)
         spacerItem1 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
@@ -128,16 +128,19 @@ class Ui_MainWindow(object):
         self.verticalLayout_4.addLayout(self._5)
         self.horizontalLayout_4 = QtGui.QHBoxLayout()
         self.horizontalLayout_4.setObjectName("horizontalLayout_4")
-        self.label_3 = QtGui.QLabel(self.widget)
+        self.label_3 = QtGui.QLabel(self.layoutWidget)
         self.label_3.setObjectName("label_3")
         self.horizontalLayout_4.addWidget(self.label_3)
-        self.xicList_CB = QtGui.QComboBox(self.widget)
+        self.xicList_CB = QtGui.QComboBox(self.layoutWidget)
         self.xicList_CB.setSizeAdjustPolicy(QtGui.QComboBox.AdjustToContents)
         self.xicList_CB.setObjectName("xicList_CB")
         self.xicList_CB.addItem(QtCore.QString())
         self.horizontalLayout_4.addWidget(self.xicList_CB)
         self.verticalLayout_4.addLayout(self.horizontalLayout_4)
         self.horizontalLayout_5.addLayout(self.verticalLayout_4)
+        self.overlayBPC_CB = QtGui.QCheckBox(self.layoutWidget)
+        self.overlayBPC_CB.setObjectName("overlayBPC_CB")
+        self.horizontalLayout_5.addWidget(self.overlayBPC_CB)
         spacerItem2 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.horizontalLayout_5.addItem(spacerItem2)
         self.verticalLayout_5.addLayout(self.horizontalLayout_5)
@@ -159,7 +162,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_2.addWidget(self.splitter)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 647, 22))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 647, 23))
         font = QtGui.QFont()
         font.setFamily("Arial")
         font.setWeight(50)
@@ -300,7 +303,7 @@ class Ui_MainWindow(object):
         self.toolBar.addAction(self.actionRunScript)
 
         self.retranslateUi(MainWindow)
-        self.chromTabWidget.setCurrentIndex(0)
+        self.chromTabWidget.setCurrentIndex(2)
         self.spectrumTabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
@@ -320,6 +323,7 @@ class Ui_MainWindow(object):
         self.getXIC_Btn.setText(QtGui.QApplication.translate("MainWindow", "Fetch XIC", None, QtGui.QApplication.UnicodeUTF8))
         self.label_3.setText(QtGui.QApplication.translate("MainWindow", "Current XIC:", None, QtGui.QApplication.UnicodeUTF8))
         self.xicList_CB.setItemText(0, QtGui.QApplication.translate("MainWindow", "None", None, QtGui.QApplication.UnicodeUTF8))
+        self.overlayBPC_CB.setText(QtGui.QApplication.translate("MainWindow", "Overlay BPC", None, QtGui.QApplication.UnicodeUTF8))
         self.chromTabWidget.setTabText(self.chromTabWidget.indexOf(self.tab), QtGui.QApplication.translate("MainWindow", "Options", None, QtGui.QApplication.UnicodeUTF8))
         self.spectrumTabWidget.setTabText(self.spectrumTabWidget.indexOf(self.mzTab), QtGui.QApplication.translate("MainWindow", "MS", None, QtGui.QApplication.UnicodeUTF8))
         self.menuFile.setTitle(QtGui.QApplication.translate("MainWindow", "&File", None, QtGui.QApplication.UnicodeUTF8))
