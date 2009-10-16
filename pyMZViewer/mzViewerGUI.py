@@ -42,6 +42,8 @@ ToDo:
 
 Add twin axis for elution time
 requires conversion of XML text to seconds and minutes
+
+/usr/bin/pyuic4 /home/clowers/workspace/pyMZViewer/mzViewer.ui  -o /home/clowers/workspace/pyMZViewer/ui_mzViewer.py
 '''
 
 COLORS = ['#A3293D','#3B9DCE','#293DA3','#5229A3','#297AA3','#8F29A3','#A3297A',
@@ -75,6 +77,9 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
         self.basePeak = True
         self.TIC = False
         self.curParentScan = None
+        self.chromLine = None
+        self.bpcOk = True
+        self.curLine = None
         self.curScanInfo = None
         self.curScanId = None
         self.curIndex = None
@@ -127,14 +132,24 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
         elif self.fileType == 'mzML':
                 print "mzML Selected"
 
+    def resetXIC(self):
+        self.ignoreSignal = True
+        self.xicList_CB.clear()
+        self.xicList_CB.addItem('None')
+        if len(self.curFile.data['XIC']) > 0:
+            for key in self.curFile.data['XIC'].keys():
+                self.xicList_CB.addItem(key)
+        self.ignoreSignal = False
+
 
     def setupDataFile(self, fileKey):
         if self.dataFileDict.has_key(str(fileKey)):
             self.curFile = self.dataFileDict[str(fileKey)]
-            self.__setupChrom__()
-            self.__setupMZ__()
-            self.initiateChrom()
-            self.getMZScan(0)
+            self.__setupChrom__()#sets up span, handle for picker
+            self.__setupMZ__()#clears axis, sets up span
+            self.resetXIC()
+            self.initiateChrom()#sets title and plots BPC, adds picker
+            self.getMZScan(0)#
 
 
 
@@ -209,7 +224,7 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
         #self.spectrumTabWidget.setCurrentIndex(self.fragIndex+1)
 
     def setChromHandle(self):
-        line = self.chromLine
+        line = self.curLine
         xdata = line.get_xdata()
         ydata = line.get_ydata()
         self.handleA.set_data([xdata[self.curIndex]], [ydata[self.curIndex]])
@@ -251,9 +266,9 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
     def __setupChrom__(self):
 
         self.chromWidget.canvas.ax.cla()
-        self.handleA,  = self.chromWidget.canvas.ax.plot([0], [0], 'o',\
+        self.handleA, = self.chromWidget.canvas.ax.plot([0], [0], 'o',\
                                         ms=8, alpha=.5, color='yellow', visible=False,  label = '_nolegend_')
-        self.handleAline  = self.chromWidget.canvas.ax.axvline(0, ls='--',\
+        self.handleAline = self.chromWidget.canvas.ax.axvline(0, ls='--',\
                                         alpha=.5, color='blue', visible=False)
 
         self.chromSpan = SpanSelector(self.chromWidget.canvas.ax, self.onselectChrom, 'horizontal',
@@ -276,21 +291,26 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
         self.mzWidget.canvas.ytitle="Intensity"
         self.mzWidget.canvas.ax.draw()
 
-    def initiateChrom(self):
+    def initiateChrom(self, ignoreDraw = False):
         if self.basePeak:
             self.BPC = N.array(self.curFile.data.get('BPC'))
             self.scanSBox.setMaximum(len(self.BPC))
             #self.scanHSlider.setMaximum(len(self.BPC))
             if len(self.BPC) >=1:
                 self.xvalues = N.array(self.curFile.data.get('expTime'))
-                self.chromLine, = self.chromWidget.canvas.ax.plot(self.xvalues, self.BPC, 'r', picker = 5, label = 'BPC')
+                self.curLine, = self.chromWidget.canvas.ax.plot(self.xvalues, self.BPC, 'r', picker = 5, label = 'BPC')
+                self.bpcOk = True
+                self.chromLine = self.curLine
                 #self.chromYScale = (BPC.min(), (BPC.max()*1.1))
                 #self.chromWidget.canvas.ax.set_ylim(self.chromYScale[0], self.chromYScale[1])
                 self.chromWidget.canvas.xtitle="Scan #"
                 self.chromWidget.canvas.ytitle="Intensity"
                 self.chromWidget.canvas.plotTitle = self.curFile.filename
-                self.chromWidget.canvas.format_labels()
-                self.chromWidget.canvas.draw()
+                if ignoreDraw:
+                    return True
+                else:
+                    self.chromWidget.canvas.format_labels()
+                    self.chromWidget.canvas.draw()
 
     def updateMZScan(self):
         if self.curFile.data.get('spectrum'):
@@ -647,6 +667,7 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
         QtCore.QObject.connect(self.actionRunScript,QtCore.SIGNAL("triggered()"),self.__showHints__)
         QtCore.QObject.connect(self.action_Exit,QtCore.SIGNAL("triggered()"),self.__exitProgram__)
         QtCore.QObject.connect(self.spectrumTabWidget,QtCore.SIGNAL("currentChanged(int)"),self.updateMZTab)
+        #this method is called when spectrum index is changed
         QtCore.QObject.connect(self.spectra_CB,QtCore.SIGNAL("currentIndexChanged (QString)"),self.setupDataFile)
 
         QtCore.QObject.connect(self.xicList_CB,QtCore.SIGNAL("currentIndexChanged (QString)"),self.setupXIC)
@@ -679,6 +700,8 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
 
 
     def setupXIC(self, curString):
+        if self.ignoreSignal:
+            return True
         if self.curFile != None:
             curString = str(curString)#in case the curString is a QString
             if curString == 'None':
@@ -693,12 +716,22 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
                                 pass
 
                 self.chromWidget.canvas.ax.legend_ = None
-                self.chromWidget.canvas.format_labels()
-                self.chromWidget.autoscale_plot()
+                self.initiateChrom()
                 self.chromTabWidget.setCurrentIndex(0)
 
                 return True
             else:
+                if self.overlayBPC_CB.isChecked():
+                    if self.bpcOk:
+                        pass
+                    else:
+                        self.initiateChrom(ignoreDraw = True)
+                else:
+                    if self.bpcOk:
+                        self.chromLine.remove()
+                        self.bpcOk = False
+
+
                 plotKey = 'm/z %s'%curString
                 xicDict = self.curFile.data.get('XIC')
                 print xicDict.keys()
@@ -708,8 +741,8 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
                         if len(self.xvalues) == len(xicVals):
                             #need to add instance where it is already plotted
                             curIndex = self.xicList_CB.currentIndex()
-                            self.xicDict[plotKey], = self.chromWidget.canvas.ax.plot(self.xvalues, xicVals, color = COLORS[curIndex], label = curString, alpha = 0.6)
-
+                            self.xicDict[plotKey], = self.chromWidget.canvas.ax.plot(self.xvalues, xicVals, color = COLORS[curIndex], label = curString, alpha = 0.6, picker = 5)
+                            self.curLine = self.xicDict[plotKey]
                             self.chromWidget.canvas.ax.legend(borderaxespad = 0.03, axespad=0.25)
                             self.chromWidget.canvas.format_labels()
                             self.chromWidget.autoscale_plot()
@@ -771,15 +804,16 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
     def __showHints__(self):
         return QtGui.QMessageBox.information(self.MainWindow,
                                              ("Hints and Known Issues"),
-                                             ("<p> 1.	For files that contain spectra with a high degree of detail (i.e. not stick mass spectra) use the profile mode for drawing (Ctrl+D).  Otherwise, the plotting will be slow.</p>"
+                                             ("<p> 1.	For files that contain spectra with a high degree of detail (i.e. not centroided (stick) mass spectra) use the profile mode for drawing (Ctrl+D).  Otherwise, the plotting will be slow.</p>"
                                              "<p> 2. I haven't incorporated MS^n (where n >= 3) spectrum views at this point--I didn't have an example file to test.</p>"
                                              "<p>3.  If the program is too slow, remember python is not or ever intended to be C.</p>"
                                              "<p>4.  I have not incorporated a reader for mzData files as this format does not explictly store base peak and TIC values for chromatogram generation.  In order to do this each scan must be read simply to construct the TIC/BPC.  This is very slow.  The new mzML format will be supported in the very near future.</p>"
+                                             "<p>4.  Ctrl+Z enables/disables zooming, Ctrl+A zooms out entirely (i.e. autoscale).  These shortcuts are by far the easiest way to navigate</p>"
                                              ""))
 
     def __showAbout__(self):
         return QtGui.QMessageBox.information(self.MainWindow,
-                                            ("mzViewer V.0.4, October, 2009"),
+                                            ("mzViewer V.0.5, October, 2009"),
                                             ("<p><b>mzViewer</b> was written in Python by Brian H. Clowers (bhclowers@gmail.com).</p>"
         "<p>Please keep in mind that the entire effort is very much a"
         " work in progress and that Brian won't quit his day job for programming."
