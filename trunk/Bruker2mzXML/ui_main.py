@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Documents and Settings\d3p483\workspace\Bruker2mzXML\main.ui'
 #
-# Created: Tue Jun 02 15:52:46 2009
+# Created: Mon Oct 19 12:22:45 2009
 #      by: PyQt4 UI code generator 4.4.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -12,7 +12,7 @@ from PyQt4 import QtCore, QtGui
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(500, 446)
+        MainWindow.resize(650, 444)
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(":/new/prefix1/Clone_32.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         MainWindow.setWindowIcon(icon)
@@ -40,6 +40,9 @@ class Ui_MainWindow(object):
         self.makeMGF_CB = QtGui.QCheckBox(self.centralwidget)
         self.makeMGF_CB.setObjectName("makeMGF_CB")
         self.hboxlayout1.addWidget(self.makeMGF_CB)
+        self.agilent_CB = QtGui.QCheckBox(self.centralwidget)
+        self.agilent_CB.setObjectName("agilent_CB")
+        self.hboxlayout1.addWidget(self.agilent_CB)
         self.vboxlayout.addLayout(self.hboxlayout1)
         self.hboxlayout2 = QtGui.QHBoxLayout()
         self.hboxlayout2.setObjectName("hboxlayout2")
@@ -88,7 +91,7 @@ class Ui_MainWindow(object):
         self.vboxlayout.addWidget(self.cnvrtBrukerBtn)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 500, 21))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 650, 21))
         self.menubar.setObjectName("menubar")
         self.menuFile = QtGui.QMenu(self.menubar)
         self.menuFile.setObjectName("menuFile")
@@ -128,6 +131,7 @@ class Ui_MainWindow(object):
 "</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:8.25pt; font-weight:400; font-style:normal;\">\n"
 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">If checked only peaks files created by the SimpleViewer program will be identified and rolled into a single <span style=\" font-weight:600;\">M</span>ascot <span style=\" font-weight:600;\">G</span>eneral <span style=\" font-weight:600;\">F</span>ormat file</p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
         self.makeMGF_CB.setText(QtGui.QApplication.translate("MainWindow", "Convert peaks to mgf?", None, QtGui.QApplication.UnicodeUTF8))
+        self.agilent_CB.setText(QtGui.QApplication.translate("MainWindow", "Convert Agilent *.D Files?", None, QtGui.QApplication.UnicodeUTF8))
         self.autoXFileBtn.setText(QtGui.QApplication.translate("MainWindow", "&AutoExecute File:", None, QtGui.QApplication.UnicodeUTF8))
         self.outputBtn.setText(QtGui.QApplication.translate("MainWindow", "&Output File:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_3.setText(QtGui.QApplication.translate("MainWindow", "Output Message:", None, QtGui.QApplication.UnicodeUTF8))
