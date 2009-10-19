@@ -24,8 +24,8 @@ class BrukerConvert(ui_main.Ui_MainWindow):
         self.__makeConnections__()
 
     def __setup__(self):
-        self.brukerDataOk = False
-        self.brukerData = None
+        self.fileDataOk = False
+        self.fileData = None
 
         self.autoXFileOk = False
         self.autoXFile = None
@@ -51,8 +51,8 @@ class BrukerConvert(ui_main.Ui_MainWindow):
         #self.filePathError()
 
     def __updateGUI__(self):
-        if self.brukerDataOk and self.brukerData != None:
-            self.brukerFolderLE.setText(self.brukerData)
+        if self.fileDataOk and self.fileData != None:
+            self.brukerFolderLE.setText(self.fileData)
 
         if self.autoXFileOk and self.autoXFile != None:
             self.autoExecuteLE.setText(self.autoXFile)
@@ -80,8 +80,8 @@ class BrukerConvert(ui_main.Ui_MainWindow):
         QtCore.QObject.connect(self.loadThread, QtCore.SIGNAL("itemLoaded(PyQt_PyObject)"), self.updateOutputMsg)
 
     def __brukerLEChanged__(self):
-        self.brukerDataOk = True
-        self.brukerData = self.brukerFolderLE.text()
+        self.fileDataOk = True
+        self.fileData = self.brukerFolderLE.text()
 
     def __autoXLEChanged__(self):
         self.autoXFileOk = True
@@ -99,7 +99,7 @@ class BrukerConvert(ui_main.Ui_MainWindow):
         self.outputFileLE.clear()
         self.outputFileOk = False
         self.brukerFolderLE.clear()
-        self.brukerDataOk = False
+        self.fileDataOk = False
 
     def __write2csv__(self, state):
         if state == 2:
@@ -114,14 +114,14 @@ class BrukerConvert(ui_main.Ui_MainWindow):
         scrollBar.setValue(scrollBar.maximum())
 
     def __convertBruker__(self):
-        if self.brukerDataOk:
+        if self.fileDataOk:
             self.outputTE.clear()
             if self.makeMGF_CB.isChecked():
-                fileList = getPeakFiles(str(self.brukerData))
+                fileList = getPeakFiles(str(self.fileData))
 #                if self.outputFile != None:
 #                    convert2mgf(str(self.outputFile))
 #                else:
-                filepath = os.path.abspath(str(self.brukerData))
+                filepath = os.path.abspath(str(self.fileData))
                 coreDir = os.path.basename(filepath)
                 coreDir+='.mgf'
                 file2write = os.path.join(filepath, coreDir)
@@ -131,19 +131,19 @@ class BrukerConvert(ui_main.Ui_MainWindow):
 
             else:
                 if self.useSingleFile == False:
-                    fileList = getBrukerFiles(str(self.brukerData))
-                    if self.loadThread.updateThread(fileList):
+                    fileList = getBrukerFiles(str(self.fileData), getAgilent = self.agilent_CB.isChecked())
+                    if self.loadThread.updateThread(fileList, convertAgilent = self.agilent_CB.isChecked()):
                         self.loadThread.start()
 
                 else:
                     newFile = None
                     if self.outputFileOk:
                         newFile =str(self.outputFile)
-                    self.updateOutputMsg(self.loadThread.exeCompassXport(str(self.brukerData), newFile))
+                    self.updateOutputMsg(self.loadThread.exeCompassXport(str(self.fileData), newFile))
         else:
             reply = QtGui.QMessageBox.warning(self.MainWindow, "No Input File or Folder Set",  "An input file or folder must be selected before continuing.")
             self.__getBrukerData__()
-#            exec_str = '-multi '+str(self.brukerData)
+#            exec_str = '-multi '+str(self.fileData)
 #            self.cmdOut.append(exec_str)
 #            file_str = ' -multiName '+'BrukerConvert.1231.test.mzXML'
 #            self.cmdOut.append(file_str)
@@ -167,7 +167,7 @@ class BrukerConvert(ui_main.Ui_MainWindow):
         if newFileName != None:
             if filetype == 'None':
                 newFileName+='.mzXML'
-                newPath = os.path.join(str(self.brukerData), newFileName)
+                newPath = os.path.join(str(self.fileData), newFileName)
 
             elif filetype != 'None' and self.useSingleFile == False:
                 newFileName += '.mzXML'
@@ -176,7 +176,7 @@ class BrukerConvert(ui_main.Ui_MainWindow):
                 newPath=str(self.outputFile)
         else:
             newFileName='analysis.mzXML'
-            self.dir = os.path.dirname(str(self.brukerData))
+            self.dir = os.path.dirname(str(self.fileData))
             newPath = os.path.join(self.dir, newFileName)
 
         #this small code block writes a peak list to a csv file
@@ -216,44 +216,44 @@ class BrukerConvert(ui_main.Ui_MainWindow):
 
 
     def __getBrukerData__(self):
-        if self.brukerDataOk:
+        if self.fileDataOk:
             try:
                 if self.useSingleFile:
-                    self.dir = os.path.dirname(str(self.brukerData))
+                    self.dir = os.path.dirname(str(self.fileData))
                 else:
-                    self.dir = str(self.brukerData)
+                    self.dir = str(self.fileData)
             except:
                 print "Directory split didn't work"
                 self.dir = self._curDir_
         else:
             self.dir = self._curDir_
-        if self.brukerDataOk and self.brukerData != None:
+        if self.fileDataOk and self.fileData != None:
             if self.useSingleFile:
-                self.dir = os.path.dirname(str(self.brukerData))
+                self.dir = os.path.dirname(str(self.fileData))
             else:
-                self.dir = self.brukerData
+                self.dir = self.fileData
 
         if self.useSingleFile:
             data = QtGui.QFileDialog.getOpenFileName(self.MainWindow,\
                                 'Select Bruker Data File',\
-                                self.dir, 'fid File (fid);; All Files (*.*)')
+                                self.dir, 'fid File (fid);; Agilent D Files (D);;All Files (*.*)')
         else:
             data= QtGui.QFileDialog.getExistingDirectory(self.MainWindow,\
-                                                             "Select Bruker Data Folder")
+                                                             "Select Data Folder")
         if data:
             if ' ' in data:
                 self.filePathError()
             else:
-                self.brukerDataOk = True
-                self.brukerData = data
+                self.fileDataOk = True
+                self.fileData = data
                 self.__updateGUI__()
 
     def __getAutoXFile__(self):
 
         dir = self._curDir_
-        if self.brukerDataOk and self.brukerData != None:
+        if self.fileDataOk and self.fileData != None:
             if not self.useSingleFile:
-                dir = self.brukerData
+                dir = self.fileData
 
         autoXFileName = QtGui.QFileDialog.getOpenFileName(self.MainWindow,\
                             'Select Bruker AutoXecute File',\
@@ -266,7 +266,7 @@ class BrukerConvert(ui_main.Ui_MainWindow):
 
 
     def __setOutputFile__(self):
-        if self.brukerDataOk and self.brukerData != None:
+        if self.fileDataOk and self.fileData != None:
             if self.useSingleFile:
                 outputFile = QtGui.QFileDialog.getSaveFileName(self.MainWindow,\
                             'Select Output File Name',\
@@ -309,7 +309,9 @@ class BrukerConvert(ui_main.Ui_MainWindow):
         " automatically rename files and place them in a directory of your choice.  At this time"
         " concatenation of the output files is not possible, though certainly feasible.  If you'd like "
         " the source code please let me know.  Please feel free to make modifications (preferably "
-        " with documentation) and share your contributions with the rest of the community.</p>"))
+        " with documentation) and share your contributions with the rest of the community.</p>"
+        " "
+        " <p>Added support for Agilent *.D files and directories, October, 2009 BHC.</p>"))
 
 
     def __mainClose__(self):
@@ -323,18 +325,20 @@ class LoadThread(QtCore.QThread):
 
             self.P = parent
             self.outputFile = None
-            self.brukerData = None
+            self.fileData = None
             self.writeCSV = None
             self.finished = False
+            self.convertAgilent = False
             self.ready = False
 
-        def updateThread(self, loadList):
+        def updateThread(self, loadList, convertAgilent = False):
             self.loadList = loadList
             self.numItems = len(loadList)
             self.totalFiles = len(loadList)
             self.outputFile = self.P.outputFile
-            self.brukerData = self.P.brukerData
+            self.fileData = self.P.fileData
             self.writeCSV = self.P.writeCSV
+            self.convertAgilent = convertAgilent
             self.ready = True
             return True
 
@@ -375,7 +379,7 @@ class LoadThread(QtCore.QThread):
             if newFileName != None:
                 if filetype == 'None':
                     newFileName+='.mzXML'
-                    newPath = os.path.join(str(self.brukerData), newFileName)
+                    newPath = os.path.join(str(self.fileData), newFileName)
 
                 elif filetype != 'None' and self.useSingleFile == False:
                     newFileName += '.mzXML'
@@ -384,7 +388,7 @@ class LoadThread(QtCore.QThread):
                     newPath=str(self.outputFile)
             else:
                 newFileName='analysis.mzXML'
-                self.dir = os.path.dirname(str(self.brukerData))
+                self.dir = os.path.dirname(str(self.fileData))
                 newPath = os.path.join(self.dir, newFileName)
 
             #this small code block writes a peak list to a csv file

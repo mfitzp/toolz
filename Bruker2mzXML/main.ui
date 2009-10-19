@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>500</width>
-    <height>446</height>
+    <width>650</width>
+    <height>444</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -59,6 +59,13 @@ p, li { white-space: pre-wrap; }
         </property>
         <property name="text" >
          <string>Convert peaks to mgf?</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="agilent_CB" >
+        <property name="text" >
+         <string>Convert Agilent *.D Files?</string>
         </property>
        </widget>
       </item>
@@ -145,7 +152,7 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>500</width>
+     <width>650</width>
      <height>21</height>
     </rect>
    </property>
