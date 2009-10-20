@@ -111,7 +111,11 @@ class DataClass(object):
 
 
     def setPeakList(self, peakList, normalized = True):
+        #reset this feature as different peak picking routines may be used
+        self.isoProfileOk = False
+        self.isoProfileDict = {}
         #peak list is two arrays peakLoc and intensity
+
         if normalized:
             if peakList != None:
                 if len(peakList)>0:
