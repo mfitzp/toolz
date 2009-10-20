@@ -39,7 +39,7 @@ def cwtMS(Y, scales, sampleScale = 1.0, wlet = 'MexHat', maxClip = 1000., static
             yMax = yIndex[-1]
             if len(Y)<(yMax+yMod):
                 yMod = 0
-            print "Y Index Max", yMax+yMod
+            print "Using Static Thresh, Y Index Max", yMax+yMod
             ans = W.cwt_a(SF.roundLen(Y[0:(yMax+yMod)]), scales, sampling_scale = sampleScale, wavelet = wlet)
         else:
             ans = W.cwt_a(Y, scales, sampling_scale = sampleScale)#, wavelet = wlet)
@@ -99,7 +99,7 @@ def getCWTPeaks(scaledCWT, X, Y, noiseEst, minSNR = 3,\
     Provides prospective peaks for future fitting
     '''
     if debug:
-        print "Length X,Y ", len(X), len(Y)
+        print "Length X,Y, X.max():  ", len(X), len(Y), X.max()
         print "Noise Est: ", noiseEst
         print "minSNR: ", minSNR
         print "rowThresh: ", rowThresh
@@ -111,6 +111,7 @@ def getCWTPeaks(scaledCWT, X, Y, noiseEst, minSNR = 3,\
     peakLoc = []
     peakInt = []
     rawPeakInd = []
+    snr = []
     print "Shape: ",scaledCWT.shape
     revRowArray = N.arange((scaledCWT.shape[0]-1),1,-1)#steps backwards
 
@@ -151,12 +152,14 @@ def getCWTPeaks(scaledCWT, X, Y, noiseEst, minSNR = 3,\
                         yMaxInd = m-pntPad+localMaxInd
 
                         rawPeakInd.append(yMaxInd)
-
-                        if Y[yMaxInd] >= noiseEst[xStart:xStop].mean()*minSNR:#minSNR/2:# and Y[yMaxInd] >= staticCut:
+                        snrInt = noiseEst[xStart:xStop].mean()*minSNR
+                        yVal = Y[yMaxInd]
+                        if yVal >= snrInt:#minSNR/2:# and Y[yMaxInd] >= staticCut:
 
                             peakLoc.append(X[yMaxInd])
-                            peakInt.append(Y[yMaxInd])
+                            peakInt.append(yVal)
                             cwtPeakLoc.append([X[yMaxInd],i])
+                            snr.append(Y[yMaxInd]/snrInt)#this isn't quite right
 
 
 
@@ -168,29 +171,33 @@ def getCWTPeaks(scaledCWT, X, Y, noiseEst, minSNR = 3,\
 
     peakLoc = N.array(peakLoc)
     peakInt = N.array(peakInt)
+    snr = N.array(snr)
     rawPeakInd = N.array(rawPeakInd)
     peakOrder = peakLoc.argsort()
     peakLoc = peakLoc[peakOrder]
     peakInt = peakInt[peakOrder]
     rawPeakInd = rawPeakInd[peakOrder]
+    snr = snr[peakOrder]
     #peakLoc, peakInt, rawPeakInd = consolidatePeaks(peakLoc, peakInt, rawPeakInd)
-    peakLoc, peakInt = removeDuplicatePeaks(peakLoc, peakInt)
+    peakLoc, peakInt, snr = removeDuplicatePeaks(peakLoc, peakInt, snr)
     cClass = None
 
 
-
-    return peakLoc, peakInt, rawPeakInd, cwtPeakLoc, cClass, True
+    #print peakLoc
+    return peakLoc, peakInt, rawPeakInd, cwtPeakLoc, snr, cClass, True
     #return None, None, None, None, None, False
 
-def removeDuplicatePeaks(peakLoc, peakInt):
+def removeDuplicatePeaks(peakLoc, peakInt, snr):
     peakOrder = peakLoc.argsort()
     peakLoc = peakLoc[peakOrder]
     peakInt = peakInt[peakOrder]
+    snr = snr[peakOrder]
     peakLocDiff = N.diff(peakLoc)
     duplicateInd = N.where(peakLocDiff == 0)[0]
     peakLoc = N.delete(peakLoc, duplicateInd)
     peakInt = N.delete(peakInt, duplicateInd)
-    return peakLoc, peakInt
+    snr = N.delete(snr, duplicateInd)
+    return peakLoc, peakInt, snr
 
 def consolidatePeaks(peakLoc, peakInt, rawPeakInd, diffCutoff = 1.25):
     '''
@@ -242,7 +249,7 @@ if __name__ == "__main__":
     import mzXML_reader as mzXML
 
 
-    fn = 'Z:/data/Clowers/061008/HG_pt01_mg_mL_B12_1.mzXML'
+    fn = 'HG_pt01_mg_mL_B12_1.mzXML'
 
     mzx = mzXML.mzXMLDoc(fn)
     spectrum = mzx.data.get('spectrum')
@@ -252,20 +259,20 @@ if __name__ == "__main__":
     loadA = False
     normOk = True
 
-    'Noisy_IMS_XY.csv'
-    'BSA_XY_Full.csv'
-    'J5.csv'
-    'Tryptone.csv'
-    dat = P.load('E4.csv', delimiter = ',')
-
-    xArray = dat[:,0]
-    yArray = dat[:,1]
-    xArray, yArray = SF.interpolate_spectrum_XY(xArray, yArray)
-    #xArray = N.arange(len(yArray))
-    #xArray, yArray = signal.resample(yArray, len(xArray)/4, xArray)
-    #xArray, yArray = SF.interpolate_spectrum_by_diff(xArray, yArray, xArray.min(), xArray.max(), 0.025)
-    xDiffNew = xArray[1]-xArray[0]
-    print "X Diff New: ", xDiffNew
+#    'Noisy_IMS_XY.csv'
+#    'BSA_XY_Full.csv'
+#    'J5.csv'
+#    'Tryptone.csv'
+#    dat = P.load('E4.csv', delimiter = ',')
+#
+#    xArray = dat[:,0]
+#    yArray = dat[:,1]
+#    xArray, yArray = SF.interpolate_spectrum_XY(xArray, yArray)
+#    #xArray = N.arange(len(yArray))
+#    #xArray, yArray = signal.resample(yArray, len(xArray)/4, xArray)
+#    #xArray, yArray = SF.interpolate_spectrum_by_diff(xArray, yArray, xArray.min(), xArray.max(), 0.025)
+#    xDiffNew = xArray[1]-xArray[0]
+#    print "X Diff New: ", xDiffNew
 
     xArray = spectrum[0]
     yArray = spectrum[1]
@@ -283,13 +290,13 @@ if __name__ == "__main__":
     stop = int(len(yArray)*1)##79000#len(ms)*.75
     #start = 48000
     #stop = 58000
-    #yArray = yArray[start:stop]
-    #xArray = xArray[start:stop]
+    yArray = yArray[start:stop]
+    xArray = xArray[start:stop]
     numSegs = int(len(xArray)*(xArray[1]-xArray[0]))
     print "Length of ms, numSegs: ", len(yArray), numSegs
-    xArray = N.arange(len(yArray))
+#    xArray = N.arange(len(yArray))
 
-    print len(yArray)
+    print len(yArray), len(xArray)
 
     #s = N.arange(2,32,2)#changed to 8 from 32
     #s1 = N.arange(2,64,8)
@@ -298,7 +305,9 @@ if __name__ == "__main__":
     #Best for BSA High Res TOF
     #print len(s1), len(s2)
     #s = N.append(s1, s2)
-    cwt = cwtMS(yArray, s3, staticThresh = (2/abundMax)*100, wlet='DOG')
+    staticT = 0.25#(2/abundMax)*100
+    print "Static T: ", staticT
+    cwt = cwtMS(yArray, s3, staticThresh = staticT, wlet='DOG')
 
     print "wavelet complete"
     print time.clock()-t1, 'seconds'
@@ -333,7 +342,7 @@ if __name__ == "__main__":
 #    stdNoise = SF.normalize(cwt[0]).std()
 #    mNoise = 3*stdNoise+mNoise
     t1 = time.clock()
-    peakLoc, peakInt, rawPeakInd, cwtPeakLoc, cClass, boolAns = getCWTPeaks(cwt, xArray, yArray, noiseEst, minRow = 0, minNoiseEst = minNoise, EPS = None, debug = True, tempAxis = ax2)
+    peakLoc, peakInt, rawPeakInd, cwtPeakLoc, snr, cClass, boolAns = getCWTPeaks(cwt, xArray, yArray, noiseEst, minRow = 0, minNoiseEst = minNoise, EPS = None, debug = True, tempAxis = ax2)
     print "getCWTPeaks: ", time.clock()-t1
     print "# peaks found: ", len(peakLoc)
 #    print peakLoc

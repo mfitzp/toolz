@@ -298,8 +298,8 @@ def getIsoProfile(xArray, yArray, isoCentroids, isoAmplitudes,
 #		returnX, returnY = SF.interpolate_spectrum_by_diff(returnX[1:-1], returnY[1:-1], tempX[1], tempX.max(), returnDiff)
 		tempX, tempY = SF.interpolate_spectrum_by_diff(tempX, tempY, tempX.min(), tempX.max(), returnDiff)#tempX.max(), returnDiff)
 		returnX, returnY = SF.interpolate_spectrum_by_diff(returnX, returnY, tempX.min(), tempX.max(), returnDiff)
-		#returnX+=returnDiff
-		#isoCentroids+=returnDiff
+		returnX+=returnDiff
+		isoCentroids+=returnDiff
 
 
 		#the following loop pads the respective arrays so that a correlation coeff can be calculated
@@ -433,35 +433,38 @@ def processSpectrum(X, Y, scales, minSNR, pkResEst, corrCutOff, xDiff = None):
 	numSegs = int(len(X)*(X[1]-X[0]))
 	noiseEst, minNoise = GB.SplitNSmooth(Y, numSegs, minSNR)
 
+#	print len(X), X.max(), len(noiseEst)
+
 
 	yMax = Y.max()
-	xDiff = X[1]-X[0]#xDiff
-	cwt = CWT.cwtMS(Y, scales, staticThresh = (2/Y.max())*100, wlet='DOG')
+	xDiff = 0.01#X[1]-X[0]#xDiff
+	staticT = 0.25#(2/Y.max())*100
+	cwt = CWT.cwtMS(Y, scales, staticThresh = staticT, wlet='DOG')
 
 	ANS = CWT.getCWTPeaks(cwt, X, Y, noiseEst, minRow = 0,
 						  minNoiseEst = minNoise, EPS = None, debug = True)
 
-	peakLoc, peakInt, rawPeakInd, cwtPeakLoc, cClass, boolAns = ANS
-
+	peakLoc, peakInt, rawPeakInd, cwtPeakLoc, snr, cClass, boolAns = ANS
 
 	pkLoc = N.array(peakLoc)
 	pkInt = N.array(peakInt)
 	peakOrder = pkLoc.argsort()
 	pkLoc = pkLoc[peakOrder]
 	pkInt = pkInt[peakOrder]
+	snr = snr[peakOrder]
 
-	print pkLoc
 
 	centX = []#will store the peak centroids after correction
 	centY = []#will store the peak intensities after correction
 	isoX = []#will hold the profiles for the fitted isotope patterns in the m/z dimension
 	isoY = []#will hold the intensity profiles for the fitted isotope patterns
+	centSNR = []
 	corrFactors=[]#cross correlation factors between the theoretical and actual data
 	startPnts = []
 
 	if boolAns:
 		if len(pkLoc)>0:
-			print peakLoc
+#			print peakLoc
 			resGlobal = pkResEst#this is the initial value provided by user
 			resCalc = pkResEst
 			for i, pk in enumerate(pkLoc):
@@ -489,8 +492,9 @@ def processSpectrum(X, Y, scales, minSNR, pkResEst, corrCutOff, xDiff = None):
 								centY.append(isoPeaks[1])
 								corrFactors.append(corrFactor)
 								startPnts.append(startInd)
+								centSNR.append(snr[i])
 
-			returnANS = [centX, centY, isoX, isoY, corrFactors]
+			returnANS = [centX, centY, isoX, isoY, corrFactors, centSNR]
 
 
 				#sortPeaks(returnANS[0],returnANS[1], returnANS[2], returnANS[3], returnANS[4], xTol = xDiff*2)
@@ -504,7 +508,8 @@ if __name__ == "__main__":
 	import mzXML_reader as mzXML
 
 
-	fn = 'Z:/data/Clowers/061008/HG_pt01_mg_mL_B12_1.mzXML'
+	fn = 'HG_pt01_mg_mL_B12_1.mzXML'
+	fn = 'Heme_S10_A11_1.mzXML'
 	mzx = mzXML.mzXMLDoc(fn)
 	spectrum = mzx.data.get('spectrum')
 
@@ -523,11 +528,13 @@ if __name__ == "__main__":
 #	mz, abund = SF.interpolate_spectrum_XY(mz, abund)
 
 	mz = spectrum[0]
+	mz = SF.roundLen(mz)
 	abund = spectrum[1]
+	abund = abund[0:len(mz)]
 
 	mzDiff = mz[1]-mz[0]
-	print "m/z Diff: ", mzDiff, mz[-1]-mz[-2]
-	print len(mz)
+#	print "m/z Diff: ", mzDiff, mz[-1]-mz[-2]
+#	print len(mz)
 	start = 0
 	stop = len(mz)
 #	start = 0
