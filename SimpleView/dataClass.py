@@ -39,10 +39,10 @@ class DataClass(object):
         self.normFactor = self.y.max()
         self.interpOk = False
         self.mzPad = None#this value is used for peak picking and is equal to the number of points in 0.5 mz units
-        if interp:
-            self.interpOk = True
-        else:
-            self.interpData()
+#        if interp:
+#            self.interpOk = True
+#        else:
+#            self.interpData()
         self.normOk = normOk
         if not self.normOk:
             self.normalize()

@@ -152,7 +152,7 @@ def getCWTPeaks(scaledCWT, X, Y, noiseEst, minSNR = 3,\
 
                         rawPeakInd.append(yMaxInd)
 
-                        if Y[yMaxInd] >= noiseEst[yMaxInd]*minSNR:#minSNR/2:# and Y[yMaxInd] >= staticCut:
+                        if Y[yMaxInd] >= noiseEst[xStart:xStop].mean()*minSNR:#minSNR/2:# and Y[yMaxInd] >= staticCut:
 
                             peakLoc.append(X[yMaxInd])
                             peakInt.append(Y[yMaxInd])
@@ -239,6 +239,14 @@ if __name__ == "__main__":
 
     import smoothingFilter as SmoothF
     import scipy.signal as signal
+    import mzXML_reader as mzXML
+
+
+    fn = 'Z:/data/Clowers/061008/HG_pt01_mg_mL_B12_1.mzXML'
+
+    mzx = mzXML.mzXMLDoc(fn)
+    spectrum = mzx.data.get('spectrum')
+
 
     t1 = time.clock()
     loadA = False
@@ -259,6 +267,11 @@ if __name__ == "__main__":
     xDiffNew = xArray[1]-xArray[0]
     print "X Diff New: ", xDiffNew
 
+    xArray = spectrum[0]
+    yArray = spectrum[1]
+
+    #xArray, yArray = SF.interpolate_spectrum_by_diff(xArray, yArray, xArray.min(), xArray.max(), 0.01)
+
     if normOk:
         yArray = SF.normalize(yArray)
     abundMax = yArray.max()
@@ -270,8 +283,8 @@ if __name__ == "__main__":
     stop = int(len(yArray)*1)##79000#len(ms)*.75
     #start = 48000
     #stop = 58000
-    yArray = yArray[start:stop]
-    xArray = xArray[start:stop]
+    #yArray = yArray[start:stop]
+    #xArray = xArray[start:stop]
     numSegs = int(len(xArray)*(xArray[1]-xArray[0]))
     print "Length of ms, numSegs: ", len(yArray), numSegs
     xArray = N.arange(len(yArray))
@@ -299,13 +312,14 @@ if __name__ == "__main__":
     intMax = cwt.max(axis=0).max()*0.05
     im=ax3.imshow(cwt, vmax = intMax, cmap=P.cm.jet,aspect='auto')
 
-    minSNR = 1.5
+    minSNR = 5
     #numSegs = len(yArray)/20
 
 
     #smoothed_data = SmoothF.savitzky_golay(yArray, kernel = 31, order = 7)
     t1 = time.clock()
     noiseEst, minNoise = GB.SplitNSmooth(yArray ,numSegs, minSNR)
+
     print "SplitNSmooth: ", time.clock()-t1
     if len(xArray) == len(noiseEst):
         ax.plot(xArray, noiseEst, '-r', alpha = 0.5, label = 'smoothed')

@@ -406,7 +406,7 @@ def sortPeaks(X,Y, profileX, profileY, corrFactors, xTol):
 	peakGroups = []
 
 
-def processSpectrum(X, Y, scales, minSNR, pkResEst, xDiff, corrCutOff):
+def processSpectrum(X, Y, scales, minSNR, pkResEst, corrCutOff, xDiff = None):
 	'''
 	This is the main function call
 	assumes data have been interpolated (for CWT)
@@ -427,12 +427,15 @@ def processSpectrum(X, Y, scales, minSNR, pkResEst, xDiff, corrCutOff):
 
 	#this estimation of the numSegs may work for other data sets but has
 	#only been tested with m/z data
+	#X, Y = SF.interpolate_spectrum_by_diff(X, Y, X.min(), X.max(), 0.01)
+	#print "X Max: ", X.max()
+
 	numSegs = int(len(X)*(X[1]-X[0]))
 	noiseEst, minNoise = GB.SplitNSmooth(Y, numSegs, minSNR)
 
 
 	yMax = Y.max()
-	xDiff = xDiff
+	xDiff = X[1]-X[0]#xDiff
 	cwt = CWT.cwtMS(Y, scales, staticThresh = (2/Y.max())*100, wlet='DOG')
 
 	ANS = CWT.getCWTPeaks(cwt, X, Y, noiseEst, minRow = 0,
@@ -440,11 +443,14 @@ def processSpectrum(X, Y, scales, minSNR, pkResEst, xDiff, corrCutOff):
 
 	peakLoc, peakInt, rawPeakInd, cwtPeakLoc, cClass, boolAns = ANS
 
+
 	pkLoc = N.array(peakLoc)
 	pkInt = N.array(peakInt)
 	peakOrder = pkLoc.argsort()
 	pkLoc = pkLoc[peakOrder]
 	pkInt = pkInt[peakOrder]
+
+	print pkLoc
 
 	centX = []#will store the peak centroids after correction
 	centY = []#will store the peak intensities after correction
@@ -495,20 +501,29 @@ def processSpectrum(X, Y, scales, minSNR, pkResEst, xDiff, corrCutOff):
 
 
 if __name__ == "__main__":
+	import mzXML_reader as mzXML
+
+
+	fn = 'Z:/data/Clowers/061008/HG_pt01_mg_mL_B12_1.mzXML'
+	mzx = mzXML.mzXMLDoc(fn)
+	spectrum = mzx.data.get('spectrum')
 
 #	data = P.load('Tryptone.csv', delimiter = ',')
-	data = P.load('E4.csv', delimiter = ',')
+#	data = P.load('E4.csv', delimiter = ',')
+#
+#	mz = data[:,0]
+#
+#
+#	abund = data[:,1]
+#	abund = SF.topHat(abund, 0.01)
+#
+#	abund = SF.roundLen(abund)
+#	mz = mz[0:len(abund)]
+#
+#	mz, abund = SF.interpolate_spectrum_XY(mz, abund)
 
-	mz = data[:,0]
-
-
-	abund = data[:,1]
-	abund = SF.topHat(abund, 0.01)
-
-	abund = SF.roundLen(abund)
-	mz = mz[0:len(abund)]
-
-	mz, abund = SF.interpolate_spectrum_XY(mz, abund)
+	mz = spectrum[0]
+	abund = spectrum[1]
 
 	mzDiff = mz[1]-mz[0]
 	print "m/z Diff: ", mzDiff, mz[-1]-mz[-2]
@@ -526,7 +541,7 @@ if __name__ == "__main__":
 	#scales = N.array([2,10,18,26,34,42,50,58])#,4)
 	scales = N.array([1,2,4,6,8,12,16])
 	minSNR = 1.5
-	resEst = 8000
+	resEst = 9000
 	corrCutOff = 0.5
 	t1 = time.clock()
 	ANS, boolAns = processSpectrum(mz, abund, scales, minSNR, resEst, xDiff = mzDiff, corrCutOff = corrCutOff)

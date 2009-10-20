@@ -2940,10 +2940,13 @@ class FindPeaksThread(QtCore.QThread):
                                 dataItem.getNoise(numSegs,self.minSNR)
                             #static Thresh is scaled for each individual spectrum and uses the normFactor or maximum of the
                             # Y values to compute where a spectrum should be cut
+                            #on 10/19/09 changed the default behavior to not interpolate values
+                            #this makes the spectra much shorter in length but removes the determination of the mzPad
+                            #as a result this is set to a default  was: pntPad = dataItem.mzPad,
                             cwtResult = CWT.getCWTPeaks(self.cwt, dataItem.x, dataItem.y,\
                                                         dataItem.noiseEst, minSNR = self.minSNR,\
                                                         minRow = self.minRow, minClust =self.minClust,\
-                                                        rowThresh = self.rowThresh, pntPad = dataItem.mzPad,\
+                                                        rowThresh = self.rowThresh, \
                                                         minNoiseEst = dataItem.minNoiseEst,\
                                                         staticThresh = self.staticThresh/dataItem.normFactor,\
                                                         EPS = self.EPS)
