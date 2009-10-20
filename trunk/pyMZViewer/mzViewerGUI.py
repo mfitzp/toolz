@@ -88,6 +88,7 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
         self.yMax = 1.0#will be the maximum for the Y scale after autozoom
         self.fragScanList = []
         self.fragPlotList = []
+        self.precLineList = []#used to keep an index of the lines that can be picked to generate fragment spectra
         self.fragTabDict = {}
         self.xicDict = {}
         self.scanInfoList = []
@@ -194,8 +195,15 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
                                         bbox=dict(facecolor='yellow', alpha=0.1),\
                                         transform=self.mzWidget.canvas.ax.transAxes, va='top')
 
-        #handle precursor ion setup
+        for i in xrange(self.spectrumTabWidget.count()):
+            if str(self.spectrumTabWidget.tabText(i)) == showText:
+                self.spectrumTabWidget.setCurrentIndex(i)
+                self.mzWidget.canvas.ax.set_xlim(curXlim)#needed to prevent autoscale of vline cursor
+                self.mzWidget.canvas.draw()
+                return True
 
+
+        #handle precursor ion setup
         if self.fragScanList != None:
             if len(self.fragScanList) > 0:
                 for fragScan in self.fragScanList:
@@ -298,7 +306,7 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
             #self.scanHSlider.setMaximum(len(self.BPC))
             if len(self.BPC) >=1:
                 self.xvalues = N.array(self.curFile.data.get('expTime'))
-                self.curLine, = self.chromWidget.canvas.ax.plot(self.xvalues, self.BPC, 'r', picker = 5, label = 'BPC')
+                self.curLine, = self.chromWidget.canvas.ax.plot(self.xvalues, self.BPC, 'r', picker = 5, label = '_nolegend_')
                 self.bpcOk = True
                 self.chromLine = self.curLine
                 self.chromMax = self.BPC.max()*1.1
@@ -334,6 +342,7 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
 
     def getMZScan(self, index, curIndexdjust=None):#0 is subtract, 1 is add
         self.scanInfoList = []
+        self.precLineList = []
         if self.curFile:
                 #print self.curFile.data.get('')
                 if curIndexdjust:
@@ -348,6 +357,7 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
                 self.curScanInfo = self.scanInfoList[0]
                 #self.curScanInfo = self.curFile.getScanInfo(self.curParentScan)
                 self.fragScanList = self.curParentScan.findall(self.curFile.ns+'scan')
+                self.fragScanList.reverse()#we do this so that the mz values will be increasing
 
                 self.mzWidget.canvas.ax.cla()
                 self.fragPlotList = []
@@ -369,7 +379,8 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
                         self.scanInfoList.append(self.curFile.getScanInfo(fragScan))
                         precurMZ = N.float(self.curFile.getScanInfo(fragScan).get('mz'))
 
-                        self.mzWidget.canvas.ax.axvline(precurMZ, ls=':', alpha = 0.7,  color='r',  picker = 3)
+                        self.precLineList.append(self.mzWidget.canvas.ax.axvline(precurMZ, ls=':', alpha = 0.7,  color='r',  picker = 3))
+#                        print self.precLineList
 
 
                 self.curScanId = int(self.curScanInfo.get('id'))
@@ -666,6 +677,15 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
         self.actionScanDown.setShortcut("Down")
         QtCore.QObject.connect(self.actionScanDown,QtCore.SIGNAL("triggered()"), self.scanDown)
 
+        self.actionTabLeft = QtGui.QAction("",  self.mzWidget)
+        self.chromWidget.addAction(self.actionTabLeft)
+        self.actionTabLeft.setShortcut("Left")
+        QtCore.QObject.connect(self.actionTabLeft,QtCore.SIGNAL("triggered()"), self.tabLeft)
+
+        self.actionTabRight = QtGui.QAction("",  self.mzWidget)
+        self.chromWidget.addAction(self.actionTabRight)
+        self.actionTabRight.setShortcut("Right")
+        QtCore.QObject.connect(self.actionTabRight,QtCore.SIGNAL("triggered()"), self.tabRight)
 
         '''File menu actions slots'''
         QtCore.QObject.connect(self.action_Open,QtCore.SIGNAL("triggered()"),self.__readDataFile__)
@@ -774,6 +794,51 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
             self.tempIndex = val
             QtCore.QTimer.singleShot(3, self.valChange)
             self.ignoreSignal = True
+
+    def tabRight(self):
+#        print "Tab Right"
+        curIndex = self.spectrumTabWidget.currentIndex()
+        curCount = self.spectrumTabWidget.count()
+        numFrags = len(self.fragScanList)
+        print "len fragScanList: ", numFrags
+        #case 1: when the next frag spectrum does not exist:
+        if curIndex < numFrags:
+#            print "case 1"
+            if self.fragScanList != None:
+                if len(self.fragScanList) > 0:
+                    fragScan = self.fragScanList[curIndex]
+                    self.scanInfoList.append(self.curFile.getScanInfo(fragScan))
+                    precurMZ = float(self.curFile.getScanInfo(fragScan).get('mz'))
+                    #print precurMZ
+                    tabName = "m/z %.1f"%(precurMZ)
+                    if not self.fragTabDict.has_key(str(fragScan)):
+                        self.spectrumTabWidget.addTab(self.makePrecursorTab(fragScan, tabName), tabName)
+
+                    for i in xrange(self.spectrumTabWidget.count()):
+                        if str(self.spectrumTabWidget.tabText(i)) == tabName:
+                            self.spectrumTabWidget.setCurrentIndex(i)
+                            return True
+#                            continue
+
+
+        #case 2: when at the maximum frag spectrum that is already plotted
+        if curIndex == curCount-1:
+            print "case 2"
+            return True
+        #case 3: when below the maximum frag spectrum that is already plotted
+        if curIndex < curCount-1:
+#            print "case 3"
+            self.spectrumTabWidget.setCurrentIndex(curIndex+1)
+            return True
+
+    def tabLeft(self):
+#        print "Tab Left"
+        curIndex = self.spectrumTabWidget.currentIndex()
+        #case 1: when at the minimum frag spectrum that is already plotted
+        if curIndex == 0:
+            return True
+        else:
+            self.spectrumTabWidget.setCurrentIndex(curIndex-1)
 
     def scanUp(self):
         if self.curScanId:
