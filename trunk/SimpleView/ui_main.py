@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Documents and Settings\d3p483\workspace\SimpleView\main.ui'
 #
-# Created: Mon Oct 12 10:38:53 2009
+# Created: Tue Oct 20 10:14:26 2009
 #      by: PyQt4 UI code generator 4.4.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -472,9 +472,10 @@ class Ui_MainWindow(object):
         self.label_33 = QtGui.QLabel(self.tab)
         self.label_33.setObjectName("label_33")
         self.horizontalLayout_7.addWidget(self.label_33)
-        self.doubleSpinBox_3 = QtGui.QDoubleSpinBox(self.tab)
-        self.doubleSpinBox_3.setObjectName("doubleSpinBox_3")
-        self.horizontalLayout_7.addWidget(self.doubleSpinBox_3)
+        self.staticThresh_SB = QtGui.QDoubleSpinBox(self.tab)
+        self.staticThresh_SB.setProperty("value", QtCore.QVariant(0.25))
+        self.staticThresh_SB.setObjectName("staticThresh_SB")
+        self.horizontalLayout_7.addWidget(self.staticThresh_SB)
         self.verticalLayout_10.addLayout(self.horizontalLayout_7)
         self.verticalLayout_11.addLayout(self.verticalLayout_10)
         spacerItem2 = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
@@ -898,7 +899,7 @@ class Ui_MainWindow(object):
         self.gridlayout.addWidget(self.tabWidget, 0, 1, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 910, 21))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 910, 25))
         self.menubar.setObjectName("menubar")
         self.menu_File = QtGui.QMenu(self.menubar)
         self.menu_File.setObjectName("menu_File")
@@ -1057,7 +1058,8 @@ class Ui_MainWindow(object):
         self.label_31.setText(QtGui.QApplication.translate("MainWindow", "Estimate Resolution:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_32.setText(QtGui.QApplication.translate("MainWindow", "Correlation Cutoff", None, QtGui.QApplication.UnicodeUTF8))
         self.doubleSpinBox_2.setToolTip(QtGui.QApplication.translate("MainWindow", "Isotope fits below this value will be excluded from the peak list", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_33.setText(QtGui.QApplication.translate("MainWindow", "TextLabel", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_33.setText(QtGui.QApplication.translate("MainWindow", "Static Cutoff", None, QtGui.QApplication.UnicodeUTF8))
+        self.staticThresh_SB.setToolTip(QtGui.QApplication.translate("MainWindow", "Minimum fraction to be considered.  Intensity values below this value will be ignored.  If a spectrum with high dynamic range is present, this number should be small.  The converse is also true.", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget_PP.setTabText(self.tabWidget_PP.indexOf(self.tab), QtGui.QApplication.translate("MainWindow", "High Res.", None, QtGui.QApplication.UnicodeUTF8))
         self.label_25.setToolTip(QtGui.QApplication.translate("MainWindow", "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
