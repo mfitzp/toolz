@@ -47,7 +47,7 @@ def getBrukerFiles(directory = None, getAgilent = False, DEBUG = False):
                         Example path:
                         C:\\Wahl_Protein_ID\\Data\\EMSL_Agilent_IT\\100709\BNW602391001.D\Analysis.yep
                         '''
-                        tempFN = splitDir[-2].replace('.D', '.mzXML')
+                        tempFN = splitDir[-2].split('.D')[0]#, '.mzXML')
                         #coreFN = tempFN[-2]#tempFN.split('_')[-1]
                         fn = tempFN#splitDir[-2]+'_'+coreFN+'.'+splitDir[-3]
 
