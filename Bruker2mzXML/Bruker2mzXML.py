@@ -78,6 +78,17 @@ class BrukerConvert(ui_main.Ui_MainWindow):
         QtCore.QObject.connect(self.outputFileLE, QtCore.SIGNAL("editingFinished()"),self.__outputLEChanged__)
         QtCore.QObject.connect(self.action_About,QtCore.SIGNAL("triggered()"),self.__showAbout__)
         QtCore.QObject.connect(self.loadThread, QtCore.SIGNAL("itemLoaded(PyQt_PyObject)"), self.updateOutputMsg)
+        QtCore.QObject.connect(self.agilent_CB, QtCore.SIGNAL("stateChanged (int)"),self.agilentToggle)
+
+    def agilentToggle(self, state):
+        if state == 2:
+            self.makeMGF_CB.setCheckState(QtCore.Qt.Unchecked)
+            self.toCSVCB.setCheckState(QtCore.Qt.Unchecked)
+            self.makeMGF_CB.setEnabled(False)
+            self.toCSVCB.setEnabled(False)
+        else:
+            self.makeMGF_CB.setEnabled(True)
+            self.toCSVCB.setEnabled(True)
 
     def __brukerLEChanged__(self):
         self.fileDataOk = True
