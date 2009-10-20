@@ -2994,14 +2994,14 @@ class FindPeaksThread(QtCore.QThread):
                         ANS, boolAns= ISO.processSpectrum(dataItem.x, dataItem.y, scales = self.scales, \
                                                           minSNR = self.minSNR, pkResEst = 10000, xDiff = (dataItem.x[1]-dataItem.x[0]), corrCutOff = 0.3)
                         if boolAns:
-                            centX, centY, isoX, isoY, corrFits = ANS
+                            centX, centY, isoX, isoY, corrFits, snr = ANS
                             tempCentX = N.zeros(len(centX))
                             tempCentY = N.zeros(len(centX))
                             for i,cent in enumerate(centX):
                                 tempCentX[i] = cent[0]
                                 tempCentY[i] = centY[i][0]
                             #print "Len CentX, CentY, CorrFits: ", len(tempCentX), len(tempCentY), len(corrFits)
-                            dataItem.setPeakList(N.column_stack((tempCentX, tempCentY, corrFits)))
+                            dataItem.setPeakList(N.column_stack((tempCentX, tempCentY, corrFits, snr)))
                             dataItem.setIsotopeProfiles(tempCentX, isoX, isoY)
 #                            dataItem.setPeakList(N.column_stack((tempCentX, tempCentY)))
                             dataItem.setPeakParams(self.paramDict)
