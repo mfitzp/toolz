@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Documents and Settings\d3p483\workspace\Bruker2mzXML\main.ui'
 #
-# Created: Mon Oct 19 12:22:45 2009
+# Created: Tue Oct 20 09:53:44 2009
 #      by: PyQt4 UI code generator 4.4.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -32,6 +32,7 @@ class Ui_MainWindow(object):
         self.hboxlayout1 = QtGui.QHBoxLayout()
         self.hboxlayout1.setObjectName("hboxlayout1")
         self.singleFileCB = QtGui.QCheckBox(self.centralwidget)
+        self.singleFileCB.setEnabled(False)
         self.singleFileCB.setObjectName("singleFileCB")
         self.hboxlayout1.addWidget(self.singleFileCB)
         self.toCSVCB = QtGui.QCheckBox(self.centralwidget)
@@ -65,9 +66,11 @@ class Ui_MainWindow(object):
         self.hboxlayout3 = QtGui.QHBoxLayout()
         self.hboxlayout3.setObjectName("hboxlayout3")
         self.outputBtn = QtGui.QPushButton(self.centralwidget)
+        self.outputBtn.setEnabled(False)
         self.outputBtn.setObjectName("outputBtn")
         self.hboxlayout3.addWidget(self.outputBtn)
         self.outputFileLE = QtGui.QLineEdit(self.centralwidget)
+        self.outputFileLE.setEnabled(False)
         self.outputFileLE.setObjectName("outputFileLE")
         self.hboxlayout3.addWidget(self.outputFileLE)
         self.vboxlayout1.addLayout(self.hboxlayout3)
@@ -133,7 +136,9 @@ class Ui_MainWindow(object):
         self.makeMGF_CB.setText(QtGui.QApplication.translate("MainWindow", "Convert peaks to mgf?", None, QtGui.QApplication.UnicodeUTF8))
         self.agilent_CB.setText(QtGui.QApplication.translate("MainWindow", "Convert Agilent *.D Files?", None, QtGui.QApplication.UnicodeUTF8))
         self.autoXFileBtn.setText(QtGui.QApplication.translate("MainWindow", "&AutoExecute File:", None, QtGui.QApplication.UnicodeUTF8))
+        self.outputBtn.setToolTip(QtGui.QApplication.translate("MainWindow", "Currently Buggy, therefore disabled", None, QtGui.QApplication.UnicodeUTF8))
         self.outputBtn.setText(QtGui.QApplication.translate("MainWindow", "&Output File:", None, QtGui.QApplication.UnicodeUTF8))
+        self.outputFileLE.setToolTip(QtGui.QApplication.translate("MainWindow", "Currently Buggy, therefore disabled", None, QtGui.QApplication.UnicodeUTF8))
         self.label_3.setText(QtGui.QApplication.translate("MainWindow", "Output Message:", None, QtGui.QApplication.UnicodeUTF8))
         self.cnvrtBrukerBtn.setText(QtGui.QApplication.translate("MainWindow", "&Convert", None, QtGui.QApplication.UnicodeUTF8))
         self.menuFile.setTitle(QtGui.QApplication.translate("MainWindow", "&File", None, QtGui.QApplication.UnicodeUTF8))

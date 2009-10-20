@@ -36,6 +36,9 @@
      <layout class="QHBoxLayout" >
       <item>
        <widget class="QCheckBox" name="singleFileCB" >
+        <property name="enabled" >
+         <bool>false</bool>
+        </property>
         <property name="text" >
          <string>Single File Conversion?</string>
         </property>
@@ -105,13 +108,26 @@ p, li { white-space: pre-wrap; }
        <layout class="QHBoxLayout" >
         <item>
          <widget class="QPushButton" name="outputBtn" >
+          <property name="enabled" >
+           <bool>false</bool>
+          </property>
+          <property name="toolTip" >
+           <string>Currently Buggy, therefore disabled</string>
+          </property>
           <property name="text" >
            <string>&amp;Output File:</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="outputFileLE" />
+         <widget class="QLineEdit" name="outputFileLE" >
+          <property name="enabled" >
+           <bool>false</bool>
+          </property>
+          <property name="toolTip" >
+           <string>Currently Buggy, therefore disabled</string>
+          </property>
+         </widget>
         </item>
        </layout>
       </item>
