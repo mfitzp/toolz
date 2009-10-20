@@ -134,6 +134,7 @@ class Finger_Widget(QtGui.QWidget, ui_fingerPrint.Ui_fingerPlotWidget):
         self.setPeakListDict()
         self.xLoc = None
         self.yLoc = None
+        self.snr = None
         self.mzTol = self.mzTol_SB.value()
         self.stdDevTol = self.stdDev_SB.value()
         self.fpDict = None
@@ -172,6 +173,8 @@ class Finger_Widget(QtGui.QWidget, ui_fingerPrint.Ui_fingerPlotWidget):
                              'stdLoc':[],
                              'aveInt':[],
                              'stdInt':[],
+                             'snr':[],
+                             'stdSNR':[],
                              'numMembers':[],
                              'freq':[],
                              'mzTol':[],
@@ -191,6 +194,7 @@ class Finger_Widget(QtGui.QWidget, ui_fingerPrint.Ui_fingerPlotWidget):
             self.xLoc = N.zeros(1)
             self.yLoc = N.zeros(1)
             self.specNum = N.zeros(1)#this is a bookeeping array
+            self.snr = N.zeros(1)
             curSpecNum = 0
             self.numSpectra = len(self.dataDict)/1.0#used to turn into float
             print "Number of Spectra: ", self.numSpectra
@@ -201,6 +205,7 @@ class Finger_Widget(QtGui.QWidget, ui_fingerPrint.Ui_fingerPlotWidget):
 #                        print "Cur Spectrum: %s"%curSpecNum
                         self.xLoc = N.append(self.xLoc, pkList[:,0])
                         self.yLoc = N.append(self.yLoc, pkList[:,1])
+                        self.snr = N.append(self.snr, pkList[:,2])
 #                        print "Peaks X: ",self.xLoc
 #                        print "\n"
                         self.specNum = N.append(self.specNum, N.zeros_like(pkList[:,0])+curSpecNum)
@@ -214,6 +219,7 @@ class Finger_Widget(QtGui.QWidget, ui_fingerPrint.Ui_fingerPlotWidget):
             sortInd = self.xLoc.argsort()
             self.xLoc = self.xLoc[sortInd]
             self.yLoc = self.yLoc[sortInd]
+            self.snr = self.snr[sortInd]
             self.specNum = self.specNum[sortInd]
 #            self.mainAx.plot(self.xLoc, self.yLoc, '--r')
             self.mzTol = self.mzTol_SB.value()
@@ -232,11 +238,15 @@ class Finger_Widget(QtGui.QWidget, ui_fingerPrint.Ui_fingerPlotWidget):
                 curXStd = self.xLoc[subInd].std()
                 curYMean = self.yLoc[subInd].mean()
                 curYStd = self.yLoc[subInd].std()
+                curSNR = self.snr[subInd].mean()
+                curSNRStd = self.snr[subInd].std()
                 freq = len(subInd)/self.numSpectra
                 self.peakStatDict['aveLoc'].append(curXMean)
                 self.peakStatDict['stdLoc'].append(curXStd)
                 self.peakStatDict['aveInt'].append(curYMean)
                 self.peakStatDict['stdInt'].append(curYStd)
+                self.peakStatDict['snr'].append(curSNR)
+                self.peakStatDict['stdSNR'].append(curSNRStd)
                 self.peakStatDict['numMembers'].append(len(subInd))
                 self.peakStatDict['freq'].append(freq)
                 self.peakStatDict['mzTol'].append(self.mzTol)
@@ -371,7 +381,8 @@ class Finger_Widget(QtGui.QWidget, ui_fingerPrint.Ui_fingerPlotWidget):
     def setupTable(self):
         self.peakTable.clear()
         self.peakTable.setSortingEnabled(False)
-        tableHeaders = ['aveLoc','stdLoc', 'aveInt', 'stdInt', 'numMembers', 'freq']
+        tableHeaders = ['aveLoc','stdLoc', 'aveInt', 'stdInt', 'snr', 'stdSNR', 'numMembers', 'freq']
+
 #        for key in tableHeaders:
 #            self.peakStatDict[key] = N.array(self.peakStatDict[key])
 
@@ -634,6 +645,8 @@ def createFPDict(dataDict, mzTolppm=500):
                     'aveInt':[],
                     'stdInt':[],
                     'numMembers':[],
+                    'snr':[],
+                    'stdSNR':[],
                     'freq':[],
                     'mzTol':[],
                     'stdDevTol':[],
@@ -641,6 +654,7 @@ def createFPDict(dataDict, mzTolppm=500):
                     }
     xLoc = N.zeros(1)
     yLoc = N.zeros(1)
+    snr = N.zeros(1)
     specNum = N.zeros(1)#this is a bookeeping array
     curSpecNum = 0
     numSpectra = len(dataDict)/1.0#used to turn into float
@@ -651,6 +665,7 @@ def createFPDict(dataDict, mzTolppm=500):
                 pkList = curData.peakList
                 xLoc = N.append(xLoc, pkList[:,0])
                 yLoc = N.append(yLoc, pkList[:,1])
+                snr = N.append(snr, pkList[:,2])
                 specNum = N.append(specNum, N.zeros_like(pkList[:,0])+curSpecNum)
             except:
                 print "Peak List Error"
@@ -662,6 +677,7 @@ def createFPDict(dataDict, mzTolppm=500):
     sortInd = xLoc.argsort()
     xLoc = xLoc[sortInd]
     yLoc = yLoc[sortInd]
+    snr = snr[sortInd]
     specNum = specNum[sortInd]
 #            mainAx.plot(xLoc, yLoc, '--r')
     mzTol = mzTolppm
@@ -672,11 +688,15 @@ def createFPDict(dataDict, mzTolppm=500):
         curXStd = xLoc[subInd].std()
         curYMean = yLoc[subInd].mean()
         curYStd = yLoc[subInd].std()
+        curSNR = snr[subInd].mean()
+        curSNRStd = snr[subInd].std()
         freq = len(subInd)/numSpectra
         peakStatDict['aveLoc'].append(curXMean)
         peakStatDict['stdLoc'].append(curXStd)
         peakStatDict['aveInt'].append(curYMean)
         peakStatDict['stdInt'].append(curYStd)
+        peakStatDict['snr'].append(curSNR)
+        peakStatDict['stdSNR'].append(curSNRStd)
         peakStatDict['numMembers'].append(len(subInd))
         peakStatDict['freq'].append(freq)
         peakStatDict['mzTol'].append(mzTol)

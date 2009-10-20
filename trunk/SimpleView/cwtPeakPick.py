@@ -143,6 +143,7 @@ def getCWTPeaks(scaledCWT, X, Y, noiseEst, minSNR = 3,\
     peakLoc = []
     peakInt = []
     rawPeakInd = []
+    snr = []
 
     t3 = time.clock()
     try:
@@ -229,26 +230,30 @@ def getCWTPeaks(scaledCWT, X, Y, noiseEst, minSNR = 3,\
     #                    if Y[xVal]>=scaledCWT[0][xVal]*minSNR/2 and Y[xVal] >= noiseEst[xVal]*minSNR/2:
                             peakLoc.append(X[yMaxInd])
                             peakInt.append(Y[yMaxInd])
+                            snr.append(Y[yMaxInd]/noiseEst[noiseStart:noiseEnd].mean())
 
                     else:
                         if Y[yMaxInd] >= noiseEst[yMaxInd]*minSNR:# and Y[yMaxInd] >= staticCut:
     #                    if Y[xVal]>=scaledCWT[0][xVal]*minSNR/2 and Y[xVal] >= noiseEst[xVal]*minSNR/2:
                             peakLoc.append(X[yMaxInd])
                             peakInt.append(Y[yMaxInd])
+                            snr.append(Y[yMaxInd]/noiseEst[yMaxInd])
 
     peakLoc = N.array(peakLoc)
     peakInt = N.array(peakInt)
+    snr = N.array(snr)
     rawPeakInd = N.array(rawPeakInd)
     peakOrder = peakLoc.argsort()
     peakLoc = peakLoc[peakOrder]
     peakInt = peakInt[peakOrder]
+    snr = snr[peakOrder]
 #    rawPeakInd = rawPeakInd[peakOrder]
-    peakLoc, peakInt, rawPeakInd = consolidatePeaks(peakLoc, peakInt, rawPeakInd)
+    peakLoc, peakInt, rawPeakInd, snr = consolidatePeaks(peakLoc, peakInt, rawPeakInd, snr)
 
-    return peakLoc, peakInt, rawPeakInd, cwtPeakLoc, cClass, True
+    return peakLoc, peakInt, rawPeakInd, snr, cwtPeakLoc, cClass, True
 
 
-def consolidatePeaks(peakLoc, peakInt, rawPeakInd, diffCutoff = 2.50):
+def consolidatePeaks(peakLoc, peakInt, rawPeakInd, snr, diffCutoff = 2.50):
     '''
     Designed to find the monoisotopic peak
     This is a hack, not a good solution but it works for now
@@ -263,12 +268,14 @@ def consolidatePeaks(peakLoc, peakInt, rawPeakInd, diffCutoff = 2.50):
     newPeakLoc = []
     newIntLoc = []
     newPointLoc = []
+    newSNR = []
     if boolAns:
         singlePnts = N.where(cClass == -1)[0]
         for pnt in singlePnts:
             newPeakLoc.append(peakLoc[pnt])
             newIntLoc.append(peakInt[pnt])
             newPointLoc.append(rawPeakInd[pnt])
+            newSNR.append(snr[pnt])
 
         if len(cClass)>0:
             if cClass.max() > 0:#otherwise there is just one outlier
@@ -285,17 +292,18 @@ def consolidatePeaks(peakLoc, peakInt, rawPeakInd, diffCutoff = 2.50):
                         newPeakLoc.append(peakLoc[maxLoc+tempInd[0]])
                         newIntLoc.append(peakInt[maxLoc+tempInd[0]])
                         newPointLoc.append(rawPeakInd[maxLoc+tempInd[0]])
+                        newSNR.append(snr[maxLoc+tempInd[0]])
 
 #            print newPeakLoc
 #            print newIntLoc
 #            print newPointLoc
-        return newPeakLoc, newIntLoc, newPointLoc
+        return newPeakLoc, newIntLoc, newPointLoc, newSNR
 #        else:
 #            print "Error with Consolidation--using raw peaks"
 #            return peakLoc, peakInt, rawPeakInd
     else:
         print "Error with Consolidation--using raw peaks"
-        return peakLoc, peakInt, rawPeakInd
+        return peakLoc, peakInt, rawPeakInd, snr
 
 
 
@@ -341,7 +349,7 @@ if __name__ == "__main__":
         ms = ms[:,1]
 
 
-        fn = 'Z:/data/Clowers/061008/HG_pt01_mg_mL_B12_1.mzXML'
+        fn = 'HG_pt01_mg_mL_B12_1.mzXML'
 
         mzx = mzXML.mzXMLDoc(fn)
         spectrum = mzx.data.get('spectrum')
@@ -423,7 +431,7 @@ if __name__ == "__main__":
         stdNoise = cwt[0].std()
         mNoise = 3*stdNoise+mNoise
     print "minNoiseEst: ", minNoise
-    peakLoc, peakInt, rawPeakInd, cwtPeakLoc, cClass, boolAns = getCWTPeaks(cwt, x, ms, noiseEst, minRow = 1, minClust = 4, minNoiseEst = minNoise, EPS = None, debug = True)
+    peakLoc, peakInt, rawPeakInd, snr, cwtPeakLoc, cClass, boolAns = getCWTPeaks(cwt, x, ms, noiseEst, minRow = 1, minClust = 4, minNoiseEst = minNoise, EPS = None, debug = True)
     if boolAns:
         ax2.plot(cwtPeakLoc[:,0], cwtPeakLoc[:,1], 'oy', ms = 3, alpha = 0.4)
         if cClass != None:

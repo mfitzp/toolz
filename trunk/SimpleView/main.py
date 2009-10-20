@@ -849,6 +849,8 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                     'stdLoc':[],
                     'aveInt':[],
                     'stdInt':[],
+                    'snr':[],
+                    'stdSNR:[],
                     'numMembers':[],
                     'freq':[],
                     'mzTol':[],
@@ -1344,26 +1346,10 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                 self.fingerRevTabls.append(dTable)
 #            print metaData
 
-
-    def plotMetaPeaks(self, dTableInstance, peakData, dataLabels):
-        curAx = dTableInstance.plotWidget.canvas.ax
-        for i,peakList in enumerate(peakData):
-            if peakList!=None:#THIS IS A HACK
-
-                x = peakList[1][:,0]
-                y = peakList[0][:,0]
-                intensity = peakList[1][:,1]
-                self._updatePlotColor_()
-    #            curAx.plot(x, y, 'o', alpha = 0.6)
-                curAx.scatter(x,y,s = intensity, alpha = 0.6, color = self.plotColor, label = dataLabels[i])
-    #            label = dataLabels[i]
-    #            curAx.text(0,i,label)
-    #            curAx.legend()
-
-        print "MetaPeaks"
-
     def viewFPMeta(self):
         '''
+        ONE OF THESE IS WRONG
+
         fpDict[self.curGroupName] = {'dataDict':dataDict, 'peakStats':peakStatDict, 'fileName':fileName, 'peakLists':peakListDict}
         peakListDict[key] = {'peakList':peakListDict[key].read(), 'params':paramDict}
         Need to add an instance where the full FP are loaded..
@@ -1434,6 +1420,24 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             dTable.plotWidget.canvas.draw()
             dTable.show()
             self.fingerRevTabls.append(dTable)
+
+
+    def plotMetaPeaks(self, dTableInstance, peakData, dataLabels):
+        curAx = dTableInstance.plotWidget.canvas.ax
+        for i,peakList in enumerate(peakData):
+            if peakList!=None:#THIS IS A HACK
+
+                x = peakList[1][:,0]
+                y = peakList[0][:,0]
+                intensity = peakList[1][:,1]
+                self._updatePlotColor_()
+    #            curAx.plot(x, y, 'o', alpha = 0.6)
+                curAx.scatter(x,y,s = intensity, alpha = 0.6, color = self.plotColor, label = dataLabels[i])
+    #            label = dataLabels[i]
+    #            curAx.text(0,i,label)
+    #            curAx.legend()
+
+        print "MetaPeaks"
 
 
     def loadFPfromHDF5(self, fileName = None):
@@ -2696,9 +2700,14 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.tabPeakTable.clear()
         #need to disable sorting as it corrupts data addition
         self.tabPeakTable.setSortingEnabled(False)
-        header = ['m/z', 'Intensity', 'Correlation']
+        header = ['m/z', 'Intensity']
         if self.curDataName != None:
             curData = self.dataDict[self.curDataName]
+            numCols = curData.peakList.shape[1]
+            if numCols == 3:
+                header.append('SNR')
+            elif numCols == 4:
+                header.append('Correlation')
             if curData.pkListOk:
                 self.tabPeakTable.addData(curData.peakList)
             self.tabPeakTable.setHorizontalHeaderLabels(header)
@@ -2956,7 +2965,7 @@ class FindPeaksThread(QtCore.QThread):
     #                                        pntPad = 50, staticThresh = 0.2, minNoiseEst = 0.025,
     #                                        EPS = None):
 
-                            peakLoc, peakInt, rawPeakInd, cwtPeakLoc, cClass, boolAns = cwtResult
+                            peakLoc, peakInt, rawPeakInd, snr, cwtPeakLoc, cClass, boolAns = cwtResult
 
                             if boolAns:
                                 if cClass != None:
@@ -2965,7 +2974,7 @@ class FindPeaksThread(QtCore.QThread):
     #                                    print "Peak Intensity", peakInt
     #                                    print "Raw Peak Index", rawPeakInd
     #                                    print "Peaks from DataItem.x", dataItem.x[rawPeakInd]
-                                        dataItem.setPeakList(N.column_stack((peakLoc,peakInt)))
+                                        dataItem.setPeakList(N.column_stack((peakLoc,peakInt, snr)))
                                         dataItem.setPeakParams(self.paramDict)
                                         dataItem.pkListOk = boolAns
                                         if self.autoSave:
@@ -3001,7 +3010,7 @@ class FindPeaksThread(QtCore.QThread):
                                 tempCentX[i] = cent[0]
                                 tempCentY[i] = centY[i][0]
                             #print "Len CentX, CentY, CorrFits: ", len(tempCentX), len(tempCentY), len(corrFits)
-                            dataItem.setPeakList(N.column_stack((tempCentX, tempCentY, corrFits, snr)))
+                            dataItem.setPeakList(N.column_stack((tempCentX, tempCentY, snr, corrFits)))
                             dataItem.setIsotopeProfiles(tempCentX, isoX, isoY)
 #                            dataItem.setPeakList(N.column_stack((tempCentX, tempCentY)))
                             dataItem.setPeakParams(self.paramDict)

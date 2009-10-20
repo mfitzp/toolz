@@ -152,14 +152,15 @@ def getCWTPeaks(scaledCWT, X, Y, noiseEst, minSNR = 3,\
                         yMaxInd = m-pntPad+localMaxInd
 
                         rawPeakInd.append(yMaxInd)
-                        snrInt = noiseEst[xStart:xStop].mean()*minSNR
+                        noiseMean = noiseEst[xStart:xStop].mean()
+                        snrInt = noiseMean*minSNR
                         yVal = Y[yMaxInd]
                         if yVal >= snrInt:#minSNR/2:# and Y[yMaxInd] >= staticCut:
 
                             peakLoc.append(X[yMaxInd])
                             peakInt.append(yVal)
                             cwtPeakLoc.append([X[yMaxInd],i])
-                            snr.append(Y[yMaxInd]/snrInt)#this isn't quite right
+                            snr.append(Y[yMaxInd]/noiseMean)#this isn't quite right
 
 
 
