@@ -579,9 +579,11 @@ if __name__ == "__main__":
     from base64 import b64encode
     import pylab as P
     from matplotlib.lines import Line2D
+    import supportFunc as SF
     app = QApplication(sys.argv)
-    fn = open_file()
+    #fn = open_file()
     #fn = 'C:/MS_Cluster_Test/Data/0_A10.mzXML'
+    fn = 'Z:/data/Clowers/061008/HG_pt01_mg_mL_B12_1.mzXML'
 
     def OnPick(event):
         if not isinstance(event.artist, Line2D):
@@ -642,7 +644,13 @@ if __name__ == "__main__":
 #        if len(spectrum[0]) >= 1:
 #            line2, = ax2.plot(reconSpec[0], reconSpec[1], '-')
 #            line3, = ax2.plot(spectrum[0], spectrum[1], 'o')
-        P.plot(spectrum[0], spectrum[1])
+        xInterp, yInterp = SF.interpolate_spectrum_XY(spectrum[0], spectrum[1])
+        xInterpDiff, yInterpDiff = SF.interpolate_spectrum_by_diff(spectrum[0], spectrum[1], spectrum[0].min(), spectrum[0].max(), 0.01)
+        ax.plot(spectrum[0], spectrum[1], label = "Spec")
+        ax.plot(xInterp, yInterp, label = "Interp")
+        ax.plot(xInterpDiff, yInterpDiff, label = "Diff")
+        print len(spectrum[0]), len(xInterp), len(xInterpDiff)
+        ax.legend()
         P.show()
     #print mzx.data
     sys.exit(app.exec_())

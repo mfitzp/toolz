@@ -8,7 +8,7 @@ import sys,traceback
 import pylab as P
 import numpy as N
 
-from iwavelets import pycwt as W
+import pycwt as W
 
 from interpolate import interpolate_spectrum
 
@@ -27,7 +27,7 @@ from mpl_image_widget import MPL_Widget as MPL_CWT
 #except:
 #    print "Pysco not installed, try easy_install psyco at your command prompt"
 
-def cwtMS(Y, scales, sampleScale = 1.0, wlet = 'Mexican Hat', maxClip = 1000., staticThresh = None):
+def cwtMS(Y, scales, sampleScale = 1.0, wlet = 'DOG', maxClip = 1000., staticThresh = None):
     '''
     Y is the INTERPOLATED intensity array from a mass spectrum.
     interpolation IS necessary especially for TOF data as the m/z domain is non-linear.
@@ -46,7 +46,7 @@ def cwtMS(Y, scales, sampleScale = 1.0, wlet = 'Mexican Hat', maxClip = 1000., s
             if len(Y)<(yMax+yMod):
                 yMod = 0
             print "Y Index Max", yMax+yMod
-            ans = W.cwt_a(SF.roundLen(Y[0:(yMax+yMod)]), scales, sampling_scale = sampleScale)#, wavelet = wlet)
+            ans = W.cwt_a(SF.roundLen(Y[0:(yMax+yMod)]), scales, sampling_scale = sampleScale, wavelet = wlet)
         else:
             ans = W.cwt_a(Y, scales, sampling_scale = sampleScale)#, wavelet = wlet)
             #Y[yIndex] *= 0.#set them to 0
@@ -317,7 +317,7 @@ def consolidatePeaks(peakLoc, peakInt, rawPeakInd, diffCutoff = 2.50):
 #    return validPeaks, validInt, validRawPeaks
 
 if __name__ == "__main__":
-
+    import mzXML_reader as mzXML
     t1 = time.clock()
     loadA = False
     normOk = False
@@ -339,6 +339,15 @@ if __name__ == "__main__":
 
         x = ms[:,0]
         ms = ms[:,1]
+
+
+        fn = 'Z:/data/Clowers/061008/HG_pt01_mg_mL_B12_1.mzXML'
+
+        mzx = mzXML.mzXMLDoc(fn)
+        spectrum = mzx.data.get('spectrum')
+
+        x = spectrum[0]
+        ms = spectrum[1]
 #        x, ms = interpolate_spectrum(ms)
         msMax = ms.max()
         print len(ms)
@@ -377,7 +386,7 @@ if __name__ == "__main__":
     im=ax2.imshow(cwt,vmax = intMax, cmap=P.cm.jet,aspect='auto')
     #ax2.plot(plotcwt[1], alpha = 0.7, label = '1')
     #ax.plot(plotcwt[0], alpha = 0.7, label = '0')
-    minSNR = 5
+    minSNR = 1.5
     numSegs = len(ms)/10
     #numSegs = len(ms)/10#int(len(plotcwt[0])*0.0015)
 #    if numSegs < 1000 and len(ms) > 1000:
