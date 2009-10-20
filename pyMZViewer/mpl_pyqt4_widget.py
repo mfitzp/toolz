@@ -455,7 +455,7 @@ def main():
     app = QtGui.QApplication(sys.argv)
     w = MPL_Widget(enableAutoScale = False, doublePlot = True, enableEdit = True)
     x = N.arange(0, 20, 0.1)
-    y = N.sin(x)
+    y = N.sin(x)*1E8
     y2 = N.cos(x)
     w.canvas.ax.plot(x, y)
 #    w.canvas.ax.plot(x, y2)
