@@ -2703,11 +2703,14 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         header = ['m/z', 'Intensity']
         if self.curDataName != None:
             curData = self.dataDict[self.curDataName]
-            numCols = curData.peakList.shape[1]
-            if numCols == 3:
-                header.append('SNR')
-            elif numCols == 4:
-                header.append('Correlation')
+            if curData.peakList != None:
+                numCols = curData.peakList.shape[1]
+#                print "Number of Columns: ", numCols
+                if numCols == 3:
+                    header.append('SNR')
+                elif numCols == 4:
+                    header.append('SNR')
+                    header.append('Correlation')
             if curData.pkListOk:
                 self.tabPeakTable.addData(curData.peakList)
             self.tabPeakTable.setHorizontalHeaderLabels(header)
@@ -2975,6 +2978,7 @@ class FindPeaksThread(QtCore.QThread):
     #                                    print "Raw Peak Index", rawPeakInd
     #                                    print "Peaks from DataItem.x", dataItem.x[rawPeakInd]
                                         dataItem.setPeakList(N.column_stack((peakLoc,peakInt, snr)))
+#                                        dataItem.setIsotopeProfiles(peakLoc, peakLoc, )
                                         dataItem.setPeakParams(self.paramDict)
                                         dataItem.pkListOk = boolAns
                                         if self.autoSave:
