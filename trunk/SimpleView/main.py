@@ -147,6 +147,10 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.peakParams = None
         self.curIsoPeaks = {}#used to keep track which isotope profiles have already been plotted for a give spectrum
         self.resType = None #will be a string for High, Standard, and Low Resolution
+        self.maxCharge = None
+        self.xDiff = None
+        self.corrCutOff = None
+        self.restEst = None
         self.setupPeakPick()
         ###FP Related Vars:
         self.expandFPBool = False
@@ -327,6 +331,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
         self.useDefaultScale_CB.nextCheckState()
         self.peakPick_CB.setCurrentIndex(0)
+        self.xDiff_SB.setValue(0.001)
         self.setPPTab('High Resolution')
 
     def peakTableSelect(self):
@@ -364,14 +369,11 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                        }
         selIndex = settingsKey[selectedStr]
 
-        #guiOptions = [self.hiResPP_CB, self.standardResPP_CB, self.lowResPP_CB]
-
-#        for i,guiElement in enumerate(guiOptions):
-#
-#            if i == selIndex:
-#                guiElement.setCheckState(QtCore.Qt.Checked)
-#            else:
-#                guiElement.setCheckState(QtCore.Qt.Unchecked)
+        for i in xrange(self.tabWidget_PP.count()):
+            if i == selIndex:
+                self.tabWidget_PP.setTabEnabled(i, True)
+            else:
+                self.tabWidget_PP.setTabEnabled(i, False)
 
         self.tabWidget_PP.setCurrentIndex(selIndex)
 
@@ -2326,6 +2328,10 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.noiseSplitFactor = self.noiseFactor_SB.value()
         self.staticThresh = self.staticCutoff_SB.value()
         self.autoSavePks = self.autoSavePkList_CB.isChecked()
+        self.maxCharge = self.maxCharge_SB.value()
+        self.xDiff = self.xDiff_SB.value()
+        self.corrCutOff = self.corrCutOff_SB.value()
+        self.resEst = self.resEst_SB.value()
         if self.dbScanEPS == -1:
             self.dbScanEPS = None#this is done because if no EPS is passed autocalculate is enabled.
         if self.scales != None:
@@ -2361,7 +2367,11 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                                       'minClust':self.minClust,
                                       'noiseFactor':self.noiseSplitFactor,
                                       'staticThresh':self.staticThresh,
-                                      'autoSave':self.autoSavePks
+                                      'autoSave':self.autoSavePks,
+                                      'xDiff':self.xDiff,
+                                      'cutOff':self.corrCutOff,
+                                      'maxCharge':self.maxCharge,
+                                      'resEst':self.resEst
                                       }
                 if len(dataItemList) == 1:
                     if self.FPT.updateThread(dataItemList, self.peakParams, plotCWT = self.showCWT_CB.isChecked(), parent = self, resType = self.resType):#lowRes = self.lowResPP_CB.isChecked()):
@@ -2841,6 +2851,9 @@ class FindPeaksThread(QtCore.QThread):
             self.xData = None
             self.yData = None
             self.resType = None
+            self.cutOff = None
+            self.xDiff= None
+            self.maxCharge = None
             #self.lowRes = False
             self.autoSave = False
             self.paramDict = {'scales':None,
@@ -2867,7 +2880,11 @@ class FindPeaksThread(QtCore.QThread):
                                    'fitWidth':None,
                                    'peakWidth':None,
                                    'ampThresh':None,
-                                   'autoSave':None
+                                   'autoSave':None,
+                                   'xDiff':None,
+                                   'cutOff':None,
+                                   'maxCharge':None,
+                                   'resEst':None
                                    }
 
         def updateThread(self, dataItemList, paramDict, plotCWT = False, parent = None, resType = 'Standard Resolution'):
@@ -2902,6 +2919,10 @@ class FindPeaksThread(QtCore.QThread):
                 self.minRow = self.paramDict['minRow']
                 self.noiseFactor = self.paramDict['noiseFactor']
                 self.staticThresh = self.paramDict['staticThresh']
+                self.cutOff = self.paramDict['cutOff']
+                self.xDiff= self.paramDict['xDiff']
+                self.maxCharge = self.paramDict['maxCharge']
+                self.resEst = self.paramDict['resEst']
                 self.autoSave = self.paramDict['autoSave']
 
             self.parent = parent
@@ -3005,7 +3026,7 @@ class FindPeaksThread(QtCore.QThread):
                         print "high resoltion"
 
                         ANS, boolAns= ISO.processSpectrum(dataItem.x, dataItem.y, scales = self.scales, \
-                                                          minSNR = self.minSNR, pkResEst = 10000, xDiff = (dataItem.x[1]-dataItem.x[0]), corrCutOff = 0.3)
+                                                          minSNR = self.minSNR, pkResEst = self.resEst, xDiff = self.xDiff, corrCutOff = self.cutOff, maxCharge = self.maxCharge)
                         if boolAns:
                             centX, centY, isoX, isoY, corrFits, snr = ANS
                             tempCentX = N.zeros(len(centX))

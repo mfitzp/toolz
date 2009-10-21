@@ -406,7 +406,7 @@ def sortPeaks(X,Y, profileX, profileY, corrFactors, xTol):
 	peakGroups = []
 
 
-def processSpectrum(X, Y, scales, minSNR, pkResEst, corrCutOff, xDiff = None):
+def processSpectrum(X, Y, scales, minSNR, pkResEst, corrCutOff, maxCharge = 1, xDiff = None):
 	'''
 	This is the main function call
 	assumes data have been interpolated (for CWT)
@@ -417,6 +417,8 @@ def processSpectrum(X, Y, scales, minSNR, pkResEst, corrCutOff, xDiff = None):
 	pkResEst -- the estimate peak resolution measured in peak location/FWHM
 	xDiff -- difference in m/z units between subsequent points
 	corrCutOff -- value below which peaks will be excluded from being returned
+
+	maxCharge is not used right now 10/20/09 BHC
 
 	To Do:
 
@@ -437,7 +439,10 @@ def processSpectrum(X, Y, scales, minSNR, pkResEst, corrCutOff, xDiff = None):
 
 
 	yMax = Y.max()
-	xDiff = 0.01#X[1]-X[0]#xDiff
+	if xDiff == None:
+		xDiff = 0.01#X[1]-X[0]#xDiff
+	else:
+		xDiff = xDiff
 	staticT = 0.25#(2/Y.max())*100
 	cwt = CWT.cwtMS(Y, scales, staticThresh = staticT, wlet='DOG')
 
