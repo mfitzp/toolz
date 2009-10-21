@@ -101,7 +101,7 @@ class DataClass(object):
 
         self.isoProfileDict = tempDict
         self.isoProfileOk = True
-        print "set isotope patterns"
+#        print "set isotope patterns"
 
     def getIsotopeProfiles(self):
         '''

@@ -327,6 +327,38 @@ def derivative(y_data):
 
     return dy
 
+
+####################
+
+def groupOneDim(oneDimVec, tol):
+    '''
+    oneDVec is already sorted
+    tol is in ppm
+    it would be nice to take into account the original order of the peaks to make sure that
+    peaks from the same spectrum don't contribute to the same m/z fingerprint
+    one way to do this is to take the closest peak
+    '''
+    if type(oneDimVec) is list:
+        oneDimVec = N.array(oneDimVec)
+    diffArray = N.diff(oneDimVec)
+    groups = N.zeros_like(diffArray)
+    gNum = 0
+    origNum = 0
+    for i,diffVal in enumerate(diffArray):
+#        if origOrder[i+1]!=origNum:#test to make sure that the next value does not come from the same spectrum
+        ppmDiff = (diffVal/oneDimVec[i+1])*1000000
+        if ppmDiff <= tol:
+            groups[i] = gNum
+        else:
+            groups[i] = gNum
+            gNum+=1
+#        else:
+#            groups[i] = gNum
+#            gNum+=1
+#        origNum = origOrder[i+1]
+
+    return groups, gNum
+
 ############################
 def plot_results(raw_data_x, raw_data_y, peak_result_dict):
 

@@ -1086,6 +1086,9 @@ p, li { white-space: pre-wrap; }
                        </item>
                        <item>
                         <widget class="QSpinBox" name="maxCharge_SB" >
+                         <property name="toolTip" >
+                          <string>Maximum charge state to be considered.  HAS NOT BEEN TESTED FOR MULTIPLE CHARGE STATES SO THIS IS NOT IMPLEMENT CURRENTLY!</string>
+                         </property>
                          <property name="minimum" >
                           <number>1</number>
                          </property>
@@ -1108,7 +1111,7 @@ p, li { white-space: pre-wrap; }
                        <item>
                         <widget class="QDoubleSpinBox" name="xDiff_SB" >
                          <property name="toolTip" >
-                          <string>Minimum fraction to be considered.  Intensity values below this value will be ignored.  If a spectrum with high dynamic range is present, this number should be small.  The converse is also true.</string>
+                          <string>Increment by which the x axis will be parsed to perform isotope fitting.</string>
                          </property>
                          <property name="decimals" >
                           <number>4</number>
