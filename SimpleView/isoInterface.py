@@ -347,9 +347,10 @@ def getIsoProfile(xArray, yArray, isoCentroids, isoAmplitudes,
 #		corrResult = N.corrcoef(tempY, returnY)[0]
 #		corrFactor = corrResult[1]
 		corrCutOff = corrCutOff
-		print "m/z, Corr Coef: ", isoCentroids[0], corrScipy
+		print "m/z, Corr Coef: ", isoCentroids[0], corrScipy#, type(corrScipy[0]), str(corrScipy[0])
 		print " "
-		if corrScipy[0] <= corrCutOff:
+
+		if corrScipy[0] <= corrCutOff or '#IND' in str(corrScipy[0]):#case where the correlation is not a #
 			return None, None, None, None, None, False
 		else:
 			#P.vlines(isoCentroids, 0, isoAmplitudes, 'k')
@@ -447,7 +448,7 @@ def processSpectrum(X, Y, scales, minSNR, pkResEst, corrCutOff, maxCharge = 1, x
 	cwt = CWT.cwtMS(Y, scales, staticThresh = staticT, wlet='DOG')
 
 	ANS = CWT.getCWTPeaks(cwt, X, Y, noiseEst, minRow = 0,
-						  minNoiseEst = minNoise, EPS = None, debug = True)
+						  minNoiseEst = minNoise, EPS = None, debug = False)
 
 	peakLoc, peakInt, rawPeakInd, cwtPeakLoc, snr, cClass, boolAns = ANS
 
@@ -511,6 +512,7 @@ def processSpectrum(X, Y, scales, minSNR, pkResEst, corrCutOff, maxCharge = 1, x
 
 if __name__ == "__main__":
 	import mzXML_reader as mzXML
+	import PeakFunctions as PF
 
 
 	fn = 'HG_pt01_mg_mL_B12_1.mzXML'
@@ -566,7 +568,38 @@ if __name__ == "__main__":
 
 	print " "
 	if ANS != None:
-		centX, centY, isoX, isoY, corrFits = ANS
+		centX, centY, isoX, isoY, corrFits, centSNR = ANS
+		monoPeaks = []
+		for j in centX:
+			monoPeaks.append(j[0])
+		ppmTol = 500
+		newCentX = []
+		newCentY = []
+		newIsoX = []
+		newIsoY = []
+		newCorrFits = []
+		newCentSNR = []
+		groups, gNum = PF.groupOneDim(monoPeaks, ppmTol)
+#	    for g in xrange(gNum):
+#	        subInd = N.where(groups == g)[0]
+#	        curXMean = xLoc[subInd].mean()
+#	        curXStd = xLoc[subInd].std()
+#	        curYMean = yLoc[subInd].mean()
+#	        curYStd = yLoc[subInd].std()
+#	        curSNR = snr[subInd].mean()
+#	        curSNRStd = snr[subInd].std()
+#	        freq = len(subInd)/numSpectra
+#	        peakStatDict['aveLoc'].append(curXMean)
+#	        peakStatDict['stdLoc'].append(curXStd)
+#	        peakStatDict['aveInt'].append(curYMean)
+#	        peakStatDict['stdInt'].append(curYStd)
+#	        peakStatDict['snr'].append(curSNR)
+#	        peakStatDict['stdSNR'].append(curSNRStd)
+#	        peakStatDict['numMembers'].append(len(subInd))
+#	        peakStatDict['freq'].append(freq)
+#	        peakStatDict['mzTol'].append(mzTol)
+#	        peakStatDict['numTot'].append(numSpectra)
+
 		if len(centX)>0:
 			for i, centroid in enumerate(centX):
 				ax.vlines(centroid, 0, centY[i]*1.1, 'g', linestyle = 'dashed')
