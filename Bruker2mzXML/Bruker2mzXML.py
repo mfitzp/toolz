@@ -93,6 +93,8 @@ class BrukerConvert(ui_main.Ui_MainWindow):
     def __brukerLEChanged__(self):
         self.fileDataOk = True
         self.fileData = self.brukerFolderLE.text()
+        if os.path.isdir(str(self.fileData)):
+            self.dir = str(self.fileData)
 
     def __autoXLEChanged__(self):
         self.autoXFileOk = True
@@ -242,19 +244,23 @@ class BrukerConvert(ui_main.Ui_MainWindow):
             if self.useSingleFile:
                 self.dir = os.path.dirname(str(self.fileData))
             else:
-                self.dir = self.fileData
+                self.dir = str(self.fileData)
 
         if self.useSingleFile:
             data = QtGui.QFileDialog.getOpenFileName(self.MainWindow,\
                                 'Select Bruker Data File',\
                                 self.dir, 'fid File (fid);; Agilent D Files (D);;All Files (*.*)')
         else:
-            data= QtGui.QFileDialog.getExistingDirectory(self.MainWindow,\
-                                                             "Select Data Folder")
+            #you could parse the line edit if it is not empty and use that directory?
+            data = QtGui.QFileDialog.getExistingDirectory(self.MainWindow,\
+                                                        self.dir,
+                                                        "Select Data Folder")
         if data:
             if ' ' in data:
                 self.filePathError()
             else:
+                if os.path.isdir(str(data)):
+                    self.dir = str(data)
                 self.fileDataOk = True
                 self.fileData = data
                 self.__updateGUI__()
