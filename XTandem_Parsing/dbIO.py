@@ -8,6 +8,26 @@ from PyQt4.QtGui import QFileDialog,  QApplication
 
 import time
 
+'''
+
+Example Queries
+
+SELECT LB8W1_1_Output.pepID, LB8W1_1_Output.pep_eVal, YP_TSB_1.pepID,YP_TSB_1.pep_eVal FROM LB8W1_1_Output, YP_TSB_1 WHERE LB8W1_1_Output.pepID = YP_TSB_1.pepID;
+
+SELECT table1.column1, table2.column2 FROM table1, table2 WHERE table1.column1 = table2.column1;
+SELECT LB8W1_1_Output.pepID, YP_TSB_1.pepID FROM LB8W1_1_Output, YP_TSB_1 WHERE LB8W1_1_Output.pepID = YP_TSB_1.pepID;
+
+
+Example: What customers have never ordered anything from us?
+
+SELECT customers.* FROM customers LEFT JOIN orders ON customers.customer_id = orders.customer_id WHERE orders.customer_id IS NULL
+
+More advanced example using a complex join: What customers have not ordered anything from us in the year 2004 - this one may not work in some lower relational databases (may have to use an IN clause)
+SELECT customers.* FROM customers LEFT JOIN orders ON (customers.customer_id = orders.customer_id AND year(orders.order_date) = 2004) WHERE orders.order_id IS NULL
+
+
+'''
+
 #class dbError(object):
 #    def __init__(self, msg):
 #        self.msg = msg
@@ -68,7 +88,7 @@ class XT_DB(object):#X!Tandem Database Class
                             XT_RESULTS.dataDict.get('theoMZ')[i],
                             XT_RESULTS.dataDict.get('hScore')[i],
                             XT_RESULTS.dataDict.get('nextScore')[i],
-                           XT_RESULTS.dataDict.get('deltaH')[i],
+                            XT_RESULTS.dataDict.get('deltaH')[i],
                             XT_RESULTS.dataDict.get('pepLen')[i],
                             XT_RESULTS.dataDict.get('proID')[i],
                             XT_RESULTS.dataDict.get('pro_eVal')[i]
