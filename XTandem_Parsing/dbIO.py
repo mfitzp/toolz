@@ -17,32 +17,58 @@ SELECT LB8W1_1_Output.pepID, LB8W1_1_Output.pep_eVal, YP_TSB_1.pepID, YP_TSB_1.p
 SELECT table1.column1, table2.column2 FROM table1, table2 WHERE table1.column1 = table2.column1;
 SELECT LB8W1_1_Output.pepID, YP_TSB_1.pepID FROM LB8W1_1_Output, YP_TSB_1 WHERE LB8W1_1_Output.pepID = YP_TSB_1.pepID;
 
-tables = ['YB_1', 'TSB_1']
-keyWordList = ['SELECT', 'FROM', 'WHERE']
-primKey = pep_ID
+
+'''
+SELECT tbl1.ID, tbl1.fld1, tbl1.fld2 ... FROM tbl1
+JOIN tbl2 ON tbl2.ParentID = tbl1.ID
+JOIN tbl3 ON tbl3.ParentID = tbl2.ID
+WHERE tbl1.ID = 4
+
+'''
+
+tables = ['LB8W1_1_Output', 'YP_TSB_1']#, 'YP_TSB_2', 'GoJoe']
+keyWordList = ['SELECT', 'FROM', 'WHERE', 'AND']
+primKey = 'pepID'
 execStr = ''
 selectStr = 'SELECT '
 whereStr = ' WHERE '
+joinStr = ' JOIN '
+fromStr = ' FROM '
+andStr = ' AND '
 querySep = ', '
 numTables = len(tables)
+
 for i,tableName in enumerate(tables):
     selectStr+=tableName
-    selectStr+='.* '
+    selectStr+='.*'
 
-    whereStr+=tableName
-    whereStr+='.'
-    whereStr+=primKey
+    fromStr+=tableName
+
+
 
     if i == numTables-1:
-        selectStr+=querySep
+        continue
     else:
-        whereStr+= ' = '
+        fromStr+=querySep
 
+        selectStr+=querySep
+
+        whereStr+=tables[0]
+        whereStr+='.'
+        whereStr+=primKey
+        whereStr+= ' = '
+        whereStr+=tables[i+1]
+        whereStr+='.'
+        whereStr+=primKey
+
+    if i < numTables-2:
+        whereStr+=andStr
+
+
+selectStr += fromStr
 selectStr += whereStr
 
 print selectStr
-
-
 
 
 Example: What customers have never ordered anything from us?
@@ -52,18 +78,6 @@ SELECT customers.* FROM customers LEFT JOIN orders ON customers.customer_id = or
 More advanced example using a complex join: What customers have not ordered anything from us in the year 2004 - this one may not work in some lower relational databases (may have to use an IN clause)
 SELECT customers.* FROM customers LEFT JOIN orders ON (customers.customer_id = orders.customer_id AND year(orders.order_date) = 2004) WHERE orders.order_id IS NULL
 
-
-SELECT player_id, player_name, Sum(stat1), Sum(stat2)
-FROM
-  SELECT p.ID AS player_id, p.name AS player_name,
-    s.stat1 AS stat1, s.stat2 AS stat2,
-    g.date AS game_date
-  FROM stats s JOIN
-    players p on p.ID = s.playerID JOIN
-    games g ON g.ID = s.gameID
-  ORDER BY g.date DESC
-  LIMIT 0,5
-GROUP BY player_id, player_name
 
 
 '''
