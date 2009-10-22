@@ -12,10 +12,37 @@ import time
 
 Example Queries
 
-SELECT LB8W1_1_Output.pepID, LB8W1_1_Output.pep_eVal, YP_TSB_1.pepID,YP_TSB_1.pep_eVal FROM LB8W1_1_Output, YP_TSB_1 WHERE LB8W1_1_Output.pepID = YP_TSB_1.pepID;
+SELECT LB8W1_1_Output.pepID, LB8W1_1_Output.pep_eVal, YP_TSB_1.pepID, YP_TSB_1.pep_eVal FROM LB8W1_1_Output, YP_TSB_1 WHERE LB8W1_1_Output.pepID = YP_TSB_1.pepID;
 
 SELECT table1.column1, table2.column2 FROM table1, table2 WHERE table1.column1 = table2.column1;
 SELECT LB8W1_1_Output.pepID, YP_TSB_1.pepID FROM LB8W1_1_Output, YP_TSB_1 WHERE LB8W1_1_Output.pepID = YP_TSB_1.pepID;
+
+tables = ['YB_1', 'TSB_1']
+keyWordList = ['SELECT', 'FROM', 'WHERE']
+primKey = pep_ID
+execStr = ''
+selectStr = 'SELECT '
+whereStr = ' WHERE '
+querySep = ', '
+numTables = len(tables)
+for i,tableName in enumerate(tables):
+    selectStr+=tableName
+    selectStr+='.* '
+
+    whereStr+=tableName
+    whereStr+='.'
+    whereStr+=primKey
+
+    if i == numTables-1:
+        selectStr+=querySep
+    else:
+        whereStr+= ' = '
+
+selectStr += whereStr
+
+print selectStr
+
+
 
 
 Example: What customers have never ordered anything from us?
@@ -24,6 +51,19 @@ SELECT customers.* FROM customers LEFT JOIN orders ON customers.customer_id = or
 
 More advanced example using a complex join: What customers have not ordered anything from us in the year 2004 - this one may not work in some lower relational databases (may have to use an IN clause)
 SELECT customers.* FROM customers LEFT JOIN orders ON (customers.customer_id = orders.customer_id AND year(orders.order_date) = 2004) WHERE orders.order_id IS NULL
+
+
+SELECT player_id, player_name, Sum(stat1), Sum(stat2)
+FROM
+  SELECT p.ID AS player_id, p.name AS player_name,
+    s.stat1 AS stat1, s.stat2 AS stat2,
+    g.date AS game_date
+  FROM stats s JOIN
+    players p on p.ID = s.playerID JOIN
+    games g ON g.ID = s.gameID
+  ORDER BY g.date DESC
+  LIMIT 0,5
+GROUP BY player_id, player_name
 
 
 '''
