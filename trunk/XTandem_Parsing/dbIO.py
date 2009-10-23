@@ -134,7 +134,7 @@ class XT_DB(object):#X!Tandem Database Class
                             (
                             i,
                             XT_RESULTS.dataDict.get('pepID')[i],
-                            XT_RESULTS.dataDict.get('pep_eValue')[i],
+                            XT_RESULTS.dataDict.get('pep_eVal')[i],
                             XT_RESULTS.dataDict.get('scanID')[i],
                             XT_RESULTS.dataDict.get('ppm_error')[i],
                             XT_RESULTS.dataDict.get('theoMZ')[i],
@@ -242,7 +242,7 @@ class XT_DB(object):#X!Tandem Database Class
                 result.append(rowList)
             return result
 
-    def GET_VALUE_BY_TYPE(self, tableName, fieldType,  fieldValue,  savePrompt = False):
+    def GET_VALUE_BY_TYPE(self, tableName, fieldType, fieldValue, savePrompt = False):
         if savePrompt:
             '''Saves query to the database--only if the user commits to the database upon close of the application'''
             newTableName , ok = QtGui.QInputDialog.getText(self.parent, 'Create New Database Table',\
@@ -271,6 +271,38 @@ class XT_DB(object):#X!Tandem Database Class
             '''Simply returns the selected query but does not save it to the database'''
             self.cur.execute("SELECT * FROM %s WHERE %s LIKE '%s'"%(tableName, fieldType, fieldValue))
             print "SELECT * FROM %s WHERE %s LIKE '%s'"%(tableName, fieldType, fieldValue)
+            result = self.GET_CURRENT_QUERY()
+            return result
+
+    def GET_VALUE_BY_RANGE(self, tableName, fieldType, loVal, hiVal, savePrompt = False):
+        if savePrompt:
+            '''Saves query to the database--only if the user commits to the database upon close of the application'''
+            newTableName , ok = QtGui.QInputDialog.getText(self.parent, 'Create New Database Table',\
+                                            'Enter New Table Name: ', QtGui.QLineEdit.Normal, 'newTable')
+            if ok:
+                newTableName = str(newTableName)
+                self.LIST_TABLES()#updates self.tblList
+                if newTableName in self.tblList:
+                    reply = QtGui.QMessageBox.question(self.parent, "Table Creation Conflict", "A table by that name already exists. Do you want to overwrite that table?", QtGui.QMessageBox.Yes|QtGui.QMessageBox.No)
+                    if reply == QtGui.QMessageBox.Yes:
+                        self.DROP_TABLE(newTableName)
+                    else:
+                        return False#this will be captured by the len condition on the receiving end...
+
+
+                self.cur.execute("CREATE TABLE %s AS SELECT * FROM %s WHERE %s > %s AND %s < %s"%(newTableName, tableName, fieldType, str(loVal), fieldType, str(hiVal)))
+                self.cur.execute("SELECT * FROM %s"%(newTableName))
+                #print "CREATE TABLE %s AS SELECT * FROM %s WHERE %s LIKE '%s'"%(newTableName, tableName, fieldType, fieldValue)
+                result = self.GET_CURRENT_QUERY()
+                print 'The table named: "%s" created in current database.'%newTableName
+                return result
+            else:#this is the case if the user cancels the input of the new table
+                return False
+
+        else:
+            '''Simply returns the selected query but does not save it to the database'''
+            self.cur.execute("SELECT * FROM %s WHERE %s > %s AND %s < %s"%(tableName, fieldType, str(loVal), fieldType, str(hiVal)))
+            print "SELECT * FROM %s WHERE %s > %s AND %s < %s"%(tableName, fieldType, str(loVal), fieldType, str(hiVal))
             result = self.GET_CURRENT_QUERY()
             return result
 
@@ -306,7 +338,7 @@ class XT_DB(object):#X!Tandem Database Class
 
         arrayDict = {
                 'pepID': pepID,
-                'pep_eValue' : N.array(pep_eValue),
+                'pep_eVal' : N.array(pep_eValue),
                 'scanID' : N.array(scanID),
                 'ppm_error':N.array(ppm_error),
                 'theoMZ':N.array(theoMZ),
@@ -358,7 +390,7 @@ def save_XT_HDF5(filename, xtXML):
             for i in xrange(len(xtXML.dataDict.get('scanID'))):
                 peptide['idnum'] = i
                 peptide['pepID'] = xtXML.dataDict.get('pepID')[i]
-                peptide['pep_eVal'] = xtXML.dataDict.get('pep_eValue')[i]
+                peptide['pep_eVal'] = xtXML.dataDict.get('pep_eVal')[i]
                 peptide['scanID'] = xtXML.dataDict.get('scanID')[i]
                 peptide['ppm_error'] = xtXML.dataDict.get('ppm_error')[i]
                 peptide['theoMZ'] = xtXML.dataDict.get('theoMZ')[i]
@@ -418,7 +450,7 @@ def load_XT_HDF5(filename,  xtXML):
         hdf.close()
         arrayDict = {
                         'pepID': pepID,
-                        'pep_eValue' : N.array(pep_eValue),
+                        'pep_eVal' : N.array(pep_eValue),
                         'scanID' : N.array(scanID),
                         'ppm_error':N.array(ppm_error),
                         'theoMZ':N.array(theoMZ),

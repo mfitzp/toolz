@@ -32,6 +32,7 @@ from mpl_custom_widget import MPL_Widget
 from xtandem_parser_class import XT_RESULTS
 import dbIO
 from customTable import DBTable
+from rangeDialog import rangeDialog as RD
 
 
 #try:
@@ -69,6 +70,8 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.xSelIndex = -1#used to keep track which index was selected
         self.ySelIndex = -1
         self.comboSelIndex = -1
+        self.loVal = 0.0#value used for the range of selection in a query
+        self.hiVal = 0.0#
         self.curDB = None
         self.loadOK = False
         self.ignoreSignal = False
@@ -93,10 +96,38 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         'Protein e-Value':None
         }
 
+        self.keyTypeMap = {}
+        self.keyTypeMap['id'] = int
+        self.keyTypeMap['pepID'] = str
+        self.keyTypeMap['pep_eVal'] = float
+        self.keyTypeMap['scanID'] = int
+        self.keyTypeMap['ppm_error'] = float
+        self.keyTypeMap['theoMZ'] = float
+        self.keyTypeMap['hScore'] = float
+        self.keyTypeMap['nextScore'] = float
+        self.keyTypeMap['deltaH'] = float
+        self.keyTypeMap['pepLen'] = int
+        self.keyTypeMap['proID'] = str
+        self.keyTypeMap['pro_eVal'] = float
+
+        '''
+        id INTEGER PRIMARY KEY AUTOINCREMENT,\
+        pepID TEXT,\
+        pep_eVal REAL,\
+        scanID INTEGER,\
+        ppm_error REAL,\
+        theoMZ REAL,\
+        hScore REAL,\
+        nextScore REAL,\
+        deltaH REAL,\
+        pepLen INTEGER,\
+        proID TEXT,\
+        pro_eVal REAL)'''
+
         self.infoMap = {}
         self.infoMap['Index'] = 'id'
         self.infoMap['Peptide'] = 'pepID'
-        self.infoMap['Peptide e-Value'] = 'pep_eValue'
+        self.infoMap['Peptide e-Value'] = 'pep_eVal'
         self.infoMap['Scan'] ='scanID'
         self.infoMap['ppm Error'] ='ppm_error'
         self.infoMap['Theoretical MZ'] ='theoMZ'
@@ -124,8 +155,15 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
 
     def __testFunc__(self):
-        print self.curDB.LIST_COLUMNS(self.curDB.LIST_TABLES()[0])
-        print type(self.curDB.LIST_TABLES()[0]), self.curDB.LIST_TABLES()
+
+        if RD(self.loVal, self.hiVal, parent = self).exec_():
+            print self.loVal, self.hiVal
+            print "Ok"
+        else:
+            print self.loVal, self.hiVal
+            print "Cancel"
+#        print self.curDB.LIST_COLUMNS(self.curDB.LIST_TABLES()[0])
+#        print type(self.curDB.LIST_TABLES()[0]), self.curDB.LIST_TABLES()
 
 
     def __resetDB__(self):
@@ -161,7 +199,6 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.db_XCols.clear()
         self.db_YCols.clear()
         self.sizeArrayComboB.clear()
-
 
         activeData = self.activeDict[str(widgetItem.text())]
         colList = activeData.dataDict.keys()
@@ -580,7 +617,7 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.__setupPlot__()
         if self.curTbl != None:
             activeData = self.activeDict[self.curTbl]
-            self.x = activeData.dataDict.get('pep_eValue')
+            self.x = activeData.dataDict.get('pep_eVal')
             #self.x = self.curFile.dataDict.get('hScores')
             self.y = activeData.dataDict.get('deltaH')#(activeData.dataDict.get('hScores')-activeData.dataDict.get('nextScores'))
             sizeList = activeData.dataDict.get('pepLen')**1.5
@@ -621,7 +658,7 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         activeData = self.activeDict[activeKey]
         self.curSelectInfo['Index'] = str(index)
         self.curSelectInfo['Peptide'] = activeData.dataDict.get('pepID')[index]
-        self.curSelectInfo['Peptide e-Value'] = str(activeData.dataDict.get('pep_eValue')[index])
+        self.curSelectInfo['Peptide e-Value'] = str(activeData.dataDict.get('pep_eVal')[index])
         self.curSelectInfo['Scan'] =str(activeData.dataDict.get('scanID')[index])
         self.curSelectInfo['ppm Error'] =str(activeData.dataDict.get('ppm_error')[index])
         self.curSelectInfo['Theoretical MZ'] =str(activeData.dataDict.get('theoMZ')[index])
@@ -691,7 +728,6 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             #print "Current index: ",  self.SelectInfoWidget.currentRow(), curCol
         else:
             try:
-
                 curItem = self.SelectInfoWidget.item(self.SelectInfoWidget.currentRow(), 0)
                 curType = self.infoMap[str(curItem.text())]
                 curVal = self.curSelectInfo[str(curItem.text())]
@@ -722,17 +758,45 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
     def queryByType(self):
         curField = str(self.queryFieldList.currentItem().text())
         curTbl = str(self.queryTblList.currentItem().text())
-        if curField != None and curTbl != None:
-            queryValue , ok = QtGui.QInputDialog.getText(self, 'Enter Query Value',\
-                                'Enter %s to Query From %s: '%(curField, curTbl), QtGui.QLineEdit.Normal, '')
-            if ok:
-                queryValue = str(queryValue)
-                if len(queryValue) != 0:#make sure the user didn't leave the prompt blank
-                    result = self.curDB.GET_VALUE_BY_TYPE(curTbl,  curField,  queryValue)
+        if self.keyTypeMap.has_key(curField):
+            if self.keyTypeMap[curField] == str:
+                print 'string'
+                if curField != None and curTbl != None:
+                    queryValue, ok = QtGui.QInputDialog.getText(self, 'Enter Query Value',\
+                                        'Enter %s to Query From %s: '%(curField, curTbl), QtGui.QLineEdit.Normal, '')
+                    if ok:
+                        queryValue = str(queryValue)
+                        if len(queryValue) != 0:#make sure the user didn't leave the prompt blank
+                            result = self.curDB.GET_VALUE_BY_TYPE(curTbl,  curField,  queryValue)
+                            if len(result) == 0:
+                                result = ['No data was found...', ]
+                            colHeaders = self.curDB.LIST_COLUMNS(curTbl)
+                            self.curDBTable = DBTable(result,  colHeaders)
+
+            elif self.keyTypeMap[curField] == int:
+                self.loVal = 0.0
+                self.hiVal = 0.0
+                if RD(self.loVal, self.hiVal, parent = self).exec_():
+                    print self.loVal, self.hiVal
+                    self.loVal = int(self.loVal)
+                    self.hiVal = int(self.hiVal)
+#                    GET_VALUE_BY_RANGE(self, tableName, fieldType,  loVal, hiVal,
+                    result = self.curDB.GET_VALUE_BY_RANGE(curTbl, curField, self.loVal, self.hiVal)
                     if len(result) == 0:
                         result = ['No data was found...', ]
                     colHeaders = self.curDB.LIST_COLUMNS(curTbl)
                     self.curDBTable = DBTable(result,  colHeaders)
+                print 'integer'
+            elif self.keyTypeMap[curField] == float:
+                if RD(self.loVal, self.hiVal, parent = self).exec_():
+                    print self.loVal, self.hiVal
+#                    GET_VALUE_BY_RANGE(self, tableName, fieldType,  loVal, hiVal,
+                    result = self.curDB.GET_VALUE_BY_RANGE(curTbl, curField, self.loVal, self.hiVal)
+                    if len(result) == 0:
+                        result = ['No data was found...', ]
+                    colHeaders = self.curDB.LIST_COLUMNS(curTbl)
+                    self.curDBTable = DBTable(result,  colHeaders)
+                print 'float'
 
             #print curField,  curTbl
 
