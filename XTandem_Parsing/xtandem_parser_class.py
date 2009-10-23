@@ -13,7 +13,7 @@ import time
 from xtandem_peptide import XT_peptide, XT_protein
 
 class XT_RESULTS:
-    def __init__(self, fileName,  parseFile = True,  evalue_cutoff = None,  ppm_cutoff = None):
+    def __init__(self, fileName = None,  parseFile = True,  evalue_cutoff = None,  ppm_cutoff = None):
         t1 = time.clock()
         self.fileName = fileName
 
