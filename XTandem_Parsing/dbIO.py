@@ -77,6 +77,24 @@ More advanced example using a complex join: What customers have not ordered anyt
 SELECT customers.* FROM customers LEFT JOIN orders ON (customers.customer_id = orders.customer_id AND year(orders.order_date) = 2004) WHERE orders.order_id IS NULL
 
 
+SELECT DISTINCT
+  BSATest.pepID,
+  BSATest.pep_eVal,
+  BSATest.ppm_error,
+  Oct_20_BSA.ppm_error,
+  Oct_20_BSA.pepID,
+  Oct_20_BSA.pep_eVal,
+  bsa_Test.pepID,
+  bsa_Test.pep_eVal,
+  bsa_Test.ppm_error,
+  BSATest.proID,
+  Oct_20_BSA.proID,
+  bsa_Test.proID
+FROM
+ BSATest
+ INNER JOIN Oct_20_BSA ON (BSATest.pepID=Oct_20_BSA.pepID)
+ INNER JOIN bsa_Test ON (Oct_20_BSA.pepID=bsa_Test.pepID)
+
 
 '''
 
@@ -112,7 +130,42 @@ class XT_DB(object):#X!Tandem Database Class
     def getCurrentTableName(self):
         return self.curTblName
 
+    def READ_CUSTOM_VALUES(self, tableName, XT_RESULTS):
+        '''This is for processed query of an XT run'''
+        t1 = time.clock()
+        tableExists =self.cnx.execute("SELECT COUNT(*) FROM sqlite_master WHERE name=?", (tableName,)).fetchone()[0]
+        if tableExists == 0:
+            print "Table %s does not exist, ignoring"%tableName
+        else:
+            tempDict = {}
+            self.LIST_COLUMNS(tableName)
+            self.colList
+            for col in self.colList:
+                tempDict[col]=[]
+
+        self.cur.execute('SELECT * FROM "%s"'%tableName)
+        for row in self.cur.fetchall():
+            '''I don't like this, what if the rows are not in the same order as the columns
+            '''
+            for i,col in enumerate(self.colList):
+                tempDict[col].append(row[i])
+
+
+        for key in tempDict.iterkeys():
+            tempDict[key] = N.array(tempDict[key])
+
+        XT_RESULTS.setArrays(tempDict)
+        XT_RESULTS.setFN(tableName)
+        self.curTblName=tableName
+
+        t2 = str(time.clock()-t1)
+        print "SQLite Read Time for %s (s): %s"%(tableName, t2)
+
+
     def INSERT_XT_VALUES(self, tableName, XT_RESULTS):
+        '''This is for filling data for a full XT data run, but may not
+        be appropriate for a custom table as they may not have all of the appropriate
+        keys'''
         t1 = time.clock()
         tableExists =self.cnx.execute("SELECT COUNT(*) FROM sqlite_master WHERE name=?", (tableName,)).fetchone()[0]
         if tableExists == 0:
@@ -220,6 +273,8 @@ class XT_DB(object):#X!Tandem Database Class
         pro_eVal REAL)'
             %tableName)
 
+    #def CREATE_CUSTOM_TABLE(self, tableName, overWrite = False):
+
     def GET_CURRENT_QUERY(self,  truncate = False):
         result = []
         if truncate:
@@ -255,7 +310,7 @@ class XT_DB(object):#X!Tandem Database Class
                     if reply == QtGui.QMessageBox.Yes:
                         self.DROP_TABLE(newTableName)
                     else:
-                        return False#this will be captured by the len condition on the receiving end...
+                        return None, []#this will be captured by the len condition on the receiving end...
 
 
                 self.cur.execute("CREATE TABLE %s AS SELECT * FROM %s WHERE %s LIKE '%s'"%(newTableName, tableName, fieldType, fieldValue))
@@ -263,16 +318,16 @@ class XT_DB(object):#X!Tandem Database Class
                 #print "CREATE TABLE %s AS SELECT * FROM %s WHERE %s LIKE '%s'"%(newTableName, tableName, fieldType, fieldValue)
                 result = self.GET_CURRENT_QUERY()
                 print 'The table named: "%s" created in current database.'%newTableName
-                return result
+                return newTableName, result
             else:#this is the case if the user cancels the input of the new table
-                return False
+                return None, []
 
         else:
             '''Simply returns the selected query but does not save it to the database'''
             self.cur.execute("SELECT * FROM %s WHERE %s LIKE '%s'"%(tableName, fieldType, fieldValue))
             print "SELECT * FROM %s WHERE %s LIKE '%s'"%(tableName, fieldType, fieldValue)
             result = self.GET_CURRENT_QUERY()
-            return result
+            return None, result
 
     def GET_VALUE_BY_RANGE(self, tableName, fieldType, loVal, hiVal, savePrompt = False):
         if savePrompt:

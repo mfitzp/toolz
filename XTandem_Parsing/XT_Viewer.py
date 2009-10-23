@@ -34,13 +34,6 @@ import dbIO
 from customTable import DBTable
 from rangeDialog import rangeDialog as RD
 
-
-#try:
-#    import psyco
-#    psyco.full()
-#except:
-#    print "Pysco not installed, try easy_install psyco at your command prompt"
-
 plot_colors = ['#297AA3','#A3293D','#3B9DCE','#293DA3','#5229A3','#8F29A3','#A3297A',
 '#7AA329','#3DA329','#29A352','#29A38F','#A38F29','#3B9DCE','#6CB6DA','#CE6C3B','#DA916C',
 '#0080FF','#0000FF','#7ABDFF','#8000FF','#FF0080','#FF0000','#FF8000','#FFFF00','#A35229','#80FF00',
@@ -60,7 +53,12 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.__additionalConnections__()
         self.__setMessages__()
         self.__initContextMenus__()
+        self.__initVars__()
         self.startup()
+
+    def __initVars__(self):
+        self.openTableList = []
+
 
     def startup(self, dbName = None, startDB = True):
 
@@ -165,30 +163,34 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 #        print self.curDB.LIST_COLUMNS(self.curDB.LIST_TABLES()[0])
 #        print type(self.curDB.LIST_TABLES()[0]), self.curDB.LIST_TABLES()
 
+    def closeOpenTables(self):
+        if len(self.openTableList)>0:
+            for table in self.openTableList:
+                try:
+                    print "Closing %s"%str(table.windowTitle())
+                    table.close()
+                except:
+                    pass
 
     def __resetDB__(self):
-#        try:
-        tblList = self.curDB.LIST_TABLES()
-        for tbl in tblList:
-            curResults = XT_RESULTS(parseFile = False)
-            self.curDB.READ_XT_VALUES(tbl, curResults)
-            self.activeDict[tbl] = curResults
-            self.curTbl = tbl
+        try:
+            tblList = self.curDB.LIST_TABLES()
+            print "DB Reset, Tables Contained: ", tblList
+            for tbl in tblList:
+                curResults = XT_RESULTS(parseFile = False)
+                self.curDB.READ_XT_VALUES(tbl, curResults)
+                self.activeDict[tbl] = curResults
+                self.curTbl = tbl
 
 
-        self.initiatePlot()
-        self.updatePlotOptionsGUI()
-        self.updateQueryGUI()
-        self.firstLoad = False
+            self.initiatePlot()
+            self.updatePlotOptionsGUI()
+            self.updateQueryGUI()
+            self.firstLoad = False
 
-##
-##            print type(self.activeDict)
-#            #print activeData.dataDict.keys()
-#            #activeData = self.activeDict[self.curTbl]
-
-#        except:
-#            print 'DB Load Error'
-#            return True
+        except:
+            print 'DB Load Error'
+            return True
 
     def setColLists(self,  widgetItem):
         #The following three lines reset the parameters of the plotting mechanisms
@@ -202,12 +204,14 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
         activeData = self.activeDict[str(widgetItem.text())]
         colList = activeData.dataDict.keys()
+
         colNumList = []
         for col in colList:
-            if type(activeData.dataDict[col][0]) is str:
-                pass
-            else:
-                colNumList.append(col)
+            if self.keyTypeMap.has_key(col):
+                if self.keyTypeMap[col] is str:
+                    pass
+                else:
+                    colNumList.append(col)
         if len(colNumList) == 0:
             return QtGui.QMessageBox.warning(self, "Database Table Error",  "No numerical data exist in the selected table!")
         else:
@@ -225,14 +229,19 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
     def executeSQLQuery(self):
         if self.dbStatus:
             queryStr = str(self.sqlQueryString.toPlainText())
+            self.outTableWidget.clear()
+            self.outTableWidget.setRowCount(5)
+            self.outTableWidget.setColumnCount(5)
             if queryStr != None:
                 try:
                     self.curDB.cur.execute(queryStr)
                     self.sqlErrorMessage.setText('No Error')
                     result = self.curDB.GET_CURRENT_QUERY(truncate = True)
                     if len(result) != 0:
+                        self.outTableWidget.setSortingEnabled(False)
                         self.outTableWidget.addData(result)
                         self.outTableWidget.resizeColumnsToContents()
+                        self.outTableWidget.setSortingEnabled(True)
                 except:
                     self.sqlErrorMessage.setText(str(sys.exc_value))
 #                    errorMsg = "Error: %s\n\n%s\n"%(sys.exc_type, sys.exc_value)
@@ -246,11 +255,14 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                 try:
                     self.curDB.cur.execute(queryStr)
                     self.sqlErrorMessage.setText('No Error')
-                    result = self.curDB.GET_CURRENT_QUERY(truncate = True)
+                    result = self.curDB.GET_CURRENT_QUERY(truncate = False)
                     if len(result) != 0:
-                        self.curDBTable = DBTable(result)
-                        #self.outTableWidget.addData(result)
-                        #self.outTableWidget.resizeColumnsToContents()
+                        if len(queryStr) > 50:
+                            tempTitle = queryStr[0:50]+'...'
+                        else:
+                            tempTitle = queryStr
+                        self.openTableList.append(DBTable(result, enableSort = True, title = tempTitle))
+                        self.curDBTable = self.openTableList[-1]#append adds to the end of the list so adding the most recent addition
                 except:
                     self.sqlErrorMessage.setText(str(sys.exc_value))
 #                    errorMsg = "Error: %s\n\n%s\n"%(sys.exc_type, sys.exc_value)
@@ -414,7 +426,7 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             self.fileType= str(filename).split('.')[-1]
         if self.fileType == 'xml':
             if self.dbStatus:
-                fnCore = os.path.basename(str(filename))#self.getFNCore(str(filename))
+                fnCore = os.path.basename(str(filename)).split('.')[0]#self.getFNCore(str(filename))
                 self.curTbl = fnCore
 #                try:
                 results = XT_RESULTS(filename)
@@ -492,7 +504,7 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         if self.dbStatus:
             dataFileName = QtGui.QFileDialog.getOpenFileName(self,\
                                                              self.OpenDataText,\
-                                                             self.__curDir, 'X!Tandem XML (*.xml);; HDF5 File (*.h5);;SQLite Database (*.db)')
+                                                             self.__curDir, 'X!Tandem XML (*.xml);;SQLite Database (*.db)')
             if dataFileName:
                 self.loadFileXT(dataFileName)
         else:
@@ -500,29 +512,30 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                 self.setDBConnection()
                 dataFileName = QtGui.QFileDialog.getOpenFileName(self,\
                                             self.OpenDataText,\
-                                            self.__curDir, 'X!Tandem XML (*.xml);; HDF5 File (*.h5);;SQLite Database (*.db)')
+                                            self.__curDir, 'X!Tandem XML (*.xml);;SQLite Database (*.db)')
                 if dataFileName:
                     self.loadFileXT(dataFileName)
             else:
                 self.retryDBConnection()
 
     def __saveDataFile__(self):
-        saveFileName = QtGui.QFileDialog.getSaveFileName(self,\
-                                                             self.SaveDataText,\
-                                                             self.__curDir, 'HDF5 File (*.h5);;SQLite Database (*.db)')
-        if saveFileName:
-            if self.curFile:
-                #print "File name is: %s" % (str(self.curFileName))
-                fileType= str(saveFileName).split('.')[-1]
-                if fileType=='h5':
-                    print self.curFile, type(self.curFile)
-#                    dbIO.save_XT_HDF5(str(saveFileName),  self.curFile)
-                elif fileType == 'db':
-                    sqldb = dbIO.XT_DB(str(saveFileName), "testTables")#NEED TO FIX THE NAME
-                    sqldb.INSERT_XT_VALUES(sqldb.curTblName, self.curFile)
-                    sqldb.close()
-            else:
-                return QtGui.QMessageBox.information(self,'', "A X!Tandem File must be loaded first before saving")
+        return QtGui.QMessageBox.information(self,'', "This feature is not implemented yet.  Use a database outside of memory")
+#        saveFileName = QtGui.QFileDialog.getSaveFileName(self,\
+#                                                             self.SaveDataText,\
+#                                                             self.__curDir, 'HDF5 File (*.h5);;SQLite Database (*.db)')
+#        if saveFileName:
+#            if self.curFile:
+#                #print "File name is: %s" % (str(self.curFileName))
+#                fileType= str(saveFileName).split('.')[-1]
+#                if fileType=='h5':
+#                    print self.curFile, type(self.curFile)
+##                    dbIO.save_XT_HDF5(str(saveFileName),  self.curFile)
+#                elif fileType == 'db':
+#                    sqldb = dbIO.XT_DB(str(saveFileName), "testTables")#NEED TO FIX THE NAME
+#                    sqldb.INSERT_XT_VALUES(sqldb.curTblName, self.curFile)
+#                    sqldb.close()
+#            else:
+#                return QtGui.QMessageBox.information(self,'', "A X!Tandem File must be loaded first before saving")
 
 
     def getFNCore(self, filename):
@@ -698,9 +711,11 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.plotWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.SelectInfoWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.queryFieldList.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.queryTblList.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.plotWidget.connect(self.plotWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self.plotTabContext)
-        self.SelectInfoWidget.connect(self.SelectInfoWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self.SelectInfoTabContext)
+        self.SelectInfoWidget.connect(self.SelectInfoWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self.selectInfoTabContext)
         self.queryFieldList.connect(self.queryFieldList, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self.queryFieldContext)
+        self.queryTblList.connect(self.queryTblList, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self.queryTableContext)
 
     def dumpCurDB(self):
         if self.dbStatus:
@@ -733,9 +748,17 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                 curVal = self.curSelectInfo[str(curItem.text())]
                 curTbl = self.curTbl
                 if saveTable:
-                    result = self.curDB.GET_VALUE_BY_TYPE(curTbl, curType, curVal,  savePrompt = True)
+                    tblName, result = self.curDB.GET_VALUE_BY_TYPE(curTbl, curType, curVal, savePrompt = True)
+
+                    if len(result)>0 and tblName != None:
+                        curResults = XT_RESULTS(parseFile = False)
+                        self.curDB.READ_CUSTOM_VALUES(tblName, curResults)
+                        self.activeDict[tblName] = curResults
+                        self.__resetDB__()
+
+
                 else:
-                    result = self.curDB.GET_VALUE_BY_TYPE(curTbl, curType, curVal)
+                    tblName, result = self.curDB.GET_VALUE_BY_TYPE(curTbl, curType, curVal)
                 if result == False:
                     print "User aborted query"
                 else:
@@ -743,8 +766,10 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                         result = ['No data was found...', ]
                     #print result
                     #else:
+                    tempTitle = curTbl+' '+curType
                     colHeaders = self.curDB.LIST_COLUMNS(curTbl)
-                    self.curDBTable = DBTable(result,  colHeaders)
+                    self.openTableList.append(DBTable(result, colHeaders, enableSort = True, title = tempTitle))
+                    self.curDBTable = self.openTableList[-1]#append adds to the end of the list so adding the most recent addition
 
             except:
                 errorMsg = "Sorry: %s\n\n:%s\n"%(sys.exc_type, sys.exc_value)
@@ -759,46 +784,40 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         curField = str(self.queryFieldList.currentItem().text())
         curTbl = str(self.queryTblList.currentItem().text())
         if self.keyTypeMap.has_key(curField):
+            result = []
+            tempTitle = 'Database Query'
             if self.keyTypeMap[curField] == str:
-                print 'string'
                 if curField != None and curTbl != None:
                     queryValue, ok = QtGui.QInputDialog.getText(self, 'Enter Query Value',\
                                         'Enter %s to Query From %s: '%(curField, curTbl), QtGui.QLineEdit.Normal, '')
                     if ok:
                         queryValue = str(queryValue)
                         if len(queryValue) != 0:#make sure the user didn't leave the prompt blank
-                            result = self.curDB.GET_VALUE_BY_TYPE(curTbl,  curField,  queryValue)
-                            if len(result) == 0:
-                                result = ['No data was found...', ]
-                            colHeaders = self.curDB.LIST_COLUMNS(curTbl)
-                            self.curDBTable = DBTable(result,  colHeaders)
+                            tempName, result = self.curDB.GET_VALUE_BY_TYPE(curTbl,  curField,  queryValue)
+                            tempTitle = curTbl+', '+curField+', '+queryValue
 
             elif self.keyTypeMap[curField] == int:
                 self.loVal = 0.0
                 self.hiVal = 0.0
                 if RD(self.loVal, self.hiVal, parent = self).exec_():
-                    print self.loVal, self.hiVal
+#                    print self.loVal, self.hiVal
                     self.loVal = int(self.loVal)
                     self.hiVal = int(self.hiVal)
-#                    GET_VALUE_BY_RANGE(self, tableName, fieldType,  loVal, hiVal,
                     result = self.curDB.GET_VALUE_BY_RANGE(curTbl, curField, self.loVal, self.hiVal)
-                    if len(result) == 0:
-                        result = ['No data was found...', ]
-                    colHeaders = self.curDB.LIST_COLUMNS(curTbl)
-                    self.curDBTable = DBTable(result,  colHeaders)
-                print 'integer'
+                    tempTitle = curTbl+', '+curField+', '+str(self.loVal)+' to '+str(self.hiVal)
+
             elif self.keyTypeMap[curField] == float:
                 if RD(self.loVal, self.hiVal, parent = self).exec_():
-                    print self.loVal, self.hiVal
-#                    GET_VALUE_BY_RANGE(self, tableName, fieldType,  loVal, hiVal,
+#                    print self.loVal, self.hiVal
                     result = self.curDB.GET_VALUE_BY_RANGE(curTbl, curField, self.loVal, self.hiVal)
-                    if len(result) == 0:
-                        result = ['No data was found...', ]
-                    colHeaders = self.curDB.LIST_COLUMNS(curTbl)
-                    self.curDBTable = DBTable(result,  colHeaders)
-                print 'float'
+                    tempTitle = curTbl+', '+curField+', '+str(self.loVal)+' to '+str(self.hiVal)
 
-            #print curField,  curTbl
+            if len(result) == 0:
+                result = ['No data was found...', ]
+            colHeaders = self.curDB.LIST_COLUMNS(curTbl)
+
+            self.openTableList.append(DBTable(result, colHeaders, enableSort = True, title = tempTitle))
+            self.curDBTable = self.openTableList[-1]#append adds to the end of the list so adding the most recent addition
 
     def queryFieldContext(self, point):
         queryCT_menu = QtGui.QMenu("Menu",  self.queryFieldList)
@@ -806,7 +825,7 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         queryCT_menu.exec_(self.queryFieldList.mapToGlobal(point))
         #queryCT_menu
 
-    def SelectInfoTabContext(self,  point):
+    def selectInfoTabContext(self,  point):
         '''Create a context menu for the SelectInfoWidget which is a QTableWidget'''
         infoCT_menu = QtGui.QMenu("Menu",  self.SelectInfoWidget)
         infoCT_menu.addAction(self.selectDBFieldAction)
@@ -820,6 +839,25 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         plotCT_menu.addAction(self.plotWidget.actionAutoScale)
         #plotCT_menu.addAction(self.actionToggleDraw)
         plotCT_menu.exec_(self.plotWidget.mapToGlobal(point))
+
+    def queryTableContext(self, point):
+        queryList_menu = QtGui.QMenu("Menu", self.queryTblList)
+        queryList_menu.addAction(self.removeTableAction)
+        queryList_menu.exec_(self.queryTblList.mapToGlobal(point))
+
+    def removeTable(self):
+        curItem = self.queryTblList.currentItem()
+        if curItem != None:
+            curTbl = str(curItem.text())
+            if self.__askConfirm__('Remove File from Database?','This action will permanently remove the following table:%s'%curTbl):
+                if self.curDB.DROP_TABLE(curTbl):
+                    if self.activeDict.has_key(curTbl):
+                        self.activeDict.pop(curTbl)
+                        self.__resetDB__()
+
+
+                else:
+                    return QtGui.QMessageBox.information(self, ("Error Deleting Table %s"%curTbl), ('Check the database'))
 
     def __setMessages__(self):
         '''This function is obvious'''
@@ -839,16 +877,21 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.firstLoad = True
 
 
-
     def __additionalConnections__(self):
         '''SelectInfoWidget context menu actions'''
-        self.selectDBFieldAction = QtGui.QAction("Select Table By Field",  self)#self)
+        self.selectDBFieldAction = QtGui.QAction("Select Table By Field", self)
         self.SelectInfoWidget.addAction(self.selectDBFieldAction)
         QtCore.QObject.connect(self.selectDBFieldAction,QtCore.SIGNAL("triggered()"), self.selectDBField)
 
-        self.saveDBFieldAction = QtGui.QAction("Save New Table By Field",  self)#self)
+        self.saveDBFieldAction = QtGui.QAction("Save New Table By Field", self)
         self.SelectInfoWidget.addAction(self.saveDBFieldAction)
         QtCore.QObject.connect(self.saveDBFieldAction,QtCore.SIGNAL("triggered()"), self.saveQueryTable)
+        '''Database Add remove Tools'''
+
+        self.removeTableAction = QtGui.QAction("Remove Table from Database", self)
+        self.queryTblList.addAction(self.removeTableAction)
+        QtCore.QObject.connect(self.removeTableAction, QtCore.SIGNAL("triggered()"), self.removeTable)
+
 
         '''Plot GUI Interaction slots'''
         QtCore.QObject.connect(self.db_TableList, QtCore.SIGNAL("itemPressed (QListWidgetItem *)"), self.setColLists)
@@ -887,6 +930,7 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
     def closeEvent(self,  event = None):
         if self.okToExit():
+            self.closeOpenTables()
             pass
         else:
             event.ignore()
@@ -931,14 +975,11 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
     def __showHints__(self):
         return QtGui.QMessageBox.information(self,
                                              ("Hints and known Issues"),
-                                             ("<p> 1.	For files that contain spectra with a high degree of detail (i.e. not stick mass spectra) use the profile mode for drawing (Ctrl+D).  Otherwise, the plotting will be slow.</p>"
-                                             "<p> 2. I haven't incorporated MS^n (where n >= 3) spectrum views at this point--I didn't have an example file to test.</p>"
-                                             "<p>3.  If the program is too slow, remember python is not or ever intended to be C.</p>"
-                                             "<p>4.  I have not incorporated a reader for mzData files as this format does not explictly store base peak and TIC values for chromatogram generation.  In order to do this each scan must be read simply to construct the TIC/BPC.  This is very slow.  The new mzML format will be supported in the very near future.</p>"))
+                                             ("<p>1.  More soon! </p>"))
 
     def __showAbout__(self):
         return QtGui.QMessageBox.information(self,
-                                            ("X!Tandem Viewer V.0.1, August, 2008"),
+                                            ("X!Tandem Viewer v0.6, October, 2009"),
                                             ("<p><b>X!Tandem Viewer</b> was written in Python by Brian H. Clowers (bhclowers@gmail.com).</p>"
         "<p>Please keep in mind that the entire effort is very much a"
         " work in progress and that Brian won't quit his day job for programming."
