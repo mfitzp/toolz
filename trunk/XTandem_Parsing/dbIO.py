@@ -17,14 +17,12 @@ SELECT LB8W1_1_Output.pepID, LB8W1_1_Output.pep_eVal, YP_TSB_1.pepID, YP_TSB_1.p
 SELECT table1.column1, table2.column2 FROM table1, table2 WHERE table1.column1 = table2.column1;
 SELECT LB8W1_1_Output.pepID, YP_TSB_1.pepID FROM LB8W1_1_Output, YP_TSB_1 WHERE LB8W1_1_Output.pepID = YP_TSB_1.pepID;
 
-
-'''
 SELECT tbl1.ID, tbl1.fld1, tbl1.fld2 ... FROM tbl1
 JOIN tbl2 ON tbl2.ParentID = tbl1.ID
 JOIN tbl3 ON tbl3.ParentID = tbl2.ID
 WHERE tbl1.ID = 4
 
-'''
+
 
 tables = ['LB8W1_1_Output', 'YP_TSB_1']#, 'YP_TSB_2', 'GoJoe']
 keyWordList = ['SELECT', 'FROM', 'WHERE', 'AND']
@@ -299,7 +297,7 @@ class XT_DB(object):#X!Tandem Database Class
             scanID.append(row[3])
             ppm_error.append(row[4])
             theoMZ.append(row[5])
-            hScore.append(row[6])
+            hScores.append(row[6])
             nextScore.append(row[7])
             deltaH.append(row[8])
             pepLen.append(row[9])
@@ -312,7 +310,7 @@ class XT_DB(object):#X!Tandem Database Class
                 'scanID' : N.array(scanID),
                 'ppm_error':N.array(ppm_error),
                 'theoMZ':N.array(theoMZ),
-                'hScore':N.array(hScore),
+                'hScore':N.array(hScores),
                 'nextScore':N.array(nextScore),
                 'pepLen':N.array(pepLen),
                 'proID':proID,
@@ -348,35 +346,37 @@ def save_XT_HDF5(filename, xtXML):
     #xtXML is an instance of XT_RESULTS found i xtandem_parse_class.py
 
     xtTbl = True
-
     hdf = T.openFile(filename, mode = "w", title = 'X!Tandem Results')
-    varGroup = hdf.createGroup("/", 'pepGroup', 'Peptide Results')
+    try:
+        varGroup = hdf.createGroup("/", 'pepGroup', 'Peptide Results')
 
-    if xtTbl:
-        pepTbl = hdf.createTable(varGroup, 'pepResults', XTResultsTable, "XT Peptides")
-        pepTbl.attrs.origFileName = str(xtXML.fileName)
-        xtTbl = False
-        peptide = pepTbl.row
-        for i in xrange(len(xtXML.dataDict.get('scanID'))):
-            peptide['idnum'] = i
-            peptide['pepID'] = xtXML.dataDict.get('pepID')[i]
-            peptide['pep_eVal'] = xtXML.dataDict.get('pep_eValue')[i]
-            peptide['scanID'] = xtXML.dataDict.get('scanID')[i]
-            peptide['ppm_error'] = xtXML.dataDict.get('ppm_error')[i]
-            peptide['theoMZ'] = xtXML.dataDict.get('theoMZ')[i]
-            peptide['hScore'] = xtXML.dataDict.get('hScore')[i]
-            peptide['nextScore'] = xtXML.dataDict.get('nextScore')[i]
-            peptide['pepLen'] = xtXML.dataDict.get('pepLen')[i]
-            peptide['proID'] = xtXML.dataDict.get('proID')[i]
-            peptide['pro_eVal'] = xtXML.dataDict.get('pro_eVal')[i]
-            peptide['deltaH'] = xtXML.dataDict.get('deltaH')[i]
+        if xtTbl:
+            pepTbl = hdf.createTable(varGroup, 'pepResults', XTResultsTable, "XT Peptides")
+            pepTbl.attrs.origFileName = str(xtXML.fileName)
+            xtTbl = False
+            peptide = pepTbl.row
+            for i in xrange(len(xtXML.dataDict.get('scanID'))):
+                peptide['idnum'] = i
+                peptide['pepID'] = xtXML.dataDict.get('pepID')[i]
+                peptide['pep_eVal'] = xtXML.dataDict.get('pep_eValue')[i]
+                peptide['scanID'] = xtXML.dataDict.get('scanID')[i]
+                peptide['ppm_error'] = xtXML.dataDict.get('ppm_error')[i]
+                peptide['theoMZ'] = xtXML.dataDict.get('theoMZ')[i]
+                peptide['hScore'] = xtXML.dataDict.get('hScore')[i]
+                peptide['nextScore'] = xtXML.dataDict.get('nextScore')[i]
+                peptide['pepLen'] = xtXML.dataDict.get('pepLen')[i]
+                peptide['proID'] = xtXML.dataDict.get('proID')[i]
+                peptide['pro_eVal'] = xtXML.dataDict.get('pro_eVal')[i]
+                peptide['deltaH'] = xtXML.dataDict.get('deltaH')[i]
 
-            peptide.append()
+                peptide.append()
 
 
-    if xtTbl is False:
-        pepTbl.flush()
-    hdf.close()
+        if xtTbl is False:
+            pepTbl.flush()
+        hdf.close()
+    except:
+        hdf.close()
 
 def load_XT_HDF5(filename,  xtXML):
     if os.path.isfile(filename):
