@@ -18,23 +18,27 @@ class DBTable(QWidget):
 #            super(Plot_Widget, self).__init__(None)#new  new^2:changed from parent
 #        self.setAttribute(Qt.WA_DeleteOnClose)
 
-    def __init__(self, dataList = None,  colHeaderList = None):
+    def __init__(self, dataList = None, colHeaderList = None, enableSort = False, title = None):
         QWidget.__init__(self)
         self.setAttribute(Qt.WA_DeleteOnClose)
-        self.setWindowTitle('Database Result')
+        if title != None:
+            self.setWindowTitle(title)
+        else:
+            self.setWindowTitle('Database Result')
         self.resize(900, 400)
         self.tableWidget = CustomTable(self)
         self.numRows = 5
         self.numCols = 5
         self.tableWidget.setRowCount(self.numRows)
         self.tableWidget.setColumnCount(self.numCols)
-        self.tableWidget.setSortingEnabled(True)
+        self.sortOk = enableSort
+        self.tableWidget.setSortingEnabled(False)
         if dataList:
             self.data = dataList
         else:
             self.data = my_array
 
-        self.tableWidget.addData(self.data)
+        self.tableWidget.addData(self.data, enableSort = self.sortOk)
         if type(colHeaderList) == list:
             self.tableWidget.setHorizontalHeaderLabels(colHeaderList)
         self.tableWidget.resizeColumnsToContents()
@@ -68,7 +72,7 @@ class CustomTable(QTableWidget):
         tw_menu.addAction(self.testAction)
         tw_menu.exec_(self.mapToGlobal(point))
 
-    def addData(self, data, startrow=None,  startcol = None):
+    def addData(self, data, startrow=None,  startcol = None, enableSort = False):
         if (len(data[0])) >= self.columnCount():
             self.setColumnCount(len(data[0]))
         if (len(data)) >= self.rowCount():
@@ -88,11 +92,14 @@ class CustomTable(QTableWidget):
         for row in data:
             n = sc
             for item in row:
-                #print repr(str(item))
+#                print repr(str(item))
                 newitem = QTableWidgetItem(item)
                 self.setItem(m,  n,  newitem)
                 n+=1
             m+=1
+
+        if enableSort:
+            self.setSortingEnabled(enableSort)
 
 
 
