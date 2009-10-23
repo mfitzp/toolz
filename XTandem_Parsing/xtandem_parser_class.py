@@ -94,7 +94,7 @@ class XT_RESULTS:
             if len(pepID) != 0:
                 self.dataDict = {
                     'pepID': pepID,
-                    'pep_eValue' : N.array(pep_eValue),
+                    'pep_eVal' : N.array(pep_eValue),
                     'scanID' : N.array(scanID),
                     'ppm_error':N.array(ppm_error),
                     'theoMZ':N.array(theoMZ),

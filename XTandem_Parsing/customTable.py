@@ -28,7 +28,7 @@ class DBTable(QWidget):
         self.numCols = 5
         self.tableWidget.setRowCount(self.numRows)
         self.tableWidget.setColumnCount(self.numCols)
-#        self.tableWidget.setSortingEnabled(True)
+        self.tableWidget.setSortingEnabled(True)
         if dataList:
             self.data = dataList
         else:
@@ -69,7 +69,6 @@ class CustomTable(QTableWidget):
         tw_menu.exec_(self.mapToGlobal(point))
 
     def addData(self, data, startrow=None,  startcol = None):
-
         if (len(data[0])) >= self.columnCount():
             self.setColumnCount(len(data[0]))
         if (len(data)) >= self.rowCount():
@@ -160,7 +159,6 @@ class CustomTable(QTableWidget):
 
 
     def pasteClip(self):
-
         self.cb = QApplication.clipboard()
         clipText = self.cb.text()
         t0 = time.time()
