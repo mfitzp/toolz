@@ -2,6 +2,7 @@ import os, sys
 import sqlite3 as sql
 import tables as T
 import numpy as N
+import csv
 
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtGui import QFileDialog,  QApplication
@@ -204,6 +205,7 @@ class XT_DB(object):#X!Tandem Database Class
         return True
 
     def close(self):
+        self.cur.close()
         self.cnx.close()
         self.dbOK = False
 
@@ -215,22 +217,48 @@ class XT_DB(object):#X!Tandem Database Class
 
         return self.tblList
 
-#    def COPY_DB(self, ):
-#        def dump_to_disk(con, filename):
-#    """
-#    Dumps the tables of an in-memory database into a file-based SQLite database.
-#
-#    @param con:         Connection to in-memory database.
-#    @param filename:    Name of the file to write to.
-#    """
-#    cur = con.cursor()
-#    cur.execute("attach '%s' as __extdb" % filename)
-#    cur.execute("select name from sqlite_master where type='table'")
-#    table_names = cur.fetchall()
-#    for table_name, in table_names:
-#        cur.execute("create table __extdb.%s as select * from %s" %
-#(table_name, table_name))
-#    cur.execute("detach __extdb")
+    def COPY_DATABASE(self, filename = None):
+
+        """
+        def dump_to_disk(con, filename):
+        Dumps the tables of an in-memory database into a file-based SQLite database.
+
+        @param con:         Connection to in-memory database.
+        @param filename:    Name of the file to write to.
+        """
+        if filename is None:
+            filename = 'test.db'
+        self.cur.execute("attach '%s' as __extdb" % filename)
+        self.cur.execute("SELECT name FROM sqlite_master WHERE type='table'")
+        table_names = self.cur.fetchall()
+        try:
+            for table_name, in table_names:#the comma is because the cursor returns tuples
+                if table_name != 'sqlite_sequence':
+                    self.cur.execute("CREATE TABLE __extdb.%s AS SELECT * FROM %s"%(table_name, table_name))
+            self.cur.execute("DETACH __extdb")
+        except:
+            self.cur.execute("DETACH __extdb")
+            self.errorMsg = "Sorry: %s:%s"%(sys.exc_type, sys.exc_value)
+            msg = self.errorMsg + '\nSave Error'
+            error = QtGui.QMessageBox.warning(self.parent, "Copy DB Error!",  msg)
+
+
+    def DUMP_TABLE(self, tblName, fileName = None):
+        selectStr= "SELECT * FROM %s"%tblName
+        fileName= fileName
+        if fileName != None:
+            self.cur.execute(selectStr)
+            result = self.cur.fetchall()
+            if len(result)>0:
+                dumpWriter = csv.writer(open(fileName, 'w'), delimiter = ',', quotechar= "'")
+                try:
+                    for record in result:
+                        dumpWriter.writerow(record)
+
+                except:
+                    self.errorMsg = "Sorry: %s:%s"%(sys.exc_type, sys.exc_value)
+                    msg = self.errorMsg + '\nSave Error'
+                    error = QtGui.QMessageBox.warning(self.parent, "CSV Table Save Error!",  msg)
 
 
     def LIST_COLUMNS(self,  tableName):
