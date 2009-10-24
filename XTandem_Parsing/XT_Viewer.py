@@ -153,28 +153,6 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             print "Startup called without DB Start Flag"
         self.__setupPlot__()
 
-    def copyCurrentDatabase(self):
-        saveFileName = QtGui.QFileDialog.getSaveFileName(self,\
-                                                             self.SaveDataText,\
-                                                             self.__curDir, 'SQLite Database (*.db)')
-        if saveFileName:
-            self.curDB.COPY_DATABASE(str(saveFileName))
-
-    def saveCSVTable(self):
-        saveFileName = QtGui.QFileDialog.getSaveFileName(self,\
-                                                 self.SaveDataText,\
-                                                 self.__curDir, 'CSV Text File (*.csv)')
-        if saveFileName:
-            curTbl = str(self.queryTblList.currentItem().text())
-            self.curDB.DUMP_TABLE(curTbl)
-
-    def dumpAllCSVTables(self):
-        tblList = self.curDB.LIST_TABLES()
-        if len(tblList)>0:
-            for tbl in tblList:
-                fileName = tbl+'.csv'
-                self.saveCSVTable(fileName)
-
     def __testFunc__(self):
 
         if RD(self.loVal, self.hiVal, parent = self).exec_():
@@ -884,11 +862,12 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                     return QtGui.QMessageBox.information(self, ("Error Deleting Table %s"%curTbl), ('Check the database'))
 
     def copyCurrentDatabase(self):
-        saveFileName = QtGui.QFileDialog.getSaveFileName(self,\
-                                                             self.SaveDataText,\
-                                                             self.__curDir, 'SQLite Database (*.db)')
-        if saveFileName:
-            self.curDB.COPY_DATABASE(str(saveFileName))
+        if self.dbStatus:
+            saveFileName = QtGui.QFileDialog.getSaveFileName(self,\
+                                                                 self.SaveDataText,\
+                                                                 self.__curDir, 'SQLite Database (*.db)')
+            if saveFileName:
+                self.curDB.COPY_DATABASE(str(saveFileName))
 
     def saveCSVTable(self, tableName = None, saveFileName = None):
         if tableName is None and saveFileName is None:
@@ -953,9 +932,7 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         QtCore.QObject.connect(self.dumpTableAction, QtCore.SIGNAL("triggered()"), self.saveCSVTable)
 
         QtCore.QObject.connect(self.actionSave_All_Tables, QtCore.SIGNAL("triggered()"), self.dumpAllCSVTables)
-
-
-
+        QtCore.QObject.connect(self.actionCopy_Current_Database, QtCore.SIGNAL("triggered()"), self.copyCurrentDatabase)
 
 
         '''Plot GUI Interaction slots'''
@@ -1017,6 +994,8 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                                                QtGui.QMessageBox.Yes|QtGui.QMessageBox.Discard|QtGui.QMessageBox.Cancel)
             if reply == QtGui.QMessageBox.Yes:
                 if self.dbStatus:
+                    if self.curDB.dbName == ':memory:':
+                        self.copyCurrentDatabase()
                     self.curDB.cnx.commit()
                     self.curDB.close()
                 return True

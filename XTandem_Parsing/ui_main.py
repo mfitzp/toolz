@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/clowers/workspace/XTandem_Parsing/main.ui'
 #
-# Created: Sat Oct 24 13:00:36 2009
+# Created: Sat Oct 24 15:29:23 2009
 #      by: PyQt4 UI code generator 4.4.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -363,6 +363,8 @@ class Ui_MainWindow(object):
         self.actionLoad_Folder.setObjectName("actionLoad_Folder")
         self.actionSave_All_Tables = QtGui.QAction(MainWindow)
         self.actionSave_All_Tables.setObjectName("actionSave_All_Tables")
+        self.actionCopy_Current_Database = QtGui.QAction(MainWindow)
+        self.actionCopy_Current_Database.setObjectName("actionCopy_Current_Database")
         self.menuFile.addAction(self.action_Open)
         self.menuFile.addAction(self.actionLoad_Folder)
         self.menuFile.addAction(self.action_Save)
@@ -370,6 +372,7 @@ class Ui_MainWindow(object):
         self.menu_Edit.addAction(self.action_Cut)
         self.menu_Edit.addAction(self.action_Paste)
         self.menu_Tools.addAction(self.actionSave_All_Tables)
+        self.menu_Tools.addAction(self.actionCopy_Current_Database)
         self.menu_Help.addAction(self.actionAbout)
         self.menu_Help.addAction(self.actionHints)
         self.menubar.addAction(self.menuFile.menuAction())
@@ -464,6 +467,7 @@ class Ui_MainWindow(object):
         self.actionHints.setText(QtGui.QApplication.translate("MainWindow", "Hints", None, QtGui.QApplication.UnicodeUTF8))
         self.actionLoad_Folder.setText(QtGui.QApplication.translate("MainWindow", "Load Folder", None, QtGui.QApplication.UnicodeUTF8))
         self.actionSave_All_Tables.setText(QtGui.QApplication.translate("MainWindow", "Save All Tables to CSV", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionCopy_Current_Database.setText(QtGui.QApplication.translate("MainWindow", "Copy Current Database", None, QtGui.QApplication.UnicodeUTF8))
 
 from customTable import CustomTable
 from mpl_custom_widget import MPL_Widget
