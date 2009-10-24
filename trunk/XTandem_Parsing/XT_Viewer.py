@@ -1,6 +1,8 @@
 
 """
 This is the explicit class for viewing Parsed XT Files
+
+/usr/bin/pyuic4 /home/clowers/workspace/XTandem_Parsing/main.ui  -o /home/clowers/workspace/XTandem_Parsing/ui_main.py
 """
 #Importing built-in python modules and functions
 import sys, os
@@ -151,15 +153,37 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             print "Startup called without DB Start Flag"
         self.__setupPlot__()
 
+    def copyCurrentDatabase(self):
+        saveFileName = QtGui.QFileDialog.getSaveFileName(self,\
+                                                             self.SaveDataText,\
+                                                             self.__curDir, 'SQLite Database (*.db)')
+        if saveFileName:
+            self.curDB.COPY_DATABASE(str(saveFileName))
+
+    def saveCSVTable(self):
+        saveFileName = QtGui.QFileDialog.getSaveFileName(self,\
+                                                 self.SaveDataText,\
+                                                 self.__curDir, 'CSV Text File (*.csv)')
+        if saveFileName:
+            curTbl = str(self.queryTblList.currentItem().text())
+            self.curDB.DUMP_TABLE(curTbl)
+
+    def dumpAllCSVTables(self):
+        tblList = self.curDB.LIST_TABLES()
+        if len(tblList)>0:
+            for tbl in tblList:
+                fileName = tbl+'.csv'
+                self.saveCSVTable(fileName)
 
     def __testFunc__(self):
 
         if RD(self.loVal, self.hiVal, parent = self).exec_():
             print self.loVal, self.hiVal
             print "Ok"
-        else:
-            print self.loVal, self.hiVal
-            print "Cancel"
+#        else:
+#            print self.loVal, self.hiVal
+#            print "Cancel"
+
 #        print self.curDB.LIST_COLUMNS(self.curDB.LIST_TABLES()[0])
 #        print type(self.curDB.LIST_TABLES()[0]), self.curDB.LIST_TABLES()
 
@@ -734,8 +758,6 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 #                f.close()
 
 
-
-
     def selectDBField(self,  saveTable = None):
         curCol = self.SelectInfoWidget.currentColumn()
         if self.SelectInfoWidget.currentItem() == None:
@@ -842,6 +864,8 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
     def queryTableContext(self, point):
         queryList_menu = QtGui.QMenu("Menu", self.queryTblList)
+        queryList_menu.addAction(self.dumpTableAction)
+        queryList_menu.addSeparator()
         queryList_menu.addAction(self.removeTableAction)
         queryList_menu.exec_(self.queryTblList.mapToGlobal(point))
 
@@ -858,6 +882,38 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
                 else:
                     return QtGui.QMessageBox.information(self, ("Error Deleting Table %s"%curTbl), ('Check the database'))
+
+    def copyCurrentDatabase(self):
+        saveFileName = QtGui.QFileDialog.getSaveFileName(self,\
+                                                             self.SaveDataText,\
+                                                             self.__curDir, 'SQLite Database (*.db)')
+        if saveFileName:
+            self.curDB.COPY_DATABASE(str(saveFileName))
+
+    def saveCSVTable(self, tableName = None, saveFileName = None):
+        if tableName is None and saveFileName is None:
+            saveFileName = QtGui.QFileDialog.getSaveFileName(self,\
+                                                     self.SaveDataText,\
+                                                     self.__curDir, 'CSV Text File (*.csv)')
+            if saveFileName:
+                curTbl = str(self.queryTblList.currentItem().text())
+                if len(curTbl)>0:
+                    self.curDB.DUMP_TABLE(curTbl, saveFileName)
+        else:
+            self.curDB.DUMP_TABLE(tableName, saveFileName)
+
+    def dumpAllCSVTables(self):
+        reply = QtGui.QMessageBox.question(self, "Save All Tables", "Do you want to save all the tables to CSV?\nThis could take a while depending on the size of your database.",\
+                                           QtGui.QMessageBox.Yes|QtGui.QMessageBox.Cancel)
+        if reply == QtGui.QMessageBox.Yes:
+            if self.dbStatus:
+                tblList = self.curDB.LIST_TABLES()
+                if len(tblList)>0:
+                    for tbl in tblList:
+                        #need to add a place to save to a directory
+                        fileName = tbl+'.csv'
+                        self.saveCSVTable(tbl, fileName)
+
 
     def __setMessages__(self):
         '''This function is obvious'''
@@ -891,6 +947,15 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.removeTableAction = QtGui.QAction("Remove Table from Database", self)
         self.queryTblList.addAction(self.removeTableAction)
         QtCore.QObject.connect(self.removeTableAction, QtCore.SIGNAL("triggered()"), self.removeTable)
+
+        self.dumpTableAction = QtGui.QAction("Save Table to CSV", self)
+        self.queryTblList.addAction(self.dumpTableAction)
+        QtCore.QObject.connect(self.dumpTableAction, QtCore.SIGNAL("triggered()"), self.saveCSVTable)
+
+        QtCore.QObject.connect(self.actionSave_All_Tables, QtCore.SIGNAL("triggered()"), self.dumpAllCSVTables)
+
+
+
 
 
         '''Plot GUI Interaction slots'''
@@ -946,6 +1011,7 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.close()
 
     def okToExit(self):
+        #add a question to save memory database to file
         if self.dbStatus:
             reply = QtGui.QMessageBox.question(self, "Save Changes & Exit?", "Commit changes to database and exit? Press discard to exit without saving.",\
                                                QtGui.QMessageBox.Yes|QtGui.QMessageBox.Discard|QtGui.QMessageBox.Cancel)
