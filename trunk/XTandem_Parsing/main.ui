@@ -496,6 +496,7 @@
      <string>&amp;Tools</string>
     </property>
     <addaction name="actionSave_All_Tables"/>
+    <addaction name="actionCopy_Current_Database"/>
    </widget>
    <widget class="QMenu" name="menu_Help">
     <property name="title">
@@ -813,6 +814,11 @@
   <action name="actionSave_All_Tables">
    <property name="text">
     <string>Save All Tables to CSV</string>
+   </property>
+  </action>
+  <action name="actionCopy_Current_Database">
+   <property name="text">
+    <string>Copy Current Database</string>
    </property>
   </action>
  </widget>
