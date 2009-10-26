@@ -43,8 +43,6 @@ for i,tableName in enumerate(tables):
 
     fromStr+=tableName
 
-
-
     if i == numTables-1:
         continue
     else:
