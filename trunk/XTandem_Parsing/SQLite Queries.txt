@@ -1,0 +1,108 @@
+SELECT DISTINCT 
+  BSATest.pepID,
+  AVG(BSATest.ppm_error) AS AVG_BSATest_ppm,
+  AVG(BSATest.pep_eVal) AS AVG_BSATest_pepEval,
+  MIN(BSATest.pep_eVal) AS Min_BSATest_pepEval,
+  Oct_20_BSA.pepID,
+  AVG(Oct_20_BSA.ppm_error) AS Avg_Oct_ppm,
+  AVG(Oct_20_BSA.pep_eVal) AS Avg_Oct_pepEval,
+  MIN(Oct_20_BSA.pep_eVal) AS Min_Oct_pepEval,
+  bsa_test.pep_eVal,
+  AVG(bsa_Test.ppm_error) AS Avg_bsa_ppm,
+  AVG(bsa_Test.pep_eVal) AS Avg_bsa_pepEval,
+  MIN(bsa_Test.pep_eVal) AS Min_bsa_pepEval,
+  AVG(bsa_Test.ppm_error) AS Avg_bsa_Test_ppm,
+  COUNT(bsa_Test.pepID) AS pepCount
+FROM
+ BSATest
+ INNER JOIN Oct_20_BSA ON (BSATest.pepID=Oct_20_BSA.pepID)
+ INNER JOIN bsa_Test ON (Oct_20_BSA.pepID=bsa_Test.pepID)
+GROUP BY
+  BSATest.pepID
+
+##########################
+SELECT DISTINCT 
+  BSATest.pepID,
+  AVG(BSATest.ppm_error) AS AVG_BSATest_ppm,
+  AVG(BSATest.pep_eVal) AS AVG_BSATest_pepEval,
+  MIN(BSATest.pep_eVal) AS Min_BSATest_pepEval,
+  Oct_20_BSA.pepID,
+  AVG(Oct_20_BSA.ppm_error) AS Avg_Oct_ppm,
+  AVG(Oct_20_BSA.pep_eVal) AS Avg_Oct_pepEval,
+  MIN(Oct_20_BSA.pep_eVal) AS Min_Oct_pepEval,
+  bsa_test.pep_eVal,
+  AVG(bsa_Test.ppm_error) AS Avg_bsa_ppm,
+  AVG(bsa_Test.pep_eVal) AS Avg_bsa_pepEval,
+  MIN(bsa_Test.pep_eVal) AS Min_bsa_pepEval,
+  AVG(bsa_Test.ppm_error) AS Avg_bsa_Test_ppm,
+  COUNT(bsa_Test.pepID) AS pepCount,
+  BSATest.proID
+FROM
+ BSATest
+ INNER JOIN Oct_20_BSA ON (BSATest.pepID=Oct_20_BSA.pepID)
+ INNER JOIN bsa_Test ON (Oct_20_BSA.pepID=bsa_Test.pepID)
+GROUP BY
+  BSATest.pepID,
+  BSATest.proID
+
+##########################
+
+SELECT * FROM BSATest;
+
+##########################
+
+SELECT DISTINCT 
+  BSATest.pepID
+FROM
+ BSATest
+GROUP BY
+  BSATest.pepID
+
+##########################
+
+SELECT 
+  BSATest.pepID,
+  BSATest.proID,
+  count(pepID) AS FIELD_1
+FROM
+ BSATest
+GROUP BY
+  BSATest.pepID,
+  BSATest.proID
+
+##########################
+
+Sorts by Unique Peptides
+
+SELECT 
+  BSATest.pepID,
+  BSATest.proID,
+  COUNT(BSATest.pepID) AS FIELD_1,
+  MIN(BSATest.pep_eVal) AS Min_BSATest_pepEva,
+  AVG(BSATest.pep_eVal) AS AVG_BSATest_pepEval,
+  AVG(BSATest.ppm_error) AS AVG_BSATest_ppm
+FROM
+ BSATest
+GROUP BY
+  BSATest.pepID,
+  BSATest.proID
+
+############################################
+
+
+Sorts by Proteins
+
+SELECT 
+  BSATest.proID,
+  BSATest.pro_eVal,
+  COUNT(BSATest.pepID) AS PepCount,
+  AVG(BSATest.pep_eVal) AS AVG_BSATest_pepEval,
+  MIN(BSATest.pep_eVal) AS Min_BSATest_pepEva,
+  AVG(BSATest.ppm_error) AS AVG_BSATest_ppm
+FROM
+ BSATest
+GROUP BY
+  BSATest.proID,
+  BSATest.pro_eVal
+ORDER BY
+  BSATest.pro_eVal
