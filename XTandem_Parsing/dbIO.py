@@ -182,7 +182,7 @@ class XT_DB(object):#X!Tandem Database Class
                 return False
         for i in xrange(XT_RESULTS.iterLen):
             self.cur.execute(
-                            'INSERT INTO "%s" VALUES (?,?,?,?,?,?,?,?,?,?,?,?)'%tableName,#again I know %s is not recommended but I don't know how to do this more elegantly.
+                            'INSERT INTO "%s" VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)'%tableName,#again I know %s is not recommended but I don't know how to do this more elegantly.
                             (
                             i,
                             XT_RESULTS.dataDict.get('pepID')[i],
@@ -195,7 +195,9 @@ class XT_DB(object):#X!Tandem Database Class
                             XT_RESULTS.dataDict.get('deltaH')[i],
                             XT_RESULTS.dataDict.get('pepLen')[i],
                             XT_RESULTS.dataDict.get('proID')[i],
-                            XT_RESULTS.dataDict.get('pro_eVal')[i]
+                            XT_RESULTS.dataDict.get('pro_eVal')[i],
+                            XT_RESULTS.dataDict.get('xFrags')[i],
+                            XT_RESULTS.dataDict.get('yFrags')[i]
                             ))
         self.cnx.commit()
         t2 = time.clock()
@@ -296,7 +298,9 @@ class XT_DB(object):#X!Tandem Database Class
         deltaH REAL,\
         pepLen INTEGER,\
         proID TEXT,\
-        pro_eVal REAL)'
+        pro_eVal REAL,\
+        xFrags TEXT,\
+        yFrags TEXT)'
             %tableName)
 
     #def CREATE_CUSTOM_TABLE(self, tableName, overWrite = False):
@@ -402,6 +406,8 @@ class XT_DB(object):#X!Tandem Database Class
         proID = []
         pro_eVal = []
         deltaH = []
+        xFrags = []
+        yFrags = []
 
         self.cur.execute('SELECT * FROM "%s"'%tableName)
         for row in self.cur.fetchall():
@@ -416,6 +422,8 @@ class XT_DB(object):#X!Tandem Database Class
             pepLen.append(row[9])
             proID.append(row[10])
             pro_eVal.append(row[11])
+            xFrags.append(row[12])
+            yFrags.append(row[13])
 
         arrayDict = {
                 'pepID': pepID,
@@ -428,7 +436,9 @@ class XT_DB(object):#X!Tandem Database Class
                 'pepLen':N.array(pepLen),
                 'proID':proID,
                 'pro_eVal':N.array(pro_eVal),
-                'deltaH':N.array(deltaH)
+                'deltaH':N.array(deltaH),
+                'xFrags':xFrags,
+                'yFrags':yFrags
                 }
         XT_RESULTS.setArrays(arrayDict)
         XT_RESULTS.setFN(tableName)

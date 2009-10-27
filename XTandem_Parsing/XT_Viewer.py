@@ -581,9 +581,11 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                                         transform=self.plotWidget.canvas.ax.transAxes, va='top')
         self.updateSelectInfo(self.pickIndex,  self.curTbl)
         t2 = time.clock()
-        print t2-t1
+#        print t2-t1
         self.plotWidget.canvas.draw()
 
+    def tableSelChanged(self, selList):
+        print selList
 
     def __setupPlot__(self):
         '''Sets up the plot variables used for interaction'''
@@ -679,6 +681,10 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         return marker
 
     def updateSelectInfo(self,  index,  activeKey):
+        '''
+        Accepts the index to the current dictionary and the activeKey is the hook to
+        grab that dictionary
+        '''
         activeData = self.activeDict[activeKey]
         self.curSelectInfo['Index'] = str(index)
         self.curSelectInfo['Peptide'] = activeData.dataDict.get('pepID')[index]
@@ -826,8 +832,11 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                 result = ['No data was found...', ]
             colHeaders = self.curDB.LIST_COLUMNS(curTbl)
 
-            self.openTableList.append(DBTable(result, colHeaders, enableSort = True, title = tempTitle))
+            curTableWin = DBTable(result, colHeaders, enableSort = True, title = tempTitle)
+            QtCore.QObject.connect(curTableWin,QtCore.SIGNAL("itemSelected(PyQt_PyObject)"), self.tableSelChanged)
+            self.openTableList.append(curTableWin)
             self.curDBTable = self.openTableList[-1]#append adds to the end of the list so adding the most recent addition
+#            QtCore.QObject.connect(self.curDBTable, QtCore.SIGNAL("itemSelected(PyQt_PyObject)"), self.tableSelChange)
 
     def queryFieldContext(self, point):
         queryCT_menu = QtGui.QMenu("Menu",  self.queryFieldList)
@@ -917,19 +926,34 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                 curSeq = self.activeData['pepID'][indexVal]
                 xData = self.activeData['xFrags'][indexVal]#this is text and needs to be converted
                 yData = self.activeData['yFrags'][indexVal]
+                tableText = str(self.SelectInfoWidget.item(0, 1).text())
+                eValText = str(self.activeData['pep_eVal'][indexVal])
+                theoMZText = '%.2f'%self.activeData['theoMZ'][indexVal]
+                ppmText = '%d'%self.activeData['ppm_error'][indexVal]
+                fragTitle = tableText+', '+'Index: '+str(indexVal)+', '+curSeq
+                textTag='\n'
+                textTag+='e-Val: '
+                textTag+= eValText
+                textTag+='\n'
+                textTag+='m/z: '
+                textTag+=theoMZText
+                textTag+='\n'
+                textTag+='ppm error: '
+                textTag+=ppmText
+
                 tempXList = xData.split()
                 tempYList = yData.split()
 #                print type(tempXList), type(tempYList)
 #                print tempXList
                 xData = N.array(tempXList, dtype = N.float)#conver to array with dtype set or it will default to string types
                 yData = N.array(tempYList, dtype = N.float)
-                curFragPlot = FragPlotWidgets.FragPlot(curSeq, xData, yData)
+                curFragPlot = FragPlotWidgets.FragPlot(curSeq, xData, yData, title = fragTitle, annotation = textTag)
                 curFragPlot.show()
                 self.openPlotList.append(curFragPlot)
-                print indexVal
-                print curSeq
-                print xData
-                print yData
+#                print indexVal
+#                print curSeq
+#                print xData
+#                print yData
 
 #                curType = self.infoMap[str(curItem.text())]
 #                curVal = self.curSelectInfo[str(curItem.text())]

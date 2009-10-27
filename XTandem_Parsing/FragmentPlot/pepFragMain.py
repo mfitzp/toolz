@@ -76,7 +76,7 @@ def doFrag(curSeq):
     serTypeDict[config.sequence['fragment']['fragments'][-1]] = i
     i+=1
 
-    print serTypeDict
+#    print serTypeDict
 #    config.sequence['fragment']['fragments'].append('int')
 
 #    i = 0
@@ -180,7 +180,7 @@ def doFrag(curSeq):
 # ----
 
 
-def pepFrag(seq, X, Y, plotCanvas):
+def pepFrag(seq, X, Y, plotCanvas, annotation = None):
 
 #    w = MPL_Widget(enableAutoScale = False, doublePlot = True, enableEdit = True)
     ax1 = plotCanvas.ax
@@ -201,8 +201,8 @@ def pepFrag(seq, X, Y, plotCanvas):
     fragType = []
     fragMZ = []
 
-    for val in ans:
-        print val
+#    for val in ans:
+#        print val
 
     for i, item in enumerate(ans):
         fragType.append(ans[i][0])
@@ -215,7 +215,7 @@ def pepFrag(seq, X, Y, plotCanvas):
     fragMZ = fragMZ[fragMZInd]
     fragType = fragType[fragMZInd]
     fragYVals = N.zeros_like(fragMZ)
-    fragYVals+=1#scale to 100
+    fragYVals+=1#
 
     absTol = 3000#ppm
     ppmErrs = []
@@ -236,7 +236,7 @@ def pepFrag(seq, X, Y, plotCanvas):
         if prevInd < 0:
             prevInd = 0
 
-        print len(mz), foundInd, prevInd
+#        print len(mz), foundInd, prevInd
         foundMZ = X[foundInd]
         prevMZ = X[prevInd]
         foundDiff = foundMZ-frag
@@ -258,12 +258,12 @@ def pepFrag(seq, X, Y, plotCanvas):
             ppmErrs.append([frag, prevDiff/frag*1E6])
             fragYVals[i] = Y[prevInd]
 
-    ax1.vlines(X, 0, Y, colors = 'k', alpha = 0.5)
+    ax1.vlines(X, 0, Y, colors = 'k', alpha = 0.6)
     tempColors = ['r', 'b', 'g', 'y']
     for frag in fragRange:
         fragInd = N.where(fragType == frag)[0]
         tempFrag = fragMZ[fragInd]
-        print frag, tempFrag
+#        print frag, tempFrag
         tempInt = fragYVals[fragInd]
         ax1.vlines(tempFrag, 0, tempInt, colors = tempColors[frag], linestyles = 'solid', alpha = 0.8)#
 #    ax1.legend()#legend is broken in mpl 0.98.5
@@ -276,11 +276,33 @@ def pepFrag(seq, X, Y, plotCanvas):
 
     ax2.axvline(ymax = errY.max(), color = 'k', ls = '--')
     ax2.set_xlim(xmin = N.abs(errs.max())*-1.1, xman = N.abs(errs.max())*1.1)
-    ax1.text(0.03, 0.95, seq, fontsize=7,\
+
+    if annotation != None:
+        textTag = seq+annotation
+    else:
+        textTag = seq
+        
+    ax1.text(0.03, 0.95, textTag, fontsize=7,\
             bbox=dict(facecolor='yellow', alpha=0.1),\
             transform=ax1.transAxes, va='top')
+
+
+    matchedInd = N.where(fragYVals>1)[0]
+    labelPeaks(fragMZ[matchedInd], fragYVals[matchedInd], ax1)
+
     plotCanvas.format_labels()
     plotCanvas.draw()
+
+
+def labelPeaks(xVals, yVals, mplAxis):
+    if len(xVals)>0:
+        yMax = yVals.max()
+        yIncrement = yMax*0.01
+        mplAxis.set_ylim(ymax = yMax*1.1)
+        for i, xVal in enumerate(xVals):
+            showText = '%.2f'%(xVal)
+            mplAxis.text(xVal,yVals[i]+yIncrement, showText, fontsize=6, rotation = 90)
+
 
 if __name__ == "__main__":
     import numpy as N
@@ -292,7 +314,7 @@ if __name__ == "__main__":
 
     app = QtGui.QApplication(sys.argv)
 
-    XT = XTParser.XT_RESULTS('XTTest.xml')
+    XT = XTParser.XT_RESULTS('../XTTest.xml')
     selInd = XT.dataDict['pep_eVal'].argsort()
     firstInd = selInd[0]
     secondInd = selInd[1]

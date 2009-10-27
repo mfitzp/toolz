@@ -22,8 +22,10 @@ class DBTable(QWidget):
         QWidget.__init__(self)
         self.setAttribute(Qt.WA_DeleteOnClose)
         if title != None:
+            self.title = title
             self.setWindowTitle(title)
         else:
+            self.title = None
             self.setWindowTitle('Database Result')
         self.resize(900, 400)
         self.tableWidget = CustomTable(self)
@@ -42,13 +44,35 @@ class DBTable(QWidget):
         if type(colHeaderList) == list:
             self.tableWidget.setHorizontalHeaderLabels(colHeaderList)
         self.tableWidget.resizeColumnsToContents()
-
         self.tableWidget.setCurrentCell(0, 0)#needed so selectedRanges does not fail initially
 
         layout = QVBoxLayout(self)
         layout.addWidget(self.tableWidget)
+
+
+        self.connect(self.tableWidget, SIGNAL("itemSelectionChanged()"), self.tableSelect)
+
         self.setLayout(layout)
         self.show()
+
+    def tableSelect(self):
+        curRow = self.tableWidget.currentRow()
+        curItem = self.tableWidget.item(curRow, 0)
+        if curItem != None and self.title != None:
+            curText = str(curItem.text())
+            try:#using try here because if the table format is incorrect the first item may not be able to be converted to an integer
+                curIndex = int(curText)
+                curTable = self.title.split(',')[0]
+                selList = [curIndex, curTable]
+                self.emit(SIGNAL("itemSelected(PyQt_PyObject)"),selList)
+            except:
+                return False
+
+
+
+
+
+
 
 class CustomTable(QTableWidget):
     def __init__(self, parent = None):

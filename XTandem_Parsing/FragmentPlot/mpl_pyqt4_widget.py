@@ -20,12 +20,12 @@ import numpy as N
 
 left, width = 0.1, 0.65
 bottom, height = 0.15, 0.80
-bottom_h = left_h = left+width+0.05
+bottom_h = left_h = left+width+0.03
 
 mainAx = [left, bottom, width, height]
 sideAx = [left_h, bottom, 0.15, height]
 
-nullfmt   = NullFormatter()         # no labels
+nullfmt = NullFormatter()         # no labels
 
 class EventFilter(QtCore.QObject):
 
@@ -55,8 +55,8 @@ class DoubleMyMplCanvas(FigureCanvas):
         self.axList = [self.ax, self.ax2]
         self.fig.subplots_adjust(left=0.1, bottom=0.1, right=0.9, top=0.9)
         self.plotTitle = ''
-        self.xtitle="X"#"Drift Time (ms)"
-        self.ytitle="Y"#"Intensity"
+        self.xtitle="m/z"#"Drift Time (ms)"
+        self.ytitle="Intensity"#"Intensity"
         self.ax.set_xlabel(self.xtitle, fontsize = 9)
         self.ax.set_ylabel(self.ytitle, fontsize = 9)
         self.grid_status = True
@@ -64,7 +64,6 @@ class DoubleMyMplCanvas(FigureCanvas):
         self.yaxis_style = 'linear'
         self.format_labels()
         self.ax.hold(True)
-
 
         FigureCanvas.__init__(self, self.fig)
         FigureCanvas.setSizePolicy(self,
@@ -76,15 +75,23 @@ class DoubleMyMplCanvas(FigureCanvas):
 
     def format_labels(self, xItalic = False):
         for i,ax in enumerate(self.axList):
-            ax.set_title(self.plotTitle)
-            ax.title.set_fontsize(10)
-            xLabel = self.xtitle#self.ax.get_xlabel()
-            yLabel = self.ytitle#self.ax.get_ylabel()
+
+            if i == 0:
+                xLabel = self.xtitle#self.ax.get_xlabel()
+                yLabel = self.ytitle#self.ax.get_ylabel()
+                ax.title.set_fontsize(10)
+                ax.set_title(self.plotTitle)
+                ax.set_ylabel(yLabel, fontsize = 9)
+                xItalic = True
+            else:
+                xItalic = False
+                xLabel = 'ppm'
+
             if xItalic:
                 ax.set_xlabel(xLabel, fontsize = 9, fontstyle = 'italic')
             else:
                 ax.set_xlabel(xLabel, fontsize = 9)
-            ax.set_ylabel(yLabel, fontsize = 9)
+
             labels_x = ax.get_xticklabels()
             labels_y = ax.get_yticklabels()
 
@@ -99,6 +106,7 @@ class DoubleMyMplCanvas(FigureCanvas):
                 texts = ax.get_legend().get_texts()
                 for text in texts:
                     text.set_fontsize(8)
+
 
     def sizeHint(self):
         w, h = self.get_width_height()
@@ -343,7 +351,6 @@ class MPL_Widget(QtGui.QWidget):
             for line in lineList:
                 self.lineDict[line.get_label()]=line
 
-
     def editPlotProperties(self):
         print "Edit Enabled"
         self.setLineDict()
@@ -386,7 +393,6 @@ class MPL_Widget(QtGui.QWidget):
             self.canvas.ax.set_ylim(ymax = self.localYMax)
             self.canvas.ax.set_xlim(xmin, xmax)
             self.canvas.draw()
-
 
     def save2CSV(self):
         path = self.SFDialog()
