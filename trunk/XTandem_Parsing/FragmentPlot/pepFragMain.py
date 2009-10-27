@@ -53,9 +53,9 @@ def doFrag(curSeq):
     #series.append('a')
     series.append('b')
     series.append('y')
-    series.append('a-H2O')
+#    series.append('a-H2O')
     series.append('b-H2O')
-    #series.append('y-H2O')
+    series.append('y-H2O')
     #series.append('int')
     i = 0
     serTypeDict = {}
@@ -66,14 +66,18 @@ def doFrag(curSeq):
     config.sequence['fragment']['fragments'].append('y')
     serTypeDict[config.sequence['fragment']['fragments'][-1]] = i
     i+=1
-    config.sequence['fragment']['fragments'].append('a-H2O')
-    serTypeDict[config.sequence['fragment']['fragments'][-1]] = i
-    i+=1
+#    config.sequence['fragment']['fragments'].append('a-H2O')
+#    serTypeDict[config.sequence['fragment']['fragments'][-1]] = i
+#    i+=1
     config.sequence['fragment']['fragments'].append('b-H2O')
     serTypeDict[config.sequence['fragment']['fragments'][-1]] = i
     i+=1
-    #config.sequence['fragment']['fragments'].append('y-H2O')
-    #config.sequence['fragment']['fragments'].append('int')
+    config.sequence['fragment']['fragments'].append('y-H2O')
+    serTypeDict[config.sequence['fragment']['fragments'][-1]] = i
+    i+=1
+
+    print serTypeDict
+#    config.sequence['fragment']['fragments'].append('int')
 
 #    i = 0
 #
@@ -197,18 +201,23 @@ def pepFrag(seq, X, Y, plotCanvas):
     fragType = []
     fragMZ = []
 
+    for val in ans:
+        print val
+
     for i, item in enumerate(ans):
         fragType.append(ans[i][0])
         fragMZ.append(ans[i][4])
 #        print item
 
     fragMZ = N.array(fragMZ)
-    fragMZ.sort()
     fragType = N.array(fragType)
+    fragMZInd = fragMZ.argsort()
+    fragMZ = fragMZ[fragMZInd]
+    fragType = fragType[fragMZInd]
     fragYVals = N.zeros_like(fragMZ)
     fragYVals+=1#scale to 100
 
-    absTol = 2000#ppm
+    absTol = 3000#ppm
     ppmErrs = []
     for i,frag in enumerate(fragMZ):
         foundInd = mz.searchsorted(frag)
@@ -227,16 +236,16 @@ def pepFrag(seq, X, Y, plotCanvas):
         if prevInd < 0:
             prevInd = 0
 
-#        print len(mz), foundInd, prevInd
+        print len(mz), foundInd, prevInd
         foundMZ = X[foundInd]
         prevMZ = X[prevInd]
-        foundDiff = N.abs(foundMZ-frag)
-        prevDiff = N.abs(prevMZ-frag)
-        foundDiffOk = foundDiff < (foundMZ*absTol*1E-6)
-        prevDiffOk = prevDiff < (prevMZ*absTol*1E-6)
+        foundDiff = foundMZ-frag
+        prevDiff = prevMZ-frag
+        foundDiffOk = N.abs(foundDiff) < (foundMZ*absTol*1E-6)
+        prevDiffOk = N.abs(prevDiff) < (prevMZ*absTol*1E-6)
 
         if foundDiffOk and prevDiffOk:
-            if foundDiff < prevDiff:
+            if N.abs(foundDiff) < N.abs(prevDiff):
                 ppmErrs.append([frag, foundDiff/frag*1E6])
                 fragYVals[i] = Y[foundInd]
             else:
@@ -249,11 +258,12 @@ def pepFrag(seq, X, Y, plotCanvas):
             ppmErrs.append([frag, prevDiff/frag*1E6])
             fragYVals[i] = Y[prevInd]
 
-    ax1.vlines(X, 0, Y, colors = 'k', alpha = 0.4)
+    ax1.vlines(X, 0, Y, colors = 'k', alpha = 0.5)
     tempColors = ['r', 'b', 'g', 'y']
     for frag in fragRange:
         fragInd = N.where(fragType == frag)[0]
         tempFrag = fragMZ[fragInd]
+        print frag, tempFrag
         tempInt = fragYVals[fragInd]
         ax1.vlines(tempFrag, 0, tempInt, colors = tempColors[frag], linestyles = 'solid', alpha = 0.8)#
 #    ax1.legend()#legend is broken in mpl 0.98.5
