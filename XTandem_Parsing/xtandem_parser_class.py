@@ -1,4 +1,5 @@
 import re
+import string
 import xml.etree.ElementTree#imported for py2exe to work
 from xml.etree import cElementTree as ET
 import numpy as N
@@ -57,29 +58,14 @@ class XT_RESULTS:
             groups = r.getchildren()
 
             n = 0
+            m = 0
             for group in groups:
                 if group.get('type') != 'no model obtained':
-                    for subGroup in group.getchildren():
-                        if subGroup.get('label') == "fragment ion mass spectrum":
-                            fragText, fragInfo = subGroup.getchildren()
-#                            print fragText.text
-                            for fragElem in fragInfo.getchildren():
-                                if 'Xdata' in fragElem.tag:
-                                    xStr = fragElem[0].text
-                                    #print N.array(xStr.split('\n')[1].split(), dtype = N.float)
-                                    #fragXVals.append(N.array(xStr.split('\n')[1].split(), dtype = N.float))#need to split because there are the return characters
-                                    fragXVals.append(xStr.split('\n')[1])#need to split because there are the return characters
-                                elif 'Ydata' in fragElem.tag:
-                                    yStr = fragElem[0].text
-                                    #fragYVals.append(N.array(yStr.split('\n')[1].split(), dtype = N.float))#conver to array with dtype set or it will default to string types
-                                    fragYVals.append(yStr.split('\n')[1])#conver to array with dtype set or it will default to string types
-#                            print "Frag"
                     for protein in group.findall('protein'):
                         cur_scan  = protein.get('id')
                         cur_protID = protein.attrib['label']
                         cur_pro_eVal = float(protein.attrib['expect'])
                         #prot_result = XT_protein(protID,  pro_eVal)
-
                         for peptide in protein.findall('peptide'):
                             for domain in peptide.findall('domain'):
                                 cur_pepSeq = domain.attrib['seq']
@@ -101,6 +87,39 @@ class XT_RESULTS:
                                     hScore.append(cur_hscore)
                                     nextScore.append(cur_nextscore)
                                     deltaH.append(cur_deltaH)
+                                    for subGroup in group.getchildren():
+                                        if subGroup.get('label') == "fragment ion mass spectrum":
+                                            fragText, fragInfo = subGroup.getchildren()
+                                            tempStr = 'scan '+str(scanID[-1])
+                                            if tempStr in fragText.text:
+                                                n+=1
+                                                for fragElem in fragInfo.getchildren():
+                                                    if 'Xdata' in fragElem.tag:
+                                                        xStr = fragElem[0].text
+                                                        strXSplit = xStr.split('\n')
+                                                        tempXStr = ''
+                                                        for xStr in strXSplit:
+                                                            tempXStr+=' '#needed so that sequence joins without decimals
+                                                            tempXStr+=xStr
+                    #                                    tempXStr.join(strXSplit)#this should work but doesn't
+                                                        fragXVals.append(tempXStr)#need to split because there are the return characters
+                                                    elif 'Ydata' in fragElem.tag:
+                                                        yStr = fragElem[0].text
+                                                        #fragYVals.append(N.array(yStr.split('\n')[1].split(), dtype = N.float))#conver to array with dtype set or it will default to string types
+                                                        strYSplit = yStr.split('\n')
+                                                        tempYStr = ''
+                                                        for yStr in strYSplit:
+                                                            tempYStr+=' '
+                                                            tempYStr+=yStr
+                    #                                    tempYStr.join(strYSplit)
+                                                        fragYVals.append(tempYStr)#conver to array with dtype set or it will default to string types
+                    #                                    n+=1
+#                                                    if scanID[-1] == 8269:
+#                                                        print cur_scan
+#                                                        print cur_pepSeq
+#                                                        print tempXStr
+#                                                        print tempYStr
+#                                                        print n
 
 
             '''
@@ -130,6 +149,8 @@ class XT_RESULTS:
                     'yFrags':fragYVals
                     }
                 self.dataLen = len(pepID)
+#                print n, m, self.dataLen, len(self.dataDict['xFrags'])
+#                print self.dataDict['xFrags'][53]
             else:
                 self.dataDict = False
 
