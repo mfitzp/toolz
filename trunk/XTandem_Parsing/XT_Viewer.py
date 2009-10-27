@@ -35,6 +35,7 @@ from xtandem_parser_class import XT_RESULTS
 import dbIO
 from customTable import DBTable
 from rangeDialog import rangeDialog as RD
+from FragmentPlot import FragPlotWidgets
 
 plot_colors = ['#297AA3','#A3293D','#3B9DCE','#293DA3','#5229A3','#8F29A3','#A3297A',
 '#7AA329','#3DA329','#29A352','#29A38F','#A38F29','#3B9DCE','#6CB6DA','#CE6C3B','#DA916C',
@@ -60,6 +61,7 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
     def __initVars__(self):
         self.openTableList = []
+        self.openPlotList = []
 
 
     def startup(self, dbName = None, startDB = True):
@@ -77,6 +79,7 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.ignoreSignal = False
 
         self.activeDict = {}
+        self.activeData = None
 
         self.plot_num = 0
         self.marker_index = 0
@@ -165,12 +168,18 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 #        print self.curDB.LIST_COLUMNS(self.curDB.LIST_TABLES()[0])
 #        print type(self.curDB.LIST_TABLES()[0]), self.curDB.LIST_TABLES()
 
-    def closeOpenTables(self):
+    def closeOpenWindows(self):
         if len(self.openTableList)>0:
             for table in self.openTableList:
                 try:
                     print "Closing %s"%str(table.windowTitle())
                     table.close()
+                except:
+                    pass
+        if len(self.openPlotList)>0:
+            for plot in self.openPlotList:
+                try:
+                    plot.close()
                 except:
                     pass
 
@@ -699,6 +708,7 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             n+=1
 
         self.SelectInfoWidget.resizeColumnsToContents()
+        self.activeData = activeData.dataDict
 
 
     def onselect(self, xmin, xmax):
@@ -830,6 +840,7 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         infoCT_menu = QtGui.QMenu("Menu",  self.SelectInfoWidget)
         infoCT_menu.addAction(self.selectDBFieldAction)
         infoCT_menu.addAction(self.saveDBFieldAction)
+        infoCT_menu.addAction(self.getFragAction)
         infoCT_menu.exec_(self.SelectInfoWidget.mapToGlobal(point))
 
     def plotTabContext(self, point):
@@ -893,6 +904,39 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                         fileName = tbl+'.csv'
                         self.saveCSVTable(tbl, fileName)
 
+    def getFragSpectrum(self):
+        curCol = self.SelectInfoWidget.currentColumn()
+        if self.SelectInfoWidget.currentItem() == None:
+            return False
+            #print "Current index: ",  self.SelectInfoWidget.currentRow(), curCol
+        else:
+            try:
+                curItem = self.SelectInfoWidget.item(1, 1)
+                indexVal = int(curItem.text())
+                #indexVal +=-1#this is because we are counting from zero, but the index table counts from 1
+                curSeq = self.activeData['pepID'][indexVal]
+                xData = self.activeData['xFrags'][indexVal]#this is text and needs to be converted
+                yData = self.activeData['yFrags'][indexVal]
+                tempXList = xData.split()
+                tempYList = yData.split()
+#                print type(tempXList), type(tempYList)
+#                print tempXList
+                xData = N.array(tempXList, dtype = N.float)#conver to array with dtype set or it will default to string types
+                yData = N.array(tempYList, dtype = N.float)
+                curFragPlot = FragPlotWidgets.FragPlot(curSeq, xData, yData)
+                curFragPlot.show()
+                self.openPlotList.append(curFragPlot)
+                print indexVal
+                print curSeq
+                print xData
+                print yData
+
+#                curType = self.infoMap[str(curItem.text())]
+#                curVal = self.curSelectInfo[str(curItem.text())]
+#                curTbl = self.curTbl
+            except:
+                raise
+
 
     def __setMessages__(self):
         '''This function is obvious'''
@@ -921,8 +965,8 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.saveDBFieldAction = QtGui.QAction("Save New Table By Field", self)
         self.SelectInfoWidget.addAction(self.saveDBFieldAction)
         QtCore.QObject.connect(self.saveDBFieldAction,QtCore.SIGNAL("triggered()"), self.saveQueryTable)
-        '''Database Add remove Tools'''
 
+        '''Database Add remove Tools'''
         self.removeTableAction = QtGui.QAction("Remove Table from Database", self)
         self.queryTblList.addAction(self.removeTableAction)
         QtCore.QObject.connect(self.removeTableAction, QtCore.SIGNAL("triggered()"), self.removeTable)
@@ -934,6 +978,10 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         QtCore.QObject.connect(self.actionSave_All_Tables, QtCore.SIGNAL("triggered()"), self.dumpAllCSVTables)
         QtCore.QObject.connect(self.actionCopy_Current_Database, QtCore.SIGNAL("triggered()"), self.copyCurrentDatabase)
 
+        '''Fragment Display Tools'''
+        self.getFragAction = QtGui.QAction("Display Fragment Spectrum", self)
+        self.queryTblList.addAction(self.getFragAction)
+        QtCore.QObject.connect(self.getFragAction, QtCore.SIGNAL("triggered()"), self.getFragSpectrum)
 
         '''Plot GUI Interaction slots'''
         QtCore.QObject.connect(self.db_TableList, QtCore.SIGNAL("itemPressed (QListWidgetItem *)"), self.setColLists)
@@ -972,7 +1020,7 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
     def closeEvent(self,  event = None):
         if self.okToExit():
-            self.closeOpenTables()
+            self.closeOpenWindows()
             pass
         else:
             event.ignore()
