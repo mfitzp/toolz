@@ -21,11 +21,15 @@ def main():
     sys.exit(app.exec_())
 
 class FragPlot(QtGui.QWidget):
-    def __init__(self, seq = None, X = None, Y = None, data = None,  colHeaderList = None, rowHeaderList = None, parent = None):
+    def __init__(self, seq = None, X = None, Y = None, title = None, data = None, annotation = None, colHeaderList = None, rowHeaderList = None, parent = None):
         QtGui.QWidget.__init__(self, parent)
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-        self.setWindowTitle('Fingerprint Meta Data')
-        self.resize(650, 500)
+        if title != None:
+            self.setWindowTitle(title)
+        else:
+            self.setWindowTitle('Fragment Plot')
+
+        self.resize(660, 600)
 
         self.vLayout = QtGui.QVBoxLayout(self)
         self.tabWidget = QtGui.QTabWidget(self)
@@ -39,6 +43,7 @@ class FragPlot(QtGui.QWidget):
         self.seq = None
         self.X = None
         self.Y = None
+        self.annotation = None
 
         if seq != None:
             self.seq = seq
@@ -46,7 +51,8 @@ class FragPlot(QtGui.QWidget):
             self.X = X
         if Y!= None:
             self.Y = Y
-
+        if annotation != None:
+            self.annotation = annotation
         ######################
 
         if data != None:
@@ -80,7 +86,8 @@ class FragPlot(QtGui.QWidget):
 
     def setupPlot(self):
         if self.seq != None and self.X != None and self.Y != None:
-            pepFrag(self.seq, self.X, self.Y, self.plotWidget.canvas)
+            pepFrag(self.seq, self.X, self.Y, self.plotWidget.canvas, annotation = self.annotation)
+
 
 class CustomTable(QtGui.QTableWidget):
     def __init__(self, parent = None):

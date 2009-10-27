@@ -20,8 +20,8 @@ from os.path import dirname
 
 # path to common building blocks
 # blocksPath = dirname(__file__) + '/blocks/'
-#blocksPath = 'FragmentPlot/configs'
-blocksPath = 'configs'
+blocksPath = 'FragmentPlot/configs'
+#blocksPath = 'configs'
 
 # averagine formula
 averagineFormula = {'C':4.9384, 'N':1.3577, 'O':1.4773, 'S':0.0417, 'H':7.7583}
