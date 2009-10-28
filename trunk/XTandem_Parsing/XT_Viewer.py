@@ -36,6 +36,7 @@ import dbIO
 from customTable import DBTable
 from rangeDialog import rangeDialog as RD
 from FragmentPlot import FragPlotWidgets
+import queryFunctions as QF
 
 plot_colors = ['#297AA3','#A3293D','#3B9DCE','#293DA3','#5229A3','#8F29A3','#A3297A',
 '#7AA329','#3DA329','#29A352','#29A38F','#A38F29','#3B9DCE','#6CB6DA','#CE6C3B','#DA916C',
@@ -870,7 +871,14 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
     def queryTableContext(self, point):
         queryList_menu = QtGui.QMenu("Menu", self.queryTblList)
-        queryList_menu.addAction(self.dumpTableAction)
+        queryList_menu.addAction(self.showTableAction)
+        queryList_menu.addSeparator()
+        queryList_menu.addAction(self.uniqePeptidesAction)
+        queryList_menu.addAction(self.uniqeProteinsAction)
+        queryList_menu.addAction(self.uniqePepByProtAction)
+        queryList_menu.addAction(self.uniqeMultiPepAction)
+        queryList_menu.addSeparator()
+        queryList_menu.addAction(self.dumpTableAction)#this is a save function
         queryList_menu.addSeparator()
         queryList_menu.addAction(self.removeTableAction)
         queryList_menu.exec_(self.queryTblList.mapToGlobal(point))
@@ -879,7 +887,7 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         curItem = self.queryTblList.currentItem()
         if curItem != None:
             curTbl = str(curItem.text())
-            if self.__askConfirm__('Remove File from Database?','This action will permanently remove the following table:%s'%curTbl):
+            if self.__askConfirm__('Remove File from Database?','This action will permanently remove the following table: %s'%curTbl):
                 if self.curDB.DROP_TABLE(curTbl):
                     if self.activeDict.has_key(curTbl):
                         self.activeDict.pop(curTbl)
@@ -969,6 +977,94 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             except:
                 raise
 
+    def showTable(self):
+        curItem = self.queryTblList.currentItem()
+        if curItem != None:
+            curTbl = str(curItem.text())
+            if self.dbStatus:
+                ok, result, colNames = self.curDB.GET_TABLE(curTbl)
+                if ok:
+                    self.openTableList.append(DBTable(result, enableSort = True, title = curTbl, colHeaderList = colNames))
+                    self.curDBTable = self.openTableList[-1]#append adds to the end of the list so adding the most recent addition
+
+    def commitFullQuery(self):
+        if self.dbStatus:
+            queryStr = str(self.sqlQueryString.toPlainText())
+            if queryStr != None:
+                try:
+                    newTableName, result, colNames = self.curDB.EXEC_QUERY_W_NEW_TABLE(queryStr)
+                    self.sqlErrorMessage.setText('No Error')
+                    print len(result)
+                    if len(result) > 0 and newTableName != None:
+                        if len(queryStr) > 50:
+                            tempTitle = queryStr[0:50]+'...'
+                        else:
+                            tempTitle = queryStr
+
+                        self.openTableList.append(DBTable(result, enableSort = True, title = newTableName, colHeaderList = colNames))
+                        self.curDBTable = self.openTableList[-1]#append adds to the end of the list so adding the most recent addition
+
+                        curResults = XT_RESULTS(parseFile = False)
+                        self.curDB.READ_CUSTOM_VALUES(newTableName, curResults)
+                        self.activeDict[newTableName] = curResults
+                        self.__resetDB__()
+
+
+                except:
+                    self.sqlErrorMessage.setText(str(sys.exc_value))
+#                    errorMsg = "Error: %s\n\n%s\n"%(sys.exc_type, sys.exc_value)
+#                    errorMsg+='\n There was an error executing the SQL Query.'
+#                    return QtGui.QMessageBox.information(self,'SQL Execute Error', errorMsg)
+
+
+    def UNIQUE_PROTEINS(self):
+        curItem = self.queryTblList.currentItem()
+        if curItem != None:
+            curTbl = str(curItem.text())
+            if self.dbStatus:
+                self.sqlQueryString.clear()
+                queryStr = QF.GET_UNIQUE_PROTEINS(curTbl)
+                self.sqlQueryString.setText(queryStr)
+                self.viewQueryResults()
+
+    def UNIQUE_PEPTIDES(self):
+        curItem = self.queryTblList.currentItem()
+        if curItem != None:
+            curTbl = str(curItem.text())
+            if self.dbStatus:
+                self.sqlQueryString.clear()
+                queryStr = QF.GET_UNIQUE_PEPTIDES(curTbl)
+                self.sqlQueryString.setText(queryStr)
+                self.viewQueryResults()
+
+    def GROUP_UNIQUE_PEPTIDES_BY_PROTEIN(self):
+        curItem = self.queryTblList.currentItem()
+        if curItem != None:
+            curTbl = str(curItem.text())
+            if self.dbStatus:
+                self.sqlQueryString.clear()
+                queryStr = QF.GET_UNIQUE_PEPTIDES_BY_PROTEIN(curTbl)
+                self.sqlQueryString.setText(queryStr)
+                self.viewQueryResults()
+
+    def MULTI_UNIQUE_PEPTIDE_GROUP(self):
+        tblList = []
+        for i in xrange(self.queryTblList.count()):
+            curItem = self.queryTblList.item(i)
+            if curItem.checkState() == 2:# QtCore.Qt.Checked:
+                tblList.append(str(curItem.text()))
+        if len(tblList)>1:
+            if self.dbStatus:
+                self.sqlQueryString.clear()
+                queryStr = QF.GET_UNIQUE_PEPTIDE_GROUP(tblList)
+                self.sqlQueryString.setText(queryStr)
+                self.viewQueryResults()
+        elif len(tblList) == 1:#need to just show for a single table....
+            curTbl = tblList[0]
+            queryStr = QF.GET_UNIQUE_PEPTIDES_BY_PROTEIN(curTbl)
+            self.sqlQueryString.setText(queryStr)
+            self.viewQueryResults()
+
 
     def __setMessages__(self):
         '''This function is obvious'''
@@ -987,7 +1083,6 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.__curDir = os.getcwd()
         self.firstLoad = True
 
-
     def __additionalConnections__(self):
         '''SelectInfoWidget context menu actions'''
         self.selectDBFieldAction = QtGui.QAction("Select Table By Field", self)
@@ -998,7 +1093,7 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.SelectInfoWidget.addAction(self.saveDBFieldAction)
         QtCore.QObject.connect(self.saveDBFieldAction,QtCore.SIGNAL("triggered()"), self.saveQueryTable)
 
-        '''Database Add remove Tools'''
+        '''Database View, Add, Remove Tools'''
         self.removeTableAction = QtGui.QAction("Remove Table from Database", self)
         self.queryTblList.addAction(self.removeTableAction)
         QtCore.QObject.connect(self.removeTableAction, QtCore.SIGNAL("triggered()"), self.removeTable)
@@ -1006,6 +1101,10 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.dumpTableAction = QtGui.QAction("Save Table to CSV", self)
         self.queryTblList.addAction(self.dumpTableAction)
         QtCore.QObject.connect(self.dumpTableAction, QtCore.SIGNAL("triggered()"), self.saveCSVTable)
+
+        self.showTableAction = QtGui.QAction("Show Table", self)
+        self.queryTblList.addAction(self.showTableAction)
+        QtCore.QObject.connect(self.showTableAction, QtCore.SIGNAL("triggered()"), self.showTable)
 
         QtCore.QObject.connect(self.actionSave_All_Tables, QtCore.SIGNAL("triggered()"), self.dumpAllCSVTables)
         QtCore.QObject.connect(self.actionCopy_Current_Database, QtCore.SIGNAL("triggered()"), self.copyCurrentDatabase)
@@ -1029,10 +1128,30 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.queryFieldList.addAction(self.queryByTypeAction)
         QtCore.QObject.connect(self.queryByTypeAction,QtCore.SIGNAL("triggered()"), self.queryByType)
 
+        '''Peptide and Protein Query slots'''
+        self.uniqePeptidesAction = QtGui.QAction("Get Unique Peptides", self)
+        self.queryTblList.addAction(self.uniqePeptidesAction)
+        QtCore.QObject.connect(self.uniqePeptidesAction, QtCore.SIGNAL("triggered()"), self.UNIQUE_PEPTIDES)
+
+        self.uniqeProteinsAction = QtGui.QAction("Get Unique Proteins", self)
+        self.queryTblList.addAction(self.uniqeProteinsAction)
+        QtCore.QObject.connect(self.uniqeProteinsAction, QtCore.SIGNAL("triggered()"), self.UNIQUE_PROTEINS)
+
+        self.uniqePepByProtAction = QtGui.QAction("Get Unique Peptides by Protein", self)
+        self.queryTblList.addAction(self.uniqePepByProtAction)
+        QtCore.QObject.connect(self.uniqePepByProtAction, QtCore.SIGNAL("triggered()"), self.GROUP_UNIQUE_PEPTIDES_BY_PROTEIN)
+
+        self.uniqeMultiPepAction = QtGui.QAction("Group Unique Peptides Across Tables", self)
+        self.queryTblList.addAction(self.uniqeMultiPepAction)
+        QtCore.QObject.connect(self.uniqeMultiPepAction, QtCore.SIGNAL("triggered()"), self.MULTI_UNIQUE_PEPTIDE_GROUP)
+
 
         '''Database Connection slots'''
         QtCore.QObject.connect(self.openDBButton, QtCore.SIGNAL("clicked()"), self.setDBConnection)
         QtCore.QObject.connect(self.useMemDB_CB, QtCore.SIGNAL("stateChanged (int)"), self.setMemDB)
+
+        QtCore.QObject.connect(self.dbCommitQuery, QtCore.SIGNAL("clicked()"), self.commitFullQuery)
+
 
         '''File menu actions slots'''
         QtCore.QObject.connect(self.action_Open,QtCore.SIGNAL("triggered()"),self.__readDataFile__)

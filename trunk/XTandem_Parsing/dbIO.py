@@ -11,90 +11,6 @@ import time
 
 '''
 
-Example Queries
-
-SELECT LB8W1_1_Output.pepID, LB8W1_1_Output.pep_eVal, YP_TSB_1.pepID, YP_TSB_1.pep_eVal FROM LB8W1_1_Output, YP_TSB_1 WHERE LB8W1_1_Output.pepID = YP_TSB_1.pepID;
-
-SELECT table1.column1, table2.column2 FROM table1, table2 WHERE table1.column1 = table2.column1;
-SELECT LB8W1_1_Output.pepID, YP_TSB_1.pepID FROM LB8W1_1_Output, YP_TSB_1 WHERE LB8W1_1_Output.pepID = YP_TSB_1.pepID;
-
-SELECT tbl1.ID, tbl1.fld1, tbl1.fld2 ... FROM tbl1
-JOIN tbl2 ON tbl2.ParentID = tbl1.ID
-JOIN tbl3 ON tbl3.ParentID = tbl2.ID
-WHERE tbl1.ID = 4
-
-
-
-tables = ['LB8W1_1_Output', 'YP_TSB_1']#, 'YP_TSB_2', 'GoJoe']
-keyWordList = ['SELECT', 'FROM', 'WHERE', 'AND']
-primKey = 'pepID'
-execStr = ''
-selectStr = 'SELECT '
-whereStr = ' WHERE '
-joinStr = ' JOIN '
-fromStr = ' FROM '
-andStr = ' AND '
-querySep = ', '
-numTables = len(tables)
-
-for i,tableName in enumerate(tables):
-    selectStr+=tableName
-    selectStr+='.*'
-
-    fromStr+=tableName
-
-    if i == numTables-1:
-        continue
-    else:
-        fromStr+=querySep
-
-        selectStr+=querySep
-
-        whereStr+=tables[0]
-        whereStr+='.'
-        whereStr+=primKey
-        whereStr+= ' = '
-        whereStr+=tables[i+1]
-        whereStr+='.'
-        whereStr+=primKey
-
-    if i < numTables-2:
-        whereStr+=andStr
-
-
-selectStr += fromStr
-selectStr += whereStr
-
-print selectStr
-
-
-Example: What customers have never ordered anything from us?
-
-SELECT customers.* FROM customers LEFT JOIN orders ON customers.customer_id = orders.customer_id WHERE orders.customer_id IS NULL
-
-More advanced example using a complex join: What customers have not ordered anything from us in the year 2004 - this one may not work in some lower relational databases (may have to use an IN clause)
-SELECT customers.* FROM customers LEFT JOIN orders ON (customers.customer_id = orders.customer_id AND year(orders.order_date) = 2004) WHERE orders.order_id IS NULL
-
-
-SELECT DISTINCT
-  BSATest.pepID,
-  BSATest.pep_eVal,
-  BSATest.ppm_error,
-  Oct_20_BSA.ppm_error,
-  Oct_20_BSA.pepID,
-  Oct_20_BSA.pep_eVal,
-  bsa_Test.pepID,
-  bsa_Test.pep_eVal,
-  bsa_Test.ppm_error,
-  BSATest.proID,
-  Oct_20_BSA.proID,
-  bsa_Test.proID
-FROM
- BSATest
- INNER JOIN Oct_20_BSA ON (BSATest.pepID=Oct_20_BSA.pepID)
- INNER JOIN bsa_Test ON (Oct_20_BSA.pepID=bsa_Test.pepID)
-
-
 '''
 
 #class dbError(object):
@@ -326,6 +242,42 @@ class XT_DB(object):#X!Tandem Database Class
                     rowList.append(str(item))
                 result.append(rowList)
             return result
+
+    def EXEC_QUERY_W_NEW_TABLE(self, queryStr):
+        '''Saves query to the database--only if the user commits to the database upon close of the application'''
+        newTableName, ok = QtGui.QInputDialog.getText(self.parent, 'Create New Database Table',\
+                                        'Enter New Table Name: ', QtGui.QLineEdit.Normal, 'newTable')
+        if ok:
+            execStr = "CREATE TABLE %s AS "%str(newTableName)
+            execStr += queryStr
+            print execStr
+            self.cur.execute(execStr)
+            self.cur.execute("SELECT * FROM %s"%(str(newTableName)))
+            result = self.GET_CURRENT_QUERY()
+            colNames = self.LIST_COLUMNS(str(newTableName))
+
+            print 'The table named: "%s" created in current database.'%str(newTableName)
+
+            return str(newTableName), result, colNames
+        else:
+            return None, [], []
+
+    def GET_TABLE(self, tblName):
+        self.cur.execute("SELECT * FROM %s"%(tblName))
+        result = self.GET_CURRENT_QUERY()
+        colNames = self.GET_COLUMN_NAMES()
+        if len(result)>0:
+            return True, result, colNames
+        else:
+            return False, [], []
+
+    def EXEC_QUERY(self, queryStr):
+        self.cur.execute(execStr)
+        result = self.GET_CURRENT_QUERY()
+        if len(result)>0:
+            colNames = self.GET_COLUMN_NAMES()
+            return newTableName, result, colNames
+
 
     def GET_VALUE_BY_TYPE(self, tableName, fieldType, fieldValue, savePrompt = False):
         if savePrompt:

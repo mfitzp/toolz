@@ -1,8 +1,3 @@
-
-
-
-
-
 def GET_TABLE(tableName):
     return 'SELECT * FROM %s'%tableName
 
@@ -17,6 +12,7 @@ def GET_UNIQUE_PROTEINS(tableName):
     keyID1 = 'proID'
     keyID2 = 'pro_eVal'
     querySep = ',\n\t'
+    nameSep = '_'
     colSep = '.'
     fromStr = 'FROM\n\t'
     groupStr = 'GROUP BY\n\t'
@@ -63,6 +59,7 @@ def GET_UNIQUE_PEPTIDE_GROUP(tblList):
         primKey = 'pepID'
         endKey = 'proID'
         operatorList = [None, 'AVG', 'AVG', 'MIN']
+        nameSep = '_'
         colSep = '.'
         groupStr = 'GROUP BY\n\t'
 
@@ -120,9 +117,9 @@ def GET_UNIQUE_PEPTIDE_GROUP(tblList):
         return execStr
 
 
-def GET_UNIQUE_PEPTIDES_AND_PROT(tableName):
+def GET_UNIQUE_PEPTIDES_BY_PROTEIN(tableName):
     '''
-    Returns query to obtain unique peptides from a single table
+    Returns query to obtain unique peptides from a single table sorted by protein
     '''
     operatorList = ['MIN', 'AVG', 'AVG']
     colList = ['pep_eVal', 'pep_eVal','ppm_error']
@@ -130,6 +127,7 @@ def GET_UNIQUE_PEPTIDES_AND_PROT(tableName):
     keyID1 = 'pepID'
     keyID2 = 'proID'
     querySep = ',\n\t'
+    nameSep = '_'
     colSep = '.'
     fromStr = 'FROM\n\t'
     groupStr = 'GROUP BY\n\t'
@@ -167,7 +165,7 @@ def GET_UNIQUE_PEPTIDES(tableName):
     '''
     selStr = 'SELECT DISTINCT '
     keyID = 'pepID'
-
+    nameSep = '_'
     colSep = '.'
     fromStr = ' FROM '
     groupStr = ' GROUP BY '
@@ -187,13 +185,18 @@ def GET_UNIQUE_PEPTIDES(tableName):
 if __name__ == "__main__":
     ans = GET_UNIQUE_PEPTIDES('BSA')
     print ans
+    print '1'
     print '\n'
-    ans = GET_UNIQUE_PEPTIDES_AND_PROT('BSATest')
+
+    ans = GET_UNIQUE_PEPTIDES_BY_PROTEIN('BSATest')
     print ans
+    print '2'
     print '\n'
     ans = GET_UNIQUE_PROTEINS('BSATest')
     print ans
+    print '3'
     print '\n'
     tblList = ['BSATest', 'OCT_20_BSA', 'bsa_Test']
     ans = GET_UNIQUE_PEPTIDE_GROUP(tblList)
     print ans
+    print '4'
