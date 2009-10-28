@@ -271,7 +271,7 @@
                </size>
               </property>
               <property name="text">
-               <string>Execute Query</string>
+               <string>Execute Truncated Query</string>
               </property>
              </widget>
             </item>
