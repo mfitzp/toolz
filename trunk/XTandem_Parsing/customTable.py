@@ -68,12 +68,6 @@ class DBTable(QWidget):
             except:
                 return False
 
-
-
-
-
-
-
 class CustomTable(QTableWidget):
     def __init__(self, parent = None):
         QTableWidget.__init__(self, parent)
