@@ -1,4 +1,4 @@
-SELECT DISTINCT 
+SELECT DISTINCT
   BSATest.pepID,
   AVG(BSATest.ppm_error) AS AVG_BSATest_ppm,
   AVG(BSATest.pep_eVal) AS AVG_BSATest_pepEval,
@@ -21,7 +21,7 @@ GROUP BY
   BSATest.pepID
 
 ##########################
-SELECT DISTINCT 
+SELECT DISTINCT
   BSATest.pepID,
   AVG(BSATest.ppm_error) AS AVG_BSATest_ppm,
   AVG(BSATest.pep_eVal) AS AVG_BSATest_pepEval,
@@ -51,7 +51,7 @@ SELECT * FROM BSATest;
 
 ##########################
 
-SELECT DISTINCT 
+SELECT DISTINCT
   BSATest.pepID
 FROM
  BSATest
@@ -60,10 +60,10 @@ GROUP BY
 
 ##########################
 
-SELECT 
+SELECT
   BSATest.pepID,
   BSATest.proID,
-  count(pepID) AS FIELD_1
+  count(pepID) AS Pep_Count
 FROM
  BSATest
 GROUP BY
@@ -74,10 +74,10 @@ GROUP BY
 
 Sorts by Unique Peptides
 
-SELECT 
+SELECT
   BSATest.pepID,
   BSATest.proID,
-  COUNT(BSATest.pepID) AS FIELD_1,
+  COUNT(BSATest.pepID) AS Pep_Count,
   MIN(BSATest.pep_eVal) AS Min_BSATest_pepEva,
   AVG(BSATest.pep_eVal) AS AVG_BSATest_pepEval,
   AVG(BSATest.ppm_error) AS AVG_BSATest_ppm
@@ -92,7 +92,7 @@ GROUP BY
 
 Sorts by Proteins
 
-SELECT 
+SELECT
   BSATest.proID,
   BSATest.pro_eVal,
   COUNT(BSATest.pepID) AS PepCount,

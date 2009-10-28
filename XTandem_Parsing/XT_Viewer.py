@@ -248,7 +248,9 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                     self.curDB.cur.execute(queryStr)
                     self.sqlErrorMessage.setText('No Error')
                     result = self.curDB.GET_CURRENT_QUERY(truncate = True)
+                    colNames = self.curDB.GET_COLUMN_NAMES()
                     if len(result) != 0:
+                        self.outTableWidget.setHorizontalHeaderLabels(colNames)
                         self.outTableWidget.setSortingEnabled(False)
                         self.outTableWidget.addData(result)
                         self.outTableWidget.resizeColumnsToContents()
@@ -267,12 +269,13 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                     self.curDB.cur.execute(queryStr)
                     self.sqlErrorMessage.setText('No Error')
                     result = self.curDB.GET_CURRENT_QUERY(truncate = False)
+                    colNames = self.curDB.GET_COLUMN_NAMES()
                     if len(result) != 0:
                         if len(queryStr) > 50:
                             tempTitle = queryStr[0:50]+'...'
                         else:
                             tempTitle = queryStr
-                        self.openTableList.append(DBTable(result, enableSort = True, title = tempTitle))
+                        self.openTableList.append(DBTable(result, enableSort = True, title = tempTitle, colHeaderList = colNames))
                         self.curDBTable = self.openTableList[-1]#append adds to the end of the list so adding the most recent addition
                 except:
                     self.sqlErrorMessage.setText(str(sys.exc_value))
@@ -585,7 +588,11 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.plotWidget.canvas.draw()
 
     def tableSelChanged(self, selList):
-        print selList
+#        updateSelectInfo(self,  index,  activeKey)
+        selIndex, activeKey = selList
+        if type(selIndex) == int and self.activeDict.has_key(activeKey):
+            self.updateSelectInfo(selIndex, activeKey)
+#            print selList
 
     def __setupPlot__(self):
         '''Sets up the plot variables used for interaction'''
@@ -764,7 +771,7 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                 curVal = self.curSelectInfo[str(curItem.text())]
                 curTbl = self.curTbl
                 if saveTable:
-                    tblName, result = self.curDB.GET_VALUE_BY_TYPE(curTbl, curType, curVal, savePrompt = True)
+                    tblName, result, colNames = self.curDB.GET_VALUE_BY_TYPE(curTbl, curType, curVal, savePrompt = True)
 
                     if len(result)>0 and tblName != None:
                         curResults = XT_RESULTS(parseFile = False)
@@ -774,7 +781,7 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
 
                 else:
-                    tblName, result = self.curDB.GET_VALUE_BY_TYPE(curTbl, curType, curVal)
+                    tblName, result, colNames = self.curDB.GET_VALUE_BY_TYPE(curTbl, curType, curVal)
                 if result == False:
                     print "User aborted query"
                 else:
@@ -793,6 +800,7 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                 QtGui.QMessageBox.warning(self, "Select Database Field Error",  errorMsg)
 
 
+
     def saveQueryTable(self):
         self.selectDBField(saveTable = True)
 
@@ -809,7 +817,7 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                     if ok:
                         queryValue = str(queryValue)
                         if len(queryValue) != 0:#make sure the user didn't leave the prompt blank
-                            tempName, result = self.curDB.GET_VALUE_BY_TYPE(curTbl,  curField,  queryValue)
+                            tempName, result, colNames = self.curDB.GET_VALUE_BY_TYPE(curTbl,  curField,  queryValue)
                             tempTitle = curTbl+', '+curField+', '+queryValue
 
             elif self.keyTypeMap[curField] == int:
@@ -819,20 +827,20 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 #                    print self.loVal, self.hiVal
                     self.loVal = int(self.loVal)
                     self.hiVal = int(self.hiVal)
-                    result = self.curDB.GET_VALUE_BY_RANGE(curTbl, curField, self.loVal, self.hiVal)
+                    result, colNames = self.curDB.GET_VALUE_BY_RANGE(curTbl, curField, self.loVal, self.hiVal)
                     tempTitle = curTbl+', '+curField+', '+str(self.loVal)+' to '+str(self.hiVal)
 
             elif self.keyTypeMap[curField] == float:
                 if RD(self.loVal, self.hiVal, parent = self).exec_():
 #                    print self.loVal, self.hiVal
-                    result = self.curDB.GET_VALUE_BY_RANGE(curTbl, curField, self.loVal, self.hiVal)
+                    result, colNames = self.curDB.GET_VALUE_BY_RANGE(curTbl, curField, self.loVal, self.hiVal)
                     tempTitle = curTbl+', '+curField+', '+str(self.loVal)+' to '+str(self.hiVal)
 
-            if len(result) == 0:
-                result = ['No data was found...', ]
-            colHeaders = self.curDB.LIST_COLUMNS(curTbl)
+#            if len(result) == 0:
+#                result = ['No data was found...', ]
+#            colHeaders = self.curDB.LIST_COLUMNS(curTbl)
 
-            curTableWin = DBTable(result, colHeaders, enableSort = True, title = tempTitle)
+            curTableWin = DBTable(result, colNames, enableSort = True, title = tempTitle)
             QtCore.QObject.connect(curTableWin,QtCore.SIGNAL("itemSelected(PyQt_PyObject)"), self.tableSelChanged)
             self.openTableList.append(curTableWin)
             self.curDBTable = self.openTableList[-1]#append adds to the end of the list so adding the most recent addition

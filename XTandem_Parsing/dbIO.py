@@ -263,7 +263,7 @@ class XT_DB(object):#X!Tandem Database Class
 
     def LIST_COLUMNS(self,  tableName):
         self.colList = []
-        self.cur.execute('PRAGMA table_info(%s)'%tableName)
+        self.cur.execute('PRAGMA TABLE_INFO(%s)'%tableName)
         for row in self.cur.fetchall():
             self.colList.append(str(row[1]))#row[1] by itself produces a unicode object, and row itself is a tuple, row[1] is the column name
         return self.colList
@@ -348,7 +348,8 @@ class XT_DB(object):#X!Tandem Database Class
                 #print "CREATE TABLE %s AS SELECT * FROM %s WHERE %s LIKE '%s'"%(newTableName, tableName, fieldType, fieldValue)
                 result = self.GET_CURRENT_QUERY()
                 print 'The table named: "%s" created in current database.'%newTableName
-                return newTableName, result
+                colNames = self.GET_COLUMN_NAMES()
+                return newTableName, result, colNames
             else:#this is the case if the user cancels the input of the new table
                 return None, []
 
@@ -357,7 +358,8 @@ class XT_DB(object):#X!Tandem Database Class
             self.cur.execute("SELECT * FROM %s WHERE %s LIKE '%s'"%(tableName, fieldType, fieldValue))
             print "SELECT * FROM %s WHERE %s LIKE '%s'"%(tableName, fieldType, fieldValue)
             result = self.GET_CURRENT_QUERY()
-            return None, result
+            colNames = self.GET_COLUMN_NAMES()
+            return None, result, colNames
 
     def GET_VALUE_BY_RANGE(self, tableName, fieldType, loVal, hiVal, savePrompt = False):
         if savePrompt:
@@ -379,8 +381,10 @@ class XT_DB(object):#X!Tandem Database Class
                 self.cur.execute("SELECT * FROM %s"%(newTableName))
                 #print "CREATE TABLE %s AS SELECT * FROM %s WHERE %s LIKE '%s'"%(newTableName, tableName, fieldType, fieldValue)
                 result = self.GET_CURRENT_QUERY()
+                colNames = self.GET_COLUMN_NAMES()
                 print 'The table named: "%s" created in current database.'%newTableName
-                return result
+                return result, colNames
+
             else:#this is the case if the user cancels the input of the new table
                 return False
 
@@ -389,7 +393,15 @@ class XT_DB(object):#X!Tandem Database Class
             self.cur.execute("SELECT * FROM %s WHERE %s > %s AND %s < %s"%(tableName, fieldType, str(loVal), fieldType, str(hiVal)))
             print "SELECT * FROM %s WHERE %s > %s AND %s < %s"%(tableName, fieldType, str(loVal), fieldType, str(hiVal))
             result = self.GET_CURRENT_QUERY()
-            return result
+            colNames = self.GET_COLUMN_NAMES()
+            return result, colNames
+
+    def GET_COLUMN_NAMES(self):
+        colNames = [tuple[0] for tuple in self.cur.description]
+        if len(colNames)>0:
+            return colNames
+        else:
+            return []
 
     def READ_XT_VALUES(self, tableName, XT_RESULTS):
         '''The XT_RESULTS in this case is empty instance that will be filled, however, it could be one that needs to be updated too.'''
