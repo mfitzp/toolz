@@ -201,6 +201,8 @@ def pepFrag(seq, X, Y, plotCanvas, annotation = None):
     fragType = []
     fragMZ = []
 
+    print "Series: ", series
+
 #    for val in ans:
 #        print val
 
@@ -219,6 +221,7 @@ def pepFrag(seq, X, Y, plotCanvas, annotation = None):
 
     absTol = 3000#ppm
     ppmErrs = []
+    ppmErrType = []
     for i,frag in enumerate(fragMZ):
         foundInd = mz.searchsorted(frag)
 
@@ -247,41 +250,65 @@ def pepFrag(seq, X, Y, plotCanvas, annotation = None):
         if foundDiffOk and prevDiffOk:
             if N.abs(foundDiff) < N.abs(prevDiff):
                 ppmErrs.append([frag, foundDiff/frag*1E6])
+                ppmErrType.append(fragType[i])
                 fragYVals[i] = Y[foundInd]
             else:
                 ppmErrs.append([frag, prevDiff/frag*1E6])
+                ppmErrType.append(fragType[i])
                 fragYVals[i] = Y[prevInd]
         elif foundDiffOk:
             ppmErrs.append([frag, foundDiff/frag*1E6])
+            ppmErrType.append(fragType[i])
             fragYVals[i] = Y[foundInd]
         elif prevDiffOk:
             ppmErrs.append([frag, prevDiff/frag*1E6])
+            ppmErrType.append(fragType[i])
             fragYVals[i] = Y[prevInd]
 
+    #plot the lines for each spectrum before being matched
     ax1.vlines(X, 0, Y, colors = 'k', alpha = 0.6)
-    tempColors = ['r', 'b', 'g', 'y']
-    for frag in fragRange:
-        fragInd = N.where(fragType == frag)[0]
-        tempFrag = fragMZ[fragInd]
-#        print frag, tempFrag
-        tempInt = fragYVals[fragInd]
-        ax1.vlines(tempFrag, 0, tempInt, colors = tempColors[frag], linestyles = 'solid', alpha = 0.8)#
-#    ax1.legend()#legend is broken in mpl 0.98.5
-    i = 1
+
+
+
+    m = 1
+    ppmErrType = N.array(ppmErrType)
     ppmErrs = N.array(ppmErrs)
     errs = ppmErrs[:,1]
     errY = N.arange(len(errs))
     errY+=1
-    ax2.plot(errs, errY, 'go', ms = 5, alpha = 0.6)
+#    ax2.plot(errs, errY, 'go', ms = 5, alpha = 0.6)
 
-    ax2.axvline(ymax = errY.max(), color = 'k', ls = '--')
+    tempColors = ['r', 'b', 'g', 'y']
+    tempMarkers = ['o','s','d','^', 'h', 'p']
+    n = 1
+    for m,frag in enumerate(fragRange):
+        fragInd = N.where(fragType == frag)[0]
+        tempFrag = fragMZ[fragInd]
+
+        errInd = N.where(ppmErrType == frag)[0]
+        tempErrs = errs[errInd]
+        tempErrY = N.arange(n,len(tempErrs)+n)
+        n+=len(tempErrs)
+        ax2.plot(tempErrs, tempErrY, linestyle = 'None', marker = tempMarkers[frag], color = tempColors[frag], ms = 5, alpha = 0.6)
+#        print frag, tempFrag
+        tempInt = fragYVals[fragInd]
+        ax1.vlines(tempFrag, 0, tempInt, colors = tempColors[frag], linestyles = 'solid', alpha = 0.8)#
+#    ax1.legend()#legend is broken in mpl 0.98.5
+
+
+#    ax2.axvline(ymax = errY.max(), color = 'k', ls = '--')
+#    ax2.set_xlim(xmin = N.abs(errs.max())*-1.1, xman = N.abs(errs.max())*1.1)
+
+    errMax = n-len(tempErrs)+1
+    ax2.axvline(ymax = errMax, color = 'k', ls = '--')
     ax2.set_xlim(xmin = N.abs(errs.max())*-1.1, xman = N.abs(errs.max())*1.1)
+
 
     if annotation != None:
         textTag = seq+annotation
     else:
         textTag = seq
-        
+
     ax1.text(0.03, 0.95, textTag, fontsize=7,\
             bbox=dict(facecolor='yellow', alpha=0.1),\
             transform=ax1.transAxes, va='top')
