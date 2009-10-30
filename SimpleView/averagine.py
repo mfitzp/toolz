@@ -54,10 +54,13 @@ def averagineCalc(avgMass, charge = 1):
 		mercAns = LMI.mercury(modelComp, charge, 1e-3)
 		if mercAns[0] == 0:
 			return mercAns
+	else:
+		print "libmercury failed"
 
 
 if __name__ == "__main__":
-	averagineCalc(1672)
+	ans = averagineCalc(1672, 1)
+	print ans
 
 '''
 "ams.averagine" <-

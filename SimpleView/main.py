@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 ###################################
-'''To Do:
+'''
+
+REQUIRES hcluster 1.8 NOT 2.0
+
+To Do:
 """
 Keys:            GUI Elements:
 {

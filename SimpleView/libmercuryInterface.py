@@ -36,6 +36,8 @@ import sys
 if sys.platform == 'win32':
     print 'win32'
     import libmercury_win32 as LM
+elif sys.platform == 'linux2':
+    from libmercury64 import libmercury64 as LM
 else:
     import libmercury as LM
 

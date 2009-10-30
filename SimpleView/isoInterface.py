@@ -171,7 +171,6 @@ def getIsoProfile(xArray, yArray, isoCentroids, isoAmplitudes,
 	returnX = []
 	returnY = []
 	for i, iso in enumerate(isoCentroids):
-
 		if i == 0:
 			'''
 			For the monoisotopic peak we want to estimate the resolution by fitting a gaussian and
@@ -271,7 +270,6 @@ def getIsoProfile(xArray, yArray, isoCentroids, isoAmplitudes,
 
 		else:
 			pkWidth = iso/mzResCalc#FWHM = 2.35*sigma
-			#fullWidth = (pkWidth/2.35)*4
 			tempXProfile = N.arange(iso-(pkWidth*4), iso+(pkWidth*4), xDiff)#N.arange(start, stop, step)
 			tempYProfile = GF.getGauss(tempXProfile, iso, pkWidth, amp = isoAmplitudes[i])
 			#tempXProfile, tempYProfile = concatenateIsos(returnX[-1], tempXProfile, tempYProfile)
@@ -419,10 +417,10 @@ def sortPeaks(X,Y, profileX, profileY, corrFactors, centSNR, xTol):
 	newYProfile = []
 	newCorr = []
 	newSNR = []
-	for i,x in enumerate(centX):
-		print x, groups[i]
+#	for i,x in enumerate(centX):
+#		print x, groups[i]
 
-	for g in xrange(gNum):
+	for g in xrange(gNum+1):#add 1 to handle last peak
 		gIndex = N.where(groups == g)[0]
 #		subGroup = corrFactors[gIndex]#the question is whether to key on correlation or intensity
 		subGroup = centY[gIndex]
@@ -437,17 +435,18 @@ def sortPeaks(X,Y, profileX, profileY, corrFactors, centSNR, xTol):
 
 	#need to handle last peak
 	#add case where there is only one isotope peak??????
-
-	if ((centX[-1]-centX[2])/centX[-1]*1000000) <= xTol:
-		#do nothing as these peaks are said to be the same
-		print "last element the same"
-	else:
-		newCentX.append(xSort[-1])
-		newCentY.append(ySort[-1])
-		newXProfile.append(profileX[-1])
-		newYProfile.append(profileY[-1])
-		newCorr.append(corrFactors[-1])
-		newSNR.append(centSNR[-1])
+#	endDiff = ((centX[-1]-centX[-2])/centX[-1]*1000000)
+#	print endDiff, centX[-1], centX[-2], centX[-3]
+#	if endDiff <= xTol:
+#		#do nothing as these peaks are said to be the same
+#		print "last element the same"
+#	else:
+#		newCentX.append(xSort[-1])
+#		newCentY.append(ySort[-1])
+#		newXProfile.append(profileX[-1])
+#		newYProfile.append(profileY[-1])
+#		newCorr.append(corrFactors[-1])
+#		newSNR.append(centSNR[-1])
 
 
 	newCentX = N.array(newCentX)
@@ -504,6 +503,7 @@ def processSpectrum(X, Y, scales, minSNR, pkResEst, corrCutOff, maxCharge = 1, x
 
 	peakLoc, peakInt, rawPeakInd, cwtPeakLoc, snr, cClass, boolAns = ANS
 
+
 	pkLoc = N.array(peakLoc)
 	pkInt = N.array(peakInt)
 	peakOrder = pkLoc.argsort()
@@ -519,7 +519,6 @@ def processSpectrum(X, Y, scales, minSNR, pkResEst, corrCutOff, maxCharge = 1, x
 	centSNR = []
 	corrFactors=[]#cross correlation factors between the theoretical and actual data
 	startPnts = []
-
 	if boolAns:
 		if len(pkLoc)>0:
 #			print peakLoc
@@ -568,7 +567,7 @@ if __name__ == "__main__":
 
 
 	fn = 'HG_pt01_mg_mL_B12_1.mzXML'
-	#fn = 'Heme_S10_A11_1.mzXML'
+#	fn = 'Heme_S10_A11_1.mzXML'
 	mzx = mzXML.mzXMLDoc(fn)
 	spectrum = mzx.data.get('spectrum')
 
