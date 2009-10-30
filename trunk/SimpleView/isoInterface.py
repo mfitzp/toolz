@@ -364,7 +364,7 @@ def getIsoProfile(xArray, yArray, isoCentroids, isoAmplitudes,
 def normalize2One(datArray):
 	return datArray/datArray.max()
 
-def sortPeaks(X,Y, profileX, profileY, corrFactors, xTol):
+def sortPeaks(X,Y, profileX, profileY, corrFactors, centSNR, xTol):
 	'''
 	Sorts and deletes entries in the found peaks that differ by less than a user defined cutoff
 	X -- peak centroids
@@ -381,8 +381,12 @@ def sortPeaks(X,Y, profileX, profileY, corrFactors, xTol):
 
 	Most likely you could remove the sorting but I did this to be sure
 	'''
+	if type(corrFactors) == list:
+		corrFactors = N.array(corrFactors)
+
 	centX = []
 	centY = []
+	#only take the first of the isotopes in the centroid profiles
 	for i,xVals in enumerate(X):
 		centX.append(xVals[0])
 		centY.append(Y[i][0])
@@ -393,21 +397,69 @@ def sortPeaks(X,Y, profileX, profileY, corrFactors, xTol):
 	xSort = centX[sortOrder]
 	ySort = centY[sortOrder]
 	xDiff = N.diff(xSort)
-	indArray = []
-	j = 0
+#	groups = N.zeros_like(xDiff)
+	#the first group in this array is zero
+	groups = N.zeros_like(xSort)
+	gNum = 0
+	#need to figure out how to account for the
+	#way N.diff works.
 	for k, diff in enumerate(xDiff):
-		if diff <= xTol:
-			indArray.append(j)
+		ppmDiff = (diff/centX[k+1])*1000000
+		if ppmDiff <= xTol:
+			groups[k+1] = gNum#using k+1 because the difference uses the next element
 		else:
-			j+=1
-			indArray.append(j)
-
-		print centX[k], diff, corrFactors[k], j
-
-	peakGroups = []
+			gNum+=1
+			groups[k+1] = gNum
 
 
-def processSpectrum(X, Y, scales, minSNR, pkResEst, corrCutOff, maxCharge = 1, xDiff = None):
+
+	newCentX = []
+	newCentY = []
+	newXProfile = []
+	newYProfile = []
+	newCorr = []
+	newSNR = []
+	for i,x in enumerate(centX):
+		print x, groups[i]
+
+	for g in xrange(gNum):
+		gIndex = N.where(groups == g)[0]
+#		subGroup = corrFactors[gIndex]#the question is whether to key on correlation or intensity
+		subGroup = centY[gIndex]
+		maxInd = subGroup.argmax()#finds the maximum correlation of the subgroup
+
+		newCentX.append(xSort[gIndex[maxInd]])
+		newCentY.append(ySort[gIndex[maxInd]])
+		newXProfile.append(profileX[gIndex[maxInd]])
+		newYProfile.append(profileY[gIndex[maxInd]])
+		newCorr.append(corrFactors[gIndex[maxInd]])
+		newSNR.append(centSNR[gIndex[maxInd]])
+
+	#need to handle last peak
+	#add case where there is only one isotope peak??????
+
+	if ((centX[-1]-centX[2])/centX[-1]*1000000) <= xTol:
+		#do nothing as these peaks are said to be the same
+		print "last element the same"
+	else:
+		newCentX.append(xSort[-1])
+		newCentY.append(ySort[-1])
+		newXProfile.append(profileX[-1])
+		newYProfile.append(profileY[-1])
+		newCorr.append(corrFactors[-1])
+		newSNR.append(centSNR[-1])
+
+
+	newCentX = N.array(newCentX)
+	newCentY = N.array(newCentY)
+#	newXProfile = N.array(newXProfile)
+#	newYProfile = N.array(newYProfile)
+	newCorr = N.array(newCorr)
+	newSNR = N.array(newSNR)
+
+	return [newCentX, newCentY, newXProfile, newYProfile, newCorr, newSNR]
+
+def processSpectrum(X, Y, scales, minSNR, pkResEst, corrCutOff, maxCharge = 1, xDiff = None, groupPeaks = False):
 	'''
 	This is the main function call
 	assumes data have been interpolated (for CWT)
@@ -500,11 +552,11 @@ def processSpectrum(X, Y, scales, minSNR, pkResEst, corrCutOff, maxCharge = 1, x
 								startPnts.append(startInd)
 								centSNR.append(snr[i])
 
-			returnANS = [centX, centY, isoX, isoY, corrFactors, centSNR]
+			if groupPeaks:
+				returnANS = sortPeaks(centX, centY, isoX, isoY, corrFactors, centSNR, 500)
+			else:
+				returnANS = [centX, centY, isoX, isoY, corrFactors, centSNR]
 
-
-				#sortPeaks(returnANS[0],returnANS[1], returnANS[2], returnANS[3], returnANS[4], xTol = xDiff*2)
-#				plotIsoProfile(X, Y, isoX, isoY)
 			return returnANS, True
 		return None, False
 	return None, False
@@ -516,7 +568,7 @@ if __name__ == "__main__":
 
 
 	fn = 'HG_pt01_mg_mL_B12_1.mzXML'
-	fn = 'Heme_S10_A11_1.mzXML'
+	#fn = 'Heme_S10_A11_1.mzXML'
 	mzx = mzXML.mzXMLDoc(fn)
 	spectrum = mzx.data.get('spectrum')
 
@@ -558,7 +610,8 @@ if __name__ == "__main__":
 	resEst = 9000
 	corrCutOff = 0.5
 	t1 = time.clock()
-	ANS, boolAns = processSpectrum(mz, abund, scales, minSNR, resEst, xDiff = mzDiff, corrCutOff = corrCutOff)
+	grpPeaks = True
+	ANS, boolAns = processSpectrum(mz, abund, scales, minSNR, resEst, xDiff = mzDiff, corrCutOff = corrCutOff, groupPeaks = grpPeaks)
 	print "Peak Picking and Isotopic Fitting Time: ", time.clock()-t1
 
 	fig = P.figure()
@@ -571,7 +624,8 @@ if __name__ == "__main__":
 		centX, centY, isoX, isoY, corrFits, centSNR = ANS
 		monoPeaks = []
 		for j in centX:
-			monoPeaks.append(j[0])
+#			monoPeaks.append(j[0])
+			monoPeaks.append(j)
 		ppmTol = 500
 		newCentX = []
 		newCentY = []
@@ -579,41 +633,16 @@ if __name__ == "__main__":
 		newIsoY = []
 		newCorrFits = []
 		newCentSNR = []
-		groups, gNum = PF.groupOneDim(monoPeaks, ppmTol)
-#	    for g in xrange(gNum):
-#	        subInd = N.where(groups == g)[0]
-#	        curXMean = xLoc[subInd].mean()
-#	        curXStd = xLoc[subInd].std()
-#	        curYMean = yLoc[subInd].mean()
-#	        curYStd = yLoc[subInd].std()
-#	        curSNR = snr[subInd].mean()
-#	        curSNRStd = snr[subInd].std()
-#	        freq = len(subInd)/numSpectra
-#	        peakStatDict['aveLoc'].append(curXMean)
-#	        peakStatDict['stdLoc'].append(curXStd)
-#	        peakStatDict['aveInt'].append(curYMean)
-#	        peakStatDict['stdInt'].append(curYStd)
-#	        peakStatDict['snr'].append(curSNR)
-#	        peakStatDict['stdSNR'].append(curSNRStd)
-#	        peakStatDict['numMembers'].append(len(subInd))
-#	        peakStatDict['freq'].append(freq)
-#	        peakStatDict['mzTol'].append(mzTol)
-#	        peakStatDict['numTot'].append(numSpectra)
 
 		if len(centX)>0:
 			for i, centroid in enumerate(centX):
 				ax.vlines(centroid, 0, centY[i]*1.1, 'g', linestyle = 'dashed')
 				ax.plot(isoX[i], isoY[i], 'r', alpha = 0.5)
 				#plots the correlation value above the "monoisotopic" peak
-				ax.text(centroid[0], centY[i][0]*1.1, '%.3f'%corrFits[i])
+				if grpPeaks:
+					ax.text(centroid, centY[i]*1.1, '%.2f %.3f'%(centroid, corrFits[i]), fontsize = 7, rotation = 90)
+				else:
+					ax.text(centroid[0], centY[i][0]*1.1, '%.2f %.3f'%(centroid[0], corrFits[i]), fontsize = 7, rotation = 90)
 
-#	startInd = N.where(mz>=isoX[2].min())[0][0]
-#	endInd = N.where(mz<=isoX[2].max())[0][-1]
-#	print startInd, endInd
-#	P.figure()
-#	subX = mz[startInd:endInd]
-#	subY = abund[startInd:endInd]
-#	P.plot(subY, 'og', alpha = 0.7)
-#	P.plot(isoY[2], 'or', alpha = 0.6)
-#	print len(isoX[2]), len(subX)
+
 	P.show()
