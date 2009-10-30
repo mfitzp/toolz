@@ -166,10 +166,7 @@ def getCWTPeaks(scaledCWT, X, Y, noiseEst, minSNR = 3,\
 
             t3 = time.clock()
 
-
-
     cwtPeakLoc = N.array(cwtPeakLoc)
-
     peakLoc = N.array(peakLoc)
     peakInt = N.array(peakInt)
     snr = N.array(snr)
