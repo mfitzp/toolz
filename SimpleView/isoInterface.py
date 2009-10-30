@@ -433,7 +433,6 @@ def sortPeaks(X,Y, profileX, profileY, corrFactors, centSNR, xTol):
 		newCorr.append(corrFactors[gIndex[maxInd]])
 		newSNR.append(centSNR[gIndex[maxInd]])
 
-	#need to handle last peak
 	#add case where there is only one isotope peak??????
 #	endDiff = ((centX[-1]-centX[-2])/centX[-1]*1000000)
 #	print endDiff, centX[-1], centX[-2], centX[-3]
