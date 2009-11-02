@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Documents and Settings\d3p483\workspace\SimpleView\main.ui'
 #
-# Created: Wed Oct 21 10:15:57 2009
+# Created: Mon Nov 02 14:11:28 2009
 #      by: PyQt4 UI code generator 4.4.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -1081,8 +1081,9 @@ class Ui_MainWindow(object):
         self.label_33.setText(QtGui.QApplication.translate("MainWindow", "Static Cutoff:", None, QtGui.QApplication.UnicodeUTF8))
         self.staticThresh_SB.setToolTip(QtGui.QApplication.translate("MainWindow", "Minimum fraction to be considered.  Intensity values below this value will be ignored.  If a spectrum with high dynamic range is present, this number should be small.  The converse is also true.", None, QtGui.QApplication.UnicodeUTF8))
         self.label_34.setText(QtGui.QApplication.translate("MainWindow", "Max Charge State:", None, QtGui.QApplication.UnicodeUTF8))
+        self.maxCharge_SB.setToolTip(QtGui.QApplication.translate("MainWindow", "Maximum charge state to be considered.  HAS NOT BEEN TESTED FOR MULTIPLE CHARGE STATES SO THIS IS NOT IMPLEMENT CURRENTLY!", None, QtGui.QApplication.UnicodeUTF8))
         self.label_35.setText(QtGui.QApplication.translate("MainWindow", "X-Axis Differential:", None, QtGui.QApplication.UnicodeUTF8))
-        self.xDiff_SB.setToolTip(QtGui.QApplication.translate("MainWindow", "Minimum fraction to be considered.  Intensity values below this value will be ignored.  If a spectrum with high dynamic range is present, this number should be small.  The converse is also true.", None, QtGui.QApplication.UnicodeUTF8))
+        self.xDiff_SB.setToolTip(QtGui.QApplication.translate("MainWindow", "Increment by which the x axis will be parsed to perform isotope fitting.", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget_PP.setTabText(self.tabWidget_PP.indexOf(self.tab), QtGui.QApplication.translate("MainWindow", "High Res.", None, QtGui.QApplication.UnicodeUTF8))
         self.label_25.setToolTip(QtGui.QApplication.translate("MainWindow", "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"

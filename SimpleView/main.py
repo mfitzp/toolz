@@ -3030,14 +3030,16 @@ class FindPeaksThread(QtCore.QThread):
                         print "high resoltion"
 
                         ANS, boolAns= ISO.processSpectrum(dataItem.x, dataItem.y, scales = self.scales, \
-                                                          minSNR = self.minSNR, pkResEst = self.resEst, xDiff = self.xDiff, corrCutOff = self.cutOff, maxCharge = self.maxCharge)
+                                                          minSNR = self.minSNR, pkResEst = self.resEst, \
+                                                          xDiff = self.xDiff, corrCutOff = self.cutOff, \
+                                                          maxCharge = self.maxCharge, groupPeaks = True)#grouping peaks consolidates to the maximum isotope
                         if boolAns:
                             centX, centY, isoX, isoY, corrFits, snr = ANS
                             tempCentX = N.zeros(len(centX))
                             tempCentY = N.zeros(len(centX))
                             for i,cent in enumerate(centX):
-                                tempCentX[i] = cent[0]
-                                tempCentY[i] = centY[i][0]
+                                tempCentX[i] = cent#[0]#use the brackets if groupPeaks is False
+                                tempCentY[i] = centY[i]#[0]#use the brackets if groupPeaks is False
                             #print "Len CentX, CentY, CorrFits: ", len(tempCentX), len(tempCentY), len(corrFits)
                             dataItem.setPeakList(N.column_stack((tempCentX, tempCentY, snr, corrFits)))
                             dataItem.setIsotopeProfiles(tempCentX, isoX, isoY)
