@@ -16,7 +16,7 @@
 # -------------------------------------------------------------------------
 
 # load configuration
-import config
+import config#need to manually add config.py to the distribution
 
 # register basic objects
 from blocks import *

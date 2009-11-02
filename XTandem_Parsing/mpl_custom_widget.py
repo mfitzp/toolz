@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from PyQt4 import QtCore,  QtGui
-#from PyQt4.QtGui import *
+import sys, os
 
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt4 import NavigationToolbar2QT as NavigationToolbar
@@ -9,6 +9,22 @@ from matplotlib.backend_bases import NavigationToolbar2
 from matplotlib.figure import Figure
 
 import numpy as N
+
+class EventFilter(QtCore.QObject):
+
+    def __init__(self, parent=None):
+        QtCore.QObject.__init__(self, parent)
+        if parent != None:
+            self.parent = parent
+
+    def eventFilter(self, obj, event):
+        if event.type() == QtCore.QEvent.Enter:
+            obj.focusEvent(self.parent)
+            #print "got the focus"
+        elif event.type() == QtCore.QEvent.Leave:
+            obj.lossFocusEvent(self.parent)
+            #print "lost the focus"
+        return QtCore.QObject.eventFilter(self, obj, event)
 
 class MyMplCanvas(FigureCanvas):
 	def __init__(self, parent=None, width = 10, height = 12, dpi = 100, sharex = None, sharey = None):
@@ -96,18 +112,86 @@ class MPL_Widget(QtGui.QWidget):
         self.hZoom.setShortcut("Ctrl+Z")
         self.addAction(self.hZoom)
         QtCore.QObject.connect(self.hZoom,QtCore.SIGNAL("triggered()"), self.ZoomToggle)
-        
+
         self.actionAutoScale = QtGui.QAction("AutoScale",  self)#self.MainWindow)
         self.actionAutoScale.setShortcut("Ctrl+A")
         self.addAction(self.actionAutoScale)
         QtCore.QObject.connect(self.actionAutoScale,QtCore.SIGNAL("triggered()"), self.autoscale_plot)
 
+
+        self.installEventFilter(EventFilter(self))
+
+        ###########SAVING FIGURE TO CLIPBOARD##########
+        self.cb = None #will be used for the clipboard
+        self.tempPath = getHomeDir()
+        self.tempPath = os.path.join(self.tempPath,'tempMPL.png')
+
     def ZoomToggle(self):
         self.toolbar.zoom()
-        
+
     def autoscale_plot(self):
         self.toolbar.home()
-        
+
+    def mpl2Clip(self):
+        try:
+            self.canvas.fig.savefig(self.tempPath)
+            tempImg = QtGui.QImage(self.tempPath)
+            self.cb = QtGui.QApplication.clipboard()
+            self.cb.setImage(tempImg)
+        except:
+            print 'Error copying figure to clipboard'
+            errorMsg = "Sorry: %s\n\n:%s\n"%(sys.exc_type, sys.exc_value)
+            print errorMsg
+
+    def focusEvent(self, event):
+#        self.enableAutoScale()
+#        self.enableZoom()
+        self.enableClip()
+#        self.enableCSV()
+        #print "Focus In %s"%self.canvas.plotTitle
+
+    def lossFocusEvent(self, event):
+#        self.disableAutoScale()
+#        self.disableZoom()
+        self.disableClip()
+#        self.disableCSV()
+        #print "Focus Out %s"%self.canvas.plotTitle
+
+    def enableClip(self):
+        self.mpl2ClipAction = QtGui.QAction("Save to Clipboard",  self)
+        self.mpl2ClipAction.setShortcut("Ctrl+C")
+        self.addAction(self.mpl2ClipAction)
+        QtCore.QObject.connect(self.mpl2ClipAction,QtCore.SIGNAL("triggered()"), self.mpl2Clip)
+
+    def disableClip(self):
+        QtCore.QObject.disconnect(self.mpl2ClipAction,QtCore.SIGNAL("triggered()"), self.mpl2Clip)
+        self.removeAction(self.mpl2ClipAction)
+
+
+def valid(path):
+    if path and os.path.isdir(path):
+        return True
+    return False
+
+def env(name):
+    return os.environ.get( name, '' )
+
+def getHomeDir():
+    if sys.platform != 'win32':
+        return os.path.expanduser( '~' )
+
+    homeDir = env( 'USERPROFILE' )
+    if not valid(homeDir):
+        homeDir = env( 'HOME' )
+        if not valid(homeDir) :
+            homeDir = '%s%s' % (env('HOMEDRIVE'),env('HOMEPATH'))
+            if not valid(homeDir) :
+                homeDir = env( 'SYSTEMDRIVE' )
+                if homeDir and (not homeDir.endswith('\\')) :
+                    homeDir += '\\'
+                if not valid(homeDir) :
+                    homeDir = 'C:\\'
+    return homeDir
 
 def main():
     import sys
@@ -115,6 +199,6 @@ def main():
     w = MPL_Widget()
     w.show()
     sys.exit(app.exec_())
-    
+
 if __name__ == "__main__":
     main()

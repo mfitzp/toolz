@@ -190,19 +190,30 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             print "DB Reset, Tables Contained: ", tblList
             for tbl in tblList:
                 curResults = XT_RESULTS(parseFile = False)
-                self.curDB.READ_XT_VALUES(tbl, curResults)
+                self.curDB.READ_CUSTOM_VALUES(tbl, curResults)
+#                self.curDB.READ_XT_VALUES(tbl, curResults)
                 self.activeDict[tbl] = curResults
                 self.curTbl = tbl
-
-
-            self.initiatePlot()
-            self.updatePlotOptionsGUI()
-            self.updateQueryGUI()
-            self.firstLoad = False
 
         except:
             print 'DB Load Error'
             return True
+
+        try:
+            self.initiatePlot()
+        except:
+            print "initatePlot Failed"
+        try:
+            self.updatePlotOptionsGUI()
+        except:
+            print "updatePlotOptionsGUI Failed"
+        try:
+            self.updateQueryGUI()
+        except:
+            print "updateQueryGUI Failed"
+
+        self.firstLoad = False
+
 
     def setColLists(self,  widgetItem):
         #The following three lines reset the parameters of the plotting mechanisms
@@ -225,7 +236,9 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                 else:
                     colNumList.append(col)
         if len(colNumList) == 0:
-            return QtGui.QMessageBox.warning(self, "Database Table Error",  "No numerical data exist in the selected table!")
+            errMsg = ["Table format incompatible with Plot GUI"]
+            self.db_XCols.addItems(errMsg)
+#            return QtGui.QMessageBox.warning(self, "Database Table Error",  "No numerical data exist in the selected table!")
         else:
             self.db_XCols.addItems(colNumList)
             self.db_YCols.addItems(colNumList)
@@ -331,6 +344,7 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                                                  self.__curDir, 'SQLite Database (*.db)', "", QtGui.QFileDialog.DontConfirmOverwrite)
 
             if not dbName.isEmpty():
+                self.__curDir = getCurDir(dbName)
                 print self.dbStatus, dbName
                 if self.dbStatus:#(i.e a connection already exists)
                     reply = QtGui.QMessageBox.question(self, "Database Conneciton Exists", "A Database Connection already exists.  Do you want to close the current connection and establish the one just selected?",
@@ -449,10 +463,10 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                     raise Exception,  self.EmptyArrayText
 
                 else:
-                    self.activeDict[fnCore] = results
-                    insertOK = self.curDB.INSERT_XT_VALUES(fnCore, self.activeDict[fnCore])
+                    insertOK = self.curDB.INSERT_XT_VALUES(fnCore, results)
                     self.loadOK = True
                     if insertOK:
+                        self.activeDict[fnCore] = results
                         self.initiatePlot()
                         self.updatePlotOptionsGUI()
                         self.updateQueryGUI()
@@ -492,26 +506,28 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
     def __loadDataFolder__(self):
 #        if self.dbStatus:
-        directory= QtGui.QFileDialog.getExistingDirectory(self,\
-                                                         "Select X!Tandem XML Data Folder")
-        if self.dbStatus:
-            for root, dirs, files in walk(str(directory)):
-                for file in files:
-                    if '.xml' in file:
-                        ##full file path name
-                        ffpn=path.abspath(path.join(root, file))#file full path name
+        directory= QtGui.QFileDialog.getExistingDirectory(self, self.__curDir,
+                                                          "Select X!Tandem XML Data Folder")
+        if os.path.isdir(str(directory)):
+            self.__curDir = str(directory)
+            if self.dbStatus:
+                for root, dirs, files in walk(str(directory)):
+                    for file in files:
+                        if '.xml' in file:
+                            ##full file path name
+                            ffpn=path.abspath(path.join(root, file))#file full path name
 
-                        if self.dbStatus:
+                            if self.dbStatus:
 
-                            if ffpn:
-                                self.loadFileXT(str(ffpn))
-                        else:
-                            if self.memDB:
-                                self.setDBConnection()
                                 if ffpn:
                                     self.loadFileXT(str(ffpn))
                             else:
-                                self.retryDBConnection()
+                                if self.memDB:
+                                    self.setDBConnection()
+                                    if ffpn:
+                                        self.loadFileXT(str(ffpn))
+                                else:
+                                    self.retryDBConnection()
 
 
 
@@ -522,6 +538,7 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                                                              self.__curDir, 'X!Tandem XML (*.xml);;SQLite Database (*.db)')
             if dataFileName:
                 self.loadFileXT(dataFileName)
+                self.__curDir = getCurDir(dataFileName)
         else:
             if self.memDB:
                 self.setDBConnection()
@@ -530,6 +547,7 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                                             self.__curDir, 'X!Tandem XML (*.xml);;SQLite Database (*.db)')
                 if dataFileName:
                     self.loadFileXT(dataFileName)
+                    self.__curDir = getCurDir(dataFileName)
             else:
                 self.retryDBConnection()
 
@@ -602,49 +620,56 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.is_hZoom = False
         self.plotWidget.canvas.mpl_connect('pick_event', self.OnPickPlot)
 
-    def updatePlot(self):
-#        try:
-        if self.clearPlotCB.isChecked():
-            self.plotWidget.canvas.ax.cla()
+    def clearPlot(self):
+        self.plotWidget.canvas.ax.cla()
         self.__setupPlot__()
-
-        self.curTbl = str(self.db_TableList.currentItem().text())
-        xKey = str(self.db_XCols.currentItem().text())
-        yKey = str(self.db_YCols.currentItem().text())
-
-        activeData = self.activeDict[self.curTbl]
-        self.x = activeData.dataDict[xKey]
-        self.y = activeData.dataDict[yKey]
-
-        sizeModifier = self.sizeModSpinBox.value()
-        sizeArray = activeData.dataDict[str(self.sizeArrayComboB.currentText())]#this is used to adjust the size of the marker
-        sizeList = sizeArray**sizeModifier
-
-        self.plotScatter = self.plotWidget.canvas.ax.scatter(self.x, self.y,  color = self.getPlotColor(),  marker = self.getPlotMarker(), alpha = 0.3,  label = self.curTbl,  picker = 5,  s = sizeList)
-        #self.plotScatter = self.plotWidget.canvas.ax.plot(self.x, self.y,  color = self.getPlotColor(),  marker = self.getPlotMarker(), alpha = 0.3,  label = self.curTbl,  picker = 5)
-        if self.cb_logx.isChecked():
-            self.plotWidget.canvas.ax.set_xscale('log')
-            xmin = N.min(self.x)/10
-            xmax = N.max(self.x)*10
-            self.plotWidget.canvas.ax.set_xlim(xmin, xmax)
-
-        if self.cb_logy.isChecked():
-            self.plotWidget.canvas.ax.set_yscale('log')
-            ymin = N.min(self.y)/10
-            ymax = N.max(self.y)*10
-            self.plotWidget.canvas.ax.set_ylim(ymin, ymax)
-
-        self.plotWidget.canvas.xtitle=xKey
-        self.plotWidget.canvas.ytitle=yKey
-        self.plotWidget.canvas.PlotTitle = self.curTbl
         self.plotWidget.canvas.format_labels()
         self.plotWidget.canvas.draw()
+        self.mainTabWidget.setCurrentIndex(1)
 
-        self.mainTabWidget.setCurrentIndex(0)
-#        except:
-#            errorMsg = "Sorry: %s\n\n:%s\n"%(sys.exc_type, sys.exc_value)
-#            errorMsg+='\n Perhaps a "log" axis is checked or a large number is being used for the size modifier?'
-#            QtGui.QMessageBox.warning(self, "Plot Update",  errorMsg)
+    def updatePlot(self):
+        try:
+            if self.clearPlotCB.isChecked():
+                self.plotWidget.canvas.ax.cla()
+            self.__setupPlot__()
+
+            self.curTbl = str(self.db_TableList.currentItem().text())
+            xKey = str(self.db_XCols.currentItem().text())
+            yKey = str(self.db_YCols.currentItem().text())
+
+            activeData = self.activeDict[self.curTbl]
+            self.x = activeData.dataDict[xKey]
+            self.y = activeData.dataDict[yKey]
+
+            sizeModifier = self.sizeModSpinBox.value()
+            sizeArray = activeData.dataDict[str(self.sizeArrayComboB.currentText())]#this is used to adjust the size of the marker
+            sizeList = sizeArray**sizeModifier
+
+            self.plotScatter = self.plotWidget.canvas.ax.scatter(self.x, self.y,  color = self.getPlotColor(),  marker = self.getPlotMarker(), alpha = 0.3,  label = self.curTbl,  picker = 5,  s = sizeList)
+            #self.plotScatter = self.plotWidget.canvas.ax.plot(self.x, self.y,  color = self.getPlotColor(),  marker = self.getPlotMarker(), alpha = 0.3,  label = self.curTbl,  picker = 5)
+            if self.cb_logx.isChecked():
+                self.plotWidget.canvas.ax.set_xscale('log')
+                xmin = N.min(self.x)/10
+                xmax = N.max(self.x)*10
+                self.plotWidget.canvas.ax.set_xlim(xmin, xmax)
+
+            if self.cb_logy.isChecked():
+                self.plotWidget.canvas.ax.set_yscale('log')
+                ymin = N.min(self.y)/10
+                ymax = N.max(self.y)*10
+                self.plotWidget.canvas.ax.set_ylim(ymin, ymax)
+
+            self.plotWidget.canvas.xtitle=xKey
+            self.plotWidget.canvas.ytitle=yKey
+            self.plotWidget.canvas.PlotTitle = self.curTbl
+            self.plotWidget.canvas.format_labels()
+            self.plotWidget.canvas.draw()
+
+            self.mainTabWidget.setCurrentIndex(1)
+        except:
+            errorMsg = "Sorry: %s\n\n:%s\n"%(sys.exc_type, sys.exc_value)
+            errorMsg+='\n Perhaps a "log" axis is checked or a large number is being used for the size modifier?'
+            QtGui.QMessageBox.warning(self, "Plot Update",  errorMsg)
 
     def initiatePlot(self):
         self.plotWidget.canvas.ax.cla()
@@ -904,6 +929,7 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                                                                  self.__curDir, 'SQLite Database (*.db)')
             if saveFileName:
                 self.curDB.COPY_DATABASE(str(saveFileName))
+                self.__curDir = getCurDir(saveFileName)
 
     def saveCSVTable(self, tableName = None, saveFileName = None):
         if tableName is None and saveFileName is None:
@@ -914,8 +940,10 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                 curTbl = str(self.queryTblList.currentItem().text())
                 if len(curTbl)>0:
                     self.curDB.DUMP_TABLE(curTbl, saveFileName)
+                    self.__curDir = getCurDir(saveFileName)
         else:
             self.curDB.DUMP_TABLE(tableName, saveFileName)
+            self.__curDir = getCurDir(saveFileName)
 
     def dumpAllCSVTables(self):
         reply = QtGui.QMessageBox.question(self, "Save All Tables", "Do you want to save all the tables to CSV?\nThis could take a while depending on the size of your database.",\
@@ -926,7 +954,7 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                 if len(tblList)>0:
                     for tbl in tblList:
                         #need to add a place to save to a directory
-                        fileName = tbl+'.csv'
+                        fileName = os.path.join(self.__curDir, (tbl+'.csv'))
                         self.saveCSVTable(tbl, fileName)
 
     def getFragSpectrum(self):
@@ -1080,7 +1108,7 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
     def __additionalVariables__(self):
         '''Extra variables that are utilized by other functions'''
-        self.__curDir = os.getcwd()
+        self.__curDir = getHomeDir()
         self.firstLoad = True
 
     def __additionalConnections__(self):
@@ -1117,6 +1145,7 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         '''Plot GUI Interaction slots'''
         QtCore.QObject.connect(self.db_TableList, QtCore.SIGNAL("itemPressed (QListWidgetItem *)"), self.setColLists)
         QtCore.QObject.connect(self.updatePlotBtn, QtCore.SIGNAL("clicked()"), self.updatePlot)
+        QtCore.QObject.connect(self.clearPlotBtn, QtCore.SIGNAL("clicked()"), self.clearPlot)
 
         '''Query GUI slots'''
         QtCore.QObject.connect(self.queryTblList, QtCore.SIGNAL("itemPressed (QListWidgetItem *)"), self.setQueryLists)
@@ -1159,9 +1188,11 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         QtCore.QObject.connect(self.action_Save,QtCore.SIGNAL("triggered()"),self.__saveDataFile__)
         QtCore.QObject.connect(self.actionFileOpen,QtCore.SIGNAL("triggered()"),self.__readDataFile__)
         QtCore.QObject.connect(self.actionAbout,QtCore.SIGNAL("triggered()"),self.__showAbout__)
-        QtCore.QObject.connect(self.actionTools, QtCore.SIGNAL("triggered()"),self.__testFunc__)
+
         QtCore.QObject.connect(self.actionHints,QtCore.SIGNAL("triggered()"),self.__showHints__)
         QtCore.QObject.connect(self.action_Exit,QtCore.SIGNAL("triggered()"),self.__exitProgram__)
+
+#        QtCore.QObject.connect(self.actionTools, QtCore.SIGNAL("triggered()"),self.__testFunc__)
         #QtCore.QObject.connect(self.MainWindow,QtCore.SIGNAL("close()"),self.__exitProgram__)
 
 
@@ -1223,7 +1254,7 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
     def __showAbout__(self):
         return QtGui.QMessageBox.information(self,
-                                            ("X!Tandem Viewer v0.6, October, 2009"),
+                                            ("X!Tandem Viewer v0.8, November, 2009"),
                                             ("<p><b>X!Tandem Viewer</b> was written in Python by Brian H. Clowers (bhclowers@gmail.com).</p>"
         "<p>Please keep in mind that the entire effort is very much a"
         " work in progress and that Brian won't quit his day job for programming."
@@ -1245,10 +1276,37 @@ def run_main():
     sys.exit(app.exec_())
 
 
-'''CREATE TABLE test AS SELECT * FROM Vlad_Test WHERE theoMZ > 700 --Creates a new table from the selection criteria
-SELECT DISTINCT proID FROM Vlad_Test
-CREATE TABLE dualTest AS SELECT DISTINCT proID, pepID FROM Vlad_Test;
-'''
+def getCurDir(dirString):
+    tempStr = str(dirString)#incase it is a QString
+    if os.path.isfile(tempStr):
+        return os.path.dirname(tempStr)
+    else:
+        return os.getcwd()
+
+def valid(path):
+    if path and os.path.isdir(path):
+        return True
+    return False
+
+def env(name):
+    return os.environ.get( name, '' )
+
+def getHomeDir():
+    if sys.platform != 'win32':
+        return os.path.expanduser( '~' )
+
+    homeDir = env( 'USERPROFILE' )
+    if not valid(homeDir):
+        homeDir = env( 'HOME' )
+        if not valid(homeDir) :
+            homeDir = '%s%s' % (env('HOMEDRIVE'),env('HOMEPATH'))
+            if not valid(homeDir) :
+                homeDir = env( 'SYSTEMDRIVE' )
+                if homeDir and (not homeDir.endswith('\\')) :
+                    homeDir += '\\'
+                if not valid(homeDir) :
+                    homeDir = 'C:\\'
+    return homeDir
 
 
 if __name__ == "__main__":

@@ -18,11 +18,12 @@ opts = {
                 'excludes': ['_gtkagg', '_tkagg', '_agg2', '_cairo', '_cocoaagg',
                              '_fltkagg', '_gtk', '_gtkcairo', '_wxagg'],
                 'dll_excludes': ['libgdk-win32-2.0-0.dll',
-                                 'libgobject-2.0-0.dll']
+                                 'libgobject-2.0-0.dll'],
+                'skip_archive':True
               }
        }
 
-# Save matplotlib-data to mpl-data ( It is located in the matplotlib\mpl-data 
+# Save matplotlib-data to mpl-data ( It is located in the matplotlib\mpl-data
 # folder and the compiled programs will look for it in \mpl-data
 # note: using matplotlib.get_mpldata_info
 data_files = [(r'mpl-data', glob.glob(r'C:\Python25\Lib\site-packages\matplotlib-0.98.3.0001-py2.5-win32.egg\matplotlib\mpl-data\*.*')),
@@ -30,7 +31,12 @@ data_files = [(r'mpl-data', glob.glob(r'C:\Python25\Lib\site-packages\matplotlib
                     # So add it manually here:
                   (r'mpl-data', [r'C:\Python25\Lib\site-packages\matplotlib-0.98.3.0001-py2.5-win32.egg\matplotlib\mpl-data\matplotlibrc']),
                   (r'mpl-data\images',glob.glob(r'C:\Python25\Lib\site-packages\matplotlib-0.98.3.0001-py2.5-win32.egg\matplotlib\mpl-data\images\*.*')),
-                  (r'mpl-data\fonts',glob.glob(r'C:\Python25\Lib\site-packages\matplotlib-0.98.3.0001-py2.5-win32.egg\matplotlib\mpl-data\fonts\*.*'))]
+                  (r'mpl-data\fonts',glob.glob(r'C:\Python25\Lib\site-packages\matplotlib-0.98.3.0001-py2.5-win32.egg\matplotlib\mpl-data\fonts\*.*')),
+                  (r'FragmentPlot\mspy',glob.glob(r'C:\Documents and Settings\d3p483\workspace\XTandem_Parsing\FragmentPlot\mspy\config.pyc')),
+                  (r'FragmentPlot\configs',glob.glob(r'C:\Documents and Settings\d3p483\workspace\XTandem_Parsing\FragmentPlot\configs\*.*')),
+                  (r'FragmentPlot\mspy\blocks',glob.glob(r'C:\Documents and Settings\d3p483\workspace\XTandem_Parsing\FragmentPlot\mspy\blocks\*.*')),
+                  (r'FragmentPlot\mspy\plot',glob.glob(r'C:\Documents and Settings\d3p483\workspace\XTandem_Parsing\FragmentPlot\mspy\plot\*.*'))]
+
 
 
 
