@@ -19,8 +19,8 @@
 from os.path import dirname
 
 # path to common building blocks
-# blocksPath = dirname(__file__) + '/blocks/'
-blocksPath = 'FragmentPlot/configs'
+blocksPath = dirname(__file__) + '/blocks/'
+#blocksPath = 'FragmentPlot/configs'
 #blocksPath = 'configs'
 
 # averagine formula

@@ -96,29 +96,33 @@ class XT_DB(object):#X!Tandem Database Class
                     return False
             else:
                 return False
-        for i in xrange(XT_RESULTS.iterLen):
-            self.cur.execute(
-                            'INSERT INTO "%s" VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)'%tableName,#again I know %s is not recommended but I don't know how to do this more elegantly.
-                            (
-                            i,
-                            XT_RESULTS.dataDict.get('pepID')[i],
-                            XT_RESULTS.dataDict.get('pep_eVal')[i],
-                            XT_RESULTS.dataDict.get('scanID')[i],
-                            XT_RESULTS.dataDict.get('ppm_error')[i],
-                            XT_RESULTS.dataDict.get('theoMZ')[i],
-                            XT_RESULTS.dataDict.get('hScore')[i],
-                            XT_RESULTS.dataDict.get('nextScore')[i],
-                            XT_RESULTS.dataDict.get('deltaH')[i],
-                            XT_RESULTS.dataDict.get('pepLen')[i],
-                            XT_RESULTS.dataDict.get('proID')[i],
-                            XT_RESULTS.dataDict.get('pro_eVal')[i],
-                            XT_RESULTS.dataDict.get('xFrags')[i],
-                            XT_RESULTS.dataDict.get('yFrags')[i]
-                            ))
-        self.cnx.commit()
-        t2 = time.clock()
-        print "SQLite Commit Time (s): ", (t2-t1)
-        return True
+        try:
+            for i in xrange(XT_RESULTS.iterLen):
+                self.cur.execute(
+                                'INSERT INTO "%s" VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)'%tableName,#again I know %s is not recommended but I don't know how to do this more elegantly.
+                                (
+                                i,
+                                XT_RESULTS.dataDict.get('pepID')[i],
+                                XT_RESULTS.dataDict.get('pep_eVal')[i],
+                                XT_RESULTS.dataDict.get('scanID')[i],
+                                XT_RESULTS.dataDict.get('ppm_error')[i],
+                                XT_RESULTS.dataDict.get('theoMZ')[i],
+                                XT_RESULTS.dataDict.get('hScore')[i],
+                                XT_RESULTS.dataDict.get('nextScore')[i],
+                                XT_RESULTS.dataDict.get('deltaH')[i],
+                                XT_RESULTS.dataDict.get('pepLen')[i],
+                                XT_RESULTS.dataDict.get('proID')[i],
+                                XT_RESULTS.dataDict.get('pro_eVal')[i],
+                                XT_RESULTS.dataDict.get('xFrags')[i],
+                                XT_RESULTS.dataDict.get('yFrags')[i]
+                                ))
+            self.cnx.commit()
+            t2 = time.clock()
+            print "SQLite Commit Time (s): ", (t2-t1)
+            return True
+        except:
+            print "Insert into Table False"
+            return False
 
     def close(self):
         self.cur.close()
@@ -182,6 +186,7 @@ class XT_DB(object):#X!Tandem Database Class
         self.cur.execute('PRAGMA TABLE_INFO(%s)'%tableName)
         for row in self.cur.fetchall():
             self.colList.append(str(row[1]))#row[1] by itself produces a unicode object, and row itself is a tuple, row[1] is the column name
+            #the 0 - id, 1 - column name, 2 - data type
         return self.colList
 
     def DROP_TABLE(self, tableName):

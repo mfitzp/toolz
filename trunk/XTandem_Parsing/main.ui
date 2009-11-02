@@ -1,350 +1,274 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<ui version="4.0">
+<ui version="4.0" >
  <class>MainWindow</class>
- <widget class="QMainWindow" name="MainWindow">
-  <property name="geometry">
+ <widget class="QMainWindow" name="MainWindow" >
+  <property name="geometry" >
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1073</width>
-    <height>813</height>
+    <width>1089</width>
+    <height>865</height>
    </rect>
   </property>
-  <property name="minimumSize">
+  <property name="minimumSize" >
    <size>
     <width>0</width>
     <height>25</height>
    </size>
   </property>
-  <property name="font">
+  <property name="font" >
    <font>
     <family>Arial</family>
     <weight>50</weight>
     <bold>false</bold>
    </font>
   </property>
-  <property name="windowTitle">
+  <property name="windowTitle" >
    <string>X!Tandem Results Viewer</string>
   </property>
-  <property name="windowIcon">
-   <iconset>
+  <property name="windowIcon" >
+   <iconset resource="SubPlot.qrc" >
     <normaloff>:/new/prefix1/icons/games.png</normaloff>:/new/prefix1/icons/games.png</iconset>
   </property>
-  <widget class="QWidget" name="centralwidget">
-   <layout class="QHBoxLayout">
+  <widget class="QWidget" name="centralwidget" >
+   <layout class="QVBoxLayout" name="verticalLayout_2" >
     <item>
-     <layout class="QHBoxLayout">
+     <layout class="QHBoxLayout" >
       <item>
-       <widget class="QTabWidget" name="mainTabWidget">
-        <property name="currentIndex">
-         <number>2</number>
+       <widget class="QTabWidget" name="mainTabWidget" >
+        <property name="currentIndex" >
+         <number>0</number>
         </property>
-        <widget class="QWidget" name="plotTab">
-         <attribute name="title">
-          <string>Plot</string>
-         </attribute>
-         <layout class="QHBoxLayout">
-          <item>
-           <widget class="MPL_Widget" name="plotWidget" native="true"/>
-          </item>
-         </layout>
-        </widget>
-        <widget class="QWidget" name="configTab">
-         <attribute name="title">
-          <string>Define Plot</string>
-         </attribute>
-         <layout class="QGridLayout">
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_4">
-            <property name="text">
-             <string>Database Tables:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QLabel" name="label_5">
-            <property name="text">
-             <string>X-Axis:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QListWidget" name="db_TableList"/>
-          </item>
-          <item row="1" column="1">
-           <widget class="QListWidget" name="db_XCols"/>
-          </item>
-          <item row="2" column="1">
-           <widget class="QLabel" name="label_6">
-            <property name="text">
-             <string>Y-Axis:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="0">
-           <layout class="QGridLayout">
-            <item row="0" column="1">
-             <widget class="QDoubleSpinBox" name="sizeModSpinBox">
-              <property name="minimum">
-               <double>0.000000000000000</double>
-              </property>
-              <property name="singleStep">
-               <double>0.500000000000000</double>
-              </property>
-              <property name="value">
-               <double>1.500000000000000</double>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="1">
-             <widget class="QComboBox" name="sizeArrayComboB"/>
-            </item>
-            <item row="2" column="1">
-             <widget class="QPushButton" name="updatePlotBtn">
-              <property name="text">
-               <string>Update Plot</string>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="1">
-             <widget class="QPushButton" name="clearPlotBtn">
-              <property name="text">
-               <string>Clear Plot</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="0">
-             <widget class="QLabel" name="label_8">
-              <property name="text">
-               <string>Size Modifier:</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="0">
-             <widget class="QLabel" name="label_9">
-              <property name="text">
-               <string>Size Array:</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="1">
-             <widget class="QCheckBox" name="clearPlotCB">
-              <property name="text">
-               <string>Clear on Update?</string>
-              </property>
-              <property name="checked">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item row="3" column="1">
-           <widget class="QListWidget" name="db_YCols"/>
-          </item>
-          <item row="4" column="1">
-           <layout class="QHBoxLayout">
-            <item>
-             <widget class="QCheckBox" name="cb_logx">
-              <property name="text">
-               <string>Log X</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QCheckBox" name="cb_logy">
-              <property name="text">
-               <string>Log Y</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-         </layout>
-        </widget>
-        <widget class="QWidget" name="sqlTab">
-         <attribute name="title">
+        <widget class="QWidget" name="sqlTab" >
+         <attribute name="title" >
           <string>SQL Query</string>
          </attribute>
-         <layout class="QVBoxLayout">
+         <layout class="QVBoxLayout" name="verticalLayout_3" >
           <item>
-           <layout class="QVBoxLayout">
+           <layout class="QHBoxLayout" name="horizontalLayout_4" >
             <item>
-             <layout class="QHBoxLayout">
+             <layout class="QVBoxLayout" >
               <item>
-               <layout class="QVBoxLayout">
-                <item>
-                 <widget class="QLabel" name="label_2">
-                  <property name="text">
-                   <string>Database Tables</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QListWidget" name="queryTblList"/>
-                </item>
-               </layout>
+               <widget class="QLabel" name="label_2" >
+                <property name="text" >
+                 <string>Database Tables</string>
+                </property>
+               </widget>
               </item>
               <item>
-               <layout class="QVBoxLayout">
-                <item>
-                 <widget class="QLabel" name="label_3">
-                  <property name="text">
-                   <string>Table Fields</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QListWidget" name="queryFieldList"/>
-                </item>
-               </layout>
+               <widget class="QListWidget" name="queryTblList" >
+                <property name="sizePolicy" >
+                 <sizepolicy vsizetype="Expanding" hsizetype="Preferred" >
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="maximumSize" >
+                 <size>
+                  <width>200</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="resizeMode" >
+                 <enum>QListView::Adjust</enum>
+                </property>
+               </widget>
               </item>
              </layout>
             </item>
             <item>
-             <layout class="QVBoxLayout">
+             <layout class="QVBoxLayout" >
               <item>
-               <widget class="QLabel" name="label">
-                <property name="text">
+               <widget class="QLabel" name="label_3" >
+                <property name="text" >
+                 <string>Table Fields</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QListWidget" name="queryFieldList" >
+                <property name="sizePolicy" >
+                 <sizepolicy vsizetype="Expanding" hsizetype="Preferred" >
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="maximumSize" >
+                 <size>
+                  <width>200</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="resizeMode" >
+                 <enum>QListView::Adjust</enum>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QVBoxLayout" >
+              <item>
+               <widget class="QLabel" name="label" >
+                <property name="text" >
                  <string>SQLite String:</string>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QTextEdit" name="sqlQueryString"/>
+               <widget class="QTextEdit" name="sqlQueryString" />
               </item>
              </layout>
-            </item>
-            <item>
-             <widget class="QLabel" name="label_10">
-              <property name="text">
-               <string>Query Output:</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="CustomTable" name="outTableWidget">
-              <property name="rowCount">
-               <number>10</number>
-              </property>
-              <property name="columnCount">
-               <number>10</number>
-              </property>
-              <row/>
-              <row/>
-              <row/>
-              <row/>
-              <row/>
-              <row/>
-              <row/>
-              <row/>
-              <row/>
-              <row/>
-              <column/>
-              <column/>
-              <column/>
-              <column/>
-              <column/>
-              <column/>
-              <column/>
-              <column/>
-              <column/>
-              <column/>
-             </widget>
             </item>
            </layout>
           </item>
           <item>
-           <layout class="QHBoxLayout">
+           <widget class="QLabel" name="label_10" >
+            <property name="text" >
+             <string>Query Output:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="CustomTable" name="outTableWidget" >
+            <property name="rowCount" >
+             <number>10</number>
+            </property>
+            <property name="columnCount" >
+             <number>10</number>
+            </property>
+            <row/>
+            <row/>
+            <row/>
+            <row/>
+            <row/>
+            <row/>
+            <row/>
+            <row/>
+            <row/>
+            <row/>
+            <column/>
+            <column/>
+            <column/>
+            <column/>
+            <column/>
+            <column/>
+            <column/>
+            <column/>
+            <column/>
+            <column/>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" >
             <item>
-             <widget class="QPushButton" name="dbExecuteQuery">
-              <property name="maximumSize">
+             <spacer name="horizontalSpacer_4" >
+              <property name="orientation" >
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0" >
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="dbExecuteQuery" >
+              <property name="maximumSize" >
                <size>
                 <width>200</width>
                 <height>16777215</height>
                </size>
               </property>
-              <property name="text">
+              <property name="text" >
                <string>Execute Truncated Query</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="viewQueryBtn">
-              <property name="maximumSize">
+             <widget class="QPushButton" name="viewQueryBtn" >
+              <property name="maximumSize" >
                <size>
                 <width>200</width>
                 <height>16777215</height>
                </size>
               </property>
-              <property name="text">
+              <property name="text" >
                <string>View Query Results</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="dbCommitQuery">
-              <property name="maximumSize">
+             <widget class="QPushButton" name="dbCommitQuery" >
+              <property name="maximumSize" >
                <size>
                 <width>200</width>
                 <height>16777215</height>
                </size>
               </property>
-              <property name="text">
+              <property name="text" >
                <string>Commit Query Results</string>
               </property>
              </widget>
             </item>
+            <item>
+             <spacer name="horizontalSpacer_5" >
+              <property name="orientation" >
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0" >
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
            </layout>
           </item>
           <item>
-           <widget class="QLabel" name="label_7">
-            <property name="text">
+           <widget class="QLabel" name="label_7" >
+            <property name="text" >
              <string>Data Base Error Message:</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="sqlErrorMessage"/>
+           <widget class="QLineEdit" name="sqlErrorMessage" />
           </item>
           <item>
-           <layout class="QHBoxLayout">
+           <layout class="QHBoxLayout" >
             <item>
-             <widget class="QPushButton" name="openDBButton">
-              <property name="text">
+             <widget class="QPushButton" name="openDBButton" >
+              <property name="text" >
                <string>Select Database</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QLineEdit" name="curDBpathname">
-              <property name="readOnly">
+             <widget class="QLineEdit" name="curDBpathname" >
+              <property name="readOnly" >
                <bool>true</bool>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="dbConnectedBtn">
-              <property name="enabled">
+             <widget class="QPushButton" name="dbConnectedBtn" >
+              <property name="enabled" >
                <bool>true</bool>
               </property>
-              <property name="autoFillBackground">
+              <property name="autoFillBackground" >
                <bool>false</bool>
               </property>
-              <property name="text">
+              <property name="text" >
                <string/>
               </property>
-              <property name="icon">
-               <iconset>
+              <property name="icon" >
+               <iconset resource="SubPlot.qrc" >
                 <normaloff>:/new/prefix1/icons/ok.png</normaloff>:/new/prefix1/icons/ok.png</iconset>
               </property>
-              <property name="iconSize">
+              <property name="iconSize" >
                <size>
                 <width>20</width>
                 <height>20</height>
@@ -355,58 +279,251 @@
            </layout>
           </item>
           <item>
-           <layout class="QHBoxLayout">
+           <layout class="QHBoxLayout" name="horizontalLayout_2" >
             <item>
-             <widget class="QCheckBox" name="useMemDB_CB">
-              <property name="text">
-               <string>Use In-Memory Database?</string>
-              </property>
-              <property name="checked">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="dumpDBBtn">
-              <property name="text">
-               <string>Dump Database as a Text File To Disk</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item>
-           <layout class="QVBoxLayout">
-            <item>
-             <layout class="QHBoxLayout">
-              <item>
-               <widget class="QCheckBox" name="autoNameTblCB">
-                <property name="text">
-                 <string>Auto Name Tables</string>
+             <layout class="QGridLayout" name="gridLayout_2" >
+              <item row="0" column="0" >
+               <widget class="QCheckBox" name="useMemDB_CB" >
+                <property name="text" >
+                 <string>Use In-Memory Database?</string>
                 </property>
-                <property name="checked">
+                <property name="checked" >
                  <bool>true</bool>
                 </property>
                </widget>
               </item>
-              <item>
-               <widget class="QPushButton" name="rstDBButton">
-                <property name="text">
+              <item row="0" column="1" >
+               <widget class="QPushButton" name="dumpDBBtn" >
+                <property name="text" >
+                 <string>Dump Database as a Text File To Disk</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0" >
+               <widget class="QCheckBox" name="autoNameTblCB" >
+                <property name="text" >
+                 <string>Auto Name Tables</string>
+                </property>
+                <property name="checked" >
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1" >
+               <widget class="QPushButton" name="rstDBButton" >
+                <property name="text" >
                  <string>Clear and Reset Database</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0" colspan="2" >
+               <widget class="QCheckBox" name="appendNewFilesCB" >
+                <property name="text" >
+                 <string>Append New Files to Database?</string>
+                </property>
+                <property name="checked" >
+                 <bool>true</bool>
                 </property>
                </widget>
               </item>
              </layout>
             </item>
             <item>
-             <widget class="QCheckBox" name="appendNewFilesCB">
-              <property name="text">
-               <string>Append New Files to Database?</string>
+             <spacer name="horizontalSpacer_2" >
+              <property name="orientation" >
+               <enum>Qt::Horizontal</enum>
               </property>
-              <property name="checked">
-               <bool>true</bool>
+              <property name="sizeHint" stdset="0" >
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
               </property>
-             </widget>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+         </layout>
+         <zorder>label_7</zorder>
+         <zorder>sqlErrorMessage</zorder>
+         <zorder>horizontalSpacer_2</zorder>
+         <zorder>horizontalSpacer_2</zorder>
+         <zorder>label</zorder>
+        </widget>
+        <widget class="QWidget" name="plotTab" >
+         <attribute name="title" >
+          <string>Plot</string>
+         </attribute>
+         <layout class="QHBoxLayout" >
+          <item>
+           <widget class="MPL_Widget" native="1" name="plotWidget" />
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="configTab" >
+         <attribute name="title" >
+          <string>Define Plot</string>
+         </attribute>
+         <layout class="QGridLayout" name="gridLayout" >
+          <item row="0" column="0" >
+           <layout class="QHBoxLayout" name="horizontalLayout_3" >
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_4" >
+              <item>
+               <widget class="QLabel" name="label_4" >
+                <property name="text" >
+                 <string>Database Tables:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QListWidget" name="db_TableList" />
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_5" >
+              <item>
+               <widget class="QLabel" name="label_5" >
+                <property name="text" >
+                 <string>X-Axis:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QListWidget" name="db_XCols" />
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_6" >
+              <item>
+               <widget class="QLabel" name="label_6" >
+                <property name="text" >
+                 <string>Y-Axis:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QListWidget" name="db_YCols" />
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </item>
+          <item row="1" column="0" >
+           <layout class="QHBoxLayout" name="horizontalLayout" >
+            <item>
+             <spacer name="horizontalSpacer" >
+              <property name="orientation" >
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0" >
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout" >
+              <item>
+               <layout class="QGridLayout" >
+                <item row="0" column="1" >
+                 <widget class="QDoubleSpinBox" name="sizeModSpinBox" >
+                  <property name="minimum" >
+                   <double>0.000000000000000</double>
+                  </property>
+                  <property name="singleStep" >
+                   <double>0.500000000000000</double>
+                  </property>
+                  <property name="value" >
+                   <double>1.500000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="1" >
+                 <widget class="QComboBox" name="sizeArrayComboB" />
+                </item>
+                <item row="3" column="1" >
+                 <widget class="QPushButton" name="updatePlotBtn" >
+                  <property name="text" >
+                   <string>Update Plot</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="5" column="1" >
+                 <widget class="QPushButton" name="clearPlotBtn" >
+                  <property name="text" >
+                   <string>Clear Plot</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="0" >
+                 <widget class="QLabel" name="label_8" >
+                  <property name="text" >
+                   <string>Size Modifier:</string>
+                  </property>
+                  <property name="alignment" >
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0" >
+                 <widget class="QLabel" name="label_9" >
+                  <property name="text" >
+                   <string>Size Array:</string>
+                  </property>
+                  <property name="alignment" >
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="1" >
+                 <widget class="QCheckBox" name="clearPlotCB" >
+                  <property name="text" >
+                   <string>Clear on Update?</string>
+                  </property>
+                  <property name="checked" >
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="1" >
+                 <layout class="QHBoxLayout" >
+                  <item>
+                   <widget class="QCheckBox" name="cb_logx" >
+                    <property name="text" >
+                     <string>Log X</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QCheckBox" name="cb_logy" >
+                    <property name="text" >
+                     <string>Log Y</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <spacer name="verticalSpacer" >
+                <property name="orientation" >
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeHint" stdset="0" >
+                 <size>
+                  <width>20</width>
+                  <height>40</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
             </item>
            </layout>
           </item>
@@ -415,29 +532,22 @@
        </widget>
       </item>
       <item>
-       <widget class="QTableWidget" name="SelectInfoWidget">
-        <property name="enabled">
+       <widget class="QTableWidget" name="SelectInfoWidget" >
+        <property name="enabled" >
          <bool>true</bool>
         </property>
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+        <property name="sizePolicy" >
+         <sizepolicy vsizetype="Expanding" hsizetype="Minimum" >
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
-        <property name="rowCount">
-         <number>20</number>
+        <property name="rowCount" >
+         <number>13</number>
         </property>
-        <property name="columnCount">
+        <property name="columnCount" >
          <number>2</number>
         </property>
-        <row/>
-        <row/>
-        <row/>
-        <row/>
-        <row/>
-        <row/>
-        <row/>
         <row/>
         <row/>
         <row/>
@@ -458,366 +568,379 @@
      </layout>
     </item>
    </layout>
+   <zorder>SelectInfoWidget</zorder>
   </widget>
-  <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
+  <widget class="QMenuBar" name="menubar" >
+   <property name="geometry" >
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1073</width>
-     <height>23</height>
+     <width>1089</width>
+     <height>22</height>
     </rect>
    </property>
-   <property name="font">
+   <property name="font" >
     <font>
      <family>Arial</family>
      <weight>50</weight>
      <bold>false</bold>
     </font>
    </property>
-   <widget class="QMenu" name="menuFile">
-    <property name="title">
+   <widget class="QMenu" name="menuFile" >
+    <property name="title" >
      <string>&amp;File</string>
     </property>
-    <addaction name="action_Open"/>
-    <addaction name="actionLoad_Folder"/>
-    <addaction name="action_Save"/>
-    <addaction name="action_Exit"/>
+    <addaction name="action_Open" />
+    <addaction name="actionLoad_Folder" />
+    <addaction name="action_Save" />
+    <addaction name="action_Exit" />
    </widget>
-   <widget class="QMenu" name="menu_Edit">
-    <property name="title">
+   <widget class="QMenu" name="menu_Edit" >
+    <property name="title" >
      <string>&amp;Edit</string>
     </property>
-    <addaction name="action_Cut"/>
-    <addaction name="action_Paste"/>
+    <addaction name="action_Cut" />
+    <addaction name="action_Paste" />
    </widget>
-   <widget class="QMenu" name="menu_Tools">
-    <property name="title">
+   <widget class="QMenu" name="menu_Tools" >
+    <property name="title" >
      <string>&amp;Tools</string>
     </property>
-    <addaction name="actionSave_All_Tables"/>
-    <addaction name="actionCopy_Current_Database"/>
+    <addaction name="actionSave_All_Tables" />
+    <addaction name="actionCopy_Current_Database" />
    </widget>
-   <widget class="QMenu" name="menu_Help">
-    <property name="title">
+   <widget class="QMenu" name="menu_Help" >
+    <property name="title" >
      <string>&amp;Help</string>
     </property>
-    <addaction name="actionAbout"/>
-    <addaction name="actionHints"/>
+    <addaction name="actionAbout" />
+    <addaction name="actionHints" />
    </widget>
-   <widget class="QMenu" name="menuData">
-    <property name="title">
+   <widget class="QMenu" name="menuData" >
+    <property name="title" >
      <string>Data</string>
     </property>
    </widget>
-   <addaction name="menuFile"/>
-   <addaction name="menu_Edit"/>
-   <addaction name="menu_Tools"/>
-   <addaction name="menuData"/>
-   <addaction name="menu_Help"/>
+   <addaction name="menuFile" />
+   <addaction name="menu_Edit" />
+   <addaction name="menu_Tools" />
+   <addaction name="menuData" />
+   <addaction name="menu_Help" />
   </widget>
-  <widget class="QStatusBar" name="statusbar"/>
-  <widget class="QToolBar" name="toolBar">
-   <property name="enabled">
+  <widget class="QStatusBar" name="statusbar" />
+  <widget class="QToolBar" name="toolBar" >
+   <property name="enabled" >
     <bool>true</bool>
    </property>
-   <property name="minimumSize">
+   <property name="minimumSize" >
     <size>
      <width>12</width>
      <height>25</height>
     </size>
    </property>
-   <property name="windowTitle">
+   <property name="windowTitle" >
     <string>toolBar</string>
    </property>
-   <attribute name="toolBarArea">
+   <attribute name="toolBarArea" >
     <enum>TopToolBarArea</enum>
    </attribute>
-   <attribute name="toolBarBreak">
+   <attribute name="toolBarBreak" >
     <bool>false</bool>
    </attribute>
-   <addaction name="actionFileOpen"/>
-   <addaction name="action_Save"/>
-   <addaction name="actionRunScript"/>
-   <addaction name="actionTools"/>
+   <addaction name="actionFileOpen" />
+   <addaction name="action_Save" />
+   <addaction name="actionRunScript" />
+   <addaction name="actionTools" />
   </widget>
-  <action name="action_Edit">
-   <property name="text">
+  <action name="action_Edit" >
+   <property name="text" >
     <string>&amp;Edit</string>
    </property>
   </action>
-  <action name="action_Tools">
-   <property name="icon">
-    <iconset>
+  <action name="action_Tools" >
+   <property name="icon" >
+    <iconset resource="SubPlot.qrc" >
      <normaloff>:/new/prefix1/icons/Service Manager.png</normaloff>:/new/prefix1/icons/Service Manager.png</iconset>
    </property>
-   <property name="text">
+   <property name="text" >
     <string>&amp;Tools</string>
    </property>
   </action>
-  <action name="actionFileOpen">
-   <property name="icon">
-    <iconset>
+  <action name="actionFileOpen" >
+   <property name="icon" >
+    <iconset resource="SubPlot.qrc" >
      <normaloff>:/new/prefix1/icons/fileopen.png</normaloff>:/new/prefix1/icons/fileopen.png</iconset>
    </property>
-   <property name="text">
+   <property name="text" >
     <string>fileOpen</string>
    </property>
-   <property name="toolTip">
+   <property name="toolTip" >
     <string>Open File</string>
    </property>
   </action>
-  <action name="actionFileSave">
-   <property name="icon">
-    <iconset>
+  <action name="actionFileSave" >
+   <property name="icon" >
+    <iconset resource="SubPlot.qrc" >
      <normaloff>:/new/prefix1/icons/filesave2.png</normaloff>:/new/prefix1/icons/filesave2.png</iconset>
    </property>
-   <property name="text">
+   <property name="text" >
     <string>fileSave</string>
    </property>
-   <property name="toolTip">
+   <property name="toolTip" >
     <string>Save File</string>
    </property>
   </action>
-  <action name="actionFileSaveAs">
-   <property name="icon">
-    <iconset>
+  <action name="actionFileSaveAs" >
+   <property name="icon" >
+    <iconset resource="SubPlot.qrc" >
      <normaloff>:/new/prefix1/icons/filesaveas.png</normaloff>:/new/prefix1/icons/filesaveas.png</iconset>
    </property>
-   <property name="text">
+   <property name="text" >
     <string>fileSaveAs</string>
    </property>
   </action>
-  <action name="actionNewFile">
-   <property name="icon">
-    <iconset>
+  <action name="actionNewFile" >
+   <property name="icon" >
+    <iconset resource="SubPlot.qrc" >
      <normaloff>:/new/prefix1/icons/filenew.png</normaloff>:/new/prefix1/icons/filenew.png</iconset>
    </property>
-   <property name="text">
+   <property name="text" >
     <string>newFile</string>
    </property>
-   <property name="toolTip">
+   <property name="toolTip" >
     <string>New File</string>
    </property>
   </action>
-  <action name="actionTools">
-   <property name="icon">
-    <iconset>
+  <action name="actionTools" >
+   <property name="icon" >
+    <iconset resource="SubPlot.qrc" >
      <normaloff>:/new/prefix1/icons/Service Manager.png</normaloff>:/new/prefix1/icons/Service Manager.png</iconset>
    </property>
-   <property name="text">
+   <property name="text" >
     <string>Transfer</string>
    </property>
-   <property name="iconText">
+   <property name="iconText" >
     <string>Transfer</string>
    </property>
-   <property name="toolTip">
+   <property name="toolTip" >
     <string>Tools</string>
    </property>
   </action>
-  <action name="action_getSelection">
-   <property name="icon">
-    <iconset>
+  <action name="action_getSelection" >
+   <property name="icon" >
+    <iconset resource="SubPlot.qrc" >
      <normaloff>:/new/prefix1/icons/kspread_ksp.png</normaloff>:/new/prefix1/icons/kspread_ksp.png</iconset>
    </property>
-   <property name="text">
+   <property name="text" >
     <string>getSelection</string>
    </property>
-   <property name="toolTip">
+   <property name="toolTip" >
     <string>Get Table Selection</string>
    </property>
   </action>
-  <action name="actionClear">
-   <property name="icon">
-    <iconset>
+  <action name="actionClear" >
+   <property name="icon" >
+    <iconset resource="SubPlot.qrc" >
      <normaloff>:/new/prefix1/icons/cleanlarge.png</normaloff>:/new/prefix1/icons/cleanlarge.png</iconset>
    </property>
-   <property name="text">
+   <property name="text" >
     <string>clear</string>
    </property>
-   <property name="toolTip">
+   <property name="toolTip" >
     <string>Clear Data and Variables</string>
    </property>
   </action>
-  <action name="action_New">
-   <property name="icon">
-    <iconset>
+  <action name="action_New" >
+   <property name="icon" >
+    <iconset resource="SubPlot.qrc" >
      <normaloff>:/new/prefix1/icons/filenew.png</normaloff>:/new/prefix1/icons/filenew.png</iconset>
    </property>
-   <property name="text">
+   <property name="text" >
     <string>&amp;New</string>
    </property>
-   <property name="shortcut">
+   <property name="shortcut" >
     <string>Ctrl+N</string>
    </property>
   </action>
-  <action name="action_Open">
-   <property name="icon">
-    <iconset>
+  <action name="action_Open" >
+   <property name="icon" >
+    <iconset resource="SubPlot.qrc" >
      <normaloff>:/new/prefix1/icons/fileopen.png</normaloff>:/new/prefix1/icons/fileopen.png</iconset>
    </property>
-   <property name="text">
+   <property name="text" >
     <string>&amp;Open</string>
    </property>
-   <property name="shortcut">
+   <property name="shortcut" >
     <string>Ctrl+O</string>
    </property>
   </action>
-  <action name="action_Save">
-   <property name="icon">
-    <iconset>
+  <action name="action_Save" >
+   <property name="icon" >
+    <iconset resource="SubPlot.qrc" >
      <normaloff>:/new/prefix1/icons/filesave2.png</normaloff>:/new/prefix1/icons/filesave2.png</iconset>
    </property>
-   <property name="text">
+   <property name="text" >
     <string>&amp;Save</string>
    </property>
-   <property name="shortcut">
+   <property name="shortcut" >
     <string>Ctrl+S</string>
    </property>
   </action>
-  <action name="actionSave_As">
-   <property name="icon">
-    <iconset>
+  <action name="actionSave_As" >
+   <property name="icon" >
+    <iconset resource="SubPlot.qrc" >
      <normaloff>:/new/prefix1/icons/filesaveas.png</normaloff>:/new/prefix1/icons/filesaveas.png</iconset>
    </property>
-   <property name="text">
+   <property name="text" >
     <string>Save &amp;As</string>
    </property>
   </action>
-  <action name="action_Exit">
-   <property name="icon">
-    <iconset>
+  <action name="action_Exit" >
+   <property name="icon" >
+    <iconset resource="SubPlot.qrc" >
      <normaloff>:/new/prefix1/icons/exit.png</normaloff>:/new/prefix1/icons/exit.png</iconset>
    </property>
-   <property name="text">
+   <property name="text" >
     <string>&amp;Exit</string>
    </property>
-   <property name="shortcut">
+   <property name="shortcut" >
     <string>Ctrl+X</string>
    </property>
   </action>
-  <action name="action_Clear">
-   <property name="icon">
-    <iconset>
+  <action name="action_Clear" >
+   <property name="icon" >
+    <iconset resource="SubPlot.qrc" >
      <normaloff>:/new/prefix1/icons/cleanlarge.png</normaloff>:/new/prefix1/icons/cleanlarge.png</iconset>
    </property>
-   <property name="text">
+   <property name="text" >
     <string>Clea&amp;r</string>
    </property>
   </action>
-  <action name="action_Table_Selection">
-   <property name="icon">
-    <iconset>
+  <action name="action_Table_Selection" >
+   <property name="icon" >
+    <iconset resource="SubPlot.qrc" >
      <normaloff>:/new/prefix1/icons/kspread_ksp.png</normaloff>:/new/prefix1/icons/kspread_ksp.png</iconset>
    </property>
-   <property name="text">
+   <property name="text" >
     <string>&amp;Table Selection</string>
    </property>
   </action>
-  <action name="action_Cut">
-   <property name="icon">
-    <iconset>
+  <action name="action_Cut" >
+   <property name="icon" >
+    <iconset resource="SubPlot.qrc" >
      <normaloff>:/new/prefix1/icons/editcut.png</normaloff>:/new/prefix1/icons/editcut.png</iconset>
    </property>
-   <property name="text">
+   <property name="text" >
     <string>&amp;Cut</string>
    </property>
-   <property name="shortcut">
+   <property name="shortcut" >
     <string>Ctrl+X</string>
    </property>
   </action>
-  <action name="action_Paste">
-   <property name="icon">
-    <iconset>
+  <action name="action_Paste" >
+   <property name="icon" >
+    <iconset resource="SubPlot.qrc" >
      <normaloff>:/new/prefix1/icons/editpaste.png</normaloff>:/new/prefix1/icons/editpaste.png</iconset>
    </property>
-   <property name="text">
+   <property name="text" >
     <string>&amp;Paste</string>
    </property>
-   <property name="shortcut">
+   <property name="shortcut" >
     <string>Ctrl+V</string>
    </property>
   </action>
-  <action name="actionRunScript">
-   <property name="icon">
-    <iconset>
+  <action name="actionRunScript" >
+   <property name="icon" >
+    <iconset resource="SubPlot.qrc" >
      <normaloff>:/new/prefix1/icons/software-development.png</normaloff>:/new/prefix1/icons/software-development.png</iconset>
    </property>
-   <property name="text">
+   <property name="text" >
     <string>runScript</string>
    </property>
-   <property name="toolTip">
+   <property name="toolTip" >
     <string>Run Python Script</string>
    </property>
   </action>
-  <action name="actionAbout">
-   <property name="icon">
-    <iconset>
+  <action name="actionAbout" >
+   <property name="icon" >
+    <iconset resource="SubPlot.qrc" >
      <normaloff>:/new/prefix1/icons/help.png</normaloff>:/new/prefix1/icons/help.png</iconset>
    </property>
-   <property name="text">
+   <property name="text" >
     <string>About</string>
    </property>
   </action>
-  <action name="actionPlot">
-   <property name="icon">
-    <iconset>
+  <action name="actionPlot" >
+   <property name="icon" >
+    <iconset resource="SubPlot.qrc" >
      <normaloff>:/new/prefix1/icons/120px-Icon_Mathematical_Plot.svg.png</normaloff>:/new/prefix1/icons/120px-Icon_Mathematical_Plot.svg.png</iconset>
    </property>
-   <property name="text">
+   <property name="text" >
     <string>Plot</string>
    </property>
   </action>
-  <action name="actionDelete">
-   <property name="icon">
-    <iconset>
+  <action name="actionDelete" >
+   <property name="icon" >
+    <iconset resource="SubPlot.qrc" >
      <normaloff>:/new/prefix1/icons/xkill.png</normaloff>:/new/prefix1/icons/xkill.png</iconset>
    </property>
-   <property name="text">
+   <property name="text" >
     <string>Delete</string>
    </property>
   </action>
-  <action name="actionDeleteAll">
-   <property name="icon">
-    <iconset>
+  <action name="actionDeleteAll" >
+   <property name="icon" >
+    <iconset resource="SubPlot.qrc" >
      <normaloff>:/new/prefix1/icons/xkill.png</normaloff>:/new/prefix1/icons/xkill.png</iconset>
    </property>
-   <property name="text">
+   <property name="text" >
     <string>DeleteAll</string>
    </property>
   </action>
-  <action name="actionPlotItem">
-   <property name="icon">
-    <iconset>
+  <action name="actionPlotItem" >
+   <property name="icon" >
+    <iconset resource="SubPlot.qrc" >
      <normaloff>:/new/prefix1/icons/120px-Icon_Mathematical_Plot.svg.png</normaloff>:/new/prefix1/icons/120px-Icon_Mathematical_Plot.svg.png</iconset>
    </property>
-   <property name="text">
+   <property name="text" >
     <string>PlotItem</string>
    </property>
-   <property name="iconText">
+   <property name="iconText" >
     <string>Plot Item</string>
    </property>
-   <property name="toolTip">
+   <property name="toolTip" >
     <string>Plot Item</string>
    </property>
   </action>
-  <action name="actionHints">
-   <property name="text">
+  <action name="actionHints" >
+   <property name="text" >
     <string>Hints</string>
    </property>
   </action>
-  <action name="actionLoad_Folder">
-   <property name="text">
+  <action name="actionLoad_Folder" >
+   <property name="icon" >
+    <iconset resource="SubPlot.qrc" >
+     <normaloff>:/new/prefix1/icons/fileimport.png</normaloff>:/new/prefix1/icons/fileimport.png</iconset>
+   </property>
+   <property name="text" >
     <string>Load Folder</string>
    </property>
   </action>
-  <action name="actionSave_All_Tables">
-   <property name="text">
+  <action name="actionSave_All_Tables" >
+   <property name="icon" >
+    <iconset resource="SubPlot.qrc" >
+     <normaloff>:/new/prefix1/icons/kchart_chrt.png</normaloff>:/new/prefix1/icons/kchart_chrt.png</iconset>
+   </property>
+   <property name="text" >
     <string>Save All Tables to CSV</string>
    </property>
   </action>
-  <action name="actionCopy_Current_Database">
-   <property name="text">
+  <action name="actionCopy_Current_Database" >
+   <property name="icon" >
+    <iconset resource="SubPlot.qrc" >
+     <normaloff>:/new/prefix1/icons/editpaste.png</normaloff>:/new/prefix1/icons/editpaste.png</iconset>
+   </property>
+   <property name="text" >
     <string>Copy Current Database</string>
    </property>
   </action>
@@ -836,7 +959,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="SubPlot.qrc"/>
+  <include location="SubPlot.qrc" />
  </resources>
  <connections/>
 </ui>

@@ -20,7 +20,7 @@ import sys
 from PyQt4 import QtGui, QtCore
 from mpl_pyqt4_widget import MPL_Widget
 
-import configParams as config
+import configParams as configP
 import mspy
 
 COLORS = ['#297AA3','#A3293D','#3B9DCE','#293DA3','#5229A3','#8F29A3','#A3297A',
@@ -59,63 +59,63 @@ def doFrag(curSeq):
     #series.append('int')
     i = 0
     serTypeDict = {}
-    #config.sequence['fragment']['fragments'].append('a')
-    config.sequence['fragment']['fragments'].append('b')
-    serTypeDict[config.sequence['fragment']['fragments'][-1]] = i
+    #configP.sequence['fragment']['fragments'].append('a')
+    configP.sequence['fragment']['fragments'].append('b')
+    serTypeDict[configP.sequence['fragment']['fragments'][-1]] = i
     i+=1
-    config.sequence['fragment']['fragments'].append('y')
-    serTypeDict[config.sequence['fragment']['fragments'][-1]] = i
+    configP.sequence['fragment']['fragments'].append('y')
+    serTypeDict[configP.sequence['fragment']['fragments'][-1]] = i
     i+=1
-#    config.sequence['fragment']['fragments'].append('a-H2O')
-#    serTypeDict[config.sequence['fragment']['fragments'][-1]] = i
+#    configP.sequence['fragment']['fragments'].append('a-H2O')
+#    serTypeDict[configP.sequence['fragment']['fragments'][-1]] = i
 #    i+=1
-    config.sequence['fragment']['fragments'].append('b-H2O')
-    serTypeDict[config.sequence['fragment']['fragments'][-1]] = i
+    configP.sequence['fragment']['fragments'].append('b-H2O')
+    serTypeDict[configP.sequence['fragment']['fragments'][-1]] = i
     i+=1
-    config.sequence['fragment']['fragments'].append('y-H2O')
-    serTypeDict[config.sequence['fragment']['fragments'][-1]] = i
+    configP.sequence['fragment']['fragments'].append('y-H2O')
+    serTypeDict[configP.sequence['fragment']['fragments'][-1]] = i
     i+=1
 
 #    print serTypeDict
-#    config.sequence['fragment']['fragments'].append('int')
+#    configP.sequence['fragment']['fragments'].append('int')
 
 #    i = 0
 #
-#    if 'a' in config.sequence['fragment']['fragments']:
+#    if 'a' in configP.sequence['fragment']['fragments']:
 #        series.append('a')
 #        serTypeDict['a']=i
 #        i+=1
-#    if 'b' in config.sequence['fragment']['fragments']:
+#    if 'b' in configP.sequence['fragment']['fragments']:
 #        series.append('b')
 #        serTypeDict['b'] = i
 #        i+=1
-#    if 'y' in config.sequence['fragment']['fragments']:
+#    if 'y' in configP.sequence['fragment']['fragments']:
 #        series.append('y')
 #        serTypeDict['y'] = i
 #        i+=1
 #    for serie in series[:]:
-#        if '-NH3' in config.sequence['fragment']['fragments']:
+#        if '-NH3' in configP.sequence['fragment']['fragments']:
 #            series.append(serie+'-NH3')
 #            serTypeDict[serie+'-NH3'] = i
 #            i+=1
-#        if '-H2O' in config.sequence['fragment']['fragments']:
+#        if '-H2O' in configP.sequence['fragment']['fragments']:
 #            series.append(serie+'-H2O')
 #            serTypeDict[serie+'-H2O'] = i
 #            i+=1
 #
-#    if 'c' in config.sequence['fragment']['fragments']:
+#    if 'c' in configP.sequence['fragment']['fragments']:
 #        series.append('c')
 #        serTypeDict['c'] = i
 #        i+=1
-#    if 'x' in config.sequence['fragment']['fragments']:
+#    if 'x' in configP.sequence['fragment']['fragments']:
 #        series.append('x')
 #        serTypeDict['x'] = i
 #        i+=1
-#    if 'z' in config.sequence['fragment']['fragments']:
+#    if 'z' in configP.sequence['fragment']['fragments']:
 #        series.append('z')
 #        serTypeDict['z'] = i
 #        i+=1
-#    if 'int' in config.sequence['fragment']['fragments']:
+#    if 'int' in configP.sequence['fragment']['fragments']:
 #        series.append('int')
 #        serTypeDict['int'] = i
 #        i+=1
@@ -129,12 +129,12 @@ def doFrag(curSeq):
 #        serTypeDict['int-H2O'] = i
 #        i+=1
 #
-#    if 'n-ladder' in config.sequence['fragment']['fragments']:
+#    if 'n-ladder' in configP.sequence['fragment']['fragments']:
 #        series.append('n-ladder')
 #        serTypeDict['n-ladder'] = i
 #        i+=1
 #
-#    if 'c-ladder' in config.sequence['fragment']['fragments']:
+#    if 'c-ladder' in configP.sequence['fragment']['fragments']:
 #        series.append('c-ladder')
 #        serTypeDict['c-ladder'] = i
 #        i+=1
@@ -148,28 +148,28 @@ def doFrag(curSeq):
     # variate mods
     variants = []
     for fragment in fragments:
-        variants += mspy.variateMods(fragment, position=False, maxMods=config.sequence['fragment']['maxMods'])
+        variants += mspy.variateMods(fragment, position=False, maxMods=configP.sequence['fragment']['maxMods'])
     fragments = variants
 
     # get max charge and polarity
     polarity = 1
-    if config.sequence['fragment']['maxCharge'] < 0:
+    if configP.sequence['fragment']['maxCharge'] < 0:
         polarity = -1
-    maxCharge = abs(config.sequence['fragment']['maxCharge'])+1
+    maxCharge = abs(configP.sequence['fragment']['maxCharge'])+1
 
     # calculate mz and check limits
     curFrags = []
     for i,fragment in enumerate(fragments):
         for z in range(1, maxCharge):
-            if not config.sequence['fragment']['filterFragments'] or not fragment.fragFiltered:
+            if not configP.sequence['fragment']['filterFragments'] or not fragment.fragFiltered:
                 curFrags.append([
                     serTypeDict[str(fragment.fragmentSerie)],
                     fragment.fragmentSerie,
                     fragment.fragmentIndex,
                     fragment.userRange,
-                    fragment.getMZ(z*polarity)[config.sequence['fragment']['massType']],
+                    fragment.getMZ(z*polarity)[configP.sequence['fragment']['massType']],
                     z*polarity,
-                    fragment.getFormated(config.sequence['fragment']['listFormat']),
+                    fragment.getFormated(configP.sequence['fragment']['listFormat']),
                     None,
                     fragment,
                     [],
@@ -201,7 +201,7 @@ def pepFrag(seq, X, Y, plotCanvas, annotation = None):
     fragType = []
     fragMZ = []
 
-    print "Series: ", series
+#    print "Series: ", series
 
 #    for val in ans:
 #        print val
@@ -301,7 +301,8 @@ def pepFrag(seq, X, Y, plotCanvas, annotation = None):
 
     errMax = n-len(tempErrs)+1
     ax2.axvline(ymax = errMax, color = 'k', ls = '--')
-    ax2.set_xlim(xmin = N.abs(errs.max())*-1.1, xman = N.abs(errs.max())*1.1)
+    ax2.set_xlim(xmin = N.abs(errs).max()*-1.1, xman = N.abs(errs).max()*1.1)
+    ax2.set_ylim(ymin = 0, yman = errMax)
 
 
     if annotation != None:
@@ -379,37 +380,37 @@ if __name__ == "__main__":
 #        """Perform protein digest."""
 #
 #        # digest sequence
-#        peptides = mspy.digest(self.currentSequence, config.sequence['digest']['enzyme'], miscleavage=config.sequence['digest']['miscl'], allowMods=config.sequence['digest']['allowMods'], strict=False)
+#        peptides = mspy.digest(self.currentSequence, configP.sequence['digest']['enzyme'], miscleavage=configP.sequence['digest']['miscl'], allowMods=configP.sequence['digest']['allowMods'], strict=False)
 #
 #        # do not cleave if modified
-#        enzyme=config.sequence['digest']['enzyme']
-#        if config.sequence['digest']['allowMods']:
+#        enzyme=configP.sequence['digest']['enzyme']
+#        if configP.sequence['digest']['allowMods']:
 #            enzyme = None
 #
 #        # get variations for each peptide
 #        variants = []
 #        for peptide in peptides:
-#            variants += mspy.variateMods(peptide, position=False, maxMods=config.sequence['digest']['maxMods'], enzyme=enzyme)
+#            variants += mspy.variateMods(peptide, position=False, maxMods=configP.sequence['digest']['maxMods'], enzyme=enzyme)
 #        peptides = variants
 #
 #        # get max charge and polarity
 #        polarity = 1
-#        if config.sequence['digest']['maxCharge'] < 0:
+#        if configP.sequence['digest']['maxCharge'] < 0:
 #            polarity = -1
-#        maxCharge = abs(config.sequence['digest']['maxCharge'])+1
+#        maxCharge = abs(configP.sequence['digest']['maxCharge'])+1
 #
 #        # calculate mz and check limits
 #        self.currentDigest = []
 #        for peptide in peptides:
 #            for z in range(1, maxCharge):
-#                mz = peptide.getMZ(z*polarity)[config.sequence['digest']['massType']]
-#                if mz >= config.sequence['digest']['lowMass'] and mz <= config.sequence['digest']['highMass']:
+#                mz = peptide.getMZ(z*polarity)[configP.sequence['digest']['massType']]
+#                if mz >= configP.sequence['digest']['lowMass'] and mz <= configP.sequence['digest']['highMass']:
 #                    self.currentDigest.append([
 #                        peptide.userRange,
 #                        peptide.miscleavages,
 #                        mz,
 #                        z*polarity,
-#                        peptide.getFormated(config.sequence['digest']['listFormat']),
+#                        peptide.getFormated(configP.sequence['digest']['listFormat']),
 #                        None,
 #                        peptide,
 #                        [],
@@ -423,33 +424,33 @@ if __name__ == "__main__":
 #        # get fragment types
 #        series = []
 #
-#        if 'a' in config.sequence['fragment']['fragments']:
+#        if 'a' in configP.sequence['fragment']['fragments']:
 #            series.append('a')
-#        if 'b' in config.sequence['fragment']['fragments']:
+#        if 'b' in configP.sequence['fragment']['fragments']:
 #            series.append('b')
-#        if 'y' in config.sequence['fragment']['fragments']:
+#        if 'y' in configP.sequence['fragment']['fragments']:
 #            series.append('y')
 #
 #        for serie in series[:]:
-#            if '-NH3' in config.sequence['fragment']['fragments']:
+#            if '-NH3' in configP.sequence['fragment']['fragments']:
 #                series.append(serie+'-NH3')
-#            if '-H2O' in config.sequence['fragment']['fragments']:
+#            if '-H2O' in configP.sequence['fragment']['fragments']:
 #                series.append(serie+'-H2O')
 #
-#        if 'c' in config.sequence['fragment']['fragments']:
+#        if 'c' in configP.sequence['fragment']['fragments']:
 #            series.append('c')
-#        if 'x' in config.sequence['fragment']['fragments']:
+#        if 'x' in configP.sequence['fragment']['fragments']:
 #            series.append('x')
-#        if 'z' in config.sequence['fragment']['fragments']:
+#        if 'z' in configP.sequence['fragment']['fragments']:
 #            series.append('z')
-#        if 'int' in config.sequence['fragment']['fragments']:
+#        if 'int' in configP.sequence['fragment']['fragments']:
 #            series.append('int')
 #            series.append('int-CO')
 #            series.append('int-NH3')
 #            series.append('int-H2O')
-#        if 'n-ladder' in config.sequence['fragment']['fragments']:
+#        if 'n-ladder' in configP.sequence['fragment']['fragments']:
 #            series.append('n-ladder')
-#        if 'c-ladder' in config.sequence['fragment']['fragments']:
+#        if 'c-ladder' in configP.sequence['fragment']['fragments']:
 #            series.append('c-ladder')
 #
 #        # fragment sequence
@@ -460,27 +461,27 @@ if __name__ == "__main__":
 #        # variate mods
 #        variants = []
 #        for fragment in fragments:
-#            variants += mspy.variateMods(fragment, position=False, maxMods=config.sequence['fragment']['maxMods'])
+#            variants += mspy.variateMods(fragment, position=False, maxMods=configP.sequence['fragment']['maxMods'])
 #        fragments = variants
 #
 #        # get max charge and polarity
 #        polarity = 1
-#        if config.sequence['fragment']['maxCharge'] < 0:
+#        if configP.sequence['fragment']['maxCharge'] < 0:
 #            polarity = -1
-#        maxCharge = abs(config.sequence['fragment']['maxCharge'])+1
+#        maxCharge = abs(configP.sequence['fragment']['maxCharge'])+1
 #
 #        # calculate mz and check limits
 #        self.currentFragments = []
 #        for fragment in fragments:
 #            for z in range(1, maxCharge):
-#                if not config.sequence['fragment']['filterFragments'] or not fragment.fragFiltered:
+#                if not configP.sequence['fragment']['filterFragments'] or not fragment.fragFiltered:
 #                    self.currentFragments.append([
 #                        fragment.fragmentSerie,
 #                        fragment.fragmentIndex,
 #                        fragment.userRange,
-#                        fragment.getMZ(z*polarity)[config.sequence['fragment']['massType']],
+#                        fragment.getMZ(z*polarity)[configP.sequence['fragment']['massType']],
 #                        z*polarity,
-#                        fragment.getFormated(config.sequence['fragment']['listFormat']),
+#                        fragment.getFormated(configP.sequence['fragment']['listFormat']),
 #                        None,
 #                        fragment,
 #                        [],
@@ -493,23 +494,23 @@ if __name__ == "__main__":
 #
 #        # get max charge and polarity
 #        polarity = 1
-#        if config.sequence['search']['maxCharge'] < 0:
+#        if configP.sequence['search']['maxCharge'] < 0:
 #            polarity = -1
-#        maxCharge = abs(config.sequence['search']['maxCharge'])+1
+#        maxCharge = abs(configP.sequence['search']['maxCharge'])+1
 #
 #        # search sequence
 #        self.currentSearch = []
 #        for z in range(1, maxCharge):
 #            charge = z*polarity
-#            peptides = mspy.searchSequence(self.currentSequence, config.sequence['search']['mass'], charge, tolerance=config.sequence['search']['tolerance'], enzyme=config.sequence['search']['enzyme'], tolUnits=config.sequence['search']['units'], massType=config.sequence['search']['massType'], maxMods=config.sequence['search']['maxMods'])
+#            peptides = mspy.searchSequence(self.currentSequence, configP.sequence['search']['mass'], charge, tolerance=configP.sequence['search']['tolerance'], enzyme=configP.sequence['search']['enzyme'], tolUnits=configP.sequence['search']['units'], massType=configP.sequence['search']['massType'], maxMods=configP.sequence['search']['maxMods'])
 #            for peptide in peptides:
-#                mz = peptide.getMZ(charge)[config.sequence['search']['massType']]
+#                mz = peptide.getMZ(charge)[configP.sequence['search']['massType']]
 #                self.currentSearch.append([
 #                    peptide.userRange,
 #                    mz,
 #                    charge,
-#                    peptide.getFormated(config.sequence['search']['listFormat']),
-#                    mspy.delta(mz, config.sequence['search']['mass'], config.sequence['search']['units']),
+#                    peptide.getFormated(configP.sequence['search']['listFormat']),
+#                    mspy.delta(mz, configP.sequence['search']['mass'], configP.sequence['search']['units']),
 #                    peptide,
 #                ])
 

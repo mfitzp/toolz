@@ -5,17 +5,18 @@
 ; NOTE: The value of AppId uniquely identifies this application.
 ; Do not use the same AppId value in installers for other applications.
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
-AppId={{31451E97-392F-4267-926D-0AAF8ED6CB15}
-AppName=X!Tandem Viewer
-AppVerName=X!Tandem Viewer 0.5
+AppId={{F2BDA5BA-E177-4A6B-936F-CE42DADC0288}
+AppName=X!Tandem Data Viewer
+AppVerName=X!Tandem Viewer 0.8
 AppPublisher=Death Star Inc.
 AppPublisherURL=www.google.com
 AppSupportURL=www.google.com
 AppUpdatesURL=www.google.com
-DefaultDirName={pf}\X!Tandem Viewer
-DefaultGroupName=X!Tandem Viewer
+DefaultDirName={pf}\X!Tandem Data Viewer
+DefaultGroupName=X!Tandem Data Viewer
 AllowNoIcons=yes
-OutputBaseFilename=X!Tandem_Setup
+OutputBaseFilename=XT_Viewer_Setup
+SetupIconFile=C:\Documents and Settings\d3p483\workspace\GCAlign\icons\Clone.ico
 Compression=lzma
 SolidCompression=yes
 
@@ -26,15 +27,15 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "C:\Documents and Settings\d3p483\workspace\XTandem_Viewer\dist\XT_Viewer.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Documents and Settings\d3p483\workspace\XTandem_Viewer\dist\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "C:\Documents and Settings\d3p483\workspace\XTandem_Parsing\dist\XT_Viewer.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Documents and Settings\d3p483\workspace\XTandem_Parsing\dist\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
-Name: "{group}\X!Tandem Viewer"; Filename: "{app}\XT_Viewer.exe"
-Name: "{group}\{cm:UninstallProgram,X!Tandem Viewer}"; Filename: "{uninstallexe}"
-Name: "{commondesktop}\X!Tandem Viewer"; Filename: "{app}\XT_Viewer.exe"; Tasks: desktopicon
+Name: "{group}\X!Tandem Data Viewer"; Filename: "{app}\XT_Viewer.exe"
+Name: "{group}\{cm:UninstallProgram,X!Tandem Data Viewer}"; Filename: "{uninstallexe}"
+Name: "{commondesktop}\X!Tandem Data Viewer"; Filename: "{app}\XT_Viewer.exe"; Tasks: desktopicon
 
 [Run]
-Filename: "{app}\XT_Viewer.exe"; Description: "{cm:LaunchProgram,X!Tandem Viewer}"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\XT_Viewer.exe"; Description: "{cm:LaunchProgram,X!Tandem Data Viewer}"; Flags: nowait postinstall skipifsilent
 
