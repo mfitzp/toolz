@@ -71,31 +71,31 @@ import tables as T
 from matplotlib.lines import Line2D
 from matplotlib.mlab import rec2csv
 from matplotlib.patches import Rectangle as Rect
-import matplotlib.pyplot as P
+#import matplotlib.pyplot as P
 
-from FolderParse import Load_FID_Folder as LFid
-from FolderParse import Load_mzXML_Folder as LmzXML
-from flexReader import brukerFlexDoc as FR
-from mzXML_reader import mzXMLDoc as mzXMLR
+from supportClasses.folderParse import Load_FID_Folder as LFid
+from supportClasses.folderParse import Load_mzXML_Folder as LmzXML
+from supportClasses.flexReader import brukerFlexDoc as FR
+from supportClasses.mzXML_reader import mzXMLDoc as mzXMLR
+from supportClasses.dataClass import DataClass
 
-from mpl_pyqt4_widget import MPL_Widget
-from mpl_image_widget import MPL_Widget as MPL_CWT
-from dataClass import DataClass
-
-import supportFunc as SF
-import getBaseline as GB
-import cwtPeakPick as CWT
-import cwtPeakPickDOG as CWT_HR
-import isoInterface as ISO
+import supportClasses.pca_module as pca#courtesy of Henning Risvik http://folk.uio.no/henninri/pca_module/
+import supportClasses.cluster_bhc as H#courtesy of Damian Eads, and modified by YT to accept a custom MPL axis
+import supportClasses.fingerPrint as FP
+import supportClasses.supportFunc as SF
+import supportClasses.getBaseline as GB
+import supportClasses.cwtPeakPick as CWT
+import supportClasses.cwtPeakPickDOG as CWT_HR
+import supportClasses.isoInterface as ISO
 #import peafFindThread as PFT
-import PeakFunctions as PF
-import customTable as CT
+import supportClasses.peakFunctions as PF
 
-import pca_module as pca#courtesy of Henning Risvik http://folk.uio.no/henninri/pca_module/
-import cluster_bhc as H#courtesy of Damian Eads, and modified by YT to accept a custom MPL axis
 
-import ui_main
-import fingerPrint as FP
+from uiElements.mpl_pyqt4_widget import MPL_Widget
+from uiElements.mpl_image_widget import MPL_Widget as MPL_CWT
+import uiElements.customTable as CT
+import uiElements.ui_main
+
 
 COLORS = ['#297AA3','#A3293D','#3B9DCE','#293DA3','#5229A3','#8F29A3','#A3297A',
 '#7AA329','#3DA329','#29A352','#29A38F','#A38F29','#3B9DCE','#6CB6DA','#CE6C3B','#DA916C',
@@ -104,7 +104,7 @@ COLORS = ['#297AA3','#A3293D','#3B9DCE','#293DA3','#5229A3','#8F29A3','#A3297A',
 
 MARKERS = ['o', 'd','>', 's', '^',  'p', '<', 'h', 'v']
 
-class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
+class Plot_Widget(QtGui.QMainWindow,  uiElements.ui_main.Ui_MainWindow):
     def __init__(self, parent = None):
         super(Plot_Widget,  self).__init__(parent)
         self.ui = self.setupUi(self)
@@ -156,6 +156,9 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.corrCutOff = None
         self.restEst = None
         self.setupPeakPick()
+        self.ppmErr = None
+        self.tempLIFTList = []
+        self.autoProcessLift = False
         ###FP Related Vars:
         self.expandFPBool = False
         self.fpDict = {}
@@ -1317,40 +1320,40 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 #            curAx.plot(peakList[1], peakList[0], 'o', alpha = 0.6)
 #        print "MetaPeaks"
 
-    def viewFPMeta(self):
-        '''
-        fpDict[self.curGroupName] = {'dataDict':dataDict, 'peakStats':peakStatDict, 'fileName':fileName, 'peakLists':peakListDict}
-        peakListDict[key] = {'peakList':peakListDict[key].read(), 'params':paramDict}
-        Need to add an instance where the full FP are loaded..
-        '''
-        selectItems = self.fpListWidget.selectedItems()
-        if len(selectItems) > 0:
-            item = selectItems[0]
-            curFP = self.fpDict[str(item.text())]
-            metaData = []
-            peakData = []
-            if curFP['peakLists'] != None:
-                peakListInfo = curFP['peakLists']
-                i = 0
-                for key in peakListInfo.iterkeys():
-                    curPeaks = peakListInfo[key]['peakList']
-                    peakData.append([N.zeros_like(curPeaks)+i,curPeaks])
-                    i+=1
-                    curMeta = []
-                    curMeta.append(key)
-                    headers = ['File Name']
-
-                    for paramItem in peakListInfo[key]['params'].iteritems():
-                        headers.append(paramItem[0])
-                        curMeta.append(str(paramItem[1]))
-#                    print curMeta
-                    metaData.append(curMeta)
-
-                dTable = CT.DataTable(metaData, headers)
-                self.plotMetaPeaks(dTable, peakData)
-                dTable.show()
-                self.fingerRevTabls.append(dTable)
-#            print metaData
+#    def viewFPMeta(self):
+#        '''
+#        fpDict[self.curGroupName] = {'dataDict':dataDict, 'peakStats':peakStatDict, 'fileName':fileName, 'peakLists':peakListDict}
+#        peakListDict[key] = {'peakList':peakListDict[key].read(), 'params':paramDict}
+#        Need to add an instance where the full FP are loaded..
+#        '''
+#        selectItems = self.fpListWidget.selectedItems()
+#        if len(selectItems) > 0:
+#            item = selectItems[0]
+#            curFP = self.fpDict[str(item.text())]
+#            metaData = []
+#            peakData = []
+#            if curFP['peakLists'] != None:
+#                peakListInfo = curFP['peakLists']
+#                i = 0
+#                for key in peakListInfo.iterkeys():
+#                    curPeaks = peakListInfo[key]['peakList']
+#                    peakData.append([N.zeros_like(curPeaks)+i,curPeaks])
+#                    i+=1
+#                    curMeta = []
+#                    curMeta.append(key)
+#                    headers = ['File Name']
+#
+#                    for paramItem in peakListInfo[key]['params'].iteritems():
+#                        headers.append(paramItem[0])
+#                        curMeta.append(str(paramItem[1]))
+##                    print curMeta
+#                    metaData.append(curMeta)
+#
+#                dTable = CT.DataTable(metaData, headers)
+#                self.plotMetaPeaks(dTable, peakData)
+#                dTable.show()
+#                self.fingerRevTabls.append(dTable)
+##            print metaData
 
     def viewFPMeta(self):
         '''
@@ -1832,6 +1835,24 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
     def PFTFinished(self, finishedBool, debug = False):
 
+        #this first if statement short circuits the process to then work
+        #on LIFT files and then clear the variables that allow this to happen
+        #consequently the final status label is displayed
+        if self.autoProcessLift:
+            self.peakPick_CB.setCurrentIndex(1)
+            self.setPeakParams()
+            self.setStatusLabel("Now Working on LIFT Files!")
+            print "LIFT Resolution type: ", self.resType
+            if self.FPT.updateThread(self.tempLIFTList, self.peakParams, resType = self.resType):#lowRes = self.lowResPP_CB.isChecked()):
+                self.toggleProgressBar(True)
+                self.progressMax = N.float(len(self.tempLIFTList))
+                print self.progressMax
+                self.FPT.start()
+                self.peakPick_CB.setCurrentIndex(0)
+                self.autoProcessLift = False
+                self.tempLIFTList = []
+                return True
+
         self.setStatusLabel("Peak Fitting Completed!")
         selectItems = self.groupTreeWidget.selectedItems()
         if len(selectItems) > 1:#this is so multiple files don't get plotted and overload the GUI
@@ -1888,6 +1909,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                         self._updatePlotColor_()
                         curDataName = self.multiPlotList[1]
                         self.dataDict[curDataName].plot(curAx, pColor = self.plotColor, invert = True, plotPks = self.plotPkListCB.isChecked())
+                        curAx.set_ylim(ymin = self.dataDict[curDataName].y.max()*-1)
                     else:
                         if self.multiPlot_CB.isChecked():
 
@@ -1921,6 +1943,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                     curAx.set_ylim(ymin = 0)
             else:
                 curAx.set_ylim(ymin = 0)
+
             self.curDataName = curDataName
             self.plotWidget.canvas.format_labels()
             #self.plotWidget.canvas.draw()
@@ -1944,7 +1967,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         curAx = self.plotWidget.canvas.ax
         #self.toolbar.home() #implements the classic return to home
         curAx.autoscale_view(tight = False, scalex=True, scaley=True)
-        if self.invertCompCB.isChecked() and len(self.multiPlotIndex) == 2:
+        if self.invertCompCB.isChecked() and len(self.multiPlotList) == 2:
             pass
         else:
             curAx.set_ylim(ymin = 0)
@@ -2321,7 +2344,45 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                           'autoSave':None
                           }
 
+    def setPeakParams(self):
+        if self.resType == 'Standard Resolution':#setup parameters for low res peak picking
+            self.peakParams = {'scales':self.scales,
+                              'minSNR':self.snrNoiseEst,
+                              'minRow':self.minRow,
+                              'minClust':self.minClust,
+                              'rowThresh':self.rowThresh,
+                              'noiseFactor':self.noiseSplitFactor,
+                              'dbscanEPS':self.dbScanEPS,
+                              'staticThresh':self.staticThresh,
+                              'autoSave':self.autoSavePks
+                              }
+#                for # need to get dataItemList self.dataDict[curDataName]
+#                print self.peakParams
 
+#                if self.lowResPP_CB.isChecked():#setup parameters for low res peak picking
+        elif self.resType == 'Low Resolution':#setup parameters for low res peak picking
+            self.peakParams = {'minSNR':self.lowResMinSNR_SB.value(),
+                               'slopeThresh':None,
+                               'smthKern':self.lowResSmthKern_SB.value(),
+                               'fitWidth':None,
+                               'peakWidth':self.lowResPeakWidth_SB.value(),
+                               'ampThresh':None,
+                               'autoSave':self.autoSavePks
+                               }
+        elif self.resType == 'High Resolution':#setup parameters for low res peak picking
+            self.peakParams = {'scales':self.scales,
+                              'minSNR':self.snrNoiseEst,
+                              'minRow':self.minRow,
+                              'minClust':self.minClust,
+                              'noiseFactor':self.noiseSplitFactor,
+                              'staticThresh':self.staticThresh,
+                              'autoSave':self.autoSavePks,
+                              'xDiff':self.xDiff,
+                              'cutOff':self.corrCutOff,
+                              'maxCharge':self.maxCharge,
+                              'ppmErr':self.ppmErr,
+                              'resEst':self.resEst
+                              }
     def startPeakThread(self, dataItemList, dataItemDict=None):
         self.noiseSplitFactor = self.noiseFactor_SB.value()#default 10
         self.snrNoiseEst = self.snrNoiseEst_SB.value()#default 3
@@ -2334,62 +2395,49 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.autoSavePks = self.autoSavePkList_CB.isChecked()
         self.maxCharge = self.maxCharge_SB.value()
         self.xDiff = self.xDiff_SB.value()
+        self.ppmErr = self.globalPPM_SB.value()/1000000
         self.corrCutOff = self.corrCutOff_SB.value()
         self.resEst = self.resEst_SB.value()
         if self.dbScanEPS == -1:
             self.dbScanEPS = None#this is done because if no EPS is passed autocalculate is enabled.
         if self.scales != None:
             if len(self.scales) > 0:
-                if self.resType == 'Standard Resolution':#setup parameters for low res peak picking
-                    self.peakParams = {'scales':self.scales,
-                                      'minSNR':self.snrNoiseEst,
-                                      'minRow':self.minRow,
-                                      'minClust':self.minClust,
-                                      'rowThresh':self.rowThresh,
-                                      'noiseFactor':self.noiseSplitFactor,
-                                      'dbscanEPS':self.dbScanEPS,
-                                      'staticThresh':self.staticThresh,
-                                      'autoSave':self.autoSavePks
-                                      }
-    #                for # need to get dataItemList self.dataDict[curDataName]
-    #                print self.peakParams
 
-    #                if self.lowResPP_CB.isChecked():#setup parameters for low res peak picking
-                elif self.resType == 'Low Resolution':#setup parameters for low res peak picking
-                    self.peakParams = {'minSNR':self.lowResMinSNR_SB.value(),
-                                       'slopeThresh':None,
-                                       'smthKern':self.lowResSmthKern_SB.value(),
-                                       'fitWidth':None,
-                                       'peakWidth':self.lowResPeakWidth_SB.value(),
-                                       'ampThresh':None,
-                                       'autoSave':self.autoSavePks
-                                       }
-                elif self.resType == 'High Resolution':#setup parameters for low res peak picking
-                    self.peakParams = {'scales':self.scales,
-                                      'minSNR':self.snrNoiseEst,
-                                      'minRow':self.minRow,
-                                      'minClust':self.minClust,
-                                      'noiseFactor':self.noiseSplitFactor,
-                                      'staticThresh':self.staticThresh,
-                                      'autoSave':self.autoSavePks,
-                                      'xDiff':self.xDiff,
-                                      'cutOff':self.corrCutOff,
-                                      'maxCharge':self.maxCharge,
-                                      'resEst':self.resEst
-                                      }
                 if len(dataItemList) == 1:
+                    self.setPeakParams()
                     if self.FPT.updateThread(dataItemList, self.peakParams, plotCWT = self.showCWT_CB.isChecked(), parent = self, resType = self.resType):#lowRes = self.lowResPP_CB.isChecked()):
                         self.toggleProgressBar(True)
                         self.progressMax = N.float(len(dataItemList))
                         print self.progressMax
                         self.FPT.start()
                 else:
-                    #self.showCWT_CB.isChecked()
-                    if self.FPT.updateThread(dataItemList, self.peakParams, resType = self.resType):#lowRes = self.lowResPP_CB.isChecked()):
-                        self.toggleProgressBar(True)
-                        self.progressMax = N.float(len(dataItemList))
-                        print self.progressMax
-                        self.FPT.start()
+                    #need to split case where item is a LIFT file with standard resolution
+                    #also at issue is to make sure the first thread finishes before starting on the second list
+                    stdList = []
+                    liftList = []
+                    for item in dataItemList:
+                        if 'LIFT.' in item.name:
+                            liftList.append(item)
+                        else:
+                            stdList.append(item)
+
+                    if len(stdList)>0:
+                        self.peakPick_CB.setCurrentIndex(0)
+                        self.setPeakParams()
+                        if self.FPT.updateThread(stdList, self.peakParams, resType = self.resType):#lowRes = self.lowResPP_CB.isChecked()):
+                            self.toggleProgressBar(True)
+                            self.progressMax = N.float(len(stdList))
+                            print self.progressMax
+                            self.FPT.start()
+
+
+                    if len(liftList)>0:
+                        self.tempLIFTList = liftList
+                        self.autoProcessLift = True
+                    else:
+                        self.tempLIFTList = []
+                        self.autoProcessLift = False
+
 
     def peakComboChanged(self, selectedStr):
         '''
@@ -2436,13 +2484,15 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
     def plotCWTPeaks(self, dataList):#massSpecX, massSpecY, cwtMTX, peakLoc, peakInt, cwtPeakLoc, peakClass):
         #FIX FOR CASE WITH LINEAR PEAK PICKING
         cwtMTX, cwtResult = dataList
-        peakLoc, peakInt, rawPeakInd, cwtPeakLoc, peakClass, boolAns = cwtResult
+#        peakLoc, peakInt, rawPeakInd, cwtPeakLoc, peakClass, boolAns = cwtResult
+        peakLoc, peakInt, rawPeakInd, snr, cwtPeakLoc, peakClass, boolAns = cwtResult
         if boolAns:
             if self.curDataName != None:
                 curData = self.dataDict[self.curDataName]
                 peakLoc = curData.peakList[:,0]
 #                massSpecX = curData.x
                 massSpecY = curData.y
+                massSpecX = curData.x
             else:
                 return False
 
@@ -2463,9 +2513,11 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                     temp = cwtPeakLoc[ind]
                     ax2.plot(temp[:,0],temp[:,1],'-s', alpha = 0.7, ms = 3)
                 if len(peakLoc) != 0:
-#                    print peakLoc
-#                    print rawPeakInd
-                    ax1.vlines(rawPeakInd, 0, 100, 'r', linestyle = 'dashed', alpha = 0.5)
+                    newPeakLoc = []
+                    for loc in peakLoc:
+                        newInd = N.where(massSpecX == loc)[0][0]
+                        newPeakLoc.append(newInd)
+                    ax1.vlines(newPeakLoc, 0, 100, 'r', linestyle = 'dashed', alpha = 0.5)
 
             cwtPlot.show()
             self.appendMPLPlot(cwtPlot)
@@ -2888,6 +2940,7 @@ class FindPeaksThread(QtCore.QThread):
                                    'xDiff':None,
                                    'cutOff':None,
                                    'maxCharge':None,
+                                   'ppmErr':None,
                                    'resEst':None
                                    }
 
@@ -2927,6 +2980,7 @@ class FindPeaksThread(QtCore.QThread):
                 self.xDiff= self.paramDict['xDiff']
                 self.maxCharge = self.paramDict['maxCharge']
                 self.resEst = self.paramDict['resEst']
+                self.ppmErr = self.paramDict['ppmErr']
                 self.autoSave = self.paramDict['autoSave']
 
             self.parent = parent
@@ -2970,7 +3024,7 @@ class FindPeaksThread(QtCore.QThread):
                     elif self.resType == 'Standard Resolution':
     #                    print "Length of Y: ", len(dataItem.y)
     #                    print "Thresh: ", self.staticThresh/dataItem.normFactor, dataItem.normFactor, self.staticThresh
-                        self.cwt = CWT.cwtMS(dataItem.y, self.scales, staticThresh = (self.staticThresh/dataItem.normFactor)*100)
+                        self.cwt = CWT.cwtMS(dataItem.smooth(), self.scales, staticThresh = (self.staticThresh/dataItem.normFactor)*100)
                         if self.cwt != None:
                             if not dataItem.noiseOK:
                                 numSegs = len(dataItem.x)/self.noiseFactor
@@ -2980,7 +3034,7 @@ class FindPeaksThread(QtCore.QThread):
                             #on 10/19/09 changed the default behavior to not interpolate values
                             #this makes the spectra much shorter in length but removes the determination of the mzPad
                             #as a result this is set to a default  was: pntPad = dataItem.mzPad,
-                            cwtResult = CWT.getCWTPeaks(self.cwt, dataItem.x, dataItem.y,\
+                            cwtResult = CWT.getCWTPeaks(self.cwt, dataItem.x, dataItem.smooth(),\
                                                         dataItem.noiseEst, minSNR = self.minSNR,\
                                                         minRow = self.minRow, minClust =self.minClust,\
                                                         rowThresh = self.rowThresh, \
@@ -3028,8 +3082,7 @@ class FindPeaksThread(QtCore.QThread):
                     #emit finished signal
                     elif self.resType == 'High Resolution':
                         print "high resoltion"
-
-                        ANS, boolAns= ISO.processSpectrum(dataItem.x, dataItem.y, scales = self.scales, \
+                        ANS, boolAns= ISO.processSpectrum(dataItem.x, dataItem.smooth(), scales = self.scales, \
                                                           minSNR = self.minSNR, pkResEst = self.resEst, \
                                                           xDiff = self.xDiff, corrCutOff = self.cutOff, \
                                                           maxCharge = self.maxCharge, groupPeaks = True)#grouping peaks consolidates to the maximum isotope
