@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/new/prefix1" >
+        <file>Chain Chomp_32.png</file>
+        <file>Retro Mario World_32.png</file>
+    </qresource>
+</RCC>
