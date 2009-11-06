@@ -289,10 +289,11 @@ def getIsoProfile(xArray, yArray, isoCentroids, isoAmplitudes,
 		tempY = yArray[startInd:endInd]
 		returnDiff = N.diff(returnX).max()
 
-		tempX, tempY = SF.interpolate_spectrum_by_diff(tempX, tempY, tempX[0], tempX.max(), returnDiff)
-		returnX, returnY = SF.interpolate_spectrum_by_diff(returnX, returnY, tempX[0], tempX.max(), returnDiff)
-		returnX+=returnDiff
-		isoCentroids+=returnDiff
+		#using the index from 1 so that there are no interpolation errors
+		tempX, tempY = SF.interpolate_spectrum_by_diff(tempX, tempY, tempX[1], tempX.max(), returnDiff)
+		returnX, returnY = SF.interpolate_spectrum_by_diff(returnX, returnY, tempX[1], tempX.max(), returnDiff)
+		#returnX+=returnDiff
+		#isoCentroids+=returnDiff
 
 
 		#the following loop pads the respective arrays so that a correlation coeff can be calculated
@@ -482,7 +483,7 @@ def processSpectrum(X, Y, scales, minSNR, pkResEst, corrCutOff):
 
 if __name__ == "__main__":
 
-	data = P.load('Tryptone.csv', delimiter = ',')
+	data = P.load('I5.csv', delimiter = ',')
 
 	mz = data[:,0]
 
@@ -512,7 +513,7 @@ if __name__ == "__main__":
 	scales = N.array([1,2,4,6,8,12,16])
 	minSNR = 1.5
 	resEst = 10000
-	corrCutOff = 0.5
+	corrCutOff = 0.3
 	t1 = time.clock()
 	ANS = processSpectrum(mz, abund, scales, minSNR, resEst, corrCutOff = corrCutOff)
 	print "Peak Picking and Isotopic Fitting Time: ", time.clock()-t1
