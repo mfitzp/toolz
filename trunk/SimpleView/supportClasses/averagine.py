@@ -58,9 +58,55 @@ def averagineCalc(avgMass, charge = 1):
 		print "libmercury failed"
 
 
+def testCalc(avgDict, charge = 1):
+
+	elemList = ['H','C','N','O','S']
+
+#	avgDict = {}
+#	avgDict['H']=7.7583
+#	avgDict['C']=4.9384
+#	avgDict['N']=1.3577
+#	avgDict['O']=1.4773
+#	avgDict['S']=0.0417
+
+	avgMassDict = {}#this is the averagine mass dictionary not the average mass!
+	avgMassDict['H']=1.00794
+	avgMassDict['C']=12.011
+	avgMassDict['N']=14.00670
+	avgMassDict['O']=15.99940
+	avgMassDict['S']=32.06600
+
+	modelComp = []
+	modelComp.append(avgDict['H'])
+	modelComp.append(avgDict['C'])
+	modelComp.append(avgDict['N'])
+	modelComp.append(avgDict['O'])
+	modelComp.append(avgDict['S'])
+
+	if libmercuryOk:
+		mercAns = LMI.mercury(modelComp, charge, 1e-3)
+		if mercAns[0] == 0:
+			return mercAns
+	else:
+		print "libmercury failed"
+
 if __name__ == "__main__":
+	import pylab as P
 	ans = averagineCalc(1672, 1)
 	print ans
+
+	avgDict = {}
+	avgDict['H']=378
+	avgDict['C']=254
+	avgDict['N']=65
+	avgDict['O']=75
+	avgDict['S']=6
+
+	ans = testCalc(avgDict, 1)
+	print ans
+	if ans[0] == 0:
+		P.vlines(ans[1][0], 0, ans[1][1])
+	P.show()
 
 '''
 "ams.averagine" <-
