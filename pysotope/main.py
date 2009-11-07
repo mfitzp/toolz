@@ -19,6 +19,7 @@ from matplotlib import rc, rcParams, use, interactive
 use('Qt4Agg')
 
 import numpy as N
+import csv
 
 from matplotlib.backends import backend_qt4, backend_qt4agg
 backend_qt4.qApp = QtGui.qApp
@@ -31,6 +32,7 @@ from matplotlib.widgets import SpanSelector
 #import GUI scripts
 import ui_main
 from mpl_custom_widget import MPL_Widget
+from pyelements import elemDict
 #from xtandem_parser_class import XT_RESULTS
 #import dbIO
 #from customTable import DBTable
@@ -50,18 +52,64 @@ class periodicTableWidget(QtSvg.QSvgWidget):
         super(periodicTableWidget,  self).__init__(parent)
         print "Periodic Table Started"
         self.load('periodicTable.svg')
-        self.origHeight = self.renderer().defaultSize().height()
-        self.origWidth = self.renderer().defaultSize().width()
-        print "Original Size: ", self.origWidth, self.origHeight
+        self.origH = self.renderer().defaultSize().height()
+        self.origW = self.renderer().defaultSize().width()
+        print "Original Size: ", self.origW, self.origH
+        self.xMod = 1
+        self.yMod = 1
+        self.loadCoords()
 
+    def loadCoords(self):
+        fileName = 'periodicTableCoordinates.csv'
+        tempCoord = csv.reader(open(fileName, 'r'), delimiter = ',')
+        ind = []
+        xLo = []
+        xHi = []
+        yLo = []
+        yHi = []
+        self.elems = []
+        for row in tempCoord:
+#            print row
+            ind.append(int(row[0]))
+            xLo.append(int(row[1]))
+            yLo.append(int(row[2]))
+            xHi.append(int(row[3]))
+            yHi.append(int(row[4]))
+            self.elems.append(row[5])
+
+#        self.elems = N.array(elems)
+        self.ind = N.array(ind)
+        self.xLo = N.array(xLo)
+        self.xHi = N.array(xHi)
+        self.yLo = N.array(yLo)
+        self.yHi = N.array(yHi)
+#        print type(self.xLo)
+#        print self.xLo.min(), self.xLo.max()
 
     def mousePressEvent(self, event):
-        print event.button(), event.globalX(), event.globalX(), event.x(), event.y()
+        '''
+        The SVG coordinates are reversed in the y dimension so we need to subtract
+        '''
+#        print event.button(), event.x(), self.origH-event.y()
+        xP = N.round(event.x()/self.xMod)#event.x()+
+        yP = N.round(self.origH-(event.y()/self.yMod))
+#        print xP, yP, event.x(), self.origH-(event.y())
+        crit = (xP >= self.xLo) & (xP <= self.xHi) & (yP >= self.yLo) & (yP <= self.yHi)
+        Ans = N.where(crit)[0]
+        if len(Ans)>0:
+            curAtom = self.elems[Ans]
+#            print curAtom
+            if elemDict.has_key(curAtom):
+                elem = elemDict[curAtom]
+                print elem.name, elem.mass
+    #        print Ans, self.elems[Ans]
 
     def resizeEvent(self, event):
         oldSize = event.oldSize()
         newSize = event.size()
-        print oldSize.width(), oldSize.height(), newSize.width(), newSize.height()
+        self.xMod = 1.0*newSize.width()/self.origW#changed to float
+        self.yMod = 1.0*newSize.height()/self.origH
+        print self.xMod, self.yMod
         pass
 
 class pysotope(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
@@ -78,9 +126,6 @@ class pysotope(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 #        self.__initContextMenus__()
 #        self.__initVars__()
         self.startup()
-
-
-
 
 
     def __initVars__(self):
@@ -1227,45 +1272,45 @@ class pysotope(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
 ###########################################################
 
-    def closeEvent(self,  event = None):
-        if self.okToExit():
-            self.closeOpenWindows()
-            pass
-        else:
-            event.ignore()
-
-    def resetData(self, dbName = None):
-#        self.plotWidget.canvas.ax.cla()
-        if dbName != None:
-            self.startup(dbName = dbName)
-        else:
-            self.startup()
-
-    def __exitProgram__(self):
-        self.close()
-
-    def okToExit(self):
-        #add a question to save memory database to file
-        if self.dbStatus:
-            reply = QtGui.QMessageBox.question(self, "Save Changes & Exit?", "Commit changes to database and exit? Press discard to exit without saving.",\
-                                               QtGui.QMessageBox.Yes|QtGui.QMessageBox.Discard|QtGui.QMessageBox.Cancel)
-            if reply == QtGui.QMessageBox.Yes:
-                if self.dbStatus:
-                    if self.curDB.dbName == ':memory:':
-                        self.copyCurrentDatabase()
-                    self.curDB.cnx.commit()
-                    self.curDB.close()
-                return True
-
-            elif reply == QtGui.QMessageBox.Discard:
-                if self.dbStatus:
-                    self.curDB.close()
-                return True
-
-            elif reply == QtGui.QMessageBox.Cancel:
-                return False
-        else:
-            return False
+#    def closeEvent(self,  event = None):
+#        if self.okToExit():
+#            self.closeOpenWindows()
+#            pass
+#        else:
+#            event.ignore()
+#
+#    def resetData(self, dbName = None):
+##        self.plotWidget.canvas.ax.cla()
+#        if dbName != None:
+#            self.startup(dbName = dbName)
+#        else:
+#            self.startup()
+#
+#    def __exitProgram__(self):
+#        self.close()
+#
+#    def okToExit(self):
+#        #add a question to save memory database to file
+#        if self.dbStatus:
+#            reply = QtGui.QMessageBox.question(self, "Save Changes & Exit?", "Commit changes to database and exit? Press discard to exit without saving.",\
+#                                               QtGui.QMessageBox.Yes|QtGui.QMessageBox.Discard|QtGui.QMessageBox.Cancel)
+#            if reply == QtGui.QMessageBox.Yes:
+#                if self.dbStatus:
+#                    if self.curDB.dbName == ':memory:':
+#                        self.copyCurrentDatabase()
+#                    self.curDB.cnx.commit()
+#                    self.curDB.close()
+#                return True
+#
+#            elif reply == QtGui.QMessageBox.Discard:
+#                if self.dbStatus:
+#                    self.curDB.close()
+#                return True
+#
+#            elif reply == QtGui.QMessageBox.Cancel:
+#                return False
+#        else:
+#            return False
 
     def __askConfirm__(self,title,message):
         clickedButton = QtGui.QMessageBox.question(self,\

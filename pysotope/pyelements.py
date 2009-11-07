@@ -307,8 +307,9 @@ groups = _Groups()
 periods = _Periods()
 blocks = _Blocks()
 
+elemDict = {}
 
-H = Element(1, 'H', 'Hydrogen',
+elemDict['H']= Element(1, 'H', 'Hydrogen',
     group=1, period=1, block='s',
     mass=1.00794, en=2.2,
     covrad=0.320, atmrad=0.790, vdwrad=1.200,
@@ -322,7 +323,7 @@ H = Element(1, 'H', 'Hydrogen',
     isotopes=((1  ,   1.0078250321, 0.99988500),
               (2  ,   2.0141017780, 0.00011500),),)
 
-He = Element(2, 'He', 'Helium',
+elemDict['He']= Element(2, 'He', 'Helium',
     group=18, period=1, block='s',
     mass=4.002602, en=0.0,
     covrad=0.930, atmrad=0.490, vdwrad=1.400,
@@ -336,7 +337,7 @@ He = Element(2, 'He', 'Helium',
     isotopes=((3  ,   3.0160293097, 0.00000137),
               (4  ,   4.0026032497, 0.99999863),),)
 
-Li = Element(3, 'Li', 'Lithium',
+elemDict['Li']= Element(3, 'Li', 'Lithium',
     group=1, period=2, block='s',
     mass=6.941, en=0.98,
     covrad=1.230, atmrad=2.050, vdwrad=1.820,
@@ -350,7 +351,7 @@ Li = Element(3, 'Li', 'Lithium',
     isotopes=((6  ,   6.0151223000, 0.07590000),
               (7  ,   7.0160040000, 0.92410000),),)
 
-Be = Element(4, 'Be', 'Beryllium',
+elemDict['Be']= Element(4, 'Be', 'Beryllium',
     group=2, period=2, block='s',
     mass=9.012182, en=1.57,
     covrad=0.900, atmrad=1.400, vdwrad=0.000,
@@ -363,7 +364,7 @@ Be = Element(4, 'Be', 'Beryllium',
     ionenergy=(    9.3227,   18.2110,  153.8930,  217.7130,),
     isotopes=((9  ,   9.0121821000, 1.00000000),),)
 
-B = Element(5, 'B', 'Boron',
+elemDict['B'] = Element(5, 'B', 'Boron',
     group=13, period=2, block='p',
     mass=10.811, en=2.04,
     covrad=0.820, atmrad=1.170, vdwrad=0.000,
@@ -378,7 +379,7 @@ B = Element(5, 'B', 'Boron',
     isotopes=((10 ,  10.0129370000, 0.19900000),
               (11 ,  11.0093055000, 0.80100000),),)
 
-C = Element(6, 'C', 'Carbon',
+elemDict['C']= Element(6, 'C', 'Carbon',
     group=14, period=2, block='p',
     mass=12.0107, en=2.55,
     covrad=0.770, atmrad=0.910, vdwrad=1.700,
@@ -393,7 +394,7 @@ C = Element(6, 'C', 'Carbon',
     isotopes=((12 ,  12.0000000000, 0.98930000),
               (13 ,  13.0033548378, 0.01070000),),)
 
-N = Element(7, 'N', 'Nitrogen',
+elemDict['N']= Element(7, 'N', 'Nitrogen',
     group=15, period=2, block='p',
     mass=14.0067, en=3.04,
     covrad=0.750, atmrad=0.750, vdwrad=1.550,
@@ -408,7 +409,7 @@ N = Element(7, 'N', 'Nitrogen',
     isotopes=((14 ,  14.0030740052, 0.99632000),
               (15 ,  15.0001088984, 0.00368000),),)
 
-O = Element(8, 'O', 'Oxygen',
+elemDict['O']= Element(8, 'O', 'Oxygen',
     group=16, period=2, block='p',
     mass=15.9994, en=3.44,
     covrad=0.730, atmrad=0.650, vdwrad=1.520,
@@ -425,7 +426,7 @@ O = Element(8, 'O', 'Oxygen',
               (17 ,  16.9991315000, 0.00038000),
               (18 ,  17.9991604000, 0.00205000),),)
 
-F = Element(9, 'F', 'Fluorine',
+elemDict['F'] = Element(9, 'F', 'Fluorine',
     group=17, period=2, block='p',
     mass=18.9984032, en=3.98,
     covrad=0.720, atmrad=0.570, vdwrad=1.470,
@@ -440,7 +441,7 @@ F = Element(9, 'F', 'Fluorine',
                 1103.0890,),
     isotopes=((19 ,  18.9984032000, 1.00000000),),)
 
-Ne = Element(10, 'Ne', 'Neon',
+elemDict['Ne']= Element(10, 'Ne', 'Neon',
     group=18, period=2, block='p',
     mass=20.1797, en=0.0,
     covrad=0.710, atmrad=0.510, vdwrad=1.540,
@@ -457,7 +458,7 @@ Ne = Element(10, 'Ne', 'Neon',
               (21 ,  20.9938467400, 0.00270000),
               (22 ,  21.9913855100, 0.09250000),),)
 
-Na = Element(11, 'Na', 'Sodium',
+elemDict['Na']= Element(11, 'Na', 'Sodium',
     group=1, period=3, block='s',
     mass=22.98977, en=0.93,
     covrad=1.540, atmrad=2.230, vdwrad=2.270,
@@ -472,7 +473,7 @@ Na = Element(11, 'Na', 'Sodium',
                  299.8700, 1465.0910, 1648.6590,),
     isotopes=((23 ,  22.9897696700, 1.00000000),),)
 
-Mg = Element(12, 'Mg', 'Magnesium',
+elemDict['Mg']= Element(12, 'Mg', 'Magnesium',
     group=2, period=3, block='s',
     mass=24.305, en=1.31,
     covrad=1.360, atmrad=1.720, vdwrad=1.730,
@@ -489,7 +490,7 @@ Mg = Element(12, 'Mg', 'Magnesium',
               (25 ,  24.9858370200, 0.10000000),
               (26 ,  25.9825930400, 0.11010000),),)
 
-Al = Element(13, 'Al', 'Aluminium',
+elemDict['Al']= Element(13, 'Al', 'Aluminium',
     group=13, period=3, block='p',
     mass=26.981538, en=1.61,
     covrad=1.180, atmrad=1.820, vdwrad=0.000,
@@ -505,7 +506,7 @@ Al = Element(13, 'Al', 'Aluminium',
                 2304.0800,),
     isotopes=((27 ,  26.9815384400, 1.00000000),),)
 
-Si = Element(14, 'Si', 'Silicon',
+elemDict['Si']= Element(14, 'Si', 'Silicon',
     group=14, period=3, block='p',
     mass=28.0855, en=1.9,
     covrad=1.110, atmrad=1.460, vdwrad=2.100,
@@ -523,7 +524,7 @@ Si = Element(14, 'Si', 'Silicon',
               (29 ,  28.9764947200, 0.04683200),
               (30 ,  29.9737702200, 0.03087100),),)
 
-P = Element(15, 'P', 'Phosphorus',
+elemDict['P']= Element(15, 'P', 'Phosphorus',
     group=15, period=3, block='p',
     mass=30.973761, en=2.19,
     covrad=1.060, atmrad=1.230, vdwrad=1.800,
@@ -539,7 +540,7 @@ P = Element(15, 'P', 'Phosphorus',
                  611.8500, 2816.9430, 3069.7620,),
     isotopes=((31 ,  30.9737615100, 1.00000000),),)
 
-S = Element(16, 'S', 'Sulfur',
+elemDict['S']= Element(16, 'S', 'Sulfur',
     group=16, period=3, block='p',
     mass=32.065, en=2.58,
     covrad=1.020, atmrad=1.090, vdwrad=1.800,
@@ -558,7 +559,7 @@ S = Element(16, 'S', 'Sulfur',
               (34 ,  33.9678668300, 0.04290000),
               (36 ,  35.9670808800, 0.00020000),),)
 
-Cl = Element(17, 'Cl', 'Chlorine',
+elemDict['Cl']= Element(17, 'Cl', 'Chlorine',
     group=17, period=3, block='p',
     mass=35.453, en=3.16,
     covrad=0.990, atmrad=0.970, vdwrad=1.750,
@@ -576,7 +577,7 @@ Cl = Element(17, 'Cl', 'Chlorine',
     isotopes=((35 ,  34.9688527100, 0.75780000),
               (37 ,  36.9659026000, 0.24220000),),)
 
-Ar = Element(18, 'Ar', 'Argon',
+elemDict['Ar']= Element(18, 'Ar', 'Argon',
     group=18, period=3, block='p',
     mass=39.948, en=0.0,
     covrad=0.980, atmrad=0.880, vdwrad=1.880,
@@ -595,7 +596,7 @@ Ar = Element(18, 'Ar', 'Argon',
               (38 ,  37.9627322000, 0.00063200),
               (40 ,  39.9623831230, 0.99600300),),)
 
-K = Element(19, 'K', 'Potassium',
+elemDict['K']= Element(19, 'K', 'Potassium',
     group=1, period=4, block='s',
     mass=39.0983, en=0.82,
     covrad=2.030, atmrad=2.770, vdwrad=2.750,
@@ -614,7 +615,7 @@ K = Element(19, 'K', 'Potassium',
               (40 ,  39.9639986700, 0.00011700),
               (41 ,  40.9618259700, 0.06730200),),)
 
-Ca = Element(20, 'Ca', 'Calcium',
+elemDict['Ca']= Element(20, 'Ca', 'Calcium',
     group=2, period=4, block='s',
     mass=40.078, en=1.0,
     covrad=1.740, atmrad=2.230, vdwrad=0.000,
@@ -636,7 +637,7 @@ Ca = Element(20, 'Ca', 'Calcium',
               (46 ,  45.9536928000, 0.00004000),
               (48 ,  47.9525340000, 0.00187000),),)
 
-Sc = Element(21, 'Sc', 'Scandium',
+elemDict['Sc']= Element(21, 'Sc', 'Scandium',
     group=3, period=4, block='d',
     mass=44.95591, en=1.36,
     covrad=1.440, atmrad=2.090, vdwrad=0.000,
@@ -652,7 +653,7 @@ Sc = Element(21, 'Sc', 'Scandium',
                  755.4700,  829.7900,  926.0000,),
     isotopes=((45 ,  44.9559102000, 1.00000000),),)
 
-Ti = Element(22, 'Ti', 'Titanium',
+elemDict['Ti']= Element(22, 'Ti', 'Titanium',
     group=4, period=4, block='d',
     mass=47.867, en=1.54,
     covrad=1.320, atmrad=2.000, vdwrad=0.000,
@@ -672,7 +673,7 @@ Ti = Element(22, 'Ti', 'Titanium',
               (49 ,  48.9478708000, 0.05410000),
               (50 ,  49.9447921000, 0.05180000),),)
 
-V = Element(23, 'V', 'Vanadium',
+elemDict['V']= Element(23, 'V', 'Vanadium',
     group=5, period=4, block='d',
     mass=50.9415, en=1.63,
     covrad=1.220, atmrad=1.920, vdwrad=0.000,
@@ -689,7 +690,7 @@ V = Element(23, 'V', 'Vanadium',
     isotopes=((50 ,  49.9471628000, 0.00250000),
               (51 ,  50.9439637000, 0.99750000),),)
 
-Cr = Element(24, 'Cr', 'Chromium',
+elemDict['Cr']= Element(24, 'Cr', 'Chromium',
     group=6, period=4, block='d',
     mass=51.9961, en=1.66,
     covrad=1.180, atmrad=1.850, vdwrad=0.000,
@@ -708,7 +709,7 @@ Cr = Element(24, 'Cr', 'Chromium',
               (53 ,  52.9406538000, 0.09501000),
               (54 ,  53.9388849000, 0.02365000),),)
 
-Mn = Element(25, 'Mn', 'Manganese',
+elemDict['Mn']= Element(25, 'Mn', 'Manganese',
     group=7, period=4, block='d',
     mass=54.938049, en=1.55,
     covrad=1.170, atmrad=1.790, vdwrad=0.000,
@@ -724,7 +725,7 @@ Mn = Element(25, 'Mn', 'Manganese',
                  343.6000,  404.0000,  435.3000, 1136.2000,),
     isotopes=((55 ,  54.9380496000, 1.00000000),),)
 
-Fe = Element(26, 'Fe', 'Iron',
+elemDict['Fe']= Element(26, 'Fe', 'Iron',
     group=8, period=4, block='d',
     mass=55.845, en=1.83,
     covrad=1.170, atmrad=1.720, vdwrad=0.000,
@@ -744,7 +745,7 @@ Fe = Element(26, 'Fe', 'Iron',
               (57 ,  56.9353987000, 0.02119000),
               (58 ,  57.9332805000, 0.00282000),),)
 
-Co = Element(27, 'Co', 'Cobalt',
+elemDict['Co']= Element(27, 'Co', 'Cobalt',
     group=9, period=4, block='d',
     mass=58.9332, en=1.88,
     covrad=1.160, atmrad=1.670, vdwrad=0.000,
@@ -761,7 +762,7 @@ Co = Element(27, 'Co', 'Cobalt',
                  546.8000, 1403.0000,),
     isotopes=((59 ,  58.9332002000, 1.00000000),),)
 
-Ni = Element(28, 'Ni', 'Nickel',
+elemDict['Ni']= Element(28, 'Ni', 'Nickel',
     group=10, period=4, block='d',
     mass=58.6934, en=1.91,
     covrad=1.150, atmrad=1.620, vdwrad=1.630,
@@ -782,7 +783,7 @@ Ni = Element(28, 'Ni', 'Nickel',
               (62 ,  61.9283488000, 0.03634500),
               (64 ,  63.9279696000, 0.00925600),),)
 
-Cu = Element(29, 'Cu', 'Copper',
+elemDict['Cu']= Element(29, 'Cu', 'Copper',
     group=11, period=4, block='d',
     mass=63.546, en=1.9,
     covrad=1.170, atmrad=1.570, vdwrad=1.400,
@@ -800,7 +801,7 @@ Cu = Element(29, 'Cu', 'Copper',
     isotopes=((63 ,  62.9296011000, 0.69170000),
               (65 ,  64.9277937000, 0.30830000),),)
 
-Zn = Element(30, 'Zn', 'Zinc',
+elemDict['Zn']= Element(30, 'Zn', 'Zinc',
     group=12, period=4, block='d',
     mass=65.409, en=1.65,
     covrad=1.250, atmrad=1.530, vdwrad=1.390,
@@ -822,7 +823,7 @@ Zn = Element(30, 'Zn', 'Zinc',
               (68 ,  67.9248476000, 0.18750000),
               (70 ,  69.9253250000, 0.00620000),),)
 
-Ga = Element(31, 'Ga', 'Gallium',
+elemDict['Ga']= Element(31, 'Ga', 'Gallium',
     group=13, period=4, block='p',
     mass=69.723, en=1.81,
     covrad=1.260, atmrad=1.810, vdwrad=1.870,
@@ -836,7 +837,7 @@ Ga = Element(31, 'Ga', 'Gallium',
     isotopes=((69 ,  68.9255810000, 0.60108000),
               (71 ,  70.9247050000, 0.39892000),),)
 
-Ge = Element(32, 'Ge', 'Germanium',
+elemDict['Ge'] = Element(32, 'Ge', 'Germanium',
     group=14, period=4, block='p',
     mass=72.64, en=2.01,
     covrad=1.220, atmrad=1.520, vdwrad=0.000,
@@ -854,7 +855,7 @@ Ge = Element(32, 'Ge', 'Germanium',
               (74 ,  73.9211782000, 0.36280000),
               (76 ,  75.9214027000, 0.07610000),),)
 
-As = Element(33, 'As', 'Arsenic',
+elemDict['As'] = Element(33, 'As', 'Arsenic',
     group=15, period=4, block='p',
     mass=74.9216, en=2.18,
     covrad=1.200, atmrad=1.330, vdwrad=1.850,
@@ -868,7 +869,7 @@ As = Element(33, 'As', 'Arsenic',
                   62.6300,  127.6000,),
     isotopes=((75 ,  74.9215964000, 1.00000000),),)
 
-Se = Element(34, 'Se', 'Selenium',
+elemDict['Se'] = Element(34, 'Se', 'Selenium',
     group=16, period=4, block='p',
     mass=78.96, en=2.55,
     covrad=1.160, atmrad=1.220, vdwrad=1.900,
@@ -887,7 +888,7 @@ Se = Element(34, 'Se', 'Selenium',
               (80 ,  79.9165218000, 0.49610000),
               (82 ,  81.9167000000, 0.08730000),),)
 
-Br = Element(35, 'Br', 'Bromine',
+elemDict['Br'] = Element(35, 'Br', 'Bromine',
     group=17, period=4, block='p',
     mass=79.904, en=2.96,
     covrad=1.140, atmrad=1.120, vdwrad=1.850,
@@ -902,7 +903,7 @@ Br = Element(35, 'Br', 'Bromine',
     isotopes=((79 ,  78.9183376000, 0.50690000),
               (81 ,  80.9162910000, 0.49310000),),)
 
-Kr = Element(36, 'Kr', 'Krypton',
+elemDict['Kr'] = Element(36, 'Kr', 'Krypton',
     group=18, period=4, block='p',
     mass=83.798, en=0.0,
     covrad=1.120, atmrad=1.030, vdwrad=2.020,
@@ -922,7 +923,7 @@ Kr = Element(36, 'Kr', 'Krypton',
               (84 ,  83.9115070000, 0.57000000),
               (86 ,  85.9106103000, 0.17300000),),)
 
-Rb = Element(37, 'Rb', 'Rubidium',
+elemDict['Rb'] = Element(37, 'Rb', 'Rubidium',
     group=1, period=5, block='s',
     mass=85.4678, en=0.82,
     covrad=2.160, atmrad=2.980, vdwrad=0.000,
@@ -938,7 +939,7 @@ Rb = Element(37, 'Rb', 'Rubidium',
     isotopes=((85 ,  84.9117893000, 0.72170000),
               (87 ,  86.9091835000, 0.27830000),),)
 
-Sr = Element(38, 'Sr', 'Strontium',
+elemDict['Sr'] = Element(38, 'Sr', 'Strontium',
     group=2, period=5, block='s',
     mass=87.62, en=0.95,
     covrad=1.910, atmrad=2.450, vdwrad=0.000,
@@ -956,7 +957,7 @@ Sr = Element(38, 'Sr', 'Strontium',
               (87 ,  86.9088793000, 0.07000000),
               (88 ,  87.9056143000, 0.82580000),),)
 
-Y = Element(39, 'Y', 'Yttrium',
+elemDict['Y'] = Element(39, 'Y', 'Yttrium',
     group=3, period=5, block='d',
     mass=88.90585, en=1.22,
     covrad=1.620, atmrad=2.270, vdwrad=0.000,
@@ -971,7 +972,7 @@ Y = Element(39, 'Y', 'Yttrium',
                  146.5200,  191.0000,  206.0000,  374.0000,),
     isotopes=((89 ,  88.9058479000, 1.00000000),),)
 
-Zr = Element(40, 'Zr', 'Zirconium',
+elemDict['Zr'] = Element(40, 'Zr', 'Zirconium',
     group=4, period=5, block='d',
     mass=91.224, en=1.33,
     covrad=1.450, atmrad=2.160, vdwrad=0.000,
@@ -989,7 +990,7 @@ Zr = Element(40, 'Zr', 'Zirconium',
               (94 ,  93.9063158000, 0.17380000),
               (96 ,  95.9082760000, 0.02800000),),)
 
-Nb = Element(41, 'Nb', 'Niobium',
+elemDict['Nb'] = Element(41, 'Nb', 'Niobium',
     group=5, period=5, block='d',
     mass=92.90638, en=1.6,
     covrad=1.340, atmrad=2.080, vdwrad=0.000,
@@ -1003,7 +1004,7 @@ Nb = Element(41, 'Nb', 'Niobium',
                   50.5500,  102.6000,  125.0000,),
     isotopes=((93 ,  92.9063775000, 1.00000000),),)
 
-Mo = Element(42, 'Mo', 'Molybdenum',
+elemDict['Mo'] = Element(42, 'Mo', 'Molybdenum',
     group=6, period=5, block='d',
     mass=95.94, en=2.16,
     covrad=1.300, atmrad=2.010, vdwrad=0.000,
@@ -1023,7 +1024,7 @@ Mo = Element(42, 'Mo', 'Molybdenum',
               (98 ,  97.9054078000, 0.24130000),
               (100,  99.9074770000, 0.09630000),),)
 
-Tc = Element(43, 'Tc', 'Technetium',
+elemDict['Tc'] = Element(43, 'Tc', 'Technetium',
     group=7, period=5, block='d',
     mass=97.907216, en=1.9,
     covrad=1.270, atmrad=1.950, vdwrad=0.000,
@@ -1036,7 +1037,7 @@ Tc = Element(43, 'Tc', 'Technetium',
     ionenergy=(    7.2800,   15.2600,   29.5400,),
     isotopes=((98 ,  97.9072160000, 1.00000000),),)
 
-Ru = Element(44, 'Ru', 'Ruthenium',
+elemDict['Ru'] = Element(44, 'Ru', 'Ruthenium',
     group=8, period=5, block='d',
     mass=101.07, en=2.2,
     covrad=1.250, atmrad=1.890, vdwrad=0.000,
@@ -1055,7 +1056,7 @@ Ru = Element(44, 'Ru', 'Ruthenium',
               (102, 101.9043495000, 0.31550000),
               (104, 103.9054300000, 0.18620000),),)
 
-Rh = Element(45, 'Rh', 'Rhodium',
+elemDict['Rh'] = Element(45, 'Rh', 'Rhodium',
     group=9, period=5, block='d',
     mass=102.9055, en=2.28,
     covrad=1.250, atmrad=1.830, vdwrad=0.000,
@@ -1068,7 +1069,7 @@ Rh = Element(45, 'Rh', 'Rhodium',
     ionenergy=(    7.4589,   18.0800,   31.0600,),
     isotopes=((103, 102.9055040000, 1.00000000),),)
 
-Pd = Element(46, 'Pd', 'Palladium',
+elemDict['Pd'] = Element(46, 'Pd', 'Palladium',
     group=10, period=5, block='d',
     mass=106.42, en=2.2,
     covrad=1.280, atmrad=1.790, vdwrad=1.630,
@@ -1086,7 +1087,7 @@ Pd = Element(46, 'Pd', 'Palladium',
               (108, 107.9038940000, 0.26460000),
               (110, 109.9051520000, 0.11720000),),)
 
-Ag = Element(47, 'Ag', 'Silver',
+elemDict['Ag'] = Element(47, 'Ag', 'Silver',
     group=11, period=5, block='d',
     mass=107.8682, en=1.93,
     covrad=1.340, atmrad=1.750, vdwrad=1.720,
@@ -1100,7 +1101,7 @@ Ag = Element(47, 'Ag', 'Silver',
     isotopes=((107, 106.9050930000, 0.51839000),
               (109, 108.9047560000, 0.48161000),),)
 
-Cd = Element(48, 'Cd', 'Cadmium',
+elemDict['Cd'] = Element(48, 'Cd', 'Cadmium',
     group=12, period=5, block='d',
     mass=112.411, en=1.69,
     covrad=1.480, atmrad=1.710, vdwrad=1.580,
@@ -1120,7 +1121,7 @@ Cd = Element(48, 'Cd', 'Cadmium',
               (114, 113.9033581000, 0.28730000),
               (116, 115.9047550000, 0.07490000),),)
 
-In = Element(49, 'In', 'Indium',
+elemDict['In'] = Element(49, 'In', 'Indium',
     group=13, period=5, block='p',
     mass=114.818, en=1.78,
     covrad=1.440, atmrad=2.000, vdwrad=1.930,
@@ -1134,7 +1135,7 @@ In = Element(49, 'In', 'Indium',
     isotopes=((113, 112.9040610000, 0.04290000),
               (115, 114.9038780000, 0.95710000),),)
 
-Sn = Element(50, 'Sn', 'Tin',
+elemDict['Sn'] = Element(50, 'Sn', 'Tin',
     group=14, period=5, block='p',
     mass=118.71, en=1.96,
     covrad=1.410, atmrad=1.720, vdwrad=2.170,
@@ -1157,7 +1158,7 @@ Sn = Element(50, 'Sn', 'Tin',
               (122, 121.9034401000, 0.04630000),
               (124, 123.9052746000, 0.05790000),),)
 
-Sb = Element(51, 'Sb', 'Antimony',
+elemDict['Sb'] = Element(51, 'Sb', 'Antimony',
     group=15, period=5, block='p',
     mass=121.76, en=2.05,
     covrad=1.400, atmrad=1.530, vdwrad=0.000,
@@ -1172,7 +1173,7 @@ Sb = Element(51, 'Sb', 'Antimony',
     isotopes=((121, 120.9038180000, 0.57210000),
               (123, 122.9042157000, 0.42790000),),)
 
-Te = Element(52, 'Te', 'Tellurium',
+elemDict['Te'] = Element(52, 'Te', 'Tellurium',
     group=16, period=5, block='p',
     mass=127.6, en=2.1,
     covrad=1.360, atmrad=1.420, vdwrad=2.060,
@@ -1193,7 +1194,7 @@ Te = Element(52, 'Te', 'Tellurium',
               (128, 127.9044614000, 0.31740000),
               (130, 129.9062228000, 0.34080000),),)
 
-I = Element(53, 'I', 'Iodine',
+elemDict['I'] = Element(53, 'I', 'Iodine',
     group=17, period=5, block='p',
     mass=126.90447, en=2.66,
     covrad=1.330, atmrad=1.320, vdwrad=1.980,
@@ -1206,7 +1207,7 @@ I = Element(53, 'I', 'Iodine',
     ionenergy=(   10.4513,   19.1310,   33.0000,),
     isotopes=((127, 126.9044680000, 1.00000000),),)
 
-Xe = Element(54, 'Xe', 'Xenon',
+elemDict['Xe'] = Element(54, 'Xe', 'Xenon',
     group=18, period=5, block='p',
     mass=131.293, en=0.0,
     covrad=1.310, atmrad=1.240, vdwrad=2.160,
@@ -1227,7 +1228,7 @@ Xe = Element(54, 'Xe', 'Xenon',
               (134, 133.9053945000, 0.10440000),
               (136, 135.9072200000, 0.08870000),),)
 
-Cs = Element(55, 'Cs', 'Caesium',
+elemDict['Cs'] = Element(55, 'Cs', 'Caesium',
     group=1, period=6, block='s',
     mass=132.90545, en=0.79,
     covrad=2.350, atmrad=3.340, vdwrad=0.000,
@@ -1240,7 +1241,7 @@ Cs = Element(55, 'Cs', 'Caesium',
     ionenergy=(    3.8939,   25.1000,),
     isotopes=((133, 132.9054470000, 1.00000000),),)
 
-Ba = Element(56, 'Ba', 'Barium',
+elemDict['Ba'] = Element(56, 'Ba', 'Barium',
     group=2, period=6, block='s',
     mass=137.327, en=0.89,
     covrad=1.980, atmrad=2.780, vdwrad=0.000,
@@ -1259,7 +1260,7 @@ Ba = Element(56, 'Ba', 'Barium',
               (137, 136.9058210000, 0.11232000),
               (138, 137.9052410000, 0.71698000),),)
 
-La = Element(57, 'La', 'Lanthanum',
+elemDict['La'] = Element(57, 'La', 'Lanthanum',
     group=3, period=6, block='f',
     mass=138.9055, en=1.1,
     covrad=1.690, atmrad=2.740, vdwrad=0.000,
@@ -1273,7 +1274,7 @@ La = Element(57, 'La', 'Lanthanum',
     isotopes=((138, 137.9071070000, 0.00090000),
               (139, 138.9063480000, 0.99910000),),)
 
-Ce = Element(58, 'Ce', 'Cerium',
+elemDict['Ce'] = Element(58, 'Ce', 'Cerium',
     group=3, period=6, block='f',
     mass=140.116, en=1.12,
     covrad=1.650, atmrad=2.700, vdwrad=0.000,
@@ -1289,7 +1290,7 @@ Ce = Element(58, 'Ce', 'Cerium',
               (140, 139.9054340000, 0.88450000),
               (142, 141.9092400000, 0.11114000),),)
 
-Pr = Element(59, 'Pr', 'Praseodymium',
+elemDict['Pr'] = Element(59, 'Pr', 'Praseodymium',
     group=3, period=6, block='f',
     mass=140.90765, en=1.13,
     covrad=1.650, atmrad=2.670, vdwrad=0.000,
@@ -1303,7 +1304,7 @@ Pr = Element(59, 'Pr', 'Praseodymium',
                   57.4500,),
     isotopes=((141, 140.9076480000, 1.00000000),),)
 
-Nd = Element(60, 'Nd', 'Neodymium',
+elemDict['Nd'] = Element(60, 'Nd', 'Neodymium',
     group=3, period=6, block='f',
     mass=144.24, en=1.14,
     covrad=1.640, atmrad=2.640, vdwrad=0.000,
@@ -1322,7 +1323,7 @@ Nd = Element(60, 'Nd', 'Neodymium',
               (148, 147.9168890000, 0.05700000),
               (150, 149.9208870000, 0.05600000),),)
 
-Pm = Element(61, 'Pm', 'Promethium',
+elemDict['Pm'] = Element(61, 'Pm', 'Promethium',
     group=3, period=6, block='f',
     mass=144.912744, en=1.13,
     covrad=1.630, atmrad=2.620, vdwrad=0.000,
@@ -1335,7 +1336,7 @@ Pm = Element(61, 'Pm', 'Promethium',
     ionenergy=(    5.5820,   10.9000,),
     isotopes=((145, 144.9127440000, 1.00000000),),)
 
-Sm = Element(62, 'Sm', 'Samarium',
+elemDict['Sm'] = Element(62, 'Sm', 'Samarium',
     group=3, period=6, block='f',
     mass=150.36, en=1.17,
     covrad=1.620, atmrad=2.590, vdwrad=0.000,
@@ -1354,7 +1355,7 @@ Sm = Element(62, 'Sm', 'Samarium',
               (152, 151.9197280000, 0.26750000),
               (154, 153.9222050000, 0.22750000),),)
 
-Eu = Element(63, 'Eu', 'Europium',
+elemDict['Eu'] = Element(63, 'Eu', 'Europium',
     group=3, period=6, block='f',
     mass=151.964, en=1.2,
     covrad=1.850, atmrad=2.560, vdwrad=0.000,
@@ -1368,7 +1369,7 @@ Eu = Element(63, 'Eu', 'Europium',
     isotopes=((151, 150.9198460000, 0.47810000),
               (153, 152.9212260000, 0.52190000),),)
 
-Gd = Element(64, 'Gd', 'Gadolinium',
+elemDict['Gd'] = Element(64, 'Gd', 'Gadolinium',
     group=3, period=6, block='f',
     mass=157.25, en=1.2,
     covrad=1.610, atmrad=2.540, vdwrad=0.000,
@@ -1387,7 +1388,7 @@ Gd = Element(64, 'Gd', 'Gadolinium',
               (158, 157.9241010000, 0.24840000),
               (160, 159.9270510000, 0.21860000),),)
 
-Tb = Element(65, 'Tb', 'Terbium',
+elemDict['Tb'] = Element(65, 'Tb', 'Terbium',
     group=3, period=6, block='f',
     mass=158.92534, en=1.2,
     covrad=1.590, atmrad=2.510, vdwrad=0.000,
@@ -1400,7 +1401,7 @@ Tb = Element(65, 'Tb', 'Terbium',
     ionenergy=(    5.8638,   11.5200,),
     isotopes=((159, 158.9253430000, 1.00000000),),)
 
-Dy = Element(66, 'Dy', 'Dysprosium',
+elemDict['Dy'] = Element(66, 'Dy', 'Dysprosium',
     group=3, period=6, block='f',
     mass=162.5, en=1.22,
     covrad=1.590, atmrad=2.490, vdwrad=0.000,
@@ -1419,7 +1420,7 @@ Dy = Element(66, 'Dy', 'Dysprosium',
               (163, 162.9287280000, 0.24900000),
               (164, 163.9291710000, 0.28180000),),)
 
-Ho = Element(67, 'Ho', 'Holmium',
+elemDict['Ho'] = Element(67, 'Ho', 'Holmium',
     group=3, period=6, block='f',
     mass=164.93032, en=1.23,
     covrad=1.580, atmrad=2.470, vdwrad=0.000,
@@ -1432,7 +1433,7 @@ Ho = Element(67, 'Ho', 'Holmium',
     ionenergy=(    6.0215,   11.8000,),
     isotopes=((165, 164.9303190000, 1.00000000),),)
 
-Er = Element(68, 'Er', 'Erbium',
+elemDict['Er'] = Element(68, 'Er', 'Erbium',
     group=3, period=6, block='f',
     mass=167.259, en=1.24,
     covrad=1.570, atmrad=2.450, vdwrad=0.000,
@@ -1450,7 +1451,7 @@ Er = Element(68, 'Er', 'Erbium',
               (168, 167.9323680000, 0.26780000),
               (170, 169.9354600000, 0.14930000),),)
 
-Tm = Element(69, 'Tm', 'Thulium',
+elemDict['Tm'] = Element(69, 'Tm', 'Thulium',
     group=3, period=6, block='f',
     mass=168.93421, en=1.25,
     covrad=1.560, atmrad=2.420, vdwrad=0.000,
@@ -1463,7 +1464,7 @@ Tm = Element(69, 'Tm', 'Thulium',
     ionenergy=(    6.1843,   12.0500,   23.7100,),
     isotopes=((169, 168.9342110000, 1.00000000),),)
 
-Yb = Element(70, 'Yb', 'Ytterbium',
+elemDict['Yb'] = Element(70, 'Yb', 'Ytterbium',
     group=3, period=6, block='f',
     mass=173.04, en=1.1,
     covrad=1.740, atmrad=2.400, vdwrad=0.000,
@@ -1482,7 +1483,7 @@ Yb = Element(70, 'Yb', 'Ytterbium',
               (174, 173.9388581000, 0.31830000),
               (176, 175.9425680000, 0.12760000),),)
 
-Lu = Element(71, 'Lu', 'Lutetium',
+elemDict['Lu'] = Element(71, 'Lu', 'Lutetium',
     group=3, period=6, block='d',
     mass=174.967, en=1.27,
     covrad=1.560, atmrad=2.250, vdwrad=0.000,
@@ -1496,7 +1497,7 @@ Lu = Element(71, 'Lu', 'Lutetium',
     isotopes=((175, 174.9407679000, 0.97410000),
               (176, 175.9426824000, 0.02590000),),)
 
-Hf = Element(72, 'Hf', 'Hafnium',
+elemDict['Hf'] = Element(72, 'Hf', 'Hafnium',
     group=4, period=6, block='d',
     mass=178.49, en=1.3,
     covrad=1.440, atmrad=2.160, vdwrad=0.000,
@@ -1514,7 +1515,7 @@ Hf = Element(72, 'Hf', 'Hafnium',
               (179, 178.9458151000, 0.13620000),
               (180, 179.9465488000, 0.35080000),),)
 
-Ta = Element(73, 'Ta', 'Tantalum',
+elemDict['Ta'] = Element(73, 'Ta', 'Tantalum',
     group=5, period=6, block='d',
     mass=180.9479, en=1.5,
     covrad=1.340, atmrad=2.090, vdwrad=0.000,
@@ -1528,7 +1529,7 @@ Ta = Element(73, 'Ta', 'Tantalum',
     isotopes=((180, 179.9474660000, 0.00012000),
               (181, 180.9479960000, 0.99988000),),)
 
-W = Element(74, 'W', 'Tungsten',
+elemDict['W'] = Element(74, 'W', 'Tungsten',
     group=6, period=6, block='d',
     mass=183.84, en=2.36,
     covrad=1.300, atmrad=2.020, vdwrad=0.000,
@@ -1545,7 +1546,7 @@ W = Element(74, 'W', 'Tungsten',
               (184, 183.9509326000, 0.30640000),
               (186, 185.9543620000, 0.28430000),),)
 
-Re = Element(75, 'Re', 'Rhenium',
+elemDict['Re'] = Element(75, 'Re', 'Rhenium',
     group=7, period=6, block='d',
     mass=186.207, en=1.9,
     covrad=1.280, atmrad=1.970, vdwrad=0.000,
@@ -1559,7 +1560,7 @@ Re = Element(75, 'Re', 'Rhenium',
     isotopes=((185, 184.9529557000, 0.37400000),
               (187, 186.9557508000, 0.62600000),),)
 
-Os = Element(76, 'Os', 'Osmium',
+elemDict['Os'] = Element(76, 'Os', 'Osmium',
     group=8, period=6, block='d',
     mass=190.23, en=2.2,
     covrad=1.260, atmrad=1.920, vdwrad=0.000,
@@ -1578,7 +1579,7 @@ Os = Element(76, 'Os', 'Osmium',
               (190, 189.9584450000, 0.26260000),
               (192, 191.9614790000, 0.40780000),),)
 
-Ir = Element(77, 'Ir', 'Iridium',
+elemDict['Ir'] = Element(77, 'Ir', 'Iridium',
     group=9, period=6, block='d',
     mass=192.217, en=2.2,
     covrad=1.270, atmrad=1.870, vdwrad=0.000,
@@ -1592,7 +1593,7 @@ Ir = Element(77, 'Ir', 'Iridium',
     isotopes=((191, 190.9605910000, 0.37300000),
               (193, 192.9629240000, 0.62700000),),)
 
-Pt = Element(78, 'Pt', 'Platinum',
+elemDict['Pt'] = Element(78, 'Pt', 'Platinum',
     group=10, period=6, block='d',
     mass=195.078, en=2.28,
     covrad=1.300, atmrad=1.830, vdwrad=1.750,
@@ -1610,7 +1611,7 @@ Pt = Element(78, 'Pt', 'Platinum',
               (196, 195.9649350000, 0.25242000),
               (198, 197.9678760000, 0.07163000),),)
 
-Au = Element(79, 'Au', 'Gold',
+elemDict['Au'] = Element(79, 'Au', 'Gold',
     group=11, period=6, block='d',
     mass=196.96655, en=2.54,
     covrad=1.340, atmrad=1.790, vdwrad=1.660,
@@ -1623,7 +1624,7 @@ Au = Element(79, 'Au', 'Gold',
     ionenergy=(    9.2255,   20.5000,),
     isotopes=((197, 196.9665520000, 1.00000000),),)
 
-Hg = Element(80, 'Hg', 'Mercury',
+elemDict['Hg'] = Element(80, 'Hg', 'Mercury',
     group=12, period=6, block='d',
     mass=200.59, en=2.0,
     covrad=1.490, atmrad=1.760, vdwrad=0.000,
@@ -1642,7 +1643,7 @@ Hg = Element(80, 'Hg', 'Mercury',
               (202, 201.9706260000, 0.29860000),
               (204, 203.9734760000, 0.06870000),),)
 
-Tl = Element(81, 'Tl', 'Thallium',
+elemDict['Tl'] = Element(81, 'Tl', 'Thallium',
     group=13, period=6, block='p',
     mass=204.3833, en=2.04,
     covrad=1.480, atmrad=2.080, vdwrad=1.960,
@@ -1656,7 +1657,7 @@ Tl = Element(81, 'Tl', 'Thallium',
     isotopes=((203, 202.9723290000, 0.29524000),
               (205, 204.9744120000, 0.70476000),),)
 
-Pb = Element(82, 'Pb', 'Lead',
+elemDict['Pb'] = Element(82, 'Pb', 'Lead',
     group=14, period=6, block='p',
     mass=207.2, en=2.33,
     covrad=1.470, atmrad=1.810, vdwrad=2.020,
@@ -1673,7 +1674,7 @@ Pb = Element(82, 'Pb', 'Lead',
               (207, 206.9758810000, 0.22100000),
               (208, 207.9766360000, 0.52400000),),)
 
-Bi = Element(83, 'Bi', 'Bismuth',
+elemDict['Bi'] = Element(83, 'Bi', 'Bismuth',
     group=15, period=6, block='p',
     mass=208.98038, en=2.02,
     covrad=1.460, atmrad=1.630, vdwrad=0.000,
@@ -1687,7 +1688,7 @@ Bi = Element(83, 'Bi', 'Bismuth',
                   56.0000,   88.3000,),
     isotopes=((209, 208.9803830000, 1.00000000),),)
 
-Po = Element(84, 'Po', 'Polonium',
+elemDict['Po'] = Element(84, 'Po', 'Polonium',
     group=16, period=6, block='p',
     mass=208.982416, en=2.0,
     covrad=1.460, atmrad=1.530, vdwrad=0.000,
@@ -1700,7 +1701,7 @@ Po = Element(84, 'Po', 'Polonium',
     ionenergy=(    8.4140,),
     isotopes=((209, 208.9824160000, 1.00000000),),)
 
-At = Element(85, 'At', 'Astatine',
+elemDict['At'] = Element(85, 'At', 'Astatine',
     group=17, period=6, block='p',
     mass=209.9871, en=2.2,
     covrad=1.450, atmrad=1.430, vdwrad=0.000,
@@ -1713,7 +1714,7 @@ At = Element(85, 'At', 'Astatine',
     ionenergy=(),
     isotopes=((210, 209.9871310000, 1.00000000),),)
 
-Rn = Element(86, 'Rn', 'Radon',
+elemDict['Rn'] = Element(86, 'Rn', 'Radon',
     group=18, period=6, block='p',
     mass=222.0176, en=0.0,
     covrad=0.000, atmrad=1.340, vdwrad=0.000,
@@ -1726,7 +1727,7 @@ Rn = Element(86, 'Rn', 'Radon',
     ionenergy=(   10.7485,),
     isotopes=((222, 222.0175705000, 1.00000000),),)
 
-Fr = Element(87, 'Fr', 'Francium',
+elemDict['Fr'] = Element(87, 'Fr', 'Francium',
     group=1, period=7, block='s',
     mass=223.0197307, en=0.7,
     covrad=0.000, atmrad=0.000, vdwrad=0.000,
@@ -1739,7 +1740,7 @@ Fr = Element(87, 'Fr', 'Francium',
     ionenergy=(    4.0727,),
     isotopes=((223, 223.0197307000, 1.00000000),),)
 
-Ra = Element(88, 'Ra', 'Radium',
+elemDict['Ra'] = Element(88, 'Ra', 'Radium',
     group=2, period=7, block='s',
     mass=226.025403, en=0.9,
     covrad=0.000, atmrad=0.000, vdwrad=0.000,
@@ -1752,7 +1753,7 @@ Ra = Element(88, 'Ra', 'Radium',
     ionenergy=(    5.2784,   10.1470,),
     isotopes=((226, 226.0254026000, 1.00000000),),)
 
-Ac = Element(89, 'Ac', 'Actinium',
+elemDict['Ac'] = Element(89, 'Ac', 'Actinium',
     group=3, period=7, block='f',
     mass=227.027747, en=1.1,
     covrad=0.000, atmrad=0.000, vdwrad=0.000,
@@ -1765,7 +1766,7 @@ Ac = Element(89, 'Ac', 'Actinium',
     ionenergy=(    5.1700,   12.1000,),
     isotopes=((227, 227.0277470000, 1.00000000),),)
 
-Th = Element(90, 'Th', 'Thorium',
+elemDict['Th'] = Element(90, 'Th', 'Thorium',
     group=3, period=7, block='f',
     mass=232.0381, en=1.3,
     covrad=1.650, atmrad=0.000, vdwrad=0.000,
@@ -1778,7 +1779,7 @@ Th = Element(90, 'Th', 'Thorium',
     ionenergy=(    6.3067,   11.5000,   20.0000,   28.8000,),
     isotopes=((232, 232.0380504000, 1.00000000),),)
 
-Pa = Element(91, 'Pa', 'Protactinium',
+elemDict['Pa'] = Element(91, 'Pa', 'Protactinium',
     group=3, period=7, block='f',
     mass=231.03588, en=1.5,
     covrad=0.000, atmrad=0.000, vdwrad=0.000,
@@ -1791,7 +1792,7 @@ Pa = Element(91, 'Pa', 'Protactinium',
     ionenergy=(    5.8900,),
     isotopes=((231, 231.0358789000, 1.00000000),),)
 
-U = Element(92, 'U', 'Uranium',
+elemDict['U'] = Element(92, 'U', 'Uranium',
     group=3, period=7, block='f',
     mass=238.02891, en=1.38,
     covrad=1.420, atmrad=0.000, vdwrad=1.860,
@@ -1806,7 +1807,7 @@ U = Element(92, 'U', 'Uranium',
               (235, 235.0439231000, 0.00720000),
               (238, 238.0507826000, 0.99274500),),)
 
-Np = Element(93, 'Np', 'Neptunium',
+elemDict['Np'] = Element(93, 'Np', 'Neptunium',
     group=3, period=7, block='f',
     mass=237.048167, en=1.36,
     covrad=0.000, atmrad=0.000, vdwrad=0.000,
@@ -1819,7 +1820,7 @@ Np = Element(93, 'Np', 'Neptunium',
     ionenergy=(    6.2657,),
     isotopes=((237, 237.0481673000, 1.00000000),),)
 
-Pu = Element(94, 'Pu', 'Plutonium',
+elemDict['Pu'] = Element(94, 'Pu', 'Plutonium',
     group=3, period=7, block='f',
     mass=244.064198, en=1.28,
     covrad=0.000, atmrad=0.000, vdwrad=0.000,
@@ -1832,7 +1833,7 @@ Pu = Element(94, 'Pu', 'Plutonium',
     ionenergy=(    6.0260,),
     isotopes=((244, 244.0641980000, 1.00000000),),)
 
-Am = Element(95, 'Am', 'Americium',
+elemDict['Am'] = Element(95, 'Am', 'Americium',
     group=3, period=7, block='f',
     mass=243.061373, en=1.3,
     covrad=0.000, atmrad=0.000, vdwrad=0.000,
@@ -1845,7 +1846,7 @@ Am = Element(95, 'Am', 'Americium',
     ionenergy=(    5.9738,),
     isotopes=((243, 243.0613727000, 1.00000000),),)
 
-Cm = Element(96, 'Cm', 'Curium',
+elemDict['Cm'] = Element(96, 'Cm', 'Curium',
     group=3, period=7, block='f',
     mass=247.070347, en=1.3,
     covrad=0.000, atmrad=0.000, vdwrad=0.000,
@@ -1858,7 +1859,7 @@ Cm = Element(96, 'Cm', 'Curium',
     ionenergy=(    5.9914,),
     isotopes=((247, 247.0703470000, 1.00000000),),)
 
-Bk = Element(97, 'Bk', 'Berkelium',
+elemDict['Bk'] = Element(97, 'Bk', 'Berkelium',
     group=3, period=7, block='f',
     mass=247.070299, en=1.3,
     covrad=0.000, atmrad=0.000, vdwrad=0.000,
@@ -1871,7 +1872,7 @@ Bk = Element(97, 'Bk', 'Berkelium',
     ionenergy=(    6.1979,),
     isotopes=((247, 247.0702990000, 1.00000000),),)
 
-Cf = Element(98, 'Cf', 'Californium',
+elemDict['Cf'] = Element(98, 'Cf', 'Californium',
     group=3, period=7, block='f',
     mass=251.07958, en=1.3,
     covrad=0.000, atmrad=0.000, vdwrad=0.000,
@@ -1884,7 +1885,7 @@ Cf = Element(98, 'Cf', 'Californium',
     ionenergy=(    6.2817,),
     isotopes=((251, 251.0795800000, 1.00000000),),)
 
-Es = Element(99, 'Es', 'Einsteinium',
+elemDict['Es'] = Element(99, 'Es', 'Einsteinium',
     group=3, period=7, block='f',
     mass=252.08297, en=1.3,
     covrad=0.000, atmrad=0.000, vdwrad=0.000,
@@ -1897,7 +1898,7 @@ Es = Element(99, 'Es', 'Einsteinium',
     ionenergy=(    6.4200,),
     isotopes=((252, 252.0829700000, 1.00000000),),)
 
-Fm = Element(100, 'Fm', 'Fermium',
+elemDict['Fm'] = Element(100, 'Fm', 'Fermium',
     group=3, period=7, block='f',
     mass=257.095099, en=1.3,
     covrad=0.000, atmrad=0.000, vdwrad=0.000,
@@ -1910,7 +1911,7 @@ Fm = Element(100, 'Fm', 'Fermium',
     ionenergy=(    6.5000,),
     isotopes=((257, 257.0950990000, 1.00000000),),)
 
-Md = Element(101, 'Md', 'Mendelevium',
+elemDict['Md']= Element(101, 'Md', 'Mendelevium',
     group=3, period=7, block='f',
     mass=258.098425, en=1.3,
     covrad=0.000, atmrad=0.000, vdwrad=0.000,
@@ -1923,7 +1924,7 @@ Md = Element(101, 'Md', 'Mendelevium',
     ionenergy=(    6.5800,),
     isotopes=((258, 258.0984250000, 1.00000000),),)
 
-No = Element(102, 'No', 'Nobelium',
+elemDict['No']= Element(102, 'No', 'Nobelium',
     group=3, period=7, block='f',
     mass=259.10102, en=1.3,
     covrad=0.000, atmrad=0.000, vdwrad=0.000,
@@ -1936,7 +1937,7 @@ No = Element(102, 'No', 'Nobelium',
     ionenergy=(    6.6500,),
     isotopes=((259, 259.1010200000, 1.00000000),),)
 
-Lr = Element(103, 'Lr', 'Lawrencium',
+elemDict['Lr']= Element(103, 'Lr', 'Lawrencium',
     group=3, period=7, block='d',
     mass=262.10969, en=1.3,
     covrad=0.000, atmrad=0.000, vdwrad=0.000,
@@ -1949,7 +1950,7 @@ Lr = Element(103, 'Lr', 'Lawrencium',
     ionenergy=(    4.9000,),
     isotopes=((262, 262.1096900000, 1.00000000),),)
 
-Rf = Element(104, 'Rf', 'Rutherfordium',
+elemDict['Rf'] = Element(104, 'Rf', 'Rutherfordium',
     group=4, period=7, block='d',
     mass=261.10875, en=0.0,
     covrad=0.000, atmrad=0.000, vdwrad=0.000,
@@ -1962,7 +1963,7 @@ Rf = Element(104, 'Rf', 'Rutherfordium',
     ionenergy=(    6.0000,),
     isotopes=((261, 261.1087500000, 1.00000000),),)
 
-Db = Element(105, 'Db', 'Dubnium',
+elemDict['Db']= Element(105, 'Db', 'Dubnium',
     group=5, period=7, block='d',
     mass=262.11415, en=0.0,
     covrad=0.000, atmrad=0.000, vdwrad=0.000,
@@ -1975,7 +1976,7 @@ Db = Element(105, 'Db', 'Dubnium',
     ionenergy=(),
     isotopes=((262, 262.1141500000, 1.00000000),),)
 
-Sg = Element(106, 'Sg', 'Seaborgium',
+elemDict['Sg']= Element(106, 'Sg', 'Seaborgium',
     group=6, period=7, block='d',
     mass=266.12193, en=0.0,
     covrad=0.000, atmrad=0.000, vdwrad=0.000,
@@ -1988,7 +1989,7 @@ Sg = Element(106, 'Sg', 'Seaborgium',
     ionenergy=(),
     isotopes=((266, 266.1219300000, 1.00000000),),)
 
-Bh = Element(107, 'Bh', 'Bohrium',
+elemDict['Bh']= Element(107, 'Bh', 'Bohrium',
     group=7, period=7, block='d',
     mass=264.12473, en=0.0,
     covrad=0.000, atmrad=0.000, vdwrad=0.000,
@@ -2001,7 +2002,7 @@ Bh = Element(107, 'Bh', 'Bohrium',
     ionenergy=(),
     isotopes=((264, 264.1247300000, 1.00000000),),)
 
-Hs = Element(108, 'Hs', 'Hassium',
+elemDict['Hs']= Element(108, 'Hs', 'Hassium',
     group=8, period=7, block='d',
     mass=269.13411, en=0.0,
     covrad=0.000, atmrad=0.000, vdwrad=0.000,
@@ -2014,7 +2015,7 @@ Hs = Element(108, 'Hs', 'Hassium',
     ionenergy=(),
     isotopes=((269, 269.1341100000, 1.00000000),),)
 
-Mt = Element(109, 'Mt', 'Meitnerium',
+elemDict['Mt']= Element(109, 'Mt', 'Meitnerium',
     group=9, period=7, block='d',
     mass=268.13882, en=0.0,
     covrad=0.000, atmrad=0.000, vdwrad=0.000,
@@ -2026,6 +2027,28 @@ Mt = Element(109, 'Mt', 'Meitnerium',
     oxistates='*',
     ionenergy=(),
     isotopes=((268, 268.1388200000, 1.00000000),),)
+
+elemDict['Ds'] = Element(110, 'Ds', 'Darmstadtium',
+    group=10, period=7, block='d',
+    mass=268.13882, en=0.0,
+    covrad=0.000, atmrad=0.000, vdwrad=0.000,
+    tboil=0.000, tmelt=0.000, density=0.0000,
+    phase='unknown', acidity='acidic',
+    eleaffin=0.00000000,
+    eleshells=(2, 8, 18, 32, 32, 17, 1),
+    eleconfig='[Rn] 5f^14 6d^9 7s^1',
+    oxistates='*',
+    ionenergy=(),
+    isotopes=((268, 268.1388200000, 1.00000000),),)
+
+#elemDict['Rg'] = 111
+#elemDict['Uub'] = 112
+#elemDict['Uut'] = 113
+#elemDict['Uuq'] = 114
+#elemDict['Uup'] = 115
+#elemDict['Uuh'] = 116
+#elemDict['Uus'] = 117
+#elemDict['Uuo'] = 118
 
 
 def test_elements_module():
@@ -2051,5 +2074,6 @@ def test_elements_module():
         pass
 
 if __name__ == "__main__":
+    C = elemDict['C']
     print C.isotopes
-    test_elements_module()
+#    test_elements_module()
