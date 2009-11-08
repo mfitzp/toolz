@@ -37,15 +37,98 @@
       <item>
        <widget class="QTabWidget" name="mainTabWidget">
         <property name="currentIndex">
-         <number>2</number>
+         <number>1</number>
         </property>
-        <widget class="QWidget" name="plotTab">
+        <widget class="QWidget" name="periodTab">
          <attribute name="title">
-          <string>Plot</string>
+          <string>Periodic Table</string>
          </attribute>
-         <layout class="QHBoxLayout">
+        </widget>
+        <widget class="QWidget" name="calcTab">
+         <attribute name="title">
+          <string>MW Calculator</string>
+         </attribute>
+         <layout class="QVBoxLayout" name="verticalLayout_8">
           <item>
-           <widget class="MPL_Widget" name="plotWidget" native="true"/>
+           <layout class="QVBoxLayout" name="verticalLayout_7">
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_3">
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_2">
+                <item>
+                 <widget class="QCheckBox" name="formula1_CB">
+                  <property name="text">
+                   <string>Forumla 1:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLineEdit" name="formulaInput1"/>
+                </item>
+                <item>
+                 <widget class="QToolButton" name="calcFormula1_Btn">
+                  <property name="text">
+                   <string>...</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLineEdit" name="formula1_MW_LE">
+                  <property name="readOnly">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="label">
+                  <property name="text">
+                   <string>g/mol</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_4">
+                <item>
+                 <widget class="QCheckBox" name="formula2_CB">
+                  <property name="text">
+                   <string>Formula 2:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLineEdit" name="formulaInput2"/>
+                </item>
+                <item>
+                 <widget class="QToolButton" name="calcFormula2_Btn">
+                  <property name="text">
+                   <string>...</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLineEdit" name="formula2_MW_LE">
+                  <property name="readOnly">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="label_2">
+                  <property name="text">
+                   <string>g/mol</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="MPL_Widget" name="plotWidget" native="true"/>
+            </item>
+           </layout>
           </item>
          </layout>
         </widget>
@@ -218,11 +301,6 @@
           </item>
          </layout>
         </widget>
-        <widget class="QWidget" name="periodTab">
-         <attribute name="title">
-          <string>Periodic Table</string>
-         </attribute>
-        </widget>
        </widget>
       </item>
       <item>
@@ -249,12 +327,6 @@
          <bool>false</bool>
         </attribute>
         <attribute name="verticalHeaderVisible">
-         <bool>false</bool>
-        </attribute>
-        <attribute name="verticalHeaderVisible">
-         <bool>false</bool>
-        </attribute>
-        <attribute name="horizontalHeaderVisible">
          <bool>false</bool>
         </attribute>
         <row/>

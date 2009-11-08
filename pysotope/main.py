@@ -34,6 +34,7 @@ import ui_main
 from mpl_custom_widget import MPL_Widget
 from mplElemIso import MPL_Widget as mplIso
 from pyelements import elemDict
+from elemParser import molmass
 #from xtandem_parser_class import XT_RESULTS
 #import dbIO
 #from customTable import DBTable
@@ -238,6 +239,17 @@ class pysotope(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 #        print "IsoOk: ", isoOk
         self.elemTableWidget.resizeColumnsToContents()
 
+    def calcFormula1(self):
+        formulaStr = str(self.formulaInput1.text())
+        if len(formulaStr)>0:
+            mwAns = molmass(formulaStr)
+            self.formula1_MW_LE.setText(str(mwAns))
+
+    def calcFormula2(self):
+        formulaStr = str(self.formulaInput2.text())
+        if len(formulaStr)>0:
+            mwAns = molmass(formulaStr)
+            self.formula2_MW_LE.setText(str(mwAns))
 
     def startup(self, dbName = None, startDB = True):
 
@@ -246,6 +258,8 @@ class pysotope(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.svgHLayout.addWidget(self.svgWidget)
         QtCore.QObject.connect(self.svgWidget, QtCore.SIGNAL("elementSelected(PyQt_PyObject)"), self.updateElemData)
         self.updateElemData(elemDict['H'])
+        QtCore.QObject.connect(self.calcFormula1_Btn, QtCore.SIGNAL("clicked()"), self.calcFormula1)
+        QtCore.QObject.connect(self.calcFormula2_Btn, QtCore.SIGNAL("clicked()"), self.calcFormula2)
 #        QtCore.QObject.connect(self.clearPlotBtn, QtCore.SIGNAL("clicked()"), self.clearPlot)
 
 
