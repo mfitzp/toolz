@@ -1991,7 +1991,7 @@ elemDict['Sg']= Element(106, 'Sg', 'Seaborgium',
 
 elemDict['Bh']= Element(107, 'Bh', 'Bohrium',
     group=7, period=7, block='d',
-    mass=264.12473, en=0.0,
+    mass=265.12473, en=0.0,
     covrad=0.000, atmrad=0.000, vdwrad=0.000,
     tboil=0.000, tmelt=0.000, density=0.0000,
     phase='unknown', acidity='neutral',
@@ -2000,7 +2000,7 @@ elemDict['Bh']= Element(107, 'Bh', 'Bohrium',
     eleconfig='[Rn] 5f^14 6d^5 7^s2',
     oxistates='*',
     ionenergy=(),
-    isotopes=((264, 264.1247300000, 1.00000000),),)
+    isotopes=((265, 265.1247300000, 1.00000000),),)#Mod BHC
 
 elemDict['Hs']= Element(108, 'Hs', 'Hassium',
     group=8, period=7, block='d',
@@ -2030,7 +2030,7 @@ elemDict['Mt']= Element(109, 'Mt', 'Meitnerium',
 
 elemDict['Ds'] = Element(110, 'Ds', 'Darmstadtium',
     group=10, period=7, block='d',
-    mass=268.13882, en=0.0,
+    mass=271.1460, en=0.0,
     covrad=0.000, atmrad=0.000, vdwrad=0.000,
     tboil=0.000, tmelt=0.000, density=0.0000,
     phase='unknown', acidity='acidic',
@@ -2039,16 +2039,18 @@ elemDict['Ds'] = Element(110, 'Ds', 'Darmstadtium',
     eleconfig='[Rn] 5f^14 6d^9 7s^1',
     oxistates='*',
     ionenergy=(),
-    isotopes=((268, 268.1388200000, 1.00000000),),)
+    isotopes=((271, 271.14600000, 1.00000000),),)
 
-#elemDict['Rg'] = 111
-#elemDict['Uub'] = 112
-#elemDict['Uut'] = 113
-#elemDict['Uuq'] = 114
-#elemDict['Uup'] = 115
-#elemDict['Uuh'] = 116
-#elemDict['Uus'] = 117
-#elemDict['Uuo'] = 118
+#elemDict['Rg'] = 111 272.154
+#elemDict['Uub'] = 112 277.164
+
+#Not Confirmed
+#elemDict['Uut'] = 113 287.181
+#elemDict['Uuq'] = 114 289.187
+#elemDict['Uup'] = 115 291.194
+#elemDict['Uuh'] = 116 ?
+#elemDict['Uus'] = 117 ?
+#elemDict['Uuo'] = 118 ?
 
 
 def test_elements_module():
