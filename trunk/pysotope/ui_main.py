@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Documents and Settings\d3p483\workspace\pysotope\main.ui'
+# Form implementation generated from reading ui file '/home/clowers/workspace/pysotope/main.ui'
 #
-# Created: Fri Nov 06 15:00:12 2009
-#      by: PyQt4 UI code generator 4.4.3
+# Created: Sat Nov  7 20:31:52 2009
+#      by: PyQt4 UI code generator 4.4.4
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -12,7 +12,7 @@ from PyQt4 import QtCore, QtGui
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(947, 549)
+        MainWindow.resize(1030, 679)
         MainWindow.setMinimumSize(QtCore.QSize(0, 25))
         font = QtGui.QFont()
         font.setFamily("Arial")
@@ -126,23 +126,24 @@ class Ui_MainWindow(object):
         self.periodTab.setObjectName("periodTab")
         self.mainTabWidget.addTab(self.periodTab, "")
         self.hboxlayout.addWidget(self.mainTabWidget)
-        self.SelectInfoWidget = QtGui.QTableWidget(self.centralwidget)
-        self.SelectInfoWidget.setEnabled(True)
+        self.elemTableWidget = QtGui.QTableWidget(self.centralwidget)
+        self.elemTableWidget.setEnabled(True)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.SelectInfoWidget.sizePolicy().hasHeightForWidth())
-        self.SelectInfoWidget.setSizePolicy(sizePolicy)
-        self.SelectInfoWidget.setRowCount(13)
-        self.SelectInfoWidget.setColumnCount(2)
-        self.SelectInfoWidget.setObjectName("SelectInfoWidget")
-        self.SelectInfoWidget.setColumnCount(2)
-        self.SelectInfoWidget.setRowCount(13)
-        self.hboxlayout.addWidget(self.SelectInfoWidget)
+        sizePolicy.setHeightForWidth(self.elemTableWidget.sizePolicy().hasHeightForWidth())
+        self.elemTableWidget.setSizePolicy(sizePolicy)
+        self.elemTableWidget.setShowGrid(False)
+        self.elemTableWidget.setRowCount(13)
+        self.elemTableWidget.setColumnCount(2)
+        self.elemTableWidget.setObjectName("elemTableWidget")
+        self.elemTableWidget.setColumnCount(2)
+        self.elemTableWidget.setRowCount(13)
+        self.hboxlayout.addWidget(self.elemTableWidget)
         self.verticalLayout_2.addLayout(self.hboxlayout)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 947, 22))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1030, 23))
         font = QtGui.QFont()
         font.setFamily("Arial")
         font.setWeight(50)
@@ -372,5 +373,5 @@ class Ui_MainWindow(object):
         self.actionSave_All_Tables.setText(QtGui.QApplication.translate("MainWindow", "Save All Tables to CSV", None, QtGui.QApplication.UnicodeUTF8))
         self.actionCopy_Current_Database.setText(QtGui.QApplication.translate("MainWindow", "Copy Current Database", None, QtGui.QApplication.UnicodeUTF8))
 
-from mpl_pyqt4_widget import MPL_Widget
+from mpl_custom_widget import MPL_Widget
 import SubPlot_rc

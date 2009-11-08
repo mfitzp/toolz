@@ -2,7 +2,7 @@
 """
 This is the explicit class for viewing Parsed XT Files
 
-/usr/bin/pyuic4 /home/clowers/workspace/XTandem_Parsing/main.ui  -o /home/clowers/workspace/XTandem_Parsing/ui_main.py
+/usr/bin/pyuic4 /home/clowers/workspace/pysotope/main.ui  -o /home/clowers/workspace/pysotope/ui_main.py
 """
 #Importing built-in python modules and functions
 import sys, os
@@ -32,6 +32,7 @@ from matplotlib.widgets import SpanSelector
 #import GUI scripts
 import ui_main
 from mpl_custom_widget import MPL_Widget
+from mplElemIso import MPL_Widget as mplIso
 from pyelements import elemDict
 #from xtandem_parser_class import XT_RESULTS
 #import dbIO
@@ -102,6 +103,8 @@ class periodicTableWidget(QtSvg.QSvgWidget):
             if elemDict.has_key(curAtom):
                 elem = elemDict[curAtom]
                 print elem.name, elem.mass
+                self.emit(QtCore.SIGNAL("elementSelected(PyQt_PyObject)"),elem)
+#                self.emit
     #        print Ans, self.elems[Ans]
 
     def resizeEvent(self, event):
@@ -132,12 +135,119 @@ class pysotope(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.openTableList = []
         self.openPlotList = []
 
+    def updateElemData(self, elem):
+        '''
+            "Name" = elem.name
+            ("Symbol", elem.symbol),
+            ("Atomic Number", elem.number),
+            ("Group", elem.group),
+            ("Period", elem.period),
+            ("Block", elem.block),
+            ("Atomic Weight", elem.mass),
+            ("Atomic Radius", elem.atmrad),
+            ("Covalent Radius", elem.covrad),
+            ("Van der Waals Radius", elem.vdwrad),
+            ("Electronegativity", elem.en),
+            ("Electron Configuration", elem.eleconfig),
+            ("Electron per Shell", ', '.join(
+                "%i" % i for i in elem.eleshells)),
+            "%-22s : %s"    % ("Oxidation States", elem.oxistates),
+            "%-22s : %s"    % ("Isotopes", ', '.join(
+                "(%i, %.10g, %.10g)" % (a,b,c*100.0) for a,b,c in \
+                                                            elem.isotopes)),
+            ("Ionization Potentials", ', '.join(
+                "%.10g" % ion for ion in elem.ionenergy)),
+            ""])
+        return result
+        '''
+        self.curElem = elem
+        self.curElemDict = {}
+        self.curElemDict["Name"] = elem.name
+        self.curElemDict["Symbol"] = elem.symbol
+        self.curElemDict["Atomic Number"] = str(elem.number)
+        self.curElemDict["Group"] = str(elem.group)
+        self.curElemDict["Period"] = str(elem.period)
+        self.curElemDict["Block"] = str(elem.block)
+        self.curElemDict["Atomic Mass"] = str(elem.mass)
+        self.curElemDict["Atomic Radius"] = str(elem.atmrad)
+        self.curElemDict["Covalent Radius"] = str(elem.covrad)
+        self.curElemDict["Van der Waals Radius"] = str(elem.vdwrad)
+        self.curElemDict["Electronegativity"] = str(elem.en)
+        self.curElemDict["Electron Configuration"] = str(elem.eleconfig)
+        self.keyList = ["Symbol", "Name", "Atomic Number", "Atomic Mass", "Group",
+                        "Period", "Block", "Atomic Radius", "Covalent Radius", "Van der Waals Radius",
+                        "Electronegativity", "Electron Configuration"]
+        self.elemTableWidget.clear()
+        self.elemTableWidget.setRowCount(len(self.keyList)+1)#adding one for isotope plot
+#        print self.curElem.isotopes, type(self.curElem.isotopes)
+
+        curIsos = self.curElem.isotopes
+        isoX = [curIsos[0][1]-1]#sets first point at 0 so range will be displayed correctly#N.zeros(len(curIsos)+2)
+        isoY = [0.0]#N.zeros(len(curIsos)+2)
+
+        for i,iso in enumerate(curIsos):
+
+            print iso[1], iso[2]
+            isoX.append(iso[1])
+            isoY.append(iso[2])
+
+#        print isoX
+#        print isoY
+        isoOk = False
+        if len(isoX) > 0 and len(isoY) > 0:
+            isoX.append(isoX[-1]+1)
+            isoY.append(0.0)
+            isoOk = True
+            isoX = N.array(isoX)
+            isoY = N.array(isoY)
+            isoY*=100
+        n = 0
+
+        self.elemTableWidget.horizontalHeader().hide()
+        self.elemTableWidget.verticalHeader().hide()
+
+        for key in self.keyList:
+            if self.curElemDict.has_key(key):
+#                self.elemTableWidget.takeVerticalHeaderItem(n)
+                keyItem = QtGui.QTableWidgetItem(key)
+                dictItems = self.curElemDict[key]
+                valItem = QtGui.QTableWidgetItem(dictItems)
+                if n == 0:
+                    fontSize = 35
+                    curFont = QtGui.QFont()
+                    curFont.setItalic(True)
+                    curFont.setBold(True)
+                    curFont.setPointSize(35)
+                    valItem.setFont(curFont)
+                    self.elemTableWidget.setItem(n, 0, valItem)
+                    self.elemTableWidget.setRowHeight(0, fontSize+15)
+                else:
+                    self.elemTableWidget.setItem(n, 0, keyItem)
+                    self.elemTableWidget.setItem(n, 1, valItem)
+                n+=1
+
+        if isoOk:
+            isoPlot = mplIso()
+            isoPlot.canvas.ax.vlines(isoX, 0, isoY, 'r')
+            isoPlot.canvas.ax.set_ylim(ymin = -5)
+            isoPlot.canvas.format_labels()
+            isoPlot.canvas.draw()
+#            isoPlot.show()
+            self.elemTableWidget.setCellWidget(12, 0, isoPlot)
+            self.elemTableWidget.setRowHeight(12, 200)
+#        print "IsoOk: ", isoOk
+        self.elemTableWidget.resizeColumnsToContents()
+
 
     def startup(self, dbName = None, startDB = True):
 
         self.svgWidget = periodicTableWidget()#QtSvg.QSvgWidget('periodicTable.svg')
         self.svgHLayout = QtGui.QHBoxLayout(self.periodTab)
         self.svgHLayout.addWidget(self.svgWidget)
+        QtCore.QObject.connect(self.svgWidget, QtCore.SIGNAL("elementSelected(PyQt_PyObject)"), self.updateElemData)
+        self.updateElemData(elemDict['H'])
+#        QtCore.QObject.connect(self.clearPlotBtn, QtCore.SIGNAL("clicked()"), self.clearPlot)
+
 
 #        self.curFile = None
 #        self.curTbl = None
@@ -805,20 +915,20 @@ class pysotope(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.curSelectInfo['Protein e-Value'] =str(activeData.dataDict.get('pro_eVal')[index])
 
         newitem = QtGui.QTableWidgetItem('Table')
-        self.SelectInfoWidget.setItem(0, 0, newitem)
+        self.elemTableWidget.setItem(0, 0, newitem)
         newitem = QtGui.QTableWidgetItem(activeKey)
-        self.SelectInfoWidget.setItem(0, 1, newitem)
+        self.elemTableWidget.setItem(0, 1, newitem)
 
         n = 1
         for item in self.curSelectInfo.iteritems():
             m = 0
             for entry in item:
                 newitem = QtGui.QTableWidgetItem(entry)
-                self.SelectInfoWidget.setItem(n, m, newitem)
+                self.elemTableWidget.setItem(n, m, newitem)
                 m+=1
             n+=1
 
-        self.SelectInfoWidget.resizeColumnsToContents()
+        self.elemTableWidget.resizeColumnsToContents()
         self.activeData = activeData.dataDict
 
 
@@ -832,11 +942,11 @@ class pysotope(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
     def __initContextMenus__(self):
         self.plotWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
-        self.SelectInfoWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.elemTableWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.queryFieldList.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.queryTblList.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.plotWidget.connect(self.plotWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self.plotTabContext)
-        self.SelectInfoWidget.connect(self.SelectInfoWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self.selectInfoTabContext)
+        self.elemTableWidget.connect(self.elemTableWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self.selectInfoTabContext)
         self.queryFieldList.connect(self.queryFieldList, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self.queryFieldContext)
         self.queryTblList.connect(self.queryTblList, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self.queryTableContext)
 
@@ -858,13 +968,13 @@ class pysotope(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
 
     def selectDBField(self,  saveTable = None):
-        curCol = self.SelectInfoWidget.currentColumn()
-        if self.SelectInfoWidget.currentItem() == None:
+        curCol = self.elemTableWidget.currentColumn()
+        if self.elemTableWidget.currentItem() == None:
             return False
-            #print "Current index: ",  self.SelectInfoWidget.currentRow(), curCol
+            #print "Current index: ",  self.elemTableWidget.currentRow(), curCol
         else:
             try:
-                curItem = self.SelectInfoWidget.item(self.SelectInfoWidget.currentRow(), 0)
+                curItem = self.elemTableWidget.item(self.elemTableWidget.currentRow(), 0)
                 curType = self.infoMap[str(curItem.text())]
                 curVal = self.curSelectInfo[str(curItem.text())]
                 curTbl = self.curTbl
@@ -951,12 +1061,12 @@ class pysotope(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         #queryCT_menu
 
     def selectInfoTabContext(self,  point):
-        '''Create a context menu for the SelectInfoWidget which is a QTableWidget'''
-        infoCT_menu = QtGui.QMenu("Menu",  self.SelectInfoWidget)
+        '''Create a context menu for the elemTableWidget which is a QTableWidget'''
+        infoCT_menu = QtGui.QMenu("Menu",  self.elemTableWidget)
         infoCT_menu.addAction(self.selectDBFieldAction)
         infoCT_menu.addAction(self.saveDBFieldAction)
         infoCT_menu.addAction(self.getFragAction)
-        infoCT_menu.exec_(self.SelectInfoWidget.mapToGlobal(point))
+        infoCT_menu.exec_(self.elemTableWidget.mapToGlobal(point))
 
     def plotTabContext(self, point):
         '''Create a menu for mainTabWidget'''
@@ -1030,19 +1140,19 @@ class pysotope(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                         self.saveCSVTable(tbl, fileName)
 
     def getFragSpectrum(self):
-        curCol = self.SelectInfoWidget.currentColumn()
-        if self.SelectInfoWidget.currentItem() == None:
+        curCol = self.elemTableWidget.currentColumn()
+        if self.elemTableWidget.currentItem() == None:
             return False
-            #print "Current index: ",  self.SelectInfoWidget.currentRow(), curCol
+            #print "Current index: ",  self.elemTableWidget.currentRow(), curCol
         else:
             try:
-                curItem = self.SelectInfoWidget.item(1, 1)
+                curItem = self.elemTableWidget.item(1, 1)
                 indexVal = int(curItem.text())
                 #indexVal +=-1#this is because we are counting from zero, but the index table counts from 1
                 curSeq = self.activeData['pepID'][indexVal]
                 xData = self.activeData['xFrags'][indexVal]#this is text and needs to be converted
                 yData = self.activeData['yFrags'][indexVal]
-                tableText = str(self.SelectInfoWidget.item(0, 1).text())
+                tableText = str(self.elemTableWidget.item(0, 1).text())
                 eValText = str(self.activeData['pep_eVal'][indexVal])
                 theoMZText = '%.2f'%self.activeData['theoMZ'][indexVal]
                 ppmText = '%d'%self.activeData['ppm_error'][indexVal]
@@ -1184,13 +1294,13 @@ class pysotope(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.firstLoad = True
 
     def __additionalConnections__(self):
-        '''SelectInfoWidget context menu actions'''
+        '''elemTableWidget context menu actions'''
         self.selectDBFieldAction = QtGui.QAction("Select Table By Field", self)
-        self.SelectInfoWidget.addAction(self.selectDBFieldAction)
+        self.elemTableWidget.addAction(self.selectDBFieldAction)
         QtCore.QObject.connect(self.selectDBFieldAction,QtCore.SIGNAL("triggered()"), self.selectDBField)
 
         self.saveDBFieldAction = QtGui.QAction("Save New Table By Field", self)
-        self.SelectInfoWidget.addAction(self.saveDBFieldAction)
+        self.elemTableWidget.addAction(self.saveDBFieldAction)
         QtCore.QObject.connect(self.saveDBFieldAction,QtCore.SIGNAL("triggered()"), self.saveQueryTable)
 
         '''Database View, Add, Remove Tools'''

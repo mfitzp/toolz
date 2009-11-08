@@ -27,37 +27,35 @@ class EventFilter(QtCore.QObject):
         return QtCore.QObject.eventFilter(self, obj, event)
 
 class MyMplCanvas(FigureCanvas):
-	def __init__(self, parent=None, width = 10, height = 12, dpi = 100, sharex = None, sharey = None):
-		self.fig = Figure(figsize = (width, height), dpi=dpi, facecolor = '#FFFFFF')
-		self.ax = self.fig.add_subplot(111, sharex = sharex, sharey = sharey)
-		self.fig.subplots_adjust(left=0.1, bottom=0.1, right=0.9, top=0.9)
-		self.xtitle="x-Axis"
-		self.ytitle="y-Axis"
-		self.PlotTitle = "Plot"
-		self.grid_status = True
-		self.xaxis_style = 'linear'
-		self.yaxis_style = 'linear'
-		self.format_labels()
-		self.ax.hold(True)
-		FigureCanvas.__init__(self, self.fig)
+    def __init__(self, parent=None, width = 1, height = 2.0, dpi = 100, sharex = None, sharey = None):
+        self.fig = Figure(figsize = (width, height), dpi=dpi, facecolor = '#FFFFFF')
+        self.ax = self.fig.add_subplot(111, sharex = sharex, sharey = sharey)
+        self.fig.subplots_adjust(left=0.1, bottom=0.16, right=0.95, top=0.95)
+        self.xtitle="m/z"
+        self.ytitle="Intensity"
+        self.PlotTitle = "Plot"
+        self.grid_status = True
+        self.xaxis_style = 'linear'
+        self.yaxis_style = 'linear'
+        self.format_labels()
+        self.ax.hold(True)
+        FigureCanvas.__init__(self, self.fig)
 		#self.fc = FigureCanvas(self.fig)
-		FigureCanvas.setSizePolicy(self,
-			QtGui.QSizePolicy.Expanding,
-			QtGui.QSizePolicy.Expanding)
-		FigureCanvas.updateGeometry(self)
+        FigureCanvas.setSizePolicy(self, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+        FigureCanvas.updateGeometry(self)
 
-	def format_labels(self):
-		self.ax.set_title(self.PlotTitle)
-		self.ax.title.set_fontsize(10)
-		self.ax.set_xlabel(self.xtitle, fontsize = 9)
-		self.ax.set_ylabel(self.ytitle, fontsize = 9)
-		labels_x = self.ax.get_xticklabels()
-		labels_y = self.ax.get_yticklabels()
-
-		for xlabel in labels_x:
-			xlabel.set_fontsize(8)
-		for ylabel in labels_y:
-			ylabel.set_fontsize(8)
+    def format_labels(self):
+#        self.ax.set_title(self.PlotTitle)
+#        self.ax.title.set_fontsize(10)
+        self.ax.set_xlabel(self.xtitle, fontsize = 5)
+#        self.ax.set_ylabel(self.ytitle, fontsize = 6)
+        labels_x = self.ax.get_xticklabels()
+        labels_y = self.ax.get_yticklabels()
+        for xlabel in labels_x:
+            xlabel.set_fontsize(5)
+            xlabel.set_rotation(90)
+        for ylabel in labels_y:
+			ylabel.set_fontsize(5)
 			ylabel.set_color('b')
 
 	def sizeHint(self):
