@@ -34,7 +34,9 @@ import ui_main
 from mpl_custom_widget import MPL_Widget
 from mplElemIso import MPL_Widget as mplIso
 from pyelements import elemDict
-from elemParser import molmass
+from elemParser import molmass, getAtoms
+from isotopeCalc import isoCalc
+import gaussFunctions as GF
 #from xtandem_parser_class import XT_RESULTS
 #import dbIO
 #from customTable import DBTable
@@ -113,7 +115,7 @@ class periodicTableWidget(QtSvg.QSvgWidget):
         newSize = event.size()
         self.xMod = 1.0*newSize.width()/self.origW#changed to float
         self.yMod = 1.0*newSize.height()/self.origH
-        print self.xMod, self.yMod
+#        print self.xMod, self.yMod
         pass
 
 class pysotope(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
@@ -239,27 +241,141 @@ class pysotope(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 #        print "IsoOk: ", isoOk
         self.elemTableWidget.resizeColumnsToContents()
 
-    def calcFormula1(self):
-        formulaStr = str(self.formulaInput1.text())
+    def calcFormulaA(self):
+        formulaStr = str(self.formulaInputA.text())
         if len(formulaStr)>0:
             mwAns = molmass(formulaStr)
-            self.formula1_MW_LE.setText(str(mwAns))
+            self.formulaA_MW_LE.setText(str(mwAns))
+            self.calcIsotopeA(formulaStr)
 
-    def calcFormula2(self):
-        formulaStr = str(self.formulaInput2.text())
+    def calcFormulaB(self):
+        formulaStr = str(self.formulaInputB.text())
         if len(formulaStr)>0:
             mwAns = molmass(formulaStr)
-            self.formula2_MW_LE.setText(str(mwAns))
+            self.formulaB_MW_LE.setText(str(mwAns))
+            self.calcIsotopeB(formulaStr)
+
+
+    def calcGaussIsos(self, centroids, abundances, res = 10000):
+        if len(centroids) > 0:
+            peakListX = []
+            peakListY = []
+            for i,iso in enumerate(centroids):
+                abund = abundances[i]
+                pkWidth = iso/res
+                tempX = N.arange(iso-(pkWidth*4), iso+(pkWidth*4), 0.001)
+                peakListX.append(tempX)
+                peakListY.append(GF.getGauss(tempX, iso, pkWidth, amp = abund))
+            return True, peakListX, peakListY
+        else:
+            return False, None, None
+
+
+    def calcIsotopeA(self, formula, plotGauss = True):
+        '''
+        calculates isotope pattern from formula
+        '''
+        if self.isoPlotA != None:
+            try:
+                self.isoPlotA.remove()
+            except:
+                print "IsoPlotA remove failed"
+
+        if len(self.gaussAList)>0:
+#            try:
+            for peakSet in self.gaussAList:
+                print type(peakSet)
+                peakSet.remove()
+            self.gaussAList = []
+#            except:
+#                print "PeakSetA remove failed"
+
+        boolAns, elemList, elemComp = getAtoms(formula)
+        print elemList, elemComp
+        if boolAns:
+            isoAns = isoCalc(elemList, elemComp, charge = 1)
+            if isoAns[0]:
+#                self.plotWidget.canvas.ax.cla()
+                self.isoPlotA = self.plotWidget.canvas.ax.vlines(isoAns[1][0], 0, isoAns[1][1], 'r')
+                if plotGauss:
+                    ANS = self.calcGaussIsos(isoAns[1][0], isoAns[1][1])
+                    boolAns, peakListX, peakListY = ANS
+                    if boolAns:
+                        for i,peakX in enumerate(peakListX):
+                            peakY = peakListY[i]
+                            curGauss, = self.plotWidget.canvas.ax.plot(peakX, peakY,'b', alpha = 0.5)
+                            self.gaussAList.append(curGauss)
+                self.plotWidget.canvas.format_labels()
+                self.plotWidget.canvas.draw()
+
+    def calcIsotopeB(self, formula, plotGauss = True):
+        '''
+        calculates isotope pattern from formula
+        '''
+        if self.isoPlotB != None:
+            try:
+                self.isoPlotB.remove()
+            except:
+                print "IsoPlotB remove failed"
+
+        if len(self.gaussBList)>0:
+            try:
+                for peakSet in self.gaussBList:
+                    peakSet.remove()
+                self.gaussAList = []
+            except:
+                print "PeakSetB remove failed"
+
+        boolAns, elemList, elemComp = getAtoms(formula)
+        print elemList, elemComp
+        if boolAns:
+            isoAns = isoCalc(elemList, elemComp, charge = 1)
+            if isoAns[0]:
+#                self.plotWidget.canvas.ax.cla()
+                self.isoPlotB = self.plotWidget.canvas.ax.vlines(isoAns[1][0], 0, isoAns[1][1], 'b')
+                if plotGauss:
+                    ANS = self.calcGaussIsos(isoAns[1][0], isoAns[1][1])
+                    boolAns, peakListX, peakListY = ANS
+                    if boolAns:
+                        for i,peakX in enumerate(peakListX):
+                            peakY = peakListY[i]
+                            curGauss, = self.plotWidget.canvas.ax.plot(peakX, peakY,'r', alpha = 0.5)
+                            self.gaussBList.append(curGauss)
+                self.plotWidget.canvas.format_labels()
+                self.plotWidget.canvas.draw()
+
+
+    def normalize(self, arrayVals):
+        if type(arrayVals) is list:
+            arrayVals = N.array(arrayVals)
+
+        arrayVals /= arrayVals.max()
+        arrayVals != 100
+        return arrayVals
+
+    def clearPlot(self):
+        self.plotWidget.canvas.ax.cla()
+        self.__setupPlot__()
+        self.plotWidget.canvas.format_labels()
+        self.plotWidget.canvas.draw()
+        self.mainTabWidget.setCurrentIndex(1)
+
+
 
     def startup(self, dbName = None, startDB = True):
+
+        self.isoPlotA = None
+        self.gaussAList = []
+        self.isoPlotB = None
+        self.gaussBList = []
 
         self.svgWidget = periodicTableWidget()#QtSvg.QSvgWidget('periodicTable.svg')
         self.svgHLayout = QtGui.QHBoxLayout(self.periodTab)
         self.svgHLayout.addWidget(self.svgWidget)
         QtCore.QObject.connect(self.svgWidget, QtCore.SIGNAL("elementSelected(PyQt_PyObject)"), self.updateElemData)
         self.updateElemData(elemDict['H'])
-        QtCore.QObject.connect(self.calcFormula1_Btn, QtCore.SIGNAL("clicked()"), self.calcFormula1)
-        QtCore.QObject.connect(self.calcFormula2_Btn, QtCore.SIGNAL("clicked()"), self.calcFormula2)
+        QtCore.QObject.connect(self.calcFormulaA_Btn, QtCore.SIGNAL("clicked()"), self.calcFormulaA)
+        QtCore.QObject.connect(self.calcFormulaB_Btn, QtCore.SIGNAL("clicked()"), self.calcFormulaB)
 #        QtCore.QObject.connect(self.clearPlotBtn, QtCore.SIGNAL("clicked()"), self.clearPlot)
 
 
@@ -816,12 +932,6 @@ class pysotope(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.is_hZoom = False
         self.plotWidget.canvas.mpl_connect('pick_event', self.OnPickPlot)
 
-    def clearPlot(self):
-        self.plotWidget.canvas.ax.cla()
-        self.__setupPlot__()
-        self.plotWidget.canvas.format_labels()
-        self.plotWidget.canvas.draw()
-        self.mainTabWidget.setCurrentIndex(1)
 
     def updatePlot(self):
         try:

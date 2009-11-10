@@ -61,6 +61,8 @@ def parseFormula(fragment):
 ##################################################################################
 def molmass(formula):
     formula = validateStr(formula)
+    if '))' in formula:
+        return 0
     parenMass=0
     nonparenMass=0
     while (len(formula)>0):
@@ -69,19 +71,81 @@ def molmass(formula):
             parenthetical=re.findall('\(\w*\)[0-9]+',formula)
             for i in range(0,len(parenthetical)):
                 parenMult1 = re.findall('\)[0-9]+', parenthetical[i])
+#                print "ParenMult1", parenMult1, parenthetical[i]
                 parenMult2 = re.findall('[0-9]+', parenMult1[0])
+#                print "ParentMult2", parenMult2
                 segments =parseFormula(parenthetical[i])
+#                print "Segments", segments
                 for i in range(0, len(segments)):
                     parenMass= parenMass + ((getMass(segments[i]))*(float(parenMult2[0])))
             formula=re.sub('\(\w*\)[0-9]+', '', formula)
         #Sums nonparenthetical molecular weights when all parenthetical molecular weights have been summed
         segments = parseFormula(formula)
+#        print "Segments", segments
         for i in range(0, len(segments)):
             nonparenMass=nonparenMass + getMass(segments[i])
         formula=re.sub(formula, '', formula)
 
     Mass=parenMass+nonparenMass
     return Mass
+
+
+def getAtoms(formula):
+    formula = validateStr(formula)
+    if '))' in formula:
+        return False
+    atoms = []
+    numAtoms = []
+    while (len(formula)>0):
+        #First computes the molecular weight of all parenthetical formulas from left to right
+        while (len(re.findall('\(\w*\)[0-9]+', formula))!=0):
+            parenthetical=re.findall('\(\w*\)[0-9]+',formula)
+            for i in range(0,len(parenthetical)):
+                parenMult1 = re.findall('\)[0-9]+', parenthetical[i])
+#                print "ParenMult1", parenMult1, parenthetical[i]
+                parenMult2 = re.findall('[0-9]+', parenMult1[0])
+#                print "ParentMult2", parenMult2
+                segments =parseFormula(parenthetical[i])
+#                print "Segments", segments
+                for i in range(0, len(segments)):
+                    multFactor = re.findall('[0-9]+', segments[i])
+                    subSegs = re.findall('[A-Z][a-z]*',segments[i])
+#                    print "MultiFactor: ", multFactor
+#                    print "Subsegs: ", subSegs
+                    for seg in subSegs:
+                        atoms.append(seg)
+                        if len(parenMult2)>0:
+                            coreNum = int(parenMult2[0])
+                        else:
+                            coreNum = 1
+                        if len(multFactor)>0:
+                            multNum = int(multFactor[0])
+                            numAtoms.append(coreNum*multNum)
+                        else:
+                            numAtoms.append(coreNum)
+
+            formula=re.sub('\(\w*\)[0-9]+', '', formula)
+        #Sums nonparenthetical molecular weights when all parenthetical molecular weights have been summed
+        segments = parseFormula(formula)
+#        print "Segments", segments
+        for i in range(0, len(segments)):
+            multFactor = re.findall('[0-9]+', segments[i])
+            subSegs = re.findall('[A-Z][a-z]*',segments[i])
+#            print "MultiFactor: ", multFactor
+#            print "Subsegs: ", subSegs
+            for seg in subSegs:
+                atoms.append(seg)
+                if len(multFactor)>0:
+                    multNum = int(multFactor[0])
+                    numAtoms.append(1*multNum)
+                else:
+                    numAtoms.append(1)
+
+        formula=re.sub(formula, '', formula)
+
+
+    return True, atoms, numAtoms
+
 
 def validateStr(potentialStr):
     _NON_ASCII = re.compile('[^a-zA-Z0-9()]+')#re.compile('[^-~]')
@@ -95,16 +159,18 @@ if __name__ == '__main__':
     test_alt = ['CoFFeEs', 'BeNiCe', 'LiEr', 'GaIn', 'AmErICa', 'U2', \
             'UVRaY']
     test_paren= ['Co(FFeEs)2', 'Be(Ni)2Ce', '(LiEr)4', '(Ga)3In', '(AmErICa)4', '(U2)6', \
-            'UVRaY']
-    for element in test:
-        print ('The mass of %(substance)s is %(Mass)f.' % {'substance': \
-                element, 'Mass': molmass(element)})
-    for element in test_alt:
-        print ('The mass of %(substance)s is %(Mass)f.' % {'substance': \
-                element, 'Mass': molmass(element)})
+            'UVRaY', 'CO4(O2)3(BaH3)33']
+#    for element in test:
+#        print ('The mass of %(substance)s is %(Mass)f.' % {'substance': \
+#                element, 'Mass': molmass(element)})
+#    for element in test_alt:
+#        print ('The mass of %(substance)s is %(Mass)f.' % {'substance': \
+#                element, 'Mass': molmass(element)})
     for element in test_paren:
-        print ('The mass of %(substance)s is %(Mass)f.' % {'substance': \
-                element, 'Mass': molmass(element)})
-    print molmass('CO2')
-    validateStr('Joe@#$%@()._')
+        print getAtoms(element)
+        print " "
+#        print ('The mass of %(substance)s is %(Mass)f.' % {'substance': \
+#                element, 'Mass': molmass(element)})
+#    print molmass('CO2')
+#    validateStr('Joe@#$%@()._')
 #    print type(molmass('3')), molmass('$@$#%#')

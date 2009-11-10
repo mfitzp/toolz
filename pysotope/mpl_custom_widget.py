@@ -30,9 +30,9 @@ class MyMplCanvas(FigureCanvas):
 	def __init__(self, parent=None, width = 10, height = 12, dpi = 100, sharex = None, sharey = None):
 		self.fig = Figure(figsize = (width, height), dpi=dpi, facecolor = '#FFFFFF')
 		self.ax = self.fig.add_subplot(111, sharex = sharex, sharey = sharey)
-		self.fig.subplots_adjust(left=0.1, bottom=0.1, right=0.9, top=0.9)
-		self.xtitle="x-Axis"
-		self.ytitle="y-Axis"
+		self.fig.subplots_adjust(left=0.1, bottom=0.1, right=0.9, top=0.94)
+		self.xtitle="m/z"
+		self.ytitle="Intensity"
 		self.PlotTitle = "Plot"
 		self.grid_status = True
 		self.xaxis_style = 'linear'
@@ -47,8 +47,8 @@ class MyMplCanvas(FigureCanvas):
 		FigureCanvas.updateGeometry(self)
 
 	def format_labels(self):
-		self.ax.set_title(self.PlotTitle)
-		self.ax.title.set_fontsize(10)
+#		self.ax.set_title(self.PlotTitle)
+#		self.ax.title.set_fontsize(10)
 		self.ax.set_xlabel(self.xtitle, fontsize = 9)
 		self.ax.set_ylabel(self.ytitle, fontsize = 9)
 		labels_x = self.ax.get_xticklabels()
@@ -102,11 +102,11 @@ class MPL_Widget(QtGui.QWidget):
         self.canvas = MyMplCanvas()
         #self.toolbar = MyNavigationToolbar(self.canvas, self.canvas, direction = 'v')
         self.toolbar = NavigationToolbar(self.canvas, self.canvas)
-        self.toolbar.hide()
-        self.hbox = QtGui.QHBoxLayout()
-        #self.hbox.addWidget(self.toolbar)
-        self.hbox.addWidget(self.canvas)
-        self.setLayout(self.hbox)
+#        self.toolbar.hide()
+        self.vbox = QtGui.QVBoxLayout()
+        self.vbox.addWidget(self.canvas)
+        self.vbox.addWidget(self.toolbar)
+        self.setLayout(self.vbox)
         ##########################
         self.hZoom = QtGui.QAction("Zoom",  self)
         self.hZoom.setShortcut("Ctrl+Z")
