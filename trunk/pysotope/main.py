@@ -245,15 +245,14 @@ class pysotope(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         if len(formulaStr)>0:
             mwAns = molmass(formulaStr)
             self.formulaA_MW_LE.setText(str(mwAns))
-            self.calcIsotopeA(formulaStr)
+            self.calcIsotopeA(formulaStr, self.formulaA_CB.isChecked())
 
     def calcFormulaB(self):
         formulaStr = str(self.formulaInputB.text())
         if len(formulaStr)>0:
             mwAns = molmass(formulaStr)
             self.formulaB_MW_LE.setText(str(mwAns))
-            self.calcIsotopeB(formulaStr)
-
+            self.calcIsotopeB(formulaStr, self.formulaB_CB.isChecked())
 
     def calcGaussIsos(self, centroids, abundances, res = 10000):
         if len(centroids) > 0:
@@ -269,35 +268,44 @@ class pysotope(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         else:
             return False, None, None
 
+    def setIsoLimits(self):
+
+        if self.isoMaxA >= self.isoMaxB:
+            xMax = self.isoMaxA*1.01
+        else:
+            xMax = self.isoMaxB*1.01
+        if self.isoMinA <= self.isoMinB:
+            if self.isoMinA != 0:
+                xMin = self.isoMinA
+            else:
+                xMin = self.isoMinB
+        else:
+            if self.isoMinB != 0:
+                xMin = self.isoMinB-self.isoMaxB*.01
+            else:
+                xMin = self.isoMinA-self.isoMaxA*.01
+
+        self.plotWidget.canvas.ax.set_xlim(xmin = xMin, xmax = xMax)
 
     def calcIsotopeA(self, formula, plotGauss = True):
         '''
-        calculates isotope pattern from formula
+        calculates isotope pattern from formula A
         '''
-        if self.isoPlotA != None:
-            try:
-                self.isoPlotA.remove()
-            except:
-                print "IsoPlotA remove failed"
-
-        if len(self.gaussAList)>0:
-#            try:
-            for peakSet in self.gaussAList:
-                print type(peakSet)
-                peakSet.remove()
-            self.gaussAList = []
-#            except:
-#                print "PeakSetA remove failed"
+        self.removeIsoA()
 
         boolAns, elemList, elemComp = getAtoms(formula)
         print elemList, elemComp
         if boolAns:
             isoAns = isoCalc(elemList, elemComp, charge = 1)
             if isoAns[0]:
-#                self.plotWidget.canvas.ax.cla()
+#                if not self.formulaB_CB.isChecked():
+#                    self.removeIsoB()
+#                    self.plotWidget.canvas.ax.cla()
+                self.isoMaxA = isoAns[1][0].max()
+                self.isoMinA = isoAns[1][0].min()
                 self.isoPlotA = self.plotWidget.canvas.ax.vlines(isoAns[1][0], 0, isoAns[1][1], 'r')
                 if plotGauss:
-                    ANS = self.calcGaussIsos(isoAns[1][0], isoAns[1][1])
+                    ANS = self.calcGaussIsos(isoAns[1][0], isoAns[1][1], self.isoResCalc_SB.value())
                     boolAns, peakListX, peakListY = ANS
                     if boolAns:
                         for i,peakX in enumerate(peakListX):
@@ -305,12 +313,29 @@ class pysotope(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                             curGauss, = self.plotWidget.canvas.ax.plot(peakX, peakY,'b', alpha = 0.5)
                             self.gaussAList.append(curGauss)
                 self.plotWidget.canvas.format_labels()
+                self.plotWidget.canvas.ax.autoscale_view(tight = False, scalex=True, scaley=True)
+#                self.setIsoLimits()
                 self.plotWidget.canvas.draw()
+            else:
+                print elemList
+                print "Element List Wonky"
 
-    def calcIsotopeB(self, formula, plotGauss = True):
-        '''
-        calculates isotope pattern from formula
-        '''
+    def removeIsoA(self):
+        if self.isoPlotA != None:
+            try:
+                self.isoPlotA.remove()
+            except:
+                print "IsoPlotA remove failed"
+
+        if len(self.gaussAList)>0:
+            try:
+                for peakSet in self.gaussAList:
+                    peakSet.remove()
+                self.gaussAList = []
+            except:
+                print "PeakSetA remove failed"
+
+    def removeIsoB(self):
         if self.isoPlotB != None:
             try:
                 self.isoPlotB.remove()
@@ -325,15 +350,29 @@ class pysotope(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             except:
                 print "PeakSetB remove failed"
 
+    def calcIsotopeB(self, formula, plotGauss = True):
+        '''
+        calculates isotope pattern from formula B
+        '''
+
+        self.removeIsoB()
+#        if not self.formulaA_CB.isChecked():
+#            self.removeIsoA()
+
         boolAns, elemList, elemComp = getAtoms(formula)
         print elemList, elemComp
         if boolAns:
             isoAns = isoCalc(elemList, elemComp, charge = 1)
             if isoAns[0]:
-#                self.plotWidget.canvas.ax.cla()
+#                if not self.formulaA_CB.isChecked():
+#                    self.removeIsoA()
+#                    self.plotWidget.canvas.ax.cla()
+                self.plotWidget.canvas.ax.cla()
+                self.isoMaxB = isoAns[1][0].max()
+                self.isoMinB = isoAns[1][0].min()
                 self.isoPlotB = self.plotWidget.canvas.ax.vlines(isoAns[1][0], 0, isoAns[1][1], 'b')
                 if plotGauss:
-                    ANS = self.calcGaussIsos(isoAns[1][0], isoAns[1][1])
+                    ANS = self.calcGaussIsos(isoAns[1][0], isoAns[1][1], self.isoResCalc_SB.value())
                     boolAns, peakListX, peakListY = ANS
                     if boolAns:
                         for i,peakX in enumerate(peakListX):
@@ -341,8 +380,12 @@ class pysotope(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                             curGauss, = self.plotWidget.canvas.ax.plot(peakX, peakY,'r', alpha = 0.5)
                             self.gaussBList.append(curGauss)
                 self.plotWidget.canvas.format_labels()
-                self.plotWidget.canvas.draw()
 
+#                self.setIsoLimits()
+                self.plotWidget.canvas.draw()
+            else:
+                print elemList
+                print "Element List Wonky"
 
     def normalize(self, arrayVals):
         if type(arrayVals) is list:
@@ -372,6 +415,7 @@ class pysotope(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
     def addPlot(self, data, dataLabels = None, title = None, xAxisTitle = None, yAxisTitle = None):
         if len(data) != 0:
             subPlot = MPL_Widget()
+            subPlot.addPicker()
             if title != None:
                 subPlot.setWindowTitle(title)
 
@@ -401,6 +445,11 @@ class pysotope(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.gaussAList = []
         self.isoPlotB = None
         self.gaussBList = []
+        self.isoMaxA = 0
+        self.isoMinA = 0
+        self.isoMaxB = 0
+        self.isoMinB = 0
+#        self.plotWidget.removePicker()
 
         self.svgWidget = periodicTableWidget()#QtSvg.QSvgWidget('periodicTable.svg')
         self.svgHLayout = QtGui.QHBoxLayout(self.periodTab)

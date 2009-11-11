@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Documents and Settings\d3p483\workspace\pysotope\main.ui'
+# Form implementation generated from reading ui file '/home/clowers/workspace/pysotope/main.ui'
 #
-# Created: Tue Nov 10 16:03:30 2009
-#      by: PyQt4 UI code generator 4.4.3
+# Created: Tue Nov 10 21:12:14 2009
+#      by: PyQt4 UI code generator 4.4.4
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -58,6 +58,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_2 = QtGui.QHBoxLayout()
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
         self.formulaA_CB = QtGui.QCheckBox(self.calcTab)
+        self.formulaA_CB.setChecked(True)
         self.formulaA_CB.setObjectName("formulaA_CB")
         self.horizontalLayout_2.addWidget(self.formulaA_CB)
         self.formulaInputA = QtGui.QLineEdit(self.calcTab)
@@ -77,6 +78,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_4 = QtGui.QHBoxLayout()
         self.horizontalLayout_4.setObjectName("horizontalLayout_4")
         self.formulaB_CB = QtGui.QCheckBox(self.calcTab)
+        self.formulaB_CB.setChecked(True)
         self.formulaB_CB.setObjectName("formulaB_CB")
         self.horizontalLayout_4.addWidget(self.formulaB_CB)
         self.formulaInputB = QtGui.QLineEdit(self.calcTab)
@@ -132,11 +134,23 @@ class Ui_MainWindow(object):
         self.db_YCols.setObjectName("db_YCols")
         self.verticalLayout_6.addWidget(self.db_YCols)
         self.horizontalLayout_3.addLayout(self.verticalLayout_6)
-        self.gridLayout.addLayout(self.horizontalLayout_3, 0, 0, 1, 1)
+        self.gridLayout.addLayout(self.horizontalLayout_3, 0, 0, 1, 2)
         self.horizontalLayout = QtGui.QHBoxLayout()
         self.horizontalLayout.setObjectName("horizontalLayout")
-        spacerItem = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
-        self.horizontalLayout.addItem(spacerItem)
+        self.label_3 = QtGui.QLabel(self.configTab)
+        self.label_3.setObjectName("label_3")
+        self.horizontalLayout.addWidget(self.label_3)
+        self.isoResCalc_SB = QtGui.QDoubleSpinBox(self.configTab)
+        self.isoResCalc_SB.setDecimals(1)
+        self.isoResCalc_SB.setMinimum(10.0)
+        self.isoResCalc_SB.setMaximum(10000000.0)
+        self.isoResCalc_SB.setSingleStep(500.0)
+        self.isoResCalc_SB.setProperty("value", QtCore.QVariant(10000.0))
+        self.isoResCalc_SB.setObjectName("isoResCalc_SB")
+        self.horizontalLayout.addWidget(self.isoResCalc_SB)
+        self.gridLayout.addLayout(self.horizontalLayout, 1, 1, 1, 1)
+        spacerItem = QtGui.QSpacerItem(856, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.gridLayout.addItem(spacerItem, 2, 0, 1, 1)
         self.verticalLayout = QtGui.QVBoxLayout()
         self.verticalLayout.setObjectName("verticalLayout")
         self.gridlayout = QtGui.QGridLayout()
@@ -180,14 +194,13 @@ class Ui_MainWindow(object):
         self.verticalLayout.addLayout(self.gridlayout)
         spacerItem1 = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
         self.verticalLayout.addItem(spacerItem1)
-        self.horizontalLayout.addLayout(self.verticalLayout)
-        self.gridLayout.addLayout(self.horizontalLayout, 1, 0, 1, 1)
+        self.gridLayout.addLayout(self.verticalLayout, 2, 1, 1, 1)
         self.mainTabWidget.addTab(self.configTab, "")
         self.hboxlayout.addWidget(self.mainTabWidget)
         self.verticalLayout_2.addLayout(self.hboxlayout)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1150, 22))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1150, 23))
         font = QtGui.QFont()
         font.setFamily("Arial")
         font.setWeight(50)
@@ -348,22 +361,33 @@ class Ui_MainWindow(object):
         self.toolBar.addAction(self.actionTools)
 
         self.retranslateUi(MainWindow)
-        self.mainTabWidget.setCurrentIndex(0)
+        self.mainTabWidget.setCurrentIndex(1)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow", "pysotope", None, QtGui.QApplication.UnicodeUTF8))
         self.mainTabWidget.setTabText(self.mainTabWidget.indexOf(self.periodTab), QtGui.QApplication.translate("MainWindow", "Periodic Table", None, QtGui.QApplication.UnicodeUTF8))
-        self.formulaA_CB.setText(QtGui.QApplication.translate("MainWindow", "Forumla 1:", None, QtGui.QApplication.UnicodeUTF8))
+        self.formulaA_CB.setToolTip(QtGui.QApplication.translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:\'Arial\'; font-size:10pt; font-weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Plot the isotope pattern for formula A.</p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
+        self.formulaA_CB.setText(QtGui.QApplication.translate("MainWindow", "Forumla A:", None, QtGui.QApplication.UnicodeUTF8))
         self.calcFormulaA_Btn.setText(QtGui.QApplication.translate("MainWindow", "...", None, QtGui.QApplication.UnicodeUTF8))
         self.label.setText(QtGui.QApplication.translate("MainWindow", "g/mol", None, QtGui.QApplication.UnicodeUTF8))
-        self.formulaB_CB.setText(QtGui.QApplication.translate("MainWindow", "Formula 2:", None, QtGui.QApplication.UnicodeUTF8))
+        self.formulaB_CB.setToolTip(QtGui.QApplication.translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:\'Arial\'; font-size:10pt; font-weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Plot the isotope pattern for formula B.</p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
+        self.formulaB_CB.setText(QtGui.QApplication.translate("MainWindow", "Formula B:", None, QtGui.QApplication.UnicodeUTF8))
         self.calcFormulaB_Btn.setText(QtGui.QApplication.translate("MainWindow", "...", None, QtGui.QApplication.UnicodeUTF8))
         self.label_2.setText(QtGui.QApplication.translate("MainWindow", "g/mol", None, QtGui.QApplication.UnicodeUTF8))
         self.mainTabWidget.setTabText(self.mainTabWidget.indexOf(self.calcTab), QtGui.QApplication.translate("MainWindow", "MW Calculator", None, QtGui.QApplication.UnicodeUTF8))
         self.label_4.setText(QtGui.QApplication.translate("MainWindow", "Database Tables:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_5.setText(QtGui.QApplication.translate("MainWindow", "X-Axis:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_6.setText(QtGui.QApplication.translate("MainWindow", "Y-Axis:", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_3.setText(QtGui.QApplication.translate("MainWindow", "Isotope Calculation Resolution", None, QtGui.QApplication.UnicodeUTF8))
         self.updatePlotBtn.setText(QtGui.QApplication.translate("MainWindow", "Update Plot", None, QtGui.QApplication.UnicodeUTF8))
         self.clearPlotBtn.setText(QtGui.QApplication.translate("MainWindow", "Clear Plot", None, QtGui.QApplication.UnicodeUTF8))
         self.label_8.setText(QtGui.QApplication.translate("MainWindow", "Size Modifier:", None, QtGui.QApplication.UnicodeUTF8))

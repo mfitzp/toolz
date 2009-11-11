@@ -151,8 +151,14 @@ def getAtoms(formula):
 
         formula=re.sub(formula, '', formula)
 
+    elemOk = True
+    for elem in atoms:
+        if not elemDict.has_key(elem):
+            elemOk = False
+            return elemOk, atoms, numAtoms
 
-    return True, atoms, numAtoms
+
+    return elemOk, atoms, numAtoms
 
 
 def validateStr(potentialStr):

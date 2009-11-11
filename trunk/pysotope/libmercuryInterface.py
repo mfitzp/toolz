@@ -33,7 +33,12 @@
 #ideally we'd like to get a direct numpy interface to the std::vector class but
 #I was having a heck of time getting this to work on windows so this will have to suffice for now
 
-import libmercury as LM
+import sys
+if sys.platform == 'win32':
+    print 'win32'
+    import libmercury_win32 as LM
+else:
+    import libmercury as LM
 import numpy as N
 
 def mercury(elemComp, numIsotopes, elemMasses, elemAbundances, charge, pruneLim = 1e-5):
