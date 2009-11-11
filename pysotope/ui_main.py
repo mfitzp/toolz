@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Documents and Settings\d3p483\workspace\pysotope\main.ui'
 #
-# Created: Tue Nov 10 13:54:35 2009
+# Created: Tue Nov 10 16:03:30 2009
 #      by: PyQt4 UI code generator 4.4.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -12,7 +12,7 @@ from PyQt4 import QtCore, QtGui
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1030, 679)
+        MainWindow.resize(1150, 754)
         MainWindow.setMinimumSize(QtCore.QSize(0, 25))
         font = QtGui.QFont()
         font.setFamily("Arial")
@@ -32,6 +32,20 @@ class Ui_MainWindow(object):
         self.mainTabWidget.setObjectName("mainTabWidget")
         self.periodTab = QtGui.QWidget()
         self.periodTab.setObjectName("periodTab")
+        self.elemTableWidget = QtGui.QTableWidget(self.periodTab)
+        self.elemTableWidget.setEnabled(True)
+        self.elemTableWidget.setGeometry(QtCore.QRect(730, 10, 256, 584))
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.elemTableWidget.sizePolicy().hasHeightForWidth())
+        self.elemTableWidget.setSizePolicy(sizePolicy)
+        self.elemTableWidget.setShowGrid(False)
+        self.elemTableWidget.setRowCount(13)
+        self.elemTableWidget.setColumnCount(2)
+        self.elemTableWidget.setObjectName("elemTableWidget")
+        self.elemTableWidget.setColumnCount(2)
+        self.elemTableWidget.setRowCount(13)
         self.mainTabWidget.addTab(self.periodTab, "")
         self.calcTab = QtGui.QWidget()
         self.calcTab.setObjectName("calcTab")
@@ -170,24 +184,10 @@ class Ui_MainWindow(object):
         self.gridLayout.addLayout(self.horizontalLayout, 1, 0, 1, 1)
         self.mainTabWidget.addTab(self.configTab, "")
         self.hboxlayout.addWidget(self.mainTabWidget)
-        self.elemTableWidget = QtGui.QTableWidget(self.centralwidget)
-        self.elemTableWidget.setEnabled(True)
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.elemTableWidget.sizePolicy().hasHeightForWidth())
-        self.elemTableWidget.setSizePolicy(sizePolicy)
-        self.elemTableWidget.setShowGrid(False)
-        self.elemTableWidget.setRowCount(13)
-        self.elemTableWidget.setColumnCount(2)
-        self.elemTableWidget.setObjectName("elemTableWidget")
-        self.elemTableWidget.setColumnCount(2)
-        self.elemTableWidget.setRowCount(13)
-        self.hboxlayout.addWidget(self.elemTableWidget)
         self.verticalLayout_2.addLayout(self.hboxlayout)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1030, 22))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1150, 22))
         font = QtGui.QFont()
         font.setFamily("Arial")
         font.setWeight(50)
@@ -348,7 +348,7 @@ class Ui_MainWindow(object):
         self.toolBar.addAction(self.actionTools)
 
         self.retranslateUi(MainWindow)
-        self.mainTabWidget.setCurrentIndex(1)
+        self.mainTabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
