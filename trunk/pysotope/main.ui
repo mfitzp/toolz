@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1030</width>
-    <height>679</height>
+    <width>1150</width>
+    <height>754</height>
    </rect>
   </property>
   <property name="minimumSize" >
@@ -36,12 +36,57 @@
       <item>
        <widget class="QTabWidget" name="mainTabWidget" >
         <property name="currentIndex" >
-         <number>1</number>
+         <number>0</number>
         </property>
         <widget class="QWidget" name="periodTab" >
          <attribute name="title" >
           <string>Periodic Table</string>
          </attribute>
+         <widget class="QTableWidget" name="elemTableWidget" >
+          <property name="enabled" >
+           <bool>true</bool>
+          </property>
+          <property name="geometry" >
+           <rect>
+            <x>730</x>
+            <y>10</y>
+            <width>256</width>
+            <height>584</height>
+           </rect>
+          </property>
+          <property name="sizePolicy" >
+           <sizepolicy vsizetype="Expanding" hsizetype="Minimum" >
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="showGrid" >
+           <bool>false</bool>
+          </property>
+          <property name="rowCount" >
+           <number>13</number>
+          </property>
+          <property name="columnCount" >
+           <number>2</number>
+          </property>
+          <row/>
+          <row/>
+          <row/>
+          <row/>
+          <row/>
+          <row/>
+          <row/>
+          <row/>
+          <row/>
+          <row/>
+          <row/>
+          <row/>
+          <row/>
+          <column/>
+          <column/>
+         </widget>
+         <zorder>elemTableWidget</zorder>
+         <zorder>elemTableWidget</zorder>
         </widget>
         <widget class="QWidget" name="calcTab" >
          <attribute name="title" >
@@ -302,43 +347,6 @@
         </widget>
        </widget>
       </item>
-      <item>
-       <widget class="QTableWidget" name="elemTableWidget" >
-        <property name="enabled" >
-         <bool>true</bool>
-        </property>
-        <property name="sizePolicy" >
-         <sizepolicy vsizetype="Expanding" hsizetype="Minimum" >
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="showGrid" >
-         <bool>false</bool>
-        </property>
-        <property name="rowCount" >
-         <number>13</number>
-        </property>
-        <property name="columnCount" >
-         <number>2</number>
-        </property>
-        <row/>
-        <row/>
-        <row/>
-        <row/>
-        <row/>
-        <row/>
-        <row/>
-        <row/>
-        <row/>
-        <row/>
-        <row/>
-        <row/>
-        <row/>
-        <column/>
-        <column/>
-       </widget>
-      </item>
      </layout>
     </item>
    </layout>
@@ -348,7 +356,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1030</width>
+     <width>1150</width>
      <height>22</height>
     </rect>
    </property>

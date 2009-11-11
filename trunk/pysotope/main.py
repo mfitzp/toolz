@@ -34,7 +34,7 @@ import ui_main
 from mpl_custom_widget import MPL_Widget
 from mplElemIso import MPL_Widget as mplIso
 from pyelements import elemDict
-from elemParser import molmass, getAtoms
+from elemParser import molmass, getAtoms, TableofElementsList
 from isotopeCalc import isoCalc
 import gaussFunctions as GF
 #from xtandem_parser_class import XT_RESULTS
@@ -130,9 +130,8 @@ class pysotope(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 #        self.__additionalConnections__()
 #        self.__setMessages__()
 #        self.__initContextMenus__()
-#        self.__initVars__()
+        self.__initVars__()
         self.startup()
-
 
     def __initVars__(self):
         self.openTableList = []
@@ -360,6 +359,40 @@ class pysotope(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.plotWidget.canvas.draw()
         self.mainTabWidget.setCurrentIndex(1)
 
+    def plotEA(self):#plot electronic affinities
+        ea = []
+        elemList = []
+        for elem in TableofElementsList:
+            if elemDict.has_key(elem):
+                elemList.append(elem)
+                ea.append(elemDict[elem].eleaffin)
+        self.addPlot(ea, elemList, 'Electron Affinity of the Elements', 'Element #', 'Electron Affinity')
+
+
+    def addPlot(self, data, dataLabels = None, title = None, xAxisTitle = None, yAxisTitle = None):
+        if len(data) != 0:
+            subPlot = MPL_Widget()
+            if title != None:
+                subPlot.setWindowTitle(title)
+
+            ax1 = subPlot.canvas.ax
+#            plotTitle = 'EIC from %.2f to %.2f'%(mzLo, mzHi)
+#            ax1.set_title(plotTitle)
+#            ax1.title.set_fontsize(10)
+            if xAxisTitle != None:
+                subPlot.canvas.xtitle = xAxisTitle
+            if yAxisTitle != None:
+                subPlot.canvas.ytitle = yAxisTitle
+            if dataLabels != None:
+                subPlot.dataLabels = dataLabels
+                ax1.plot(data, '-or', alpha = 0.6, picker = 5)
+            else:
+                ax1.plot(data, '-or', alpha = 0.6)
+
+
+            subPlot.canvas.format_labels()
+            subPlot.show()
+            self.openPlotList.append(subPlot)
 
 
     def startup(self, dbName = None, startDB = True):
@@ -372,11 +405,14 @@ class pysotope(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.svgWidget = periodicTableWidget()#QtSvg.QSvgWidget('periodicTable.svg')
         self.svgHLayout = QtGui.QHBoxLayout(self.periodTab)
         self.svgHLayout.addWidget(self.svgWidget)
+        self.svgHLayout.addWidget(self.elemTableWidget)
         QtCore.QObject.connect(self.svgWidget, QtCore.SIGNAL("elementSelected(PyQt_PyObject)"), self.updateElemData)
         self.updateElemData(elemDict['H'])
         QtCore.QObject.connect(self.calcFormulaA_Btn, QtCore.SIGNAL("clicked()"), self.calcFormulaA)
         QtCore.QObject.connect(self.calcFormulaB_Btn, QtCore.SIGNAL("clicked()"), self.calcFormulaB)
 #        QtCore.QObject.connect(self.clearPlotBtn, QtCore.SIGNAL("clicked()"), self.clearPlot)
+        QtCore.QObject.connect(self.actionTools, QtCore.SIGNAL("triggered()"),self.__testFunc__)
+
 
 
 #        self.curFile = None
@@ -470,10 +506,11 @@ class pysotope(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 #        self.__setupPlot__()
 
     def __testFunc__(self):
+        self.plotEA()
 
-        if RD(self.loVal, self.hiVal, parent = self).exec_():
-            print self.loVal, self.hiVal
-            print "Ok"
+#        if RD(self.loVal, self.hiVal, parent = self).exec_():
+#            print self.loVal, self.hiVal
+#            print "Ok"
 #        else:
 #            print self.loVal, self.hiVal
 #            print "Cancel"
@@ -1506,7 +1543,9 @@ class pysotope(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
 ###########################################################
 
-#    def closeEvent(self,  event = None):
+    def closeEvent(self,  event = None):
+        self.closeOpenWindows()
+        pass
 #        if self.okToExit():
 #            self.closeOpenWindows()
 #            pass
