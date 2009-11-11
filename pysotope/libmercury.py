@@ -7,10 +7,6 @@
 import _libmercury
 import new
 new_instancemethod = new.instancemethod
-try:
-    _swig_property = property
-except NameError:
-    pass # Python < 2.2 doesn't have 'property'.
 def _swig_setattr_nondynamic(self,class_type,name,value,static=1):
     if (name == "thisown"): return self.this.own(value)
     if (name == "this"):
@@ -38,17 +34,7 @@ def _swig_repr(self):
     except: strthis = ""
     return "<%s.%s; %s >" % (self.__class__.__module__, self.__class__.__name__, strthis,)
 
-import types
-try:
-    _object = types.ObjectType
-    _newclass = 1
-except AttributeError:
-    class _object : pass
-    _newclass = 0
-del types
-
-
-class PySwigIterator(_object):
+class PySwigIterator:
     __swig_setmethods__ = {}
     __setattr__ = lambda self, name, value: _swig_setattr(self, PySwigIterator, name, value)
     __swig_getmethods__ = {}
@@ -57,204 +43,204 @@ class PySwigIterator(_object):
     __repr__ = _swig_repr
     __swig_destroy__ = _libmercury.delete_PySwigIterator
     __del__ = lambda self : None;
-    def value(*args): return _libmercury.PySwigIterator_value(*args)
-    def incr(*args): return _libmercury.PySwigIterator_incr(*args)
-    def decr(*args): return _libmercury.PySwigIterator_decr(*args)
-    def distance(*args): return _libmercury.PySwigIterator_distance(*args)
-    def equal(*args): return _libmercury.PySwigIterator_equal(*args)
-    def copy(*args): return _libmercury.PySwigIterator_copy(*args)
-    def next(*args): return _libmercury.PySwigIterator_next(*args)
-    def previous(*args): return _libmercury.PySwigIterator_previous(*args)
-    def advance(*args): return _libmercury.PySwigIterator_advance(*args)
-    def __eq__(*args): return _libmercury.PySwigIterator___eq__(*args)
-    def __ne__(*args): return _libmercury.PySwigIterator___ne__(*args)
-    def __iadd__(*args): return _libmercury.PySwigIterator___iadd__(*args)
-    def __isub__(*args): return _libmercury.PySwigIterator___isub__(*args)
-    def __add__(*args): return _libmercury.PySwigIterator___add__(*args)
-    def __sub__(*args): return _libmercury.PySwigIterator___sub__(*args)
+    def value(*args): return apply(_libmercury.PySwigIterator_value, args)
+    def incr(*args): return apply(_libmercury.PySwigIterator_incr, args)
+    def decr(*args): return apply(_libmercury.PySwigIterator_decr, args)
+    def distance(*args): return apply(_libmercury.PySwigIterator_distance, args)
+    def equal(*args): return apply(_libmercury.PySwigIterator_equal, args)
+    def copy(*args): return apply(_libmercury.PySwigIterator_copy, args)
+    def next(*args): return apply(_libmercury.PySwigIterator_next, args)
+    def previous(*args): return apply(_libmercury.PySwigIterator_previous, args)
+    def advance(*args): return apply(_libmercury.PySwigIterator_advance, args)
+    def __eq__(*args): return apply(_libmercury.PySwigIterator___eq__, args)
+    def __ne__(*args): return apply(_libmercury.PySwigIterator___ne__, args)
+    def __iadd__(*args): return apply(_libmercury.PySwigIterator___iadd__, args)
+    def __isub__(*args): return apply(_libmercury.PySwigIterator___isub__, args)
+    def __add__(*args): return apply(_libmercury.PySwigIterator___add__, args)
+    def __sub__(*args): return apply(_libmercury.PySwigIterator___sub__, args)
     def __iter__(self): return self
 PySwigIterator_swigregister = _libmercury.PySwigIterator_swigregister
 PySwigIterator_swigregister(PySwigIterator)
 
-class IntVector(_object):
+class IntVector:
     __swig_setmethods__ = {}
     __setattr__ = lambda self, name, value: _swig_setattr(self, IntVector, name, value)
     __swig_getmethods__ = {}
     __getattr__ = lambda self, name: _swig_getattr(self, IntVector, name)
     __repr__ = _swig_repr
-    def iterator(*args): return _libmercury.IntVector_iterator(*args)
+    def iterator(*args): return apply(_libmercury.IntVector_iterator, args)
     def __iter__(self): return self.iterator()
-    def __nonzero__(*args): return _libmercury.IntVector___nonzero__(*args)
-    def __len__(*args): return _libmercury.IntVector___len__(*args)
-    def pop(*args): return _libmercury.IntVector_pop(*args)
-    def __getslice__(*args): return _libmercury.IntVector___getslice__(*args)
-    def __setslice__(*args): return _libmercury.IntVector___setslice__(*args)
-    def __delslice__(*args): return _libmercury.IntVector___delslice__(*args)
-    def __delitem__(*args): return _libmercury.IntVector___delitem__(*args)
-    def __getitem__(*args): return _libmercury.IntVector___getitem__(*args)
-    def __setitem__(*args): return _libmercury.IntVector___setitem__(*args)
-    def append(*args): return _libmercury.IntVector_append(*args)
-    def empty(*args): return _libmercury.IntVector_empty(*args)
-    def size(*args): return _libmercury.IntVector_size(*args)
-    def clear(*args): return _libmercury.IntVector_clear(*args)
-    def swap(*args): return _libmercury.IntVector_swap(*args)
-    def get_allocator(*args): return _libmercury.IntVector_get_allocator(*args)
-    def begin(*args): return _libmercury.IntVector_begin(*args)
-    def end(*args): return _libmercury.IntVector_end(*args)
-    def rbegin(*args): return _libmercury.IntVector_rbegin(*args)
-    def rend(*args): return _libmercury.IntVector_rend(*args)
-    def pop_back(*args): return _libmercury.IntVector_pop_back(*args)
-    def erase(*args): return _libmercury.IntVector_erase(*args)
+    def __nonzero__(*args): return apply(_libmercury.IntVector___nonzero__, args)
+    def __len__(*args): return apply(_libmercury.IntVector___len__, args)
+    def pop(*args): return apply(_libmercury.IntVector_pop, args)
+    def __getslice__(*args): return apply(_libmercury.IntVector___getslice__, args)
+    def __setslice__(*args): return apply(_libmercury.IntVector___setslice__, args)
+    def __delslice__(*args): return apply(_libmercury.IntVector___delslice__, args)
+    def __delitem__(*args): return apply(_libmercury.IntVector___delitem__, args)
+    def __getitem__(*args): return apply(_libmercury.IntVector___getitem__, args)
+    def __setitem__(*args): return apply(_libmercury.IntVector___setitem__, args)
+    def append(*args): return apply(_libmercury.IntVector_append, args)
+    def empty(*args): return apply(_libmercury.IntVector_empty, args)
+    def size(*args): return apply(_libmercury.IntVector_size, args)
+    def clear(*args): return apply(_libmercury.IntVector_clear, args)
+    def swap(*args): return apply(_libmercury.IntVector_swap, args)
+    def get_allocator(*args): return apply(_libmercury.IntVector_get_allocator, args)
+    def begin(*args): return apply(_libmercury.IntVector_begin, args)
+    def end(*args): return apply(_libmercury.IntVector_end, args)
+    def rbegin(*args): return apply(_libmercury.IntVector_rbegin, args)
+    def rend(*args): return apply(_libmercury.IntVector_rend, args)
+    def pop_back(*args): return apply(_libmercury.IntVector_pop_back, args)
+    def erase(*args): return apply(_libmercury.IntVector_erase, args)
     def __init__(self, *args): 
-        this = _libmercury.new_IntVector(*args)
+        this = apply(_libmercury.new_IntVector, args)
         try: self.this.append(this)
         except: self.this = this
-    def push_back(*args): return _libmercury.IntVector_push_back(*args)
-    def front(*args): return _libmercury.IntVector_front(*args)
-    def back(*args): return _libmercury.IntVector_back(*args)
-    def assign(*args): return _libmercury.IntVector_assign(*args)
-    def resize(*args): return _libmercury.IntVector_resize(*args)
-    def insert(*args): return _libmercury.IntVector_insert(*args)
-    def reserve(*args): return _libmercury.IntVector_reserve(*args)
-    def capacity(*args): return _libmercury.IntVector_capacity(*args)
+    def push_back(*args): return apply(_libmercury.IntVector_push_back, args)
+    def front(*args): return apply(_libmercury.IntVector_front, args)
+    def back(*args): return apply(_libmercury.IntVector_back, args)
+    def assign(*args): return apply(_libmercury.IntVector_assign, args)
+    def resize(*args): return apply(_libmercury.IntVector_resize, args)
+    def insert(*args): return apply(_libmercury.IntVector_insert, args)
+    def reserve(*args): return apply(_libmercury.IntVector_reserve, args)
+    def capacity(*args): return apply(_libmercury.IntVector_capacity, args)
     __swig_destroy__ = _libmercury.delete_IntVector
     __del__ = lambda self : None;
 IntVector_swigregister = _libmercury.IntVector_swigregister
 IntVector_swigregister(IntVector)
 
-class DoubleVector(_object):
+class DoubleVector:
     __swig_setmethods__ = {}
     __setattr__ = lambda self, name, value: _swig_setattr(self, DoubleVector, name, value)
     __swig_getmethods__ = {}
     __getattr__ = lambda self, name: _swig_getattr(self, DoubleVector, name)
     __repr__ = _swig_repr
-    def iterator(*args): return _libmercury.DoubleVector_iterator(*args)
+    def iterator(*args): return apply(_libmercury.DoubleVector_iterator, args)
     def __iter__(self): return self.iterator()
-    def __nonzero__(*args): return _libmercury.DoubleVector___nonzero__(*args)
-    def __len__(*args): return _libmercury.DoubleVector___len__(*args)
-    def pop(*args): return _libmercury.DoubleVector_pop(*args)
-    def __getslice__(*args): return _libmercury.DoubleVector___getslice__(*args)
-    def __setslice__(*args): return _libmercury.DoubleVector___setslice__(*args)
-    def __delslice__(*args): return _libmercury.DoubleVector___delslice__(*args)
-    def __delitem__(*args): return _libmercury.DoubleVector___delitem__(*args)
-    def __getitem__(*args): return _libmercury.DoubleVector___getitem__(*args)
-    def __setitem__(*args): return _libmercury.DoubleVector___setitem__(*args)
-    def append(*args): return _libmercury.DoubleVector_append(*args)
-    def empty(*args): return _libmercury.DoubleVector_empty(*args)
-    def size(*args): return _libmercury.DoubleVector_size(*args)
-    def clear(*args): return _libmercury.DoubleVector_clear(*args)
-    def swap(*args): return _libmercury.DoubleVector_swap(*args)
-    def get_allocator(*args): return _libmercury.DoubleVector_get_allocator(*args)
-    def begin(*args): return _libmercury.DoubleVector_begin(*args)
-    def end(*args): return _libmercury.DoubleVector_end(*args)
-    def rbegin(*args): return _libmercury.DoubleVector_rbegin(*args)
-    def rend(*args): return _libmercury.DoubleVector_rend(*args)
-    def pop_back(*args): return _libmercury.DoubleVector_pop_back(*args)
-    def erase(*args): return _libmercury.DoubleVector_erase(*args)
+    def __nonzero__(*args): return apply(_libmercury.DoubleVector___nonzero__, args)
+    def __len__(*args): return apply(_libmercury.DoubleVector___len__, args)
+    def pop(*args): return apply(_libmercury.DoubleVector_pop, args)
+    def __getslice__(*args): return apply(_libmercury.DoubleVector___getslice__, args)
+    def __setslice__(*args): return apply(_libmercury.DoubleVector___setslice__, args)
+    def __delslice__(*args): return apply(_libmercury.DoubleVector___delslice__, args)
+    def __delitem__(*args): return apply(_libmercury.DoubleVector___delitem__, args)
+    def __getitem__(*args): return apply(_libmercury.DoubleVector___getitem__, args)
+    def __setitem__(*args): return apply(_libmercury.DoubleVector___setitem__, args)
+    def append(*args): return apply(_libmercury.DoubleVector_append, args)
+    def empty(*args): return apply(_libmercury.DoubleVector_empty, args)
+    def size(*args): return apply(_libmercury.DoubleVector_size, args)
+    def clear(*args): return apply(_libmercury.DoubleVector_clear, args)
+    def swap(*args): return apply(_libmercury.DoubleVector_swap, args)
+    def get_allocator(*args): return apply(_libmercury.DoubleVector_get_allocator, args)
+    def begin(*args): return apply(_libmercury.DoubleVector_begin, args)
+    def end(*args): return apply(_libmercury.DoubleVector_end, args)
+    def rbegin(*args): return apply(_libmercury.DoubleVector_rbegin, args)
+    def rend(*args): return apply(_libmercury.DoubleVector_rend, args)
+    def pop_back(*args): return apply(_libmercury.DoubleVector_pop_back, args)
+    def erase(*args): return apply(_libmercury.DoubleVector_erase, args)
     def __init__(self, *args): 
-        this = _libmercury.new_DoubleVector(*args)
+        this = apply(_libmercury.new_DoubleVector, args)
         try: self.this.append(this)
         except: self.this = this
-    def push_back(*args): return _libmercury.DoubleVector_push_back(*args)
-    def front(*args): return _libmercury.DoubleVector_front(*args)
-    def back(*args): return _libmercury.DoubleVector_back(*args)
-    def assign(*args): return _libmercury.DoubleVector_assign(*args)
-    def resize(*args): return _libmercury.DoubleVector_resize(*args)
-    def insert(*args): return _libmercury.DoubleVector_insert(*args)
-    def reserve(*args): return _libmercury.DoubleVector_reserve(*args)
-    def capacity(*args): return _libmercury.DoubleVector_capacity(*args)
+    def push_back(*args): return apply(_libmercury.DoubleVector_push_back, args)
+    def front(*args): return apply(_libmercury.DoubleVector_front, args)
+    def back(*args): return apply(_libmercury.DoubleVector_back, args)
+    def assign(*args): return apply(_libmercury.DoubleVector_assign, args)
+    def resize(*args): return apply(_libmercury.DoubleVector_resize, args)
+    def insert(*args): return apply(_libmercury.DoubleVector_insert, args)
+    def reserve(*args): return apply(_libmercury.DoubleVector_reserve, args)
+    def capacity(*args): return apply(_libmercury.DoubleVector_capacity, args)
     __swig_destroy__ = _libmercury.delete_DoubleVector
     __del__ = lambda self : None;
 DoubleVector_swigregister = _libmercury.DoubleVector_swigregister
 DoubleVector_swigregister(DoubleVector)
 
-class UnsignedIntVector(_object):
+class UnsignedIntVector:
     __swig_setmethods__ = {}
     __setattr__ = lambda self, name, value: _swig_setattr(self, UnsignedIntVector, name, value)
     __swig_getmethods__ = {}
     __getattr__ = lambda self, name: _swig_getattr(self, UnsignedIntVector, name)
     __repr__ = _swig_repr
-    def iterator(*args): return _libmercury.UnsignedIntVector_iterator(*args)
+    def iterator(*args): return apply(_libmercury.UnsignedIntVector_iterator, args)
     def __iter__(self): return self.iterator()
-    def __nonzero__(*args): return _libmercury.UnsignedIntVector___nonzero__(*args)
-    def __len__(*args): return _libmercury.UnsignedIntVector___len__(*args)
-    def pop(*args): return _libmercury.UnsignedIntVector_pop(*args)
-    def __getslice__(*args): return _libmercury.UnsignedIntVector___getslice__(*args)
-    def __setslice__(*args): return _libmercury.UnsignedIntVector___setslice__(*args)
-    def __delslice__(*args): return _libmercury.UnsignedIntVector___delslice__(*args)
-    def __delitem__(*args): return _libmercury.UnsignedIntVector___delitem__(*args)
-    def __getitem__(*args): return _libmercury.UnsignedIntVector___getitem__(*args)
-    def __setitem__(*args): return _libmercury.UnsignedIntVector___setitem__(*args)
-    def append(*args): return _libmercury.UnsignedIntVector_append(*args)
-    def empty(*args): return _libmercury.UnsignedIntVector_empty(*args)
-    def size(*args): return _libmercury.UnsignedIntVector_size(*args)
-    def clear(*args): return _libmercury.UnsignedIntVector_clear(*args)
-    def swap(*args): return _libmercury.UnsignedIntVector_swap(*args)
-    def get_allocator(*args): return _libmercury.UnsignedIntVector_get_allocator(*args)
-    def begin(*args): return _libmercury.UnsignedIntVector_begin(*args)
-    def end(*args): return _libmercury.UnsignedIntVector_end(*args)
-    def rbegin(*args): return _libmercury.UnsignedIntVector_rbegin(*args)
-    def rend(*args): return _libmercury.UnsignedIntVector_rend(*args)
-    def pop_back(*args): return _libmercury.UnsignedIntVector_pop_back(*args)
-    def erase(*args): return _libmercury.UnsignedIntVector_erase(*args)
+    def __nonzero__(*args): return apply(_libmercury.UnsignedIntVector___nonzero__, args)
+    def __len__(*args): return apply(_libmercury.UnsignedIntVector___len__, args)
+    def pop(*args): return apply(_libmercury.UnsignedIntVector_pop, args)
+    def __getslice__(*args): return apply(_libmercury.UnsignedIntVector___getslice__, args)
+    def __setslice__(*args): return apply(_libmercury.UnsignedIntVector___setslice__, args)
+    def __delslice__(*args): return apply(_libmercury.UnsignedIntVector___delslice__, args)
+    def __delitem__(*args): return apply(_libmercury.UnsignedIntVector___delitem__, args)
+    def __getitem__(*args): return apply(_libmercury.UnsignedIntVector___getitem__, args)
+    def __setitem__(*args): return apply(_libmercury.UnsignedIntVector___setitem__, args)
+    def append(*args): return apply(_libmercury.UnsignedIntVector_append, args)
+    def empty(*args): return apply(_libmercury.UnsignedIntVector_empty, args)
+    def size(*args): return apply(_libmercury.UnsignedIntVector_size, args)
+    def clear(*args): return apply(_libmercury.UnsignedIntVector_clear, args)
+    def swap(*args): return apply(_libmercury.UnsignedIntVector_swap, args)
+    def get_allocator(*args): return apply(_libmercury.UnsignedIntVector_get_allocator, args)
+    def begin(*args): return apply(_libmercury.UnsignedIntVector_begin, args)
+    def end(*args): return apply(_libmercury.UnsignedIntVector_end, args)
+    def rbegin(*args): return apply(_libmercury.UnsignedIntVector_rbegin, args)
+    def rend(*args): return apply(_libmercury.UnsignedIntVector_rend, args)
+    def pop_back(*args): return apply(_libmercury.UnsignedIntVector_pop_back, args)
+    def erase(*args): return apply(_libmercury.UnsignedIntVector_erase, args)
     def __init__(self, *args): 
-        this = _libmercury.new_UnsignedIntVector(*args)
+        this = apply(_libmercury.new_UnsignedIntVector, args)
         try: self.this.append(this)
         except: self.this = this
-    def push_back(*args): return _libmercury.UnsignedIntVector_push_back(*args)
-    def front(*args): return _libmercury.UnsignedIntVector_front(*args)
-    def back(*args): return _libmercury.UnsignedIntVector_back(*args)
-    def assign(*args): return _libmercury.UnsignedIntVector_assign(*args)
-    def resize(*args): return _libmercury.UnsignedIntVector_resize(*args)
-    def insert(*args): return _libmercury.UnsignedIntVector_insert(*args)
-    def reserve(*args): return _libmercury.UnsignedIntVector_reserve(*args)
-    def capacity(*args): return _libmercury.UnsignedIntVector_capacity(*args)
+    def push_back(*args): return apply(_libmercury.UnsignedIntVector_push_back, args)
+    def front(*args): return apply(_libmercury.UnsignedIntVector_front, args)
+    def back(*args): return apply(_libmercury.UnsignedIntVector_back, args)
+    def assign(*args): return apply(_libmercury.UnsignedIntVector_assign, args)
+    def resize(*args): return apply(_libmercury.UnsignedIntVector_resize, args)
+    def insert(*args): return apply(_libmercury.UnsignedIntVector_insert, args)
+    def reserve(*args): return apply(_libmercury.UnsignedIntVector_reserve, args)
+    def capacity(*args): return apply(_libmercury.UnsignedIntVector_capacity, args)
     __swig_destroy__ = _libmercury.delete_UnsignedIntVector
     __del__ = lambda self : None;
 UnsignedIntVector_swigregister = _libmercury.UnsignedIntVector_swigregister
 UnsignedIntVector_swigregister(UnsignedIntVector)
 
-class MultDimVector(_object):
+class MultDimVector:
     __swig_setmethods__ = {}
     __setattr__ = lambda self, name, value: _swig_setattr(self, MultDimVector, name, value)
     __swig_getmethods__ = {}
     __getattr__ = lambda self, name: _swig_getattr(self, MultDimVector, name)
     __repr__ = _swig_repr
-    def iterator(*args): return _libmercury.MultDimVector_iterator(*args)
+    def iterator(*args): return apply(_libmercury.MultDimVector_iterator, args)
     def __iter__(self): return self.iterator()
-    def __nonzero__(*args): return _libmercury.MultDimVector___nonzero__(*args)
-    def __len__(*args): return _libmercury.MultDimVector___len__(*args)
-    def pop(*args): return _libmercury.MultDimVector_pop(*args)
-    def __getslice__(*args): return _libmercury.MultDimVector___getslice__(*args)
-    def __setslice__(*args): return _libmercury.MultDimVector___setslice__(*args)
-    def __delslice__(*args): return _libmercury.MultDimVector___delslice__(*args)
-    def __delitem__(*args): return _libmercury.MultDimVector___delitem__(*args)
-    def __getitem__(*args): return _libmercury.MultDimVector___getitem__(*args)
-    def __setitem__(*args): return _libmercury.MultDimVector___setitem__(*args)
-    def append(*args): return _libmercury.MultDimVector_append(*args)
-    def empty(*args): return _libmercury.MultDimVector_empty(*args)
-    def size(*args): return _libmercury.MultDimVector_size(*args)
-    def clear(*args): return _libmercury.MultDimVector_clear(*args)
-    def swap(*args): return _libmercury.MultDimVector_swap(*args)
-    def get_allocator(*args): return _libmercury.MultDimVector_get_allocator(*args)
-    def begin(*args): return _libmercury.MultDimVector_begin(*args)
-    def end(*args): return _libmercury.MultDimVector_end(*args)
-    def rbegin(*args): return _libmercury.MultDimVector_rbegin(*args)
-    def rend(*args): return _libmercury.MultDimVector_rend(*args)
-    def pop_back(*args): return _libmercury.MultDimVector_pop_back(*args)
-    def erase(*args): return _libmercury.MultDimVector_erase(*args)
+    def __nonzero__(*args): return apply(_libmercury.MultDimVector___nonzero__, args)
+    def __len__(*args): return apply(_libmercury.MultDimVector___len__, args)
+    def pop(*args): return apply(_libmercury.MultDimVector_pop, args)
+    def __getslice__(*args): return apply(_libmercury.MultDimVector___getslice__, args)
+    def __setslice__(*args): return apply(_libmercury.MultDimVector___setslice__, args)
+    def __delslice__(*args): return apply(_libmercury.MultDimVector___delslice__, args)
+    def __delitem__(*args): return apply(_libmercury.MultDimVector___delitem__, args)
+    def __getitem__(*args): return apply(_libmercury.MultDimVector___getitem__, args)
+    def __setitem__(*args): return apply(_libmercury.MultDimVector___setitem__, args)
+    def append(*args): return apply(_libmercury.MultDimVector_append, args)
+    def empty(*args): return apply(_libmercury.MultDimVector_empty, args)
+    def size(*args): return apply(_libmercury.MultDimVector_size, args)
+    def clear(*args): return apply(_libmercury.MultDimVector_clear, args)
+    def swap(*args): return apply(_libmercury.MultDimVector_swap, args)
+    def get_allocator(*args): return apply(_libmercury.MultDimVector_get_allocator, args)
+    def begin(*args): return apply(_libmercury.MultDimVector_begin, args)
+    def end(*args): return apply(_libmercury.MultDimVector_end, args)
+    def rbegin(*args): return apply(_libmercury.MultDimVector_rbegin, args)
+    def rend(*args): return apply(_libmercury.MultDimVector_rend, args)
+    def pop_back(*args): return apply(_libmercury.MultDimVector_pop_back, args)
+    def erase(*args): return apply(_libmercury.MultDimVector_erase, args)
     def __init__(self, *args): 
-        this = _libmercury.new_MultDimVector(*args)
+        this = apply(_libmercury.new_MultDimVector, args)
         try: self.this.append(this)
         except: self.this = this
-    def push_back(*args): return _libmercury.MultDimVector_push_back(*args)
-    def front(*args): return _libmercury.MultDimVector_front(*args)
-    def back(*args): return _libmercury.MultDimVector_back(*args)
-    def assign(*args): return _libmercury.MultDimVector_assign(*args)
-    def resize(*args): return _libmercury.MultDimVector_resize(*args)
-    def insert(*args): return _libmercury.MultDimVector_insert(*args)
-    def reserve(*args): return _libmercury.MultDimVector_reserve(*args)
-    def capacity(*args): return _libmercury.MultDimVector_capacity(*args)
+    def push_back(*args): return apply(_libmercury.MultDimVector_push_back, args)
+    def front(*args): return apply(_libmercury.MultDimVector_front, args)
+    def back(*args): return apply(_libmercury.MultDimVector_back, args)
+    def assign(*args): return apply(_libmercury.MultDimVector_assign, args)
+    def resize(*args): return apply(_libmercury.MultDimVector_resize, args)
+    def insert(*args): return apply(_libmercury.MultDimVector_insert, args)
+    def reserve(*args): return apply(_libmercury.MultDimVector_reserve, args)
+    def capacity(*args): return apply(_libmercury.MultDimVector_capacity, args)
     __swig_destroy__ = _libmercury.delete_MultDimVector
     __del__ = lambda self : None;
 MultDimVector_swigregister = _libmercury.MultDimVector_swigregister

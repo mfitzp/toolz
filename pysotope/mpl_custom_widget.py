@@ -54,6 +54,14 @@ class MyMplCanvas(FigureCanvas):
     	labels_x = self.ax.get_xticklabels()
     	labels_y = self.ax.get_yticklabels()
 
+#        yfmt = self.ax.yaxis.get_major_formatter()
+#        xfmt = self.ax.xaxis.get_major_formatter()
+#        yfmt.set_powerlimits((-3, 2))
+#        xfmt.set_powerlimits((-3, 2))
+#        yfmt.set_scientific(True)
+#        xfmt.set_scientific(True)
+
+
     	for xlabel in labels_x:
     		xlabel.set_fontsize(8)
     	for ylabel in labels_y:
@@ -119,7 +127,6 @@ class MPL_Widget(QtGui.QWidget):
         QtCore.QObject.connect(self.actionAutoScale,QtCore.SIGNAL("triggered()"), self.autoscale_plot)
 
         self.dataLabels = None
-        self.__setupPlot__()
 
         self.installEventFilter(EventFilter(self))
 
@@ -169,10 +176,17 @@ class MPL_Widget(QtGui.QWidget):
         QtCore.QObject.disconnect(self.mpl2ClipAction,QtCore.SIGNAL("triggered()"), self.mpl2Clip)
         self.removeAction(self.mpl2ClipAction)
 
-    def __setupPlot__(self):
+    def removePicker(self):
+        try:
+            self.handleA.remove()
+        except:
+            print ""
+
+    def addPicker(self):
         '''Sets up the plot variables used for interaction'''
+        print "SetupPlot"
         self.handleA,  = self.canvas.ax.plot([0], [0], 'o',\
-                                        ms=8, alpha=.5, color='yellow', visible=False,  label = '_nolegend_')
+                                        ms=8, alpha=.5, color='yellow', visible=True,  label = '_nolegend_')
         self.is_hZoom = False
         self.canvas.mpl_connect('pick_event', self.OnPickPlot)
 

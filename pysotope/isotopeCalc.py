@@ -16,38 +16,41 @@ def isoCalc(elemList, elemComp, charge = 1):
     interface to mercury calc to get user defined isotope patterns
     Limiting the maximum isotopes to be considered to 5
     '''
-    if len(elemList)== 0 or len(elemComp) == 0:
-        return False
+    try:
 
-    if len(elemList) != len(elemComp):
-        return False
+        if len(elemList)== 0 or len(elemComp) == 0:
+            return False
 
-    maxIsotopes = 7
-    numElements = len(elemList)
-    numIsotopes = N.zeros(maxIsotopes, dtype = N.int)
+        if len(elemList) != len(elemComp):
+            return False
 
-    elemMasses = N.zeros((numElements, maxIsotopes))
-    elemAbundances = N.zeros((numElements, maxIsotopes))
+        maxIsotopes = 7
+        numElements = len(elemList)
+        numIsotopes = N.zeros(maxIsotopes, dtype = N.int)
 
-    for i,elem in enumerate(elemList):
-        if elemDict.has_key(elem):
-            tempIsos = elemDict[elem].isotopes
-            tempOrder = []
-            tempOrder = N.array(tempOrder)
-            orderInd = tempOrder.argsort()
-#            print orderInd
-#            tempIsos = tempIsos[maxOrder]
-            maxIso = len(tempIsos)
-            if maxIso > maxIsotopes:
-                maxIso = maxIsotopes
-            numIsotopes[i] = int(maxIso)
-            for j in xrange(maxIso):
-                #each iso is a tuple that is the (nominal mass, isotope mass, isotope abundance)
-                iso = tempIsos[j]
-#                print elem, iso[1], iso[2]
-                elemMasses[i][j]=iso[1]
-                elemAbundances[i][j]=iso[2]
+        elemMasses = N.zeros((numElements, maxIsotopes))
+        elemAbundances = N.zeros((numElements, maxIsotopes))
 
+        for i,elem in enumerate(elemList):
+            if elemDict.has_key(elem):
+                tempIsos = elemDict[elem].isotopes
+                tempOrder = []
+                tempOrder = N.array(tempOrder)
+                orderInd = tempOrder.argsort()
+    #            print orderInd
+    #            tempIsos = tempIsos[maxOrder]
+                maxIso = len(tempIsos)
+                if maxIso > maxIsotopes:
+                    maxIso = maxIsotopes
+                numIsotopes[i] = int(maxIso)
+                for j in xrange(maxIso):
+                    #each iso is a tuple that is the (nominal mass, isotope mass, isotope abundance)
+                    iso = tempIsos[j]
+    #                print elem, iso[1], iso[2]
+                    elemMasses[i][j]=iso[1]
+                    elemAbundances[i][j]=iso[2]
+    except:
+        return [False, None]
 #    print elemList
 #    print elemMasses
 #    print elemAbundances
