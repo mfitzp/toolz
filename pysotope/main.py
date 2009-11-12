@@ -244,6 +244,8 @@ class pysotope(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         formulaStr = str(self.formulaInputA.text())
         if len(formulaStr)>0:
             mwAns = molmass(formulaStr)
+            charge = self.chargeA.value()
+            mwAns += self.electronMass*charge
             self.formulaA_MW_LE.setText(str(mwAns))
             self.calcIsotopeA(formulaStr, self.formulaA_CB.isChecked())
 
@@ -251,6 +253,8 @@ class pysotope(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         formulaStr = str(self.formulaInputB.text())
         if len(formulaStr)>0:
             mwAns = molmass(formulaStr)
+            charge = self.chargeB.value()
+            mwAns += self.electronMass*charge
             self.formulaB_MW_LE.setText(str(mwAns))
             self.calcIsotopeB(formulaStr, self.formulaB_CB.isChecked())
 
@@ -268,85 +272,112 @@ class pysotope(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         else:
             return False, None, None
 
-    def setIsoLimits(self):
+    def plotIsos(self):
+        if len(self.isoCentroidsA) > 0:
+            self.plotWidget.canvas.ax.vlines(self.isoCentroidsA[0], 0, self.isoCentroidsA[1], 'r', label = '_nolegend_')
 
-        if self.isoMaxA >= self.isoMaxB:
-            xMax = self.isoMaxA*1.01
-        else:
-            xMax = self.isoMaxB*1.01
-        if self.isoMinA <= self.isoMinB:
-            if self.isoMinA != 0:
-                xMin = self.isoMinA
-            else:
-                xMin = self.isoMinB
-        else:
-            if self.isoMinB != 0:
-                xMin = self.isoMinB-self.isoMaxB*.01
-            else:
-                xMin = self.isoMinA-self.isoMaxA*.01
+        if len(self.isoCentroidsB) > 0:
+            self.plotWidget.canvas.ax.vlines(self.isoCentroidsB[0], 0, self.isoCentroidsB[1], 'b', label = '_nolegend_')
 
-        self.plotWidget.canvas.ax.set_xlim(xmin = xMin, xmax = xMax)
+        if self.formulaA_CB.isChecked():
+            if len(self.isoTracesA)>0:
+                for i,trace in enumerate(self.isoTracesA):
+                    if i == 0:
+                        labelStrA = str(self.formulaInputA.text())+' +'+str(self.chargeA.value())
+                        self.plotWidget.canvas.ax.plot(trace[0], trace[1],'b', alpha = 0.5, label = labelStrA)
+                    else:
+                        self.plotWidget.canvas.ax.plot(trace[0], trace[1],'b', alpha = 0.5)
+
+        if self.formulaB_CB.isChecked():
+            if len(self.isoTracesB)>0:
+                for i,trace in enumerate(self.isoTracesB):
+                    if i == 0:
+                        labelStrB = str(self.formulaInputB.text())+' +'+str(self.chargeB.value())
+                        self.plotWidget.canvas.ax.plot(trace[0], trace[1],'r', alpha = 0.5, label = labelStrB)
+                    else:
+                        self.plotWidget.canvas.ax.plot(trace[0], trace[1],'r', alpha = 0.5)
+        self.plotWidget.canvas.format_labels()
+        self.plotWidget.canvas.ax.set_ylim(ymin = -0.01)
+        self.plotWidget.canvas.ax.legend()
+#        self.plotWidget.canvas.ax.autoscale_view(tight = False, scalex=True, scaley=True)
+        self.plotWidget.canvas.draw()
+
+#    def setIsoLimits(self):
+#
+#        if self.isoMaxA >= self.isoMaxB:
+#            xMax = self.isoMaxA*1.01
+#        else:
+#            xMax = self.isoMaxB*1.01
+#        if self.isoMinA <= self.isoMinB:
+#            if self.isoMinA != 0:
+#                xMin = self.isoMinA
+#            else:
+#                xMin = self.isoMinB
+#        else:
+#            if self.isoMinB != 0:
+#                xMin = self.isoMinB-self.isoMaxB*.01
+#            else:
+#                xMin = self.isoMinA-self.isoMaxA*.01
+#
+#        self.plotWidget.canvas.ax.set_xlim(xmin = xMin, xmax = xMax)
 
     def calcIsotopeA(self, formula, plotGauss = True):
         '''
         calculates isotope pattern from formula A
         '''
-        self.removeIsoA()
-
         boolAns, elemList, elemComp = getAtoms(formula)
         print elemList, elemComp
         if boolAns:
-            isoAns = isoCalc(elemList, elemComp, charge = 1)
-            if isoAns[0]:
-#                if not self.formulaB_CB.isChecked():
-#                    self.removeIsoB()
-#                    self.plotWidget.canvas.ax.cla()
-                self.isoMaxA = isoAns[1][0].max()
-                self.isoMinA = isoAns[1][0].min()
-                self.isoPlotA = self.plotWidget.canvas.ax.vlines(isoAns[1][0], 0, isoAns[1][1], 'r')
-                if plotGauss:
-                    ANS = self.calcGaussIsos(isoAns[1][0], isoAns[1][1], self.isoResCalc_SB.value())
+            if plotGauss:
+                isoAns = isoCalc(elemList, elemComp, charge = self.chargeA.value())
+                if isoAns[0]:
+                    self.plotWidget.canvas.ax.cla()
+                    self.isoCentroidsA = []
+                    if not self.formulaB_CB.isChecked():
+                        self.isoCentroidsB = []
+                        self.isoTracesB = []
+
+                    self.isoCentroidsA.append(isoAns[1][0])
+                    self.isoCentroidsA.append(isoAns[1][1])
+                    ANS = self.calcGaussIsos(self.isoCentroidsA[0], self.isoCentroidsA[1], self.isoResCalc_SB.value())
                     boolAns, peakListX, peakListY = ANS
+                    self.isoTracesA = []
                     if boolAns:
                         for i,peakX in enumerate(peakListX):
                             peakY = peakListY[i]
-                            curGauss, = self.plotWidget.canvas.ax.plot(peakX, peakY,'b', alpha = 0.5)
-                            self.gaussAList.append(curGauss)
-                self.plotWidget.canvas.format_labels()
-                self.plotWidget.canvas.ax.autoscale_view(tight = False, scalex=True, scaley=True)
-#                self.setIsoLimits()
-                self.plotWidget.canvas.draw()
+                            self.isoTracesA.append([peakX, peakY])
+                self.plotIsos()
             else:
                 print elemList
                 print "Element List Wonky"
 
     def removeIsoA(self):
-        if self.isoPlotA != None:
+        if self.isoCentroidsA != None:
             try:
-                self.isoPlotA.remove()
+                self.isoCentroidsA.remove()
             except:
                 print "IsoPlotA remove failed"
 
-        if len(self.gaussAList)>0:
+        if len(self.isoTracesA)>0:
             try:
-                for peakSet in self.gaussAList:
+                for peakSet in self.isoTracesA:
                     peakSet.remove()
-                self.gaussAList = []
+                self.isoTracesA = []
             except:
                 print "PeakSetA remove failed"
 
     def removeIsoB(self):
-        if self.isoPlotB != None:
+        if self.isoCentroidsB != None:
             try:
-                self.isoPlotB.remove()
+                self.isoCentroidsB.remove()
             except:
-                print "IsoPlotB remove failed"
+                print "IsoPlotA remove failed"
 
-        if len(self.gaussBList)>0:
+        if len(self.isoTracesB)>0:
             try:
-                for peakSet in self.gaussBList:
+                for peakSet in self.isoTracesB:
                     peakSet.remove()
-                self.gaussAList = []
+                self.isoTracesB = []
             except:
                 print "PeakSetB remove failed"
 
@@ -354,35 +385,28 @@ class pysotope(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         '''
         calculates isotope pattern from formula B
         '''
-
-        self.removeIsoB()
-#        if not self.formulaA_CB.isChecked():
-#            self.removeIsoA()
-
         boolAns, elemList, elemComp = getAtoms(formula)
         print elemList, elemComp
         if boolAns:
-            isoAns = isoCalc(elemList, elemComp, charge = 1)
-            if isoAns[0]:
-#                if not self.formulaA_CB.isChecked():
-#                    self.removeIsoA()
-#                    self.plotWidget.canvas.ax.cla()
-                self.plotWidget.canvas.ax.cla()
-                self.isoMaxB = isoAns[1][0].max()
-                self.isoMinB = isoAns[1][0].min()
-                self.isoPlotB = self.plotWidget.canvas.ax.vlines(isoAns[1][0], 0, isoAns[1][1], 'b')
-                if plotGauss:
-                    ANS = self.calcGaussIsos(isoAns[1][0], isoAns[1][1], self.isoResCalc_SB.value())
+            if plotGauss:
+                isoAns = isoCalc(elemList, elemComp, charge = self.chargeB.value())
+                if isoAns[0]:
+                    self.plotWidget.canvas.ax.cla()
+                    self.isoCentroidsB = []
+                    if not self.formulaA_CB.isChecked():
+                        self.isoCentroidsA = []
+                        self.isoTracesA = []
+
+                    self.isoCentroidsB.append(isoAns[1][0])
+                    self.isoCentroidsB.append(isoAns[1][1])
+                    ANS = self.calcGaussIsos(self.isoCentroidsB[0], self.isoCentroidsB[1], self.isoResCalc_SB.value())
                     boolAns, peakListX, peakListY = ANS
+                    self.isoTracesB = []
                     if boolAns:
                         for i,peakX in enumerate(peakListX):
                             peakY = peakListY[i]
-                            curGauss, = self.plotWidget.canvas.ax.plot(peakX, peakY,'r', alpha = 0.5)
-                            self.gaussBList.append(curGauss)
-                self.plotWidget.canvas.format_labels()
-
-#                self.setIsoLimits()
-                self.plotWidget.canvas.draw()
+                            self.isoTracesB.append([peakX, peakY])
+                self.plotIsos()
             else:
                 print elemList
                 print "Element List Wonky"
@@ -441,14 +465,11 @@ class pysotope(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
     def startup(self, dbName = None, startDB = True):
 
-        self.isoPlotA = None
-        self.gaussAList = []
-        self.isoPlotB = None
-        self.gaussBList = []
-        self.isoMaxA = 0
-        self.isoMinA = 0
-        self.isoMaxB = 0
-        self.isoMinB = 0
+        self.electronMass = 0.00054858
+        self.isoTracesA = []
+        self.isoTracesB = []
+        self.isoCentroidsA = []
+        self.isoCentroidsB = []
 #        self.plotWidget.removePicker()
 
         self.svgWidget = periodicTableWidget()#QtSvg.QSvgWidget('periodicTable.svg')

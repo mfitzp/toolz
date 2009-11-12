@@ -11,7 +11,7 @@ except:
     libmercuryOk = False
 
 
-def isoCalc(elemList, elemComp, charge = 1):
+def isoCalc(elemList, elemComp, charge = 0):
     '''
     interface to mercury calc to get user defined isotope patterns
     Limiting the maximum isotopes to be considered to 5

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/clowers/workspace/pysotope/main.ui'
 #
-# Created: Tue Nov 10 21:12:14 2009
+# Created: Wed Nov 11 20:58:12 2009
 #      by: PyQt4 UI code generator 4.4.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -74,6 +74,18 @@ class Ui_MainWindow(object):
         self.label = QtGui.QLabel(self.calcTab)
         self.label.setObjectName("label")
         self.horizontalLayout_2.addWidget(self.label)
+        self.line = QtGui.QFrame(self.calcTab)
+        self.line.setFrameShape(QtGui.QFrame.VLine)
+        self.line.setFrameShadow(QtGui.QFrame.Sunken)
+        self.line.setObjectName("line")
+        self.horizontalLayout_2.addWidget(self.line)
+        self.label_7 = QtGui.QLabel(self.calcTab)
+        self.label_7.setObjectName("label_7")
+        self.horizontalLayout_2.addWidget(self.label_7)
+        self.chargeA = QtGui.QSpinBox(self.calcTab)
+        self.chargeA.setMinimum(-99)
+        self.chargeA.setObjectName("chargeA")
+        self.horizontalLayout_2.addWidget(self.chargeA)
         self.verticalLayout_3.addLayout(self.horizontalLayout_2)
         self.horizontalLayout_4 = QtGui.QHBoxLayout()
         self.horizontalLayout_4.setObjectName("horizontalLayout_4")
@@ -94,6 +106,18 @@ class Ui_MainWindow(object):
         self.label_2 = QtGui.QLabel(self.calcTab)
         self.label_2.setObjectName("label_2")
         self.horizontalLayout_4.addWidget(self.label_2)
+        self.line_2 = QtGui.QFrame(self.calcTab)
+        self.line_2.setFrameShape(QtGui.QFrame.VLine)
+        self.line_2.setFrameShadow(QtGui.QFrame.Sunken)
+        self.line_2.setObjectName("line_2")
+        self.horizontalLayout_4.addWidget(self.line_2)
+        self.label_10 = QtGui.QLabel(self.calcTab)
+        self.label_10.setObjectName("label_10")
+        self.horizontalLayout_4.addWidget(self.label_10)
+        self.chargeB = QtGui.QSpinBox(self.calcTab)
+        self.chargeB.setMinimum(-99)
+        self.chargeB.setObjectName("chargeB")
+        self.horizontalLayout_4.addWidget(self.chargeB)
         self.verticalLayout_3.addLayout(self.horizontalLayout_4)
         self.verticalLayout_7.addLayout(self.verticalLayout_3)
         self.plotWidget = MPL_Widget(self.calcTab)
@@ -375,6 +399,7 @@ class Ui_MainWindow(object):
         self.formulaA_CB.setText(QtGui.QApplication.translate("MainWindow", "Forumla A:", None, QtGui.QApplication.UnicodeUTF8))
         self.calcFormulaA_Btn.setText(QtGui.QApplication.translate("MainWindow", "...", None, QtGui.QApplication.UnicodeUTF8))
         self.label.setText(QtGui.QApplication.translate("MainWindow", "g/mol", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_7.setText(QtGui.QApplication.translate("MainWindow", "Charge:", None, QtGui.QApplication.UnicodeUTF8))
         self.formulaB_CB.setToolTip(QtGui.QApplication.translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
@@ -383,6 +408,7 @@ class Ui_MainWindow(object):
         self.formulaB_CB.setText(QtGui.QApplication.translate("MainWindow", "Formula B:", None, QtGui.QApplication.UnicodeUTF8))
         self.calcFormulaB_Btn.setText(QtGui.QApplication.translate("MainWindow", "...", None, QtGui.QApplication.UnicodeUTF8))
         self.label_2.setText(QtGui.QApplication.translate("MainWindow", "g/mol", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_10.setText(QtGui.QApplication.translate("MainWindow", "Charge:", None, QtGui.QApplication.UnicodeUTF8))
         self.mainTabWidget.setTabText(self.mainTabWidget.indexOf(self.calcTab), QtGui.QApplication.translate("MainWindow", "MW Calculator", None, QtGui.QApplication.UnicodeUTF8))
         self.label_4.setText(QtGui.QApplication.translate("MainWindow", "Database Tables:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_5.setText(QtGui.QApplication.translate("MainWindow", "X-Axis:", None, QtGui.QApplication.UnicodeUTF8))
