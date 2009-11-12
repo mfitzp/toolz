@@ -139,6 +139,27 @@ p, li { white-space: pre-wrap; }
                   </property>
                  </widget>
                 </item>
+                <item>
+                 <widget class="Line" name="line">
+                  <property name="orientation">
+                   <enum>Qt::Vertical</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="label_7">
+                  <property name="text">
+                   <string>Charge:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QSpinBox" name="chargeA">
+                  <property name="minimum">
+                   <number>-99</number>
+                  </property>
+                 </widget>
+                </item>
                </layout>
               </item>
               <item>
@@ -181,6 +202,27 @@ p, li { white-space: pre-wrap; }
                  <widget class="QLabel" name="label_2">
                   <property name="text">
                    <string>g/mol</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="Line" name="line_2">
+                  <property name="orientation">
+                   <enum>Qt::Vertical</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="label_10">
+                  <property name="text">
+                   <string>Charge:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QSpinBox" name="chargeB">
+                  <property name="minimum">
+                   <number>-99</number>
                   </property>
                  </widget>
                 </item>
