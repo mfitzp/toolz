@@ -55,7 +55,7 @@ class periodicTableWidget(QtSvg.QSvgWidget):
     def __init__(self, parent = None):
         super(periodicTableWidget,  self).__init__(parent)
         print "Periodic Table Started"
-        self.load('periodicTable.svg')
+        self.load('images\periodicTable.svg')
         self.origH = self.renderer().defaultSize().height()
         self.origW = self.renderer().defaultSize().width()
         print "Original Size: ", self.origW, self.origH
@@ -426,6 +426,40 @@ class pysotope(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.plotWidget.canvas.draw()
         self.mainTabWidget.setCurrentIndex(1)
 
+    def setupPlotTypes(self):
+        self.plotTypes = []
+        self.plotTypes.append('Electron Affinities')
+        '''
+    number -- atomic number
+    symbol -- element symbol
+    name -- element name in english
+    group -- group in the periodic table
+    period -- period in the periodic table
+    block -- block in the periodic table
+    protons -- number of protons
+    neutron -- number of neutrons in the most abundant isotope
+    electrons -- number of electrons
+    mass -- relative atomic mass
+    en -- electronegativity (Pauling scale)
+    covrad -- Covalent radius (in A)
+    atmrad -- Atomic radius (in A)
+    vdwrad -- Van der Waals radius (in A)
+    tboil -- boiling temperature (in K)
+    tmelt -- melting temperature (in K)
+    density -- density at 295K (g/cm^3 respectively g/L)
+    phase -- 'solid/liquid' or 'gas' at 295K
+    acidity -- acidic behaviour
+    oxistates -- oxidation states
+    eleaffin -- electron affinity (in eV)
+    eleshells -- number of electrons per shell
+    eleconfig -- ground state electron configuration
+    ionenergy -- list of ionization energies (in eV)
+    isotopes -- list of isotopes (mass number, rel. atomic mass, fraction)
+    maxiso -- index of the most abundant isotope
+        '''
+        self.plotTypeList.addItems(self.plotTypes)
+
+
     def plotEA(self):#plot electronic affinities
         ea = []
         elemList = []
@@ -465,6 +499,7 @@ class pysotope(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
     def startup(self, dbName = None, startDB = True):
 
+        self.setupPlotTypes()
         self.electronMass = 0.00054858
         self.isoTracesA = []
         self.isoTracesB = []
