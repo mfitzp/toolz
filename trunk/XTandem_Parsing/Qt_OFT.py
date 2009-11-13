@@ -13,31 +13,34 @@ class Open_File_Dialog(QtGui.QDialog):
 
     def __init__(self, parent=None):
         QtGui.QDialog.__init__(self, parent)
-        
+
         self.openFilesPath = QtCore.QString()
-        
+
         self.errorMessageDialog = QtGui.QErrorMessage(self)
-    
+
         frameStyle = QtGui.QFrame.Sunken | QtGui.QFrame.Panel
-    
+
         self.openFileNameLabel = QtGui.QLabel()
         self.openFileNameLabel.setFrameStyle(frameStyle)
         self.openFileNameButton = QtGui.QPushButton(self.tr("Open File"))
-    
+
         self.connect(self.openFileNameButton, QtCore.SIGNAL("clicked()"), self.setOpenFileName)
-            
+
         layout = QtGui.QGridLayout()
         layout.setColumnStretch(1, 1)
         layout.setColumnMinimumWidth(1, 250)
-        
+
         layout.addWidget(self.openFileNameButton, 0, 0)
         layout.addWidget(self.openFileNameLabel, 0, 1)
-        
+
         self.setLayout(layout)
-    
+
         self.setWindowTitle(self.tr("Open File:"))
 
-    def setOpenFileName(self):    
+    def setOpenFileName(self):
+        '''
+        This is the line of code you are looking for!!!!!!!!!!!!!!!!!!!!!!!!
+        '''
         fileName = QtGui.QFileDialog.getOpenFileName(self,
                                          self.tr("QFileDialog.getOpenFileName()"),
                                          self.openFileNameLabel.text(),
@@ -45,7 +48,7 @@ class Open_File_Dialog(QtGui.QDialog):
         if not fileName.isEmpty():
             self.openFileNameLabel.setText(fileName)
 
-    
+
 
 
 if __name__ == '__main__':
