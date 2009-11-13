@@ -169,9 +169,12 @@ class XT_DB(object):#X!Tandem Database Class
         if fileName != None:
             self.cur.execute(selectStr)
             result = self.cur.fetchall()
+            self.LIST_COLUMNS(tblName)
+
             if len(result)>0:
                 dumpWriter = csv.writer(open(fileName, 'w'), delimiter = ',', quotechar= "'")
                 try:
+                    dumpWriter.writerow(self.colList)
                     for record in result:
                         dumpWriter.writerow(record)
 
