@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Documents and Settings\d3p483\workspace\pysotope\main.ui'
 #
-# Created: Fri Nov 13 11:35:32 2009
+# Created: Mon Nov 16 16:43:31 2009
 #      by: PyQt4 UI code generator 4.4.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -222,14 +222,10 @@ class Ui_MainWindow(object):
         self.menubar.setObjectName("menubar")
         self.menuFile = QtGui.QMenu(self.menubar)
         self.menuFile.setObjectName("menuFile")
-        self.menu_Edit = QtGui.QMenu(self.menubar)
-        self.menu_Edit.setObjectName("menu_Edit")
         self.menu_Tools = QtGui.QMenu(self.menubar)
         self.menu_Tools.setObjectName("menu_Tools")
         self.menu_Help = QtGui.QMenu(self.menubar)
         self.menu_Help.setObjectName("menu_Help")
-        self.menuData = QtGui.QMenu(self.menubar)
-        self.menuData.setObjectName("menuData")
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtGui.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
@@ -357,22 +353,13 @@ class Ui_MainWindow(object):
         self.actionCopy_Current_Database = QtGui.QAction(MainWindow)
         self.actionCopy_Current_Database.setIcon(icon13)
         self.actionCopy_Current_Database.setObjectName("actionCopy_Current_Database")
-        self.menuFile.addAction(self.action_Open)
-        self.menuFile.addAction(self.actionLoad_Folder)
-        self.menuFile.addAction(self.action_Save)
         self.menuFile.addAction(self.action_Exit)
-        self.menu_Edit.addAction(self.action_Cut)
-        self.menu_Edit.addAction(self.action_Paste)
         self.menu_Tools.addAction(self.actionSave_All_Tables)
         self.menu_Help.addAction(self.actionAbout)
         self.menu_Help.addAction(self.actionHints)
         self.menubar.addAction(self.menuFile.menuAction())
-        self.menubar.addAction(self.menu_Edit.menuAction())
         self.menubar.addAction(self.menu_Tools.menuAction())
-        self.menubar.addAction(self.menuData.menuAction())
         self.menubar.addAction(self.menu_Help.menuAction())
-        self.toolBar.addAction(self.actionFileOpen)
-        self.toolBar.addAction(self.action_Save)
         self.toolBar.addAction(self.actionRunScript)
         self.toolBar.addAction(self.actionTools)
 
@@ -414,10 +401,8 @@ class Ui_MainWindow(object):
         self.label_3.setText(QtGui.QApplication.translate("MainWindow", "Isotope Calculation Resolution", None, QtGui.QApplication.UnicodeUTF8))
         self.mainTabWidget.setTabText(self.mainTabWidget.indexOf(self.configTab), QtGui.QApplication.translate("MainWindow", "Plot Options", None, QtGui.QApplication.UnicodeUTF8))
         self.menuFile.setTitle(QtGui.QApplication.translate("MainWindow", "&File", None, QtGui.QApplication.UnicodeUTF8))
-        self.menu_Edit.setTitle(QtGui.QApplication.translate("MainWindow", "&Edit", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_Tools.setTitle(QtGui.QApplication.translate("MainWindow", "&Tools", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_Help.setTitle(QtGui.QApplication.translate("MainWindow", "&Help", None, QtGui.QApplication.UnicodeUTF8))
-        self.menuData.setTitle(QtGui.QApplication.translate("MainWindow", "Data", None, QtGui.QApplication.UnicodeUTF8))
         self.toolBar.setWindowTitle(QtGui.QApplication.translate("MainWindow", "toolBar", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Edit.setText(QtGui.QApplication.translate("MainWindow", "&Edit", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Tools.setText(QtGui.QApplication.translate("MainWindow", "&Tools", None, QtGui.QApplication.UnicodeUTF8))

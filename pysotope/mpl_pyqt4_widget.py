@@ -81,6 +81,7 @@ class DoubleMyMplCanvas(FigureCanvas):
                 ylabel.set_fontsize(8)
                 ylabel.set_color('b')
             if ax.get_legend() != None:
+                self.ax.legend(borderaxespad = 0.03, axespad=0.25)
                 texts = ax.get_legend().get_texts()
                 for text in texts:
                     text.set_fontsize(8)

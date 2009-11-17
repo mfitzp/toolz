@@ -107,6 +107,7 @@ class periodicTableWidget(QtSvg.QSvgWidget):
                 elem = elemDict[curAtom]
                 print elem.name, elem.mass
                 self.emit(QtCore.SIGNAL("elementSelected(PyQt_PyObject)"),elem)
+#                self.load('images\Hydrogen.svg')
 #                self.emit
     #        print Ans, self.elems[Ans]
 
@@ -296,9 +297,10 @@ class pysotope(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                         self.plotWidget.canvas.ax.plot(trace[0], trace[1],'r', alpha = 0.5, label = labelStrB)
                     else:
                         self.plotWidget.canvas.ax.plot(trace[0], trace[1],'r', alpha = 0.5)
+        self.plotWidget.canvas.ax.legend()
         self.plotWidget.canvas.format_labels()
         self.plotWidget.canvas.ax.set_ylim(ymin = -0.01)
-        self.plotWidget.canvas.ax.legend()
+
 #        self.plotWidget.canvas.ax.autoscale_view(tight = False, scalex=True, scaley=True)
         self.plotWidget.canvas.draw()
 

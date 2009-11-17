@@ -67,7 +67,10 @@ class MyMplCanvas(FigureCanvas):
     	for ylabel in labels_y:
     		ylabel.set_fontsize(8)
     		ylabel.set_color('b')
-
+        if self.ax.get_legend() != None:
+            texts = self.ax.get_legend().get_texts()
+            for text in texts:
+                text.set_fontsize(7)
     def sizeHint(self):
     	w, h = self.get_width_height()
     	return QtCore.QSize(w, h)
