@@ -348,29 +348,32 @@ class pysotope(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                 print "Write CSV FAILED"
 
     def plotIsos(self):
+        '''
+        'b':'#0000ff', 'g':'#00ff00','r':'#ff0000'
+        '''
         if len(self.isoCentroidsA) > 0:
-            self.plotWidget.canvas.ax.vlines(self.isoCentroidsA[0], 0, self.isoCentroidsA[1], 'r', label = '_nolegend_')
+            self.plotWidget.canvas.ax.vlines(self.isoCentroidsA[0], 0, self.isoCentroidsA[1], color = '#ff0000', label = '_nolegend_')
 
         if len(self.isoCentroidsB) > 0:
-            self.plotWidget.canvas.ax.vlines(self.isoCentroidsB[0], 0, self.isoCentroidsB[1], 'b', label = '_nolegend_')
+            self.plotWidget.canvas.ax.vlines(self.isoCentroidsB[0], 0, self.isoCentroidsB[1], color = '#0000ff', label = '_nolegend_')
 
         if self.formulaA_CB.isChecked():
             if len(self.isoTracesA)>0:
                 for i,trace in enumerate(self.isoTracesA):
                     if i == 0:
                         labelStrA = str(self.formulaInputA.text())+' +'+str(self.chargeA.value())
-                        self.plotWidget.canvas.ax.plot(trace[0], trace[1],'b', alpha = 0.5, label = labelStrA)
+                        self.plotWidget.canvas.ax.plot(trace[0], trace[1],color = '#0000ff', alpha = 0.5, label = labelStrA)
                     else:
-                        self.plotWidget.canvas.ax.plot(trace[0], trace[1],'b', alpha = 0.5)
+                        self.plotWidget.canvas.ax.plot(trace[0], trace[1],color = '#0000ff', alpha = 0.5)
 
         if self.formulaB_CB.isChecked():
             if len(self.isoTracesB)>0:
                 for i,trace in enumerate(self.isoTracesB):
                     if i == 0:
                         labelStrB = str(self.formulaInputB.text())+' +'+str(self.chargeB.value())
-                        self.plotWidget.canvas.ax.plot(trace[0], trace[1],'r', alpha = 0.5, label = labelStrB)
+                        self.plotWidget.canvas.ax.plot(trace[0], trace[1],color = '#ff0000', alpha = 0.5, label = labelStrB)
                     else:
-                        self.plotWidget.canvas.ax.plot(trace[0], trace[1],'r', alpha = 0.5)
+                        self.plotWidget.canvas.ax.plot(trace[0], trace[1],color = '#ff0000', alpha = 0.5)
         self.plotWidget.canvas.ax.legend()
         self.plotWidget.canvas.format_labels()
         self.plotWidget.canvas.ax.set_ylim(ymin = -0.01)
@@ -544,9 +547,9 @@ class pysotope(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                 subPlot.canvas.ytitle = yAxisTitle
             if dataLabels != None:
                 subPlot.dataLabels = dataLabels
-                ax1.plot(data, '-or', alpha = 0.6, picker = 5)
+                ax1.plot(data, '-o', color = '#ff0000',  alpha = 0.6, picker = 5)
             else:
-                ax1.plot(data, '-or', alpha = 0.6)
+                ax1.plot(data, '-o', color = '#ff0000', alpha = 0.6)
 
 
             subPlot.canvas.format_labels()

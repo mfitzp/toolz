@@ -248,9 +248,11 @@ class Plot_Options_Dialog(QDialog, ui_Plot_Options.Ui_Plot_Options_Dialog):
             pass
         else:
             lcolor = lineInstance.get_color()
+            print "Line Color 1", lcolor, type(lcolor)
             if lineColorDict.has_key(lcolor):
                 lcolor = lineColorDict.get(lineInstance.get_color())
             #lcolor = QColor(lineInstance.get_color())
+            print "Line Color 2", lcolor
             self.lineColorBtn.setColor(QColor(lcolor))
 
         if lineInstance.get_markerfacecolor() is None:
