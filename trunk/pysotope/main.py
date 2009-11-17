@@ -273,6 +273,21 @@ class pysotope(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         else:
             return False, None, None
 
+
+    def dumpToCSV(self, fileName, centroids, profile):
+        if len(centroids)>0 and len(profile)>0:
+            dumpWriter = csv.writer(open(fileName, 'w'), delimiter = ',', quotechar= "'")
+            try:
+
+                dumpWriter.writerow(['X', 'Y', 'Centroid X', 'Centroid Y'])
+                for i,cent in enumerate(centroids):
+                    dumpWriter.writerow[profile[0], profile[1], cent[0], cent[1]]
+
+                for val in profile[:i]:
+                    dumpWriter.writerow([val[0], val[i]])
+            except:
+                print "Write CSV FAILED"
+
     def plotIsos(self):
         if len(self.isoCentroidsA) > 0:
             self.plotWidget.canvas.ax.vlines(self.isoCentroidsA[0], 0, self.isoCentroidsA[1], 'r', label = '_nolegend_')
