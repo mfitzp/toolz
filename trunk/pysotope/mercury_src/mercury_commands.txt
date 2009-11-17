@@ -1,0 +1,68 @@
+For Ubuntu:
+
+swig -python -c++ -classic libmercury.i
+g++ -c -fPIC libmercury.cpp libmercury_wrap.cxx -I/usr/lib/python2.5 -I/usr/include/python2.5
+g++ -shared libmercury.o libmercury_wrap.o -o _libmercury.so
+
+###################################
+For RHEL5 64:
+
+*NEED TO BE ROOT TO AVOID PERMISSION ISSUES
+
+swig -python -c++ -classic libmercury.i
+g++ -c -fPIC libmercury.cpp libmercury_wrap.cxx -I/usr/local/include/python2.6 -I/usr/local/lib/python2.6
+g++ -shared libmercury.o libmercury_wrap.o -o _libmercury.so
+
+
+###################################
+
+
+For Windows XP with mingw32 installed:
+
+Use the following setup.py file:
+
+#######
+# setup.py
+import distutils
+from distutils.core import setup, Extension
+
+setup(name = "Simple example from the SWIG website",
+      version = "2.5",
+      ext_modules = [Extension("libmercury", ["libmercury.i","libmercury.cpp"], swig_opts=['-c++'])])
+
+########
+
+1.)  python setup.py build_ext --inplace -cmingw32 -IC:\Sandbox\mercury2 --swig-cpp
+
+2.)  gcc.exe -mno-cygwin -mdll -O -Wall -IC:\Sandbox\mercury2 -Ic:\python25\include -Ic:\python25\PC -c libmercury_wrap.cpp -o build\temp.win32-2.5\Release\libmercury_wrap.o writing build\temp.win32-2.5\Release\libmercury.def
+
+3.)  g++.exe -mno-cygwin -shared -s build\temp.win32-2.5\Release\libmercury_wrap.o build\temp.win32-2.5\Release\libmercury.o build\temp.win32-2.5\Release\libmercury.def -Lc:\python25\libs -lpython25 -o libmercury.pyd
+
+
+Notes:  The first command creates the outputs 2 and 3 but the third in the series sometimes fails.  to make it work I removed the reference to the "-Ic:\python25\PC" as this does not exist and also examined the libmercury.def file.  It originally looked something like:
+
+######
+LIBRARY libmercury.pyd
+EXPORTS 
+initlibmercury
+######
+
+The command would terminate with the following error:
+###
+Cannot export initlibmercury: symbol not define
+collect2: ld returned 1 exit status
+error: command 'g++' failed with exit status 1
+###
+
+!!!!!!!THIS IS KEY!!!!!!!!!!!!!!
+After changing the .def file to read:
+######
+LIBRARY libmercury.pyd
+EXPORTS libmercury.pyd
+######
+
+Things seem to work though you must rename the pyd file to _libmercury.pyd
+
+From there importing it works just fine. It would be nice to wrap this around numpy but I will work on that some other time.  Right now I will create a simple interface that extracts the data into numpy and erase the std::vectors used.
+
+Ugh! That took the better part of two days to figure out. What a pain.
