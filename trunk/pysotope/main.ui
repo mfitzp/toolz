@@ -36,7 +36,7 @@
       <item>
        <widget class="QTabWidget" name="mainTabWidget" >
         <property name="currentIndex" >
-         <number>2</number>
+         <number>0</number>
         </property>
         <widget class="QWidget" name="calcTab" >
          <attribute name="title" >
@@ -429,9 +429,6 @@ p, li { white-space: pre-wrap; }
            </layout>
           </item>
          </layout>
-         <zorder>verticalSpacer</zorder>
-         <zorder>label_8</zorder>
-         <zorder>sizeModSpinBox</zorder>
         </widget>
        </widget>
       </item>
