@@ -210,9 +210,6 @@ class MPL_Widget(QtGui.QWidget):
 
         ###############ZOOM CONTROLS ################
 
-
-
-
         #This function has been disabled because of the special autoscaling requried for a custom program
         #FIX THIS
         if enableAutoScale:
