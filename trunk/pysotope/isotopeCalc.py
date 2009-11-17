@@ -10,6 +10,14 @@ try:
 except:
     libmercuryOk = False
 
+def scaleIsos(mercANS):
+    '''
+    Designed to normalize the values of the isotope pattern to 1
+    mercANS is a list of [xValues, yValues]
+    '''
+    valMax = mercANS[1].max()
+    mercANS[1]/=valMax
+    return [mercANS[0],mercANS[1]]
 
 def isoCalc(elemList, elemComp, charge = 0):
     '''
@@ -61,7 +69,7 @@ def isoCalc(elemList, elemComp, charge = 0):
         mercAns = LMI.mercury(elemComp, numIsotopes, elemMasses, elemAbundances, charge, 1e-3)
 #        mercAns = LMI.mercury(modelComp, numIsotopes, elemMasses, elemAbundances, charge, 1e-3)
         if mercAns[0] == 0:
-            return [True, mercAns[1]]
+            return [True, scaleIsos(mercAns[1])]
     else:
         return [False, None]
 

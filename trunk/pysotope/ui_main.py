@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Documents and Settings\d3p483\workspace\pysotope\main.ui'
 #
-# Created: Mon Nov 16 16:43:31 2009
+# Created: Tue Nov 17 12:59:44 2009
 #      by: PyQt4 UI code generator 4.4.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -353,8 +353,15 @@ class Ui_MainWindow(object):
         self.actionCopy_Current_Database = QtGui.QAction(MainWindow)
         self.actionCopy_Current_Database.setIcon(icon13)
         self.actionCopy_Current_Database.setObjectName("actionCopy_Current_Database")
+        self.actionSave_Isotope_Profile_A_to_CSV = QtGui.QAction(MainWindow)
+        self.actionSave_Isotope_Profile_A_to_CSV.setIcon(icon10)
+        self.actionSave_Isotope_Profile_A_to_CSV.setObjectName("actionSave_Isotope_Profile_A_to_CSV")
+        self.actionSave_Isotope_Profile_B_to_CSV = QtGui.QAction(MainWindow)
+        self.actionSave_Isotope_Profile_B_to_CSV.setIcon(icon10)
+        self.actionSave_Isotope_Profile_B_to_CSV.setObjectName("actionSave_Isotope_Profile_B_to_CSV")
         self.menuFile.addAction(self.action_Exit)
-        self.menu_Tools.addAction(self.actionSave_All_Tables)
+        self.menu_Tools.addAction(self.actionSave_Isotope_Profile_A_to_CSV)
+        self.menu_Tools.addAction(self.actionSave_Isotope_Profile_B_to_CSV)
         self.menu_Help.addAction(self.actionAbout)
         self.menu_Help.addAction(self.actionHints)
         self.menubar.addAction(self.menuFile.menuAction())
@@ -448,6 +455,8 @@ class Ui_MainWindow(object):
         self.actionLoad_Folder.setText(QtGui.QApplication.translate("MainWindow", "Load Folder", None, QtGui.QApplication.UnicodeUTF8))
         self.actionSave_All_Tables.setText(QtGui.QApplication.translate("MainWindow", "Save All Tables to CSV", None, QtGui.QApplication.UnicodeUTF8))
         self.actionCopy_Current_Database.setText(QtGui.QApplication.translate("MainWindow", "Copy Current Database", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionSave_Isotope_Profile_A_to_CSV.setText(QtGui.QApplication.translate("MainWindow", "Save Isotope Profile A to CSV", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionSave_Isotope_Profile_B_to_CSV.setText(QtGui.QApplication.translate("MainWindow", "Save Isotope Profile B to CSV", None, QtGui.QApplication.UnicodeUTF8))
 
 from mpl_custom_widget import MPL_Widget
 import SubPlot_rc

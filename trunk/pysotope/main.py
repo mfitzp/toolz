@@ -194,6 +194,8 @@ class pysotope(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.startup()
 
     def __initVars__(self):
+        self.__setMessages__()
+        self.__curDir = getHomeDir()
         self.openTableList = []
         self.openPlotList = []
 
@@ -332,18 +334,43 @@ class pysotope(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         else:
             return False, None, None
 
+    def saveA(self):
+        saveFileName = QtGui.QFileDialog.getSaveFileName(self,\
+                                                 self.SaveDataText,\
+                                                 self.__curDir, 'CSV Text File (*.csv)')
+        if saveFileName:
+            if len(self.isoTracesA)>0 and len(self.isoCentroidsA)>0:
+                formulaStr = str(self.formulaInputA.text())
+                charge = str(self.chargeA.value())
+                self.dumpToCSV(str(saveFileName), self.isoCentroidsA, self.isoTracesA, formulaStr, charge)
 
-    def dumpToCSV(self, fileName, centroids, profile):
-        if len(centroids)>0 and len(profile)>0:
-            dumpWriter = csv.writer(open(fileName, 'w'), delimiter = ',', quotechar= "'")
+    def saveB(self):
+        saveFileName = QtGui.QFileDialog.getSaveFileName(self,\
+                                                 self.SaveDataText,\
+                                                 self.__curDir, 'CSV Text File (*.csv)')
+        if saveFileName:
+            if len(self.isoTracesB)>0 and len(self.isoCentroidsB)>0:
+                formulaStr = str(self.formulaInputB.text())
+                charge = str(self.chargeB.value())
+                self.dumpToCSV(str(saveFileName), self.isoCentroidsB, self.isoTracesB, formulaStr, charge)
+
+    def dumpToCSV(self, fileName, centroids, traces, chemStr, chargeStr):
+        if len(centroids)>0 and len(traces)>0:
+            dumpWriter = csv.writer(open(fileName, 'w'), delimiter = ',', quotechar= "'", lineterminator ='\n')
             try:
-
+                dumpWriter.writerow([chemStr, chargeStr])
                 dumpWriter.writerow(['X', 'Y', 'Centroid X', 'Centroid Y'])
-                for i,cent in enumerate(centroids):
-                    dumpWriter.writerow[profile[0], profile[1], cent[0], cent[1]]
+                lenCentroid = len(centroids[0])
+                for i in xrange(len(traces[0][0])):
+                    if i < lenCentroid:
+                        dumpWriter.writerow([traces[0][0][i], traces[0][1][i], centroids[0][i], centroids[1][i]])
+                    else:
+                        dumpWriter.writerow([traces[0][0][i], traces[0][1][i]])
 
-                for val in profile[:i]:
-                    dumpWriter.writerow([val[0], val[i]])
+                for j,profile in enumerate(traces[1:]):
+                    for k in xrange(len(profile[0])):
+                        dumpWriter.writerow([profile[0][k], profile[1][k]])
+
             except:
                 print "Write CSV FAILED"
 
@@ -576,8 +603,9 @@ class pysotope(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         QtCore.QObject.connect(self.calcFormulaA_Btn, QtCore.SIGNAL("clicked()"), self.calcFormulaA)
         QtCore.QObject.connect(self.calcFormulaB_Btn, QtCore.SIGNAL("clicked()"), self.calcFormulaB)
 #        QtCore.QObject.connect(self.clearPlotBtn, QtCore.SIGNAL("clicked()"), self.clearPlot)
-        QtCore.QObject.connect(self.actionTools, QtCore.SIGNAL("triggered()"),self.__testFunc__)\
-#        actionSave_Isotope_Profile_A_to_CSV
+        QtCore.QObject.connect(self.actionTools, QtCore.SIGNAL("triggered()"),self.__testFunc__)
+        QtCore.QObject.connect(self.actionSave_Isotope_Profile_A_to_CSV, QtCore.SIGNAL("triggered()"),self.saveA)
+        QtCore.QObject.connect(self.actionSave_Isotope_Profile_B_to_CSV, QtCore.SIGNAL("triggered()"),self.saveB)
 
 
     def __testFunc__(self):
@@ -757,7 +785,7 @@ class pysotope(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.ClearAllDataText = "Are you sure you want to erase\nthe entire data set?"
         self.NotEditableText = "Sorry, this data format is not table-editable."
         self.OpenScriptText = "Choose a python script to launch:"
-        self.SaveDataText = "Choose a name for the data file to save:"
+        self.SaveDataText = "Enter file name to save:"
         self.ScratchSavePrompt = "Choose file name to save the scratch pad:"
         self.OpenDataText = "Choose a data file to open:"
         self.ResetAllDataText = "This operation will reset all your data.\nWould you like to continue?"
@@ -766,7 +794,6 @@ class pysotope(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
     def __additionalVariables__(self):
         '''Extra variables that are utilized by other functions'''
         self.__curDir = getHomeDir()
-        self.firstLoad = True
 
     def __additionalConnections__(self):
         '''elemTableWidget context menu actions'''
