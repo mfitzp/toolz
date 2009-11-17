@@ -462,7 +462,8 @@ p, li { white-space: pre-wrap; }
     <property name="title" >
      <string>&amp;Tools</string>
     </property>
-    <addaction name="actionSave_All_Tables" />
+    <addaction name="actionSave_Isotope_Profile_A_to_CSV" />
+    <addaction name="actionSave_Isotope_Profile_B_to_CSV" />
    </widget>
    <widget class="QMenu" name="menu_Help" >
     <property name="title" >
@@ -788,6 +789,24 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="text" >
     <string>Copy Current Database</string>
+   </property>
+  </action>
+  <action name="actionSave_Isotope_Profile_A_to_CSV" >
+   <property name="icon" >
+    <iconset>
+     <normaloff>images/filesave2.png</normaloff>images/filesave2.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Save Isotope Profile A to CSV</string>
+   </property>
+  </action>
+  <action name="actionSave_Isotope_Profile_B_to_CSV" >
+   <property name="icon" >
+    <iconset>
+     <normaloff>images/filesave2.png</normaloff>images/filesave2.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Save Isotope Profile B to CSV</string>
    </property>
   </action>
  </widget>

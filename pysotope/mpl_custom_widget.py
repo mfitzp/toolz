@@ -8,6 +8,8 @@ from matplotlib.backend_bases import NavigationToolbar2
 
 from matplotlib.figure import Figure
 
+from Plot_Options_Line2D import Plot_Options_Dialog as POD
+
 import numpy as N
 
 class EventFilter(QtCore.QObject):
