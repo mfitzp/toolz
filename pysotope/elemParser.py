@@ -51,7 +51,8 @@ def getMass(x):
         multiplier = float(number[0])
     if elemDict.has_key(atom[0]):
 #        atomic_mass=TableofElements[atom[0]]
-        atomic_mass=elemDict[atom[0]].mass#TableofElements[atom[0]]
+#        atomic_mass=elemDict[atom[0]].mass#TableofElements[atom[0]]
+        atomic_mass=elemDict[atom[0]].isotopes[0][1]#get monoisotopic mass
     else:
         atomic_mass = 0.0
 

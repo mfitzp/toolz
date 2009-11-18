@@ -307,7 +307,9 @@ class pysotope(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         if len(formulaStr)>0:
             mwAns = molmass(formulaStr)
             charge = self.chargeA.value()
-            mwAns += self.electronMass*charge
+            mwAns -= self.electronMass*charge
+            if charge != 0:
+                mwAns /= N.abs(charge)
             self.formulaA_MW_LE.setText(str(mwAns))
             self.calcIsotopeA(formulaStr, self.formulaA_CB.isChecked())
 
@@ -316,7 +318,9 @@ class pysotope(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         if len(formulaStr)>0:
             mwAns = molmass(formulaStr)
             charge = self.chargeB.value()
-            mwAns += self.electronMass*charge
+            mwAns -= self.electronMass*charge
+            if charge != 0:
+                mwAns /= N.abs(charge)
             self.formulaB_MW_LE.setText(str(mwAns))
             self.calcIsotopeB(formulaStr, self.formulaB_CB.isChecked())
 
@@ -380,9 +384,11 @@ class pysotope(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         '''
         if len(self.isoCentroidsA) > 0:
             self.plotWidget.canvas.ax.vlines(self.isoCentroidsA[0], 0, self.isoCentroidsA[1], color = '#ff0000', label = '_nolegend_')
+            self.labelPeaks(self.isoCentroidsA[0], self.isoCentroidsA[1], self.plotWidget.canvas.ax)
 
         if len(self.isoCentroidsB) > 0:
             self.plotWidget.canvas.ax.vlines(self.isoCentroidsB[0], 0, self.isoCentroidsB[1], color = '#0000ff', label = '_nolegend_')
+            self.labelPeaks(self.isoCentroidsB[0], self.isoCentroidsB[1], self.plotWidget.canvas.ax)
 
         if self.formulaA_CB.isChecked():
             if len(self.isoTracesA)>0:
@@ -401,12 +407,18 @@ class pysotope(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                         self.plotWidget.canvas.ax.plot(trace[0], trace[1],color = '#ff0000', alpha = 0.5, label = labelStrB)
                     else:
                         self.plotWidget.canvas.ax.plot(trace[0], trace[1],color = '#ff0000', alpha = 0.5)
+        self.plotWidget.canvas.ax.set_ylim(ymax = 1.25)
         self.plotWidget.canvas.ax.legend()
         self.plotWidget.canvas.format_labels()
         self.plotWidget.canvas.ax.set_ylim(ymin = -0.01)
 
 #        self.plotWidget.canvas.ax.autoscale_view(tight = False, scalex=True, scaley=True)
         self.plotWidget.canvas.draw()
+
+    def labelPeaks(self, xVals, yVals, mplAxis):
+            for i, mz in enumerate(xVals):
+                showText = '%.4f'%(mz)
+                mplAxis.text(mz,yVals[i]+0.05, showText, fontsize=7, rotation = 90)
 
     def calcIsotopeA(self, formula, plotGauss = True):
         '''
