@@ -181,15 +181,7 @@ class periodicTableWidget(QtSvg.QSvgWidget):
 class pysotope(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
     def __init__(self, parent = None):
         super(pysotope,  self).__init__(parent)
-        #self.ui = ui_main.Ui_MainWindow
         self.ui = self.setupUi(self)
-        #self.MainWindow = MainWindow
-        #ui_main.Ui_MainWindow.setupUi(self, self.MainWindow)
-
-#        self.__additionalVariables__()
-#        self.__additionalConnections__()
-#        self.__setMessages__()
-#        self.__initContextMenus__()
         self.__initVars__()
         self.startup()
 
@@ -519,15 +511,44 @@ class pysotope(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         return arrayVals
 
     def clearPlot(self):
+        self.isoCentroidsA = []
+        self.isoTracesA = []
+
+        self.isoCentroidsB = []
+        self.isoTracesB = []
+
         self.plotWidget.canvas.ax.cla()
-        self.__setupPlot__()
         self.plotWidget.canvas.format_labels()
         self.plotWidget.canvas.draw()
-        self.mainTabWidget.setCurrentIndex(1)
 
     def setupPlotTypes(self):
         self.plotTypes = []
-        self.plotTypes.append('Electron Affinities')
+        self.plotTypes.append('Electron Affinity')
+        self.plotTypes.append('Atomic Mass')
+        self.plotTypes.append('Covalent Radius')
+        self.plotTypes.append('Atomic Radius')
+        self.plotTypes.append('Van der Waals Radius')
+        self.plotTypes.append('Boiling Point')
+        self.plotTypes.append('Melting Point')
+        self.plotTypes.append('Density')
+        self.plotTypes.append('Number of Protons')
+        self.plotTypes.append('Number of Neutrons')
+        self.plotTypes.append('First Ionization Potential')
+        self.plotTypes.append("Electronegativity")
+
+        self.plotTypeDict = {}
+        self.plotTypeDict['Electron Affinity'] = 'eleaffin'
+        self.plotTypeDict["Atomic Mass"] = 'mass'
+        self.plotTypeDict["Covalent Radius"] = 'covrad'
+        self.plotTypeDict["Atomic Radius"] = 'atmrad'
+        self.plotTypeDict["Van der Waals Radius"] = 'vdwrad'
+        self.plotTypeDict['Boiling Point'] = 'tboil'
+        self.plotTypeDict['Melting Point'] = 'tmelt'
+        self.plotTypeDict['Density'] = 'density'
+        self.plotTypeDict['Number of Protons'] = 'protons'
+        self.plotTypeDict['Number of Neutrons'] = 'neutrons'
+        self.plotTypeDict["First Ionization Potential"] = 'ionenergy'
+        self.plotTypeDict["Electronegativity"] = 'en'
         '''
     number -- atomic number
     symbol -- element symbol
@@ -558,15 +579,24 @@ class pysotope(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         '''
         self.plotTypeList.addItems(self.plotTypes)
 
-
-    def plotEA(self):#plot electronic affinities
-        ea = []
+    def plotElementParameter(self, elemKey, plotType):#plot electronic affinities
+        paramVals = []
         elemList = []
-        for elem in TableofElementsList:
-            if elemDict.has_key(elem):
-                elemList.append(elem)
-                ea.append(elemDict[elem].eleaffin)
-        self.addPlot(ea, elemList, 'Electron Affinity of the Elements', 'Element #', 'Electron Affinity')
+        try:
+            if elemKey == 'ionenergy':
+                for elem in TableofElementsList:
+                    if elemDict.has_key(elem):
+                        elemList.append(elem)
+                        paramVals.append(elemDict[elem].__dict__[elemKey][0])
+            else:
+                for elem in TableofElementsList:
+                    if elemDict.has_key(elem):
+                        elemList.append(elem)
+                        paramVals.append(elemDict[elem].__dict__[elemKey])
+            self.addPlot(paramVals, elemList, plotType, 'Element #', 'Parameter Value')
+        except:
+            print elemDict[elem].name, elemDict[elem].ionenergy
+            raise
 
 
     def addPlot(self, data, dataLabels = None, title = None, xAxisTitle = None, yAxisTitle = None):
@@ -575,11 +605,8 @@ class pysotope(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             subPlot.addPicker()
             if title != None:
                 subPlot.setWindowTitle(title)
-
+            subPlot.canvas.plotTitle = title
             ax1 = subPlot.canvas.ax
-#            plotTitle = 'EIC from %.2f to %.2f'%(mzLo, mzHi)
-#            ax1.set_title(plotTitle)
-#            ax1.title.set_fontsize(10)
             if xAxisTitle != None:
                 subPlot.canvas.xtitle = xAxisTitle
             if yAxisTitle != None:
@@ -590,14 +617,33 @@ class pysotope(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             else:
                 ax1.plot(data, '-o', color = '#ff0000', alpha = 0.6)
 
+            subPlot.setData(N.arange(len(data)), data)
+
 
             subPlot.canvas.format_labels()
             subPlot.show()
             self.openPlotList.append(subPlot)
 
+    def updatePlot(self):
+        plotType = str(self.plotTypeList.currentItem().text())
+        if plotType != None:
+            if self.plotTypeDict.has_key(plotType):
+                self.plotElementParameter(self.plotTypeDict[plotType], plotType)
+
+#    def __initContextMenus__(self):
+#        self.plotWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+#        self.plotWidget.connect(self.plotWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self.plotTabContext)
+#
+#    def plotTabContext(self, point):
+#        '''Create a menu for mainTabWidget'''
+#        plotCT_menu = QtGui.QMenu("Menu", self.plotWidget)
+#        plotCT_menu.addAction(self.plotWidget.Zoom)
+#        plotCT_menu.addAction(self.plotWidget.actionAutoScale)
+#        plotCT_menu.addSeparator()
+#        plotCT_menu.addAction(self.clearPlotAction)
+#        plotCT_menu.exec_(self.plotWidget.mapToGlobal(point))
 
     def startup(self, dbName = None, startDB = True):
-
         self.setupPlotTypes()
         self.electronMass = 0.00054858
         self.isoTracesA = []
@@ -615,13 +661,33 @@ class pysotope(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         QtCore.QObject.connect(self.calcFormulaA_Btn, QtCore.SIGNAL("clicked()"), self.calcFormulaA)
         QtCore.QObject.connect(self.calcFormulaB_Btn, QtCore.SIGNAL("clicked()"), self.calcFormulaB)
 #        QtCore.QObject.connect(self.clearPlotBtn, QtCore.SIGNAL("clicked()"), self.clearPlot)
-        QtCore.QObject.connect(self.actionTools, QtCore.SIGNAL("triggered()"),self.__testFunc__)
+
         QtCore.QObject.connect(self.actionSave_Isotope_Profile_A_to_CSV, QtCore.SIGNAL("triggered()"),self.saveA)
         QtCore.QObject.connect(self.actionSave_Isotope_Profile_B_to_CSV, QtCore.SIGNAL("triggered()"),self.saveB)
+        QtCore.QObject.connect(self.updatePlotBtn, QtCore.SIGNAL("clicked()"),self.updatePlot)
 
+        QtCore.QObject.connect(self.actionAbout,QtCore.SIGNAL("triggered()"),self.__showAbout__)
+        QtCore.QObject.connect(self.actionHints,QtCore.SIGNAL("triggered()"),self.__showHints__)
+        QtCore.QObject.connect(self.action_Exit,QtCore.SIGNAL("triggered()"),self.__exitProgram__)
+        QtCore.QObject.connect(self.actionClear_Plot, QtCore.SIGNAL("triggered()"), self.clearPlot)
+
+ #        QtCore.QObject.connect(self.actionTools, QtCore.SIGNAL("triggered()"),self.__testFunc__)
+        #QtCore.QObject.connect(self.MainWindow,QtCore.SIGNAL("close()"),self.__exitProgram__)
+
+
+        QtCore.QMetaObject.connectSlotsByName(self)#MainWindow)
+#        self.__initContextMenus__()
+
+
+
+        QtCore.QObject.connect(self.actionTools, QtCore.SIGNAL("triggered()"),self.__testFunc__)
+
+    def __exitProgram__(self):
+        self.close()
 
     def __testFunc__(self):
-        self.plotEA()
+        print "Test Function"
+#        self.plotEA()
 
 #        if RD(self.loVal, self.hiVal, parent = self).exec_():
 #            print self.loVal, self.hiVal
@@ -650,146 +716,113 @@ class pysotope(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
 
 
-    def __saveDataFile__(self):
-        return QtGui.QMessageBox.information(self,'', "This feature is not implemented yet.  Use a database outside of memory")
-#        saveFileName = QtGui.QFileDialog.getSaveFileName(self,\
-#                                                             self.SaveDataText,\
-#                                                             self.__curDir, 'HDF5 File (*.h5);;SQLite Database (*.db)')
-#        if saveFileName:
-#            if self.curFile:
-#                #print "File name is: %s" % (str(self.curFileName))
-#                fileType= str(saveFileName).split('.')[-1]
-#                if fileType=='h5':
-#                    print self.curFile, type(self.curFile)
-##                    dbIO.save_XT_HDF5(str(saveFileName),  self.curFile)
-#                elif fileType == 'db':
-#                    sqldb = dbIO.XT_DB(str(saveFileName), "testTables")#NEED TO FIX THE NAME
-#                    sqldb.INSERT_XT_VALUES(sqldb.curTblName, self.curFile)
-#                    sqldb.close()
-#            else:
-#                return QtGui.QMessageBox.information(self,'', "A X!Tandem File must be loaded first before saving")
-
-
-    def getFNCore(self, filename):
-        '''This function parses the filename to get a simple name for the table to be entered into memory and the database'''
-        self.sysType = os.sys.platform
-        if self.sysType == 'win32':
-            fs = filename.split('/')[-1]#fs = file split
-            fileCore = fs.split('.')[0]
-        else:
-            fs = filename.split('/')[-1]#fs = file split
-            fileCore = fs.split('.')[0]
-        return fileCore
-
-
-
-    def getPlotColor(self):
-        color = plot_colors[self.plot_num]
-        if self.plot_num is len(plot_colors)-1:
-            self.plot_num = 0
-        else:
-            self.plot_num+=1
-        return color
-
-    def getPlotMarker(self):
-        marker = markers[self.marker_index]
-        if self.marker_index is len(markers)-1:
-            self.marker_index = 0
-        else:
-            self.marker_index+=1
-        return marker
-
-
-    def __initContextMenus__(self):
-        self.plotWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
-        self.plotWidget.connect(self.plotWidget, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self.plotTabContext)
-
-
-
-    def plotTabContext(self, point):
-        '''Create a menu for mainTabWidget'''
-        plotCT_menu = QtGui.QMenu("Menu", self.plotWidget)
-        plotCT_menu.addAction(self.plotWidget.ZoomToggle)
-        plotCT_menu.addAction(self.plotWidget.actionAutoScale)
-        #plotCT_menu.addAction(self.actionToggleDraw)
-        plotCT_menu.exec_(self.plotWidget.mapToGlobal(point))
-
-
-
-
-
-    def saveCSVTable(self, tableName = None, saveFileName = None):
-        if tableName is None and saveFileName is None:
-            saveFileName = QtGui.QFileDialog.getSaveFileName(self,\
-                                                     self.SaveDataText,\
-                                                     self.__curDir, 'CSV Text File (*.csv)')
-            if saveFileName:
-                curTbl = str(self.queryTblList.currentItem().text())
-                if len(curTbl)>0:
-                    self.curDB.DUMP_TABLE(curTbl, saveFileName)
-                    self.__curDir = getCurDir(saveFileName)
-        else:
-            self.curDB.DUMP_TABLE(tableName, saveFileName)
-            self.__curDir = getCurDir(saveFileName)
-
-
-    def getFragSpectrum(self):
-        curCol = self.elemTableWidget.currentColumn()
-        if self.elemTableWidget.currentItem() == None:
-            return False
-            #print "Current index: ",  self.elemTableWidget.currentRow(), curCol
-        else:
-            try:
-                curItem = self.elemTableWidget.item(1, 1)
-                indexVal = int(curItem.text())
-                #indexVal +=-1#this is because we are counting from zero, but the index table counts from 1
-                curSeq = self.activeData['pepID'][indexVal]
-                xData = self.activeData['xFrags'][indexVal]#this is text and needs to be converted
-                yData = self.activeData['yFrags'][indexVal]
-                tableText = str(self.elemTableWidget.item(0, 1).text())
-                eValText = str(self.activeData['pep_eVal'][indexVal])
-                theoMZText = '%.2f'%self.activeData['theoMZ'][indexVal]
-                ppmText = '%d'%self.activeData['ppm_error'][indexVal]
-                fragTitle = tableText+', '+'Index: '+str(indexVal)+', '+curSeq
-                textTag='\n'
-                textTag+='e-Val: '
-                textTag+= eValText
-                textTag+='\n'
-                textTag+='m/z: '
-                textTag+=theoMZText
-                textTag+='\n'
-                textTag+='ppm error: '
-                textTag+=ppmText
-
-                tempXList = xData.split()
-                tempYList = yData.split()
-#                print type(tempXList), type(tempYList)
-#                print tempXList
-                xData = N.array(tempXList, dtype = N.float)#conver to array with dtype set or it will default to string types
-                yData = N.array(tempYList, dtype = N.float)
-                curFragPlot = FragPlotWidgets.FragPlot(curSeq, xData, yData, title = fragTitle, annotation = textTag)
-                curFragPlot.show()
-                self.openPlotList.append(curFragPlot)
-#                print indexVal
-#                print curSeq
-#                print xData
-#                print yData
-
-#                curType = self.infoMap[str(curItem.text())]
-#                curVal = self.curSelectInfo[str(curItem.text())]
-#                curTbl = self.curTbl
-            except:
-                raise
-
-    def showTable(self):
-        curItem = self.queryTblList.currentItem()
-        if curItem != None:
-            curTbl = str(curItem.text())
-            if self.dbStatus:
-                ok, result, colNames = self.curDB.GET_TABLE(curTbl)
-                if ok:
-                    self.openTableList.append(DBTable(result, enableSort = True, title = curTbl, colHeaderList = colNames))
-                    self.curDBTable = self.openTableList[-1]#append adds to the end of the list so adding the most recent addition
+#    def __saveDataFile__(self):
+#        return QtGui.QMessageBox.information(self,'', "This feature is not implemented yet.  Use a database outside of memory")
+##        saveFileName = QtGui.QFileDialog.getSaveFileName(self,\
+##                                                             self.SaveDataText,\
+##                                                             self.__curDir, 'HDF5 File (*.h5);;SQLite Database (*.db)')
+##        if saveFileName:
+##            if self.curFile:
+##                #print "File name is: %s" % (str(self.curFileName))
+##                fileType= str(saveFileName).split('.')[-1]
+##                if fileType=='h5':
+##                    print self.curFile, type(self.curFile)
+###                    dbIO.save_XT_HDF5(str(saveFileName),  self.curFile)
+##                elif fileType == 'db':
+##                    sqldb = dbIO.XT_DB(str(saveFileName), "testTables")#NEED TO FIX THE NAME
+##                    sqldb.INSERT_XT_VALUES(sqldb.curTblName, self.curFile)
+##                    sqldb.close()
+##            else:
+##                return QtGui.QMessageBox.information(self,'', "A X!Tandem File must be loaded first before saving")
+#
+#
+#    def getFNCore(self, filename):
+#        '''This function parses the filename to get a simple name for the table to be entered into memory and the database'''
+#        self.sysType = os.sys.platform
+#        if self.sysType == 'win32':
+#            fs = filename.split('/')[-1]#fs = file split
+#            fileCore = fs.split('.')[0]
+#        else:
+#            fs = filename.split('/')[-1]#fs = file split
+#            fileCore = fs.split('.')[0]
+#        return fileCore
+#
+#
+#
+#    def getPlotColor(self):
+#        color = plot_colors[self.plot_num]
+#        if self.plot_num is len(plot_colors)-1:
+#            self.plot_num = 0
+#        else:
+#            self.plot_num+=1
+#        return color
+#
+#    def getPlotMarker(self):
+#        marker = markers[self.marker_index]
+#        if self.marker_index is len(markers)-1:
+#            self.marker_index = 0
+#        else:
+#            self.marker_index+=1
+#        return marker
+#
+#
+#    def getFragSpectrum(self):
+#        curCol = self.elemTableWidget.currentColumn()
+#        if self.elemTableWidget.currentItem() == None:
+#            return False
+#            #print "Current index: ",  self.elemTableWidget.currentRow(), curCol
+#        else:
+#            try:
+#                curItem = self.elemTableWidget.item(1, 1)
+#                indexVal = int(curItem.text())
+#                #indexVal +=-1#this is because we are counting from zero, but the index table counts from 1
+#                curSeq = self.activeData['pepID'][indexVal]
+#                xData = self.activeData['xFrags'][indexVal]#this is text and needs to be converted
+#                yData = self.activeData['yFrags'][indexVal]
+#                tableText = str(self.elemTableWidget.item(0, 1).text())
+#                eValText = str(self.activeData['pep_eVal'][indexVal])
+#                theoMZText = '%.2f'%self.activeData['theoMZ'][indexVal]
+#                ppmText = '%d'%self.activeData['ppm_error'][indexVal]
+#                fragTitle = tableText+', '+'Index: '+str(indexVal)+', '+curSeq
+#                textTag='\n'
+#                textTag+='e-Val: '
+#                textTag+= eValText
+#                textTag+='\n'
+#                textTag+='m/z: '
+#                textTag+=theoMZText
+#                textTag+='\n'
+#                textTag+='ppm error: '
+#                textTag+=ppmText
+#
+#                tempXList = xData.split()
+#                tempYList = yData.split()
+##                print type(tempXList), type(tempYList)
+##                print tempXList
+#                xData = N.array(tempXList, dtype = N.float)#conver to array with dtype set or it will default to string types
+#                yData = N.array(tempYList, dtype = N.float)
+#                curFragPlot = FragPlotWidgets.FragPlot(curSeq, xData, yData, title = fragTitle, annotation = textTag)
+#                curFragPlot.show()
+#                self.openPlotList.append(curFragPlot)
+##                print indexVal
+##                print curSeq
+##                print xData
+##                print yData
+#
+##                curType = self.infoMap[str(curItem.text())]
+##                curVal = self.curSelectInfo[str(curItem.text())]
+##                curTbl = self.curTbl
+#            except:
+#                raise
+#
+#    def showTable(self):
+#        curItem = self.queryTblList.currentItem()
+#        if curItem != None:
+#            curTbl = str(curItem.text())
+#            if self.dbStatus:
+#                ok, result, colNames = self.curDB.GET_TABLE(curTbl)
+#                if ok:
+#                    self.openTableList.append(DBTable(result, enableSort = True, title = curTbl, colHeaderList = colNames))
+#                    self.curDBTable = self.openTableList[-1]#append adds to the end of the list so adding the most recent addition
 
     def __setMessages__(self):
         '''This function is obvious'''
@@ -803,96 +836,6 @@ class pysotope(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.ResetAllDataText = "This operation will reset all your data.\nWould you like to continue?"
         self.EmptyArrayText = "There is no data in the array selected.  Perhaps the search criteria are too stringent.  Check ppm and e-Value cutoff values.\n"
 
-    def __additionalVariables__(self):
-        '''Extra variables that are utilized by other functions'''
-        self.__curDir = getHomeDir()
-
-    def __additionalConnections__(self):
-        '''elemTableWidget context menu actions'''
-        self.selectDBFieldAction = QtGui.QAction("Select Table By Field", self)
-        self.elemTableWidget.addAction(self.selectDBFieldAction)
-        QtCore.QObject.connect(self.selectDBFieldAction,QtCore.SIGNAL("triggered()"), self.selectDBField)
-
-        self.saveDBFieldAction = QtGui.QAction("Save New Table By Field", self)
-        self.elemTableWidget.addAction(self.saveDBFieldAction)
-        QtCore.QObject.connect(self.saveDBFieldAction,QtCore.SIGNAL("triggered()"), self.saveQueryTable)
-
-        '''Database View, Add, Remove Tools'''
-        self.removeTableAction = QtGui.QAction("Remove Table from Database", self)
-        self.queryTblList.addAction(self.removeTableAction)
-        QtCore.QObject.connect(self.removeTableAction, QtCore.SIGNAL("triggered()"), self.removeTable)
-
-        self.dumpTableAction = QtGui.QAction("Save Table to CSV", self)
-        self.queryTblList.addAction(self.dumpTableAction)
-        QtCore.QObject.connect(self.dumpTableAction, QtCore.SIGNAL("triggered()"), self.saveCSVTable)
-
-        self.showTableAction = QtGui.QAction("Show Table", self)
-        self.queryTblList.addAction(self.showTableAction)
-        QtCore.QObject.connect(self.showTableAction, QtCore.SIGNAL("triggered()"), self.showTable)
-
-        QtCore.QObject.connect(self.actionSave_All_Tables, QtCore.SIGNAL("triggered()"), self.dumpAllCSVTables)
-        QtCore.QObject.connect(self.actionCopy_Current_Database, QtCore.SIGNAL("triggered()"), self.copyCurrentDatabase)
-
-        '''Fragment Display Tools'''
-        self.getFragAction = QtGui.QAction("Display Fragment Spectrum", self)
-        self.queryTblList.addAction(self.getFragAction)
-        QtCore.QObject.connect(self.getFragAction, QtCore.SIGNAL("triggered()"), self.getFragSpectrum)
-
-        '''Plot GUI Interaction slots'''
-        QtCore.QObject.connect(self.db_TableList, QtCore.SIGNAL("itemPressed (QListWidgetItem *)"), self.setColLists)
-        QtCore.QObject.connect(self.updatePlotBtn, QtCore.SIGNAL("clicked()"), self.updatePlot)
-        QtCore.QObject.connect(self.clearPlotBtn, QtCore.SIGNAL("clicked()"), self.clearPlot)
-
-        '''Query GUI slots'''
-        QtCore.QObject.connect(self.queryTblList, QtCore.SIGNAL("itemPressed (QListWidgetItem *)"), self.setQueryLists)
-        QtCore.QObject.connect(self.dbExecuteQuery,QtCore.SIGNAL("clicked()"),self.executeSQLQuery)
-        QtCore.QObject.connect(self.viewQueryBtn,QtCore.SIGNAL("clicked()"),self.viewQueryResults)
-        QtCore.QObject.connect(self.dumpDBBtn,QtCore.SIGNAL("clicked()"),self.dumpCurDB)
-
-        self.queryByTypeAction=QtGui.QAction("Query By Type Value",  self)
-        self.queryFieldList.addAction(self.queryByTypeAction)
-        QtCore.QObject.connect(self.queryByTypeAction,QtCore.SIGNAL("triggered()"), self.queryByType)
-
-        '''Peptide and Protein Query slots'''
-        self.uniqePeptidesAction = QtGui.QAction("Get Unique Peptides", self)
-        self.queryTblList.addAction(self.uniqePeptidesAction)
-        QtCore.QObject.connect(self.uniqePeptidesAction, QtCore.SIGNAL("triggered()"), self.UNIQUE_PEPTIDES)
-
-        self.uniqeProteinsAction = QtGui.QAction("Get Unique Proteins", self)
-        self.queryTblList.addAction(self.uniqeProteinsAction)
-        QtCore.QObject.connect(self.uniqeProteinsAction, QtCore.SIGNAL("triggered()"), self.UNIQUE_PROTEINS)
-
-        self.uniqePepByProtAction = QtGui.QAction("Get Unique Peptides by Protein", self)
-        self.queryTblList.addAction(self.uniqePepByProtAction)
-        QtCore.QObject.connect(self.uniqePepByProtAction, QtCore.SIGNAL("triggered()"), self.GROUP_UNIQUE_PEPTIDES_BY_PROTEIN)
-
-        self.uniqeMultiPepAction = QtGui.QAction("Group Unique Peptides Across Tables", self)
-        self.queryTblList.addAction(self.uniqeMultiPepAction)
-        QtCore.QObject.connect(self.uniqeMultiPepAction, QtCore.SIGNAL("triggered()"), self.MULTI_UNIQUE_PEPTIDE_GROUP)
-
-
-        '''Database Connection slots'''
-        QtCore.QObject.connect(self.openDBButton, QtCore.SIGNAL("clicked()"), self.setDBConnection)
-        QtCore.QObject.connect(self.useMemDB_CB, QtCore.SIGNAL("stateChanged (int)"), self.setMemDB)
-
-        QtCore.QObject.connect(self.dbCommitQuery, QtCore.SIGNAL("clicked()"), self.commitFullQuery)
-
-
-        '''File menu actions slots'''
-        QtCore.QObject.connect(self.action_Open,QtCore.SIGNAL("triggered()"),self.__readDataFile__)
-        QtCore.QObject.connect(self.actionLoad_Folder,QtCore.SIGNAL("triggered()"),self.__loadDataFolder__)
-        QtCore.QObject.connect(self.action_Save,QtCore.SIGNAL("triggered()"),self.__saveDataFile__)
-        QtCore.QObject.connect(self.actionFileOpen,QtCore.SIGNAL("triggered()"),self.__readDataFile__)
-        QtCore.QObject.connect(self.actionAbout,QtCore.SIGNAL("triggered()"),self.__showAbout__)
-
-        QtCore.QObject.connect(self.actionHints,QtCore.SIGNAL("triggered()"),self.__showHints__)
-        QtCore.QObject.connect(self.action_Exit,QtCore.SIGNAL("triggered()"),self.__exitProgram__)
-
-#        QtCore.QObject.connect(self.actionTools, QtCore.SIGNAL("triggered()"),self.__testFunc__)
-        #QtCore.QObject.connect(self.MainWindow,QtCore.SIGNAL("close()"),self.__exitProgram__)
-
-
-        QtCore.QMetaObject.connectSlotsByName(self)#MainWindow)
 
 ###########################################################
 
@@ -912,8 +855,7 @@ class pysotope(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 #        else:
 #            self.startup()
 #
-#    def __exitProgram__(self):
-#        self.close()
+
 #
 #    def okToExit(self):
 #        #add a question to save memory database to file
@@ -948,13 +890,11 @@ class pysotope(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
     def __showHints__(self):
         return QtGui.QMessageBox.information(self,
                                              ("Hints and known Issues"),
-                                             ("<p>1.  Ctrl+Z -- Zoom </p>",
-                                              "<p>2.  Ctrl+A -- Autoscale </p>",
-                                              "<p>3.  Ctrl+Z -- Copys a png to the clipboard </p>",
+                                             ("<p>1.  Ctrl+Z -- Zoom </p>"
+                                              "<p>2.  Ctrl+A -- Autoscale </p>"
+                                              "<p>3.  Ctrl+Z -- Copys a png to the clipboard </p>"
                                               "<p>4.  Ctrl+E -- Edit Properties of Graph </p>"
-
-
-                                              ))
+                                              "<p>5.  Click on points of parameter plots for more information. </p>"))
 
     def __showAbout__(self):
         return QtGui.QMessageBox.information(self,

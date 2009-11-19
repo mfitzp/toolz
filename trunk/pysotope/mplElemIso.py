@@ -30,7 +30,7 @@ class MyMplCanvas(FigureCanvas):
     def __init__(self, parent=None, width = 1, height = 2.0, dpi = 100, sharex = None, sharey = None):
         self.fig = Figure(figsize = (width, height), dpi=dpi, facecolor = '#FFFFFF')
         self.ax = self.fig.add_subplot(111, sharex = sharex, sharey = sharey)
-        self.fig.subplots_adjust(left=0.1, bottom=0.16, right=0.95, top=0.95)
+        self.fig.subplots_adjust(left=0.17, bottom=0.16, right=0.95, top=0.95)
         self.xtitle="m/z"
         self.ytitle="Intensity"
         self.PlotTitle = "Plot"
