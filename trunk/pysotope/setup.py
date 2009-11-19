@@ -5,6 +5,14 @@ import py2exe
 
 # We need to import the glob module to search for all files.
 import glob
+import os, sys
+
+origIsSystemDLL = py2exe.build_exe.isSystemDLL
+def isSystemDLL(pathname):
+        if os.path.basename(pathname).lower() in ("msvcp71.dll", "dwmapi.dll"):
+                return 0
+        return origIsSystemDLL(pathname)
+py2exe.build_exe.isSystemDLL = isSystemDLL
 
 # We need to exclude matplotlib backends not being used by this executable.  You may find
 # that you need different excludes to create a working executable with your chosen backend.
