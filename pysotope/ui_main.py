@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Documents and Settings\d3p483\workspace\pysotope\main.ui'
 #
-# Created: Tue Nov 17 12:59:44 2009
+# Created: Wed Nov 18 17:13:45 2009
 #      by: PyQt4 UI code generator 4.4.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -151,18 +151,9 @@ class Ui_MainWindow(object):
         self.gridlayout = QtGui.QGridLayout()
         self.gridlayout.setObjectName("gridlayout")
         self.updatePlotBtn = QtGui.QPushButton(self.configTab)
-        self.updatePlotBtn.setEnabled(False)
+        self.updatePlotBtn.setEnabled(True)
         self.updatePlotBtn.setObjectName("updatePlotBtn")
         self.gridlayout.addWidget(self.updatePlotBtn, 3, 0, 1, 1)
-        self.clearPlotBtn = QtGui.QPushButton(self.configTab)
-        self.clearPlotBtn.setEnabled(False)
-        self.clearPlotBtn.setObjectName("clearPlotBtn")
-        self.gridlayout.addWidget(self.clearPlotBtn, 5, 0, 1, 1)
-        self.clearPlotCB = QtGui.QCheckBox(self.configTab)
-        self.clearPlotCB.setEnabled(False)
-        self.clearPlotCB.setChecked(True)
-        self.clearPlotCB.setObjectName("clearPlotCB")
-        self.gridlayout.addWidget(self.clearPlotCB, 4, 0, 1, 1)
         self.hboxlayout1 = QtGui.QHBoxLayout()
         self.hboxlayout1.setObjectName("hboxlayout1")
         self.cb_logx = QtGui.QCheckBox(self.configTab)
@@ -359,9 +350,13 @@ class Ui_MainWindow(object):
         self.actionSave_Isotope_Profile_B_to_CSV = QtGui.QAction(MainWindow)
         self.actionSave_Isotope_Profile_B_to_CSV.setIcon(icon10)
         self.actionSave_Isotope_Profile_B_to_CSV.setObjectName("actionSave_Isotope_Profile_B_to_CSV")
+        self.actionClear_Plot = QtGui.QAction(MainWindow)
+        self.actionClear_Plot.setObjectName("actionClear_Plot")
         self.menuFile.addAction(self.action_Exit)
         self.menu_Tools.addAction(self.actionSave_Isotope_Profile_A_to_CSV)
         self.menu_Tools.addAction(self.actionSave_Isotope_Profile_B_to_CSV)
+        self.menu_Tools.addSeparator()
+        self.menu_Tools.addAction(self.actionClear_Plot)
         self.menu_Help.addAction(self.actionAbout)
         self.menu_Help.addAction(self.actionHints)
         self.menubar.addAction(self.menuFile.menuAction())
@@ -400,8 +395,6 @@ class Ui_MainWindow(object):
         self.mainTabWidget.setTabText(self.mainTabWidget.indexOf(self.periodTab), QtGui.QApplication.translate("MainWindow", "Periodic Table", None, QtGui.QApplication.UnicodeUTF8))
         self.label_4.setText(QtGui.QApplication.translate("MainWindow", "Plot Types:", None, QtGui.QApplication.UnicodeUTF8))
         self.updatePlotBtn.setText(QtGui.QApplication.translate("MainWindow", "Update Plot", None, QtGui.QApplication.UnicodeUTF8))
-        self.clearPlotBtn.setText(QtGui.QApplication.translate("MainWindow", "Clear Plot", None, QtGui.QApplication.UnicodeUTF8))
-        self.clearPlotCB.setText(QtGui.QApplication.translate("MainWindow", "Clear on Update?", None, QtGui.QApplication.UnicodeUTF8))
         self.cb_logx.setText(QtGui.QApplication.translate("MainWindow", "Log X", None, QtGui.QApplication.UnicodeUTF8))
         self.cb_logy.setText(QtGui.QApplication.translate("MainWindow", "Log Y", None, QtGui.QApplication.UnicodeUTF8))
         self.label_8.setText(QtGui.QApplication.translate("MainWindow", "Size Modifier:", None, QtGui.QApplication.UnicodeUTF8))
@@ -457,6 +450,7 @@ class Ui_MainWindow(object):
         self.actionCopy_Current_Database.setText(QtGui.QApplication.translate("MainWindow", "Copy Current Database", None, QtGui.QApplication.UnicodeUTF8))
         self.actionSave_Isotope_Profile_A_to_CSV.setText(QtGui.QApplication.translate("MainWindow", "Save Isotope Profile A to CSV", None, QtGui.QApplication.UnicodeUTF8))
         self.actionSave_Isotope_Profile_B_to_CSV.setText(QtGui.QApplication.translate("MainWindow", "Save Isotope Profile B to CSV", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionClear_Plot.setText(QtGui.QApplication.translate("MainWindow", "Clear Plot", None, QtGui.QApplication.UnicodeUTF8))
 
 from mpl_custom_widget import MPL_Widget
 import SubPlot_rc

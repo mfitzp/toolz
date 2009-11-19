@@ -1711,7 +1711,7 @@ elemDict['At'] = Element(85, 'At', 'Astatine',
     eleshells=(2, 8, 18, 32, 18, 7),
     eleconfig='[Xe] 4f^14 5d^10 6s^2 6p^5',
     oxistates='7, 5, 3, 1, -1*',
-    ionenergy=(),
+    ionenergy=(    0.000,),
     isotopes=((210, 209.9871310000, 1.00000000),),)
 
 elemDict['Rn'] = Element(86, 'Rn', 'Radon',
@@ -1973,7 +1973,7 @@ elemDict['Db']= Element(105, 'Db', 'Dubnium',
     eleshells=(2, 8, 18, 32, 32, 11, 2),
     eleconfig='[Rn] 5f^14 6d^3 7s^2',
     oxistates='*',
-    ionenergy=(),
+    ionenergy=(    0.000,),
     isotopes=((262, 262.1141500000, 1.00000000),),)
 
 elemDict['Sg']= Element(106, 'Sg', 'Seaborgium',
@@ -1986,7 +1986,7 @@ elemDict['Sg']= Element(106, 'Sg', 'Seaborgium',
     eleshells=(2, 8, 18, 32, 32, 12, 2),
     eleconfig='[Rn] 5f^14 6d^4 7^s2',
     oxistates='*',
-    ionenergy=(),
+    ionenergy=(    0.000,),
     isotopes=((266, 266.1219300000, 1.00000000),),)
 
 elemDict['Bh']= Element(107, 'Bh', 'Bohrium',
@@ -1999,7 +1999,7 @@ elemDict['Bh']= Element(107, 'Bh', 'Bohrium',
     eleshells=(2, 8, 18, 32, 32, 13, 2),
     eleconfig='[Rn] 5f^14 6d^5 7^s2',
     oxistates='*',
-    ionenergy=(),
+    ionenergy=(    0.000,),
     isotopes=((265, 265.1247300000, 1.00000000),),)#Mod BHC
 
 elemDict['Hs']= Element(108, 'Hs', 'Hassium',
@@ -2012,7 +2012,7 @@ elemDict['Hs']= Element(108, 'Hs', 'Hassium',
     eleshells=(2, 8, 18, 32, 32, 14, 2),
     eleconfig='[Rn] 5f^14 6d^6 7s^2',
     oxistates='*',
-    ionenergy=(),
+    ionenergy=(    0.000,),
     isotopes=((269, 269.1341100000, 1.00000000),),)
 
 elemDict['Mt']= Element(109, 'Mt', 'Meitnerium',
@@ -2025,7 +2025,7 @@ elemDict['Mt']= Element(109, 'Mt', 'Meitnerium',
     eleshells=(2, 8, 18, 32, 32, 15, 2),
     eleconfig='[Rn] 5f^14 6d^7 7s^2',
     oxistates='*',
-    ionenergy=(),
+    ionenergy=(    0.000,),
     isotopes=((268, 268.1388200000, 1.00000000),),)
 
 elemDict['Ds'] = Element(110, 'Ds', 'Darmstadtium',
@@ -2038,7 +2038,7 @@ elemDict['Ds'] = Element(110, 'Ds', 'Darmstadtium',
     eleshells=(2, 8, 18, 32, 32, 17, 1),
     eleconfig='[Rn] 5f^14 6d^9 7s^1',
     oxistates='*',
-    ionenergy=(),
+    ionenergy=(    0.000,),
     isotopes=((271, 271.14600000, 1.00000000),),)
 
 #elemDict['Rg'] = 111 272.154
@@ -2078,4 +2078,5 @@ def test_elements_module():
 if __name__ == "__main__":
     C = elemDict['C']
     print C.isotopes
+    print C.__dict__
 #    test_elements_module()

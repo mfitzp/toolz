@@ -220,14 +220,44 @@ class MPL_Widget(QtGui.QWidget):
         self.addLegend = False
 
 
+        self.x = None#used for picker
+        self.y = None
+
         #######SAVING FIGURE DATA############################
         if enableCSV:
             self.enableCSV()
 
 
         ########### HELPER FUNCTIONS #########################
+        self.clearPlotAction = QtGui.QAction("Clear Plot", self)
+        self.addAction(self.clearPlotAction)
+        QtCore.QObject.connect(self, QtCore.SIGNAL("triggered()"), self.clearPlot)
+
 #    def focusOutEvent(self, event):
 #        print "Focus Out"
+
+    def clearPlot(self):
+        print "Clear Plot"
+        self.canvas.ax.cla()
+        self.canvas.format_labels()
+        self.canvas.draw()
+
+#    def __initContextMenus__(self):
+#        self.clearPlotAction = QtGui.QAction("Clear Plot", self)
+#        self.addAction(self.clearPlotAction)
+#        QtCore.QObject.connect(self, QtCore.SIGNAL("triggered()"), self.clearPlot)
+#
+#        self.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+#        self.connect(self, QtCore.SIGNAL("customContextMenuRequested(QPoint)"), self.plotTabContext)
+
+#    def plotTabContext(self, point):
+#        '''Create a menu for mainTabWidget'''
+#        plotCT_menu = QtGui.QMenu("Menu", self)
+#        plotCT_menu.addAction(self.Zoom)
+#        plotCT_menu.addAction(self.actionAutoScale)
+#        plotCT_menu.addSeparator()
+#        plotCT_menu.addAction(self.clearPlotAction)
+#        plotCT_menu.exec_(self.mapToGlobal(point))
 
     def focusEvent(self, event):
         self.enableAutoScale()
@@ -268,7 +298,7 @@ class MPL_Widget(QtGui.QWidget):
         self.Zoom = QtGui.QAction("Zoom",  self)
         self.Zoom.setShortcut("Ctrl+Z")
         self.addAction(self.Zoom)
-        QtCore.QObject.connect(self.Zoom,QtCore.SIGNAL("triggered()"), self.ZoomToggle)
+        QtCore.QObject.connect(self.Zoom, QtCore.SIGNAL("triggered()"), self.ZoomToggle)
 
     def disableZoom(self):
         if self.Zoom != None:
@@ -286,7 +316,6 @@ class MPL_Widget(QtGui.QWidget):
         self.addAction(self.actionAutoScale)
         QtCore.QObject.connect(self.actionAutoScale,QtCore.SIGNAL("triggered()"), self.autoscale_plot)
 
-
     def enableCSV(self):
         self.saveCSVAction = QtGui.QAction("Save to CSV",  self)
         self.saveCSVAction.setShortcut("Ctrl+Alt+S")
@@ -303,7 +332,6 @@ class MPL_Widget(QtGui.QWidget):
         if lineList > 0:
             for line in lineList:
                 self.lineDict[line.get_label()]=line
-
 
     def editPlotProperties(self):
         print "Edit Enabled"
@@ -389,9 +417,14 @@ class MPL_Widget(QtGui.QWidget):
         except:
             print ""
 
+    def setData(self, x, y):
+        if x != None:
+            self.x = x
+        if y != None:
+            self.y = y
+
     def addPicker(self):
         '''Sets up the plot variables used for interaction'''
-        print "SetupPlot"
         self.handleA,  = self.canvas.ax.plot([0], [0], 'o',\
                                         ms=8, alpha=.5, color='yellow', visible=True,  label = '_nolegend_')
         self.is_hZoom = False
@@ -404,17 +437,22 @@ class MPL_Widget(QtGui.QWidget):
         except:
             pass
         self.curText = event.artist.get_label()
-#        if self.clearPlotCB.isChecked():
-#            #I'd rather do the following ALWAYS but it seems difficult to do in terms of keeping track of which arrays were plotted when multiple plots are present
-#        self.handleA.set_data(N.take(self.x, [self.pickIndex]), N.take(self.y, [self.pickIndex]))
-#        else:
-        self.handleA.set_data([event.mouseevent.xdata], [event.mouseevent.ydata])
+        if self.x != None and self.y != None:
+            #I'd rather do the following ALWAYS but it seems difficult to do in terms of keeping track of which arrays were plotted when multiple plots are present
+            paramVal = N.take(self.y, [self.pickIndex])
+            self.handleA.set_data(N.take(self.x, [self.pickIndex]), [paramVal])
 
-        self.handleA.set_visible(True)
-        showText = '%s'%self.dataLabels[self.pickIndex]
+        else:
+            paramVal = event.mouseevent.ydata
+            self.handleA.set_data([event.mouseevent.xdata], [paramVal])
+
+
+        showText = '%s: %s'%(self.dataLabels[self.pickIndex],paramVal[0])
+#        showText = '%s: %s'%self.dataLabels[self.pickIndex]
         self.textHandle = self.canvas.ax.text(0.03, 0.95, showText, fontsize=9,\
                                         bbox=dict(facecolor='yellow', alpha=0.1),\
                                         transform=self.canvas.ax.transAxes, va='top')
+        self.handleA.set_visible(True)
         self.canvas.draw()
 
     def mpl2Clip(self):

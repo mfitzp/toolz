@@ -292,33 +292,10 @@ p, li { white-space: pre-wrap; }
                 <item row="3" column="0" >
                  <widget class="QPushButton" name="updatePlotBtn" >
                   <property name="enabled" >
-                   <bool>false</bool>
+                   <bool>true</bool>
                   </property>
                   <property name="text" >
                    <string>Update Plot</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="5" column="0" >
-                 <widget class="QPushButton" name="clearPlotBtn" >
-                  <property name="enabled" >
-                   <bool>false</bool>
-                  </property>
-                  <property name="text" >
-                   <string>Clear Plot</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="4" column="0" >
-                 <widget class="QCheckBox" name="clearPlotCB" >
-                  <property name="enabled" >
-                   <bool>false</bool>
-                  </property>
-                  <property name="text" >
-                   <string>Clear on Update?</string>
-                  </property>
-                  <property name="checked" >
-                   <bool>true</bool>
                   </property>
                  </widget>
                 </item>
@@ -464,6 +441,8 @@ p, li { white-space: pre-wrap; }
     </property>
     <addaction name="actionSave_Isotope_Profile_A_to_CSV" />
     <addaction name="actionSave_Isotope_Profile_B_to_CSV" />
+    <addaction name="separator" />
+    <addaction name="actionClear_Plot" />
    </widget>
    <widget class="QMenu" name="menu_Help" >
     <property name="title" >
@@ -807,6 +786,11 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="text" >
     <string>Save Isotope Profile B to CSV</string>
+   </property>
+  </action>
+  <action name="actionClear_Plot" >
+   <property name="text" >
+    <string>Clear Plot</string>
    </property>
   </action>
  </widget>
