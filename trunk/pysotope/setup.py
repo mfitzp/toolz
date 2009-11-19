@@ -30,6 +30,7 @@ data_files = [(r'mpl-data', glob.glob(r'C:\Python25\Lib\site-packages\matplotlib
                   (r'mpl-data', [r'C:\Python25\Lib\site-packages\matplotlib\mpl-data\matplotlibrc']),
                   ('periodicTableCoordinates.csv'),
                   ('_libmercury.so'),
+                  ('C:\Python25\Lib\site-packages\PyQt4\QtSvg4.dll'),
                   (r'mpl-data\images',glob.glob(r'C:\Python25\Lib\site-packages\matplotlib\mpl-data\images\*.*')),
                   (r'mpl-data\fonts',glob.glob(r'C:\Python25\Lib\site-packages\matplotlib\mpl-data\fonts\*.*')),
                   (r'images',glob.glob(r'images\*.*'))]
