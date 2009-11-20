@@ -110,6 +110,10 @@ plot_colors = ['#297AA3','#A3293D','#3B9DCE','#293DA3','#5229A3','#8F29A3','#A32
 
 markers = ['o', 'd','>', 's', '^',  'p', '<', 'h', 'v']
 
+AAs = ['C2H3NO', 'C3H5NO','C3H5NO2','C5H7NO','C5H9NO','C4H7NO2','C3H5NOS','C6H11NO','C6H11NO','C4H6N2O2',
+       'C4H5NO3','C5H8N2O2','C6H12N2O','C5H7NO3','C5H9NOS','C6H7N3O','C9H9NO','C6H12N4O','C9H9NO2','C11H10N2O']
+
+
 class periodicTableWidget(QtSvg.QSvgWidget):
     def __init__(self, parent = None):
         super(periodicTableWidget,  self).__init__(parent)
@@ -502,6 +506,7 @@ class pysotope(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                 print elemList
                 print "Element List Wonky"
 
+
     def normalize(self, arrayVals):
         if type(arrayVals) is list:
             arrayVals = N.array(arrayVals)
@@ -509,6 +514,11 @@ class pysotope(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         arrayVals /= arrayVals.max()
         arrayVals != 100
         return arrayVals
+
+    def clearCmpdPlot(self):
+        self.cmpdPlotWidget.canvas.ax.cla()
+        self.cmpdPlotWidget.canvas.format_labels()
+        self.cmpdPlotWidget.canvas.draw()
 
     def clearPlot(self):
         self.isoCentroidsA = []
@@ -598,7 +608,6 @@ class pysotope(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             print elemDict[elem].name, elemDict[elem].ionenergy
             raise
 
-
     def addPlot(self, data, dataLabels = None, title = None, xAxisTitle = None, yAxisTitle = None):
         if len(data) != 0:
             subPlot = MPL_Widget()
@@ -643,8 +652,90 @@ class pysotope(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 #        plotCT_menu.addAction(self.clearPlotAction)
 #        plotCT_menu.exec_(self.plotWidget.mapToGlobal(point))
 
+
+    def setTableVal(self, dataTable, row, column, val):
+        curItem = QtGui.QTableWidgetItem(val)
+        dataTable.setItem(row, column, curItem)
+
+
+    def generalIsoPlot(self, formula, charge, mplCanvas, dataTable = None, curIter = None):
+        boolAns, elemList, elemComp = getAtoms(formula)
+        print elemList, elemComp
+        if boolAns:
+            isoAns = isoCalc(elemList, elemComp, charge)
+            if isoAns[0]:
+                isoCentroids = []
+                if dataTable != None and curIter != None:
+                    self.setTableVal(dataTable, curIter, 2, str(isoAns[1][0][0]))
+                isoCentroids.append(isoAns[1][0])
+                isoCentroids.append(isoAns[1][1])
+                ANS = self.calcGaussIsos(isoCentroids[0], isoCentroids[1], self.isoResCalc_SB.value())
+                boolAns, peakListX, peakListY = ANS
+                if boolAns:
+                    isoTraces = []
+                    for i,peakX in enumerate(peakListX):
+                        peakY = peakListY[i]
+                        isoTraces.append([peakX, peakY])
+                    self.generalPlotHelper(isoCentroids, isoTraces, formula, charge, mplCanvas)
+
+    def generalPlotHelper(self, isoCentroids, isoTraces, formula, charge, mplCanvas):
+        '''I know this name sucks, feeling uncreative at this point'''
+        '''
+        'b':'#0000ff', 'g':'#00ff00','r':'#ff0000'
+        '''
+        if len(isoCentroids) > 0:
+            mplCanvas.ax.vlines(isoCentroids[0], 0, isoCentroids[1], color = '#ff0000', label = '_nolegend_')
+            self.labelPeaks(isoCentroids[0], isoCentroids[1], mplCanvas.ax)
+
+        if len(isoTraces)>0:
+            for i,trace in enumerate(isoTraces):
+                if i == 0:
+                    labelStr = formula+' +'+str(charge)
+                    mplCanvas.ax.plot(trace[0], trace[1],color = '#0000ff', alpha = 0.5, label = labelStr)
+                else:
+                    mplCanvas.ax.plot(trace[0], trace[1],color = '#0000ff', alpha = 0.5)
+
+#        mplCanvas.ax.set_ylim(ymax = 1.25)
+#        mplCanvas.ax.legend()
+#        mplCanvas.format_labels()
+#        mplCanvas.ax.set_ylim(ymin = -0.01)
+#
+##        self.plotWidget.canvas.ax.autoscale_view(tight = False, scalex=True, scaley=True)
+        mplCanvas.draw()
+
+    def updateCmpdPlot(self):
+        rowCount = self.cmpdListWidget.rowCount()
+        self.cmpdPlotWidget.clearPlot()
+        mplCanvas = self.cmpdPlotWidget.canvas
+        for i in xrange(rowCount):
+            curFormula = str(self.cmpdListWidget.item(i,0).text())
+            try:
+                curCharge = int(self.cmpdListWidget.item(i,1).text())
+                self.generalIsoPlot(curFormula, curCharge, mplCanvas, self.cmpdListWidget, i)
+            except:
+                self.cmpdListWidget.setItem(i,2,QtGui.QTableWidgetItem('Charge State Error'))
+
+        mplCanvas.ax.set_ylim(ymax = 1.25)
+#        mplCanvas.ax.legend()
+        mplCanvas.format_labels()
+        mplCanvas.ax.set_ylim(ymin = -0.01)
+
+#        self.plotWidget.canvas.ax.autoscale_view(tight = False, scalex=True, scaley=True)
+        mplCanvas.draw()
+        self.cmpdListWidget.resizeColumnsToContents()
+
+    def setupGUI(self):
+        for i,aa in enumerate(AAs):
+            aaItem = QtGui.QTableWidgetItem(aa)
+            chargeItem = QtGui.QTableWidgetItem('1')
+            #row then column
+            self.cmpdListWidget.setItem(i,0,aaItem)
+            self.cmpdListWidget.setItem(i,1,chargeItem)
+        self.cmpdListWidget.resizeColumnsToContents()
+
     def startup(self, dbName = None, startDB = True):
         self.setupPlotTypes()
+        self.setupGUI()
         self.electronMass = 0.00054858
         self.isoTracesA = []
         self.isoTracesB = []
@@ -670,6 +761,9 @@ class pysotope(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         QtCore.QObject.connect(self.actionHints,QtCore.SIGNAL("triggered()"),self.__showHints__)
         QtCore.QObject.connect(self.action_Exit,QtCore.SIGNAL("triggered()"),self.__exitProgram__)
         QtCore.QObject.connect(self.actionClear_Plot, QtCore.SIGNAL("triggered()"), self.clearPlot)
+
+        QtCore.QObject.connect(self.clearCpndPlotBtn, QtCore.SIGNAL("clicked()"), self.clearCmpdPlot)
+        QtCore.QObject.connect(self.plotListBtn, QtCore.SIGNAL("clicked()"), self.updateCmpdPlot)
 
  #        QtCore.QObject.connect(self.actionTools, QtCore.SIGNAL("triggered()"),self.__testFunc__)
         #QtCore.QObject.connect(self.MainWindow,QtCore.SIGNAL("close()"),self.__exitProgram__)

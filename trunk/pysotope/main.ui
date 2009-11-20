@@ -36,7 +36,7 @@
       <item>
        <widget class="QTabWidget" name="mainTabWidget" >
         <property name="currentIndex" >
-         <number>0</number>
+         <number>3</number>
         </property>
         <widget class="QWidget" name="calcTab" >
          <attribute name="title" >
@@ -404,6 +404,151 @@ p, li { white-space: pre-wrap; }
              </spacer>
             </item>
            </layout>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="tab" >
+         <attribute name="title" >
+          <string>Table Plot</string>
+         </attribute>
+         <layout class="QGridLayout" name="gridLayout" >
+          <item row="0" column="0" >
+           <layout class="QVBoxLayout" name="verticalLayout_5" >
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_7" >
+              <item>
+               <widget class="QLabel" name="label_5" >
+                <property name="sizePolicy" >
+                 <sizepolicy vsizetype="Preferred" hsizetype="Minimum" >
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="maximumSize" >
+                 <size>
+                  <width>75</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="text" >
+                 <string>Compound List</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QToolButton" name="plotListBtn" >
+                <property name="toolTip" >
+                 <string>&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">
+&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+p, li { white-space: pre-wrap; }
+&lt;/style>&lt;/head>&lt;body style=" font-family:'Arial'; font-size:8.25pt; font-weight:400; font-style:normal;">
+&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">Plot Compound List&lt;/p>&lt;/body>&lt;/html></string>
+                </property>
+                <property name="text" >
+                 <string>...</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer" >
+                <property name="orientation" >
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeType" >
+                 <enum>QSizePolicy::Minimum</enum>
+                </property>
+                <property name="sizeHint" stdset="0" >
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QToolButton" name="clearCpndPlotBtn" >
+                <property name="toolTip" >
+                 <string>&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">
+&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+p, li { white-space: pre-wrap; }
+&lt;/style>&lt;/head>&lt;body style=" font-family:'Arial'; font-size:8.25pt; font-weight:400; font-style:normal;">
+&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">Clear Compound Plot&lt;/p>&lt;/body>&lt;/html></string>
+                </property>
+                <property name="text" >
+                 <string>...</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="CustomTable" name="cmpdListWidget" >
+              <property name="sizePolicy" >
+               <sizepolicy vsizetype="Expanding" hsizetype="MinimumExpanding" >
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="maximumSize" >
+               <size>
+                <width>300</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="rowCount" >
+               <number>20</number>
+              </property>
+              <property name="columnCount" >
+               <number>3</number>
+              </property>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <column>
+               <property name="text" >
+                <string>Compound</string>
+               </property>
+              </column>
+              <column>
+               <property name="text" >
+                <string>Charge</string>
+               </property>
+              </column>
+              <column>
+               <property name="text" >
+                <string>m/z</string>
+               </property>
+              </column>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="0" column="1" >
+           <widget class="MPL_Widget" native="1" name="cmpdPlotWidget" >
+            <property name="sizePolicy" >
+             <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+           </widget>
           </item>
          </layout>
         </widget>
@@ -800,6 +945,11 @@ p, li { white-space: pre-wrap; }
    <extends>QWidget</extends>
    <header>mpl_custom_widget</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>CustomTable</class>
+   <extends>QTableWidget</extends>
+   <header>customTable</header>
   </customwidget>
  </customwidgets>
  <resources>

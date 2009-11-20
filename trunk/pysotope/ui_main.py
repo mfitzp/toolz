@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Documents and Settings\d3p483\workspace\pysotope\main.ui'
 #
-# Created: Wed Nov 18 17:13:45 2009
+# Created: Fri Nov 20 11:53:53 2009
 #      by: PyQt4 UI code generator 4.4.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -200,6 +200,57 @@ class Ui_MainWindow(object):
         self.verticalLayout.addItem(spacerItem)
         self.horizontalLayout_6.addLayout(self.verticalLayout)
         self.mainTabWidget.addTab(self.configTab, "")
+        self.tab = QtGui.QWidget()
+        self.tab.setObjectName("tab")
+        self.gridLayout = QtGui.QGridLayout(self.tab)
+        self.gridLayout.setObjectName("gridLayout")
+        self.verticalLayout_5 = QtGui.QVBoxLayout()
+        self.verticalLayout_5.setObjectName("verticalLayout_5")
+        self.horizontalLayout_7 = QtGui.QHBoxLayout()
+        self.horizontalLayout_7.setObjectName("horizontalLayout_7")
+        self.label_5 = QtGui.QLabel(self.tab)
+        self.label_5.setObjectName("label_5")
+        self.horizontalLayout_7.addWidget(self.label_5)
+        self.plotListBtn = QtGui.QToolButton(self.tab)
+        self.plotListBtn.setObjectName("plotListBtn")
+        self.horizontalLayout_7.addWidget(self.plotListBtn)
+        spacerItem1 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Minimum)
+        self.horizontalLayout_7.addItem(spacerItem1)
+        self.clearCpndPlotBtn = QtGui.QToolButton(self.tab)
+        self.clearCpndPlotBtn.setObjectName("clearCpndPlotBtn")
+        self.horizontalLayout_7.addWidget(self.clearCpndPlotBtn)
+        spacerItem2 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.horizontalLayout_7.addItem(spacerItem2)
+        self.verticalLayout_5.addLayout(self.horizontalLayout_7)
+        self.cmpdListWidget = CustomTable(self.tab)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.MinimumExpanding, QtGui.QSizePolicy.Expanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.cmpdListWidget.sizePolicy().hasHeightForWidth())
+        self.cmpdListWidget.setSizePolicy(sizePolicy)
+        self.cmpdListWidget.setMaximumSize(QtCore.QSize(300, 16777215))
+        self.cmpdListWidget.setRowCount(20)
+        self.cmpdListWidget.setColumnCount(3)
+        self.cmpdListWidget.setObjectName("cmpdListWidget")
+        self.cmpdListWidget.setColumnCount(3)
+        self.cmpdListWidget.setRowCount(20)
+        item = QtGui.QTableWidgetItem()
+        self.cmpdListWidget.setHorizontalHeaderItem(0, item)
+        item = QtGui.QTableWidgetItem()
+        self.cmpdListWidget.setHorizontalHeaderItem(1, item)
+        item = QtGui.QTableWidgetItem()
+        self.cmpdListWidget.setHorizontalHeaderItem(2, item)
+        self.verticalLayout_5.addWidget(self.cmpdListWidget)
+        self.gridLayout.addLayout(self.verticalLayout_5, 0, 0, 1, 1)
+        self.cmpdPlotWidget = MPL_Widget(self.tab)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.cmpdPlotWidget.sizePolicy().hasHeightForWidth())
+        self.cmpdPlotWidget.setSizePolicy(sizePolicy)
+        self.cmpdPlotWidget.setObjectName("cmpdPlotWidget")
+        self.gridLayout.addWidget(self.cmpdPlotWidget, 0, 1, 1, 1)
+        self.mainTabWidget.addTab(self.tab, "")
         self.hboxlayout.addWidget(self.mainTabWidget)
         self.verticalLayout_2.addLayout(self.hboxlayout)
         MainWindow.setCentralWidget(self.centralwidget)
@@ -366,7 +417,7 @@ class Ui_MainWindow(object):
         self.toolBar.addAction(self.actionTools)
 
         self.retranslateUi(MainWindow)
-        self.mainTabWidget.setCurrentIndex(0)
+        self.mainTabWidget.setCurrentIndex(3)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -400,6 +451,23 @@ class Ui_MainWindow(object):
         self.label_8.setText(QtGui.QApplication.translate("MainWindow", "Size Modifier:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_3.setText(QtGui.QApplication.translate("MainWindow", "Isotope Calculation Resolution", None, QtGui.QApplication.UnicodeUTF8))
         self.mainTabWidget.setTabText(self.mainTabWidget.indexOf(self.configTab), QtGui.QApplication.translate("MainWindow", "Plot Options", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_5.setText(QtGui.QApplication.translate("MainWindow", "Compound List", None, QtGui.QApplication.UnicodeUTF8))
+        self.plotListBtn.setToolTip(QtGui.QApplication.translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:\'Arial\'; font-size:8.25pt; font-weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Plot Compound List</p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
+        self.plotListBtn.setText(QtGui.QApplication.translate("MainWindow", "...", None, QtGui.QApplication.UnicodeUTF8))
+        self.clearCpndPlotBtn.setToolTip(QtGui.QApplication.translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:\'Arial\'; font-size:8.25pt; font-weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Clear Compound Plot</p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
+        self.clearCpndPlotBtn.setText(QtGui.QApplication.translate("MainWindow", "...", None, QtGui.QApplication.UnicodeUTF8))
+        self.cmpdListWidget.horizontalHeaderItem(0).setText(QtGui.QApplication.translate("MainWindow", "Compound", None, QtGui.QApplication.UnicodeUTF8))
+        self.cmpdListWidget.horizontalHeaderItem(1).setText(QtGui.QApplication.translate("MainWindow", "Charge", None, QtGui.QApplication.UnicodeUTF8))
+        self.cmpdListWidget.horizontalHeaderItem(2).setText(QtGui.QApplication.translate("MainWindow", "m/z", None, QtGui.QApplication.UnicodeUTF8))
+        self.mainTabWidget.setTabText(self.mainTabWidget.indexOf(self.tab), QtGui.QApplication.translate("MainWindow", "Table Plot", None, QtGui.QApplication.UnicodeUTF8))
         self.menuFile.setTitle(QtGui.QApplication.translate("MainWindow", "&File", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_Tools.setTitle(QtGui.QApplication.translate("MainWindow", "&Tools", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_Help.setTitle(QtGui.QApplication.translate("MainWindow", "&Help", None, QtGui.QApplication.UnicodeUTF8))
@@ -452,5 +520,6 @@ class Ui_MainWindow(object):
         self.actionSave_Isotope_Profile_B_to_CSV.setText(QtGui.QApplication.translate("MainWindow", "Save Isotope Profile B to CSV", None, QtGui.QApplication.UnicodeUTF8))
         self.actionClear_Plot.setText(QtGui.QApplication.translate("MainWindow", "Clear Plot", None, QtGui.QApplication.UnicodeUTF8))
 
+from customTable import CustomTable
 from mpl_custom_widget import MPL_Widget
 import SubPlot_rc
