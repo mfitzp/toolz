@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Documents and Settings\d3p483\workspace\pysotope\main.ui'
 #
-# Created: Fri Nov 20 11:53:53 2009
+# Created: Mon Nov 23 11:26:39 2009
 #      by: PyQt4 UI code generator 4.4.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -209,6 +209,12 @@ class Ui_MainWindow(object):
         self.horizontalLayout_7 = QtGui.QHBoxLayout()
         self.horizontalLayout_7.setObjectName("horizontalLayout_7")
         self.label_5 = QtGui.QLabel(self.tab)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.label_5.sizePolicy().hasHeightForWidth())
+        self.label_5.setSizePolicy(sizePolicy)
+        self.label_5.setMaximumSize(QtCore.QSize(75, 16777215))
         self.label_5.setObjectName("label_5")
         self.horizontalLayout_7.addWidget(self.label_5)
         self.plotListBtn = QtGui.QToolButton(self.tab)
@@ -219,9 +225,11 @@ class Ui_MainWindow(object):
         self.clearCpndPlotBtn = QtGui.QToolButton(self.tab)
         self.clearCpndPlotBtn.setObjectName("clearCpndPlotBtn")
         self.horizontalLayout_7.addWidget(self.clearCpndPlotBtn)
-        spacerItem2 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
-        self.horizontalLayout_7.addItem(spacerItem2)
         self.verticalLayout_5.addLayout(self.horizontalLayout_7)
+        self.plotGaussCB = QtGui.QCheckBox(self.tab)
+        self.plotGaussCB.setChecked(True)
+        self.plotGaussCB.setObjectName("plotGaussCB")
+        self.verticalLayout_5.addWidget(self.plotGaussCB)
         self.cmpdListWidget = CustomTable(self.tab)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.MinimumExpanding, QtGui.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
@@ -464,6 +472,7 @@ class Ui_MainWindow(object):
 "</style></head><body style=\" font-family:\'Arial\'; font-size:8.25pt; font-weight:400; font-style:normal;\">\n"
 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Clear Compound Plot</p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
         self.clearCpndPlotBtn.setText(QtGui.QApplication.translate("MainWindow", "...", None, QtGui.QApplication.UnicodeUTF8))
+        self.plotGaussCB.setText(QtGui.QApplication.translate("MainWindow", "Plot Gaussian Profiles", None, QtGui.QApplication.UnicodeUTF8))
         self.cmpdListWidget.horizontalHeaderItem(0).setText(QtGui.QApplication.translate("MainWindow", "Compound", None, QtGui.QApplication.UnicodeUTF8))
         self.cmpdListWidget.horizontalHeaderItem(1).setText(QtGui.QApplication.translate("MainWindow", "Charge", None, QtGui.QApplication.UnicodeUTF8))
         self.cmpdListWidget.horizontalHeaderItem(2).setText(QtGui.QApplication.translate("MainWindow", "m/z", None, QtGui.QApplication.UnicodeUTF8))
