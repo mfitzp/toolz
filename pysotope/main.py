@@ -669,14 +669,18 @@ class pysotope(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                     self.setTableVal(dataTable, curIter, 2, str(isoAns[1][0][0]))
                 isoCentroids.append(isoAns[1][0])
                 isoCentroids.append(isoAns[1][1])
-                ANS = self.calcGaussIsos(isoCentroids[0], isoCentroids[1], self.isoResCalc_SB.value())
-                boolAns, peakListX, peakListY = ANS
-                if boolAns:
-                    isoTraces = []
-                    for i,peakX in enumerate(peakListX):
-                        peakY = peakListY[i]
-                        isoTraces.append([peakX, peakY])
-                    self.generalPlotHelper(isoCentroids, isoTraces, formula, charge, mplCanvas)
+                isoTraces = []
+                if self.plotGaussCB.isChecked():
+                    ANS = self.calcGaussIsos(isoCentroids[0], isoCentroids[1], self.isoResCalc_SB.value())
+                    boolAns, peakListX, peakListY = ANS
+                    if boolAns:
+                        for i,peakX in enumerate(peakListX):
+                            peakY = peakListY[i]
+                            isoTraces.append([peakX, peakY])
+
+                self.generalPlotHelper(isoCentroids, isoTraces, formula, charge, mplCanvas)
+        else:
+            self.cmpdListWidget.setItem(i,2,QtGui.QTableWidgetItem('Formula Error'))
 
     def generalPlotHelper(self, isoCentroids, isoTraces, formula, charge, mplCanvas):
         '''I know this name sucks, feeling uncreative at this point'''
@@ -713,7 +717,7 @@ class pysotope(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                 curCharge = int(self.cmpdListWidget.item(i,1).text())
                 self.generalIsoPlot(curFormula, curCharge, mplCanvas, self.cmpdListWidget, i)
             except:
-                self.cmpdListWidget.setItem(i,2,QtGui.QTableWidgetItem('Charge State Error'))
+                self.cmpdListWidget.setItem(i,2,QtGui.QTableWidgetItem('Charge State or Formula Error'))
 
         mplCanvas.ax.set_ylim(ymax = 1.25)
 #        mplCanvas.ax.legend()

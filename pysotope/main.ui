@@ -482,6 +482,16 @@ p, li { white-space: pre-wrap; }
              </layout>
             </item>
             <item>
+             <widget class="QCheckBox" name="plotGaussCB" >
+              <property name="text" >
+               <string>Plot Gaussian Profiles</string>
+              </property>
+              <property name="checked" >
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
              <widget class="CustomTable" name="cmpdListWidget" >
               <property name="sizePolicy" >
                <sizepolicy vsizetype="Expanding" hsizetype="MinimumExpanding" >
