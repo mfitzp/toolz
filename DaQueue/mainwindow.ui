@@ -1,0 +1,146 @@
+<ui version="4.0" >
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>562</width>
+    <height>745</height>
+   </rect>
+  </property>
+  <property name="cursor" >
+   <cursorShape>ArrowCursor</cursorShape>
+  </property>
+  <property name="windowTitle" >
+   <string>DaQueue</string>
+  </property>
+  <property name="windowIcon" >
+   <iconset>
+    <normaloff>images/Retro Question Block.png</normaloff>images/Retro Question Block.png</iconset>
+  </property>
+  <property name="unifiedTitleAndToolBarOnMac" >
+   <bool>false</bool>
+  </property>
+  <widget class="QWidget" name="centralWidget" >
+   <layout class="QVBoxLayout" name="verticalLayout" >
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout" >
+      <item>
+       <widget class="QLineEdit" name="txtUrl" />
+      </item>
+      <item>
+       <widget class="QPushButton" name="btnNavigate" >
+        <property name="text" >
+         <string>Navigate</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <widget class="QWebView" name="webView" >
+      <property name="contextMenuPolicy" >
+       <enum>Qt::DefaultContextMenu</enum>
+      </property>
+      <property name="url" >
+       <url>
+        <string>about:blank</string>
+       </url>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="CustomTable" name="taskTable" >
+      <property name="contextMenuPolicy" >
+       <enum>Qt::ActionsContextMenu</enum>
+      </property>
+      <property name="editTriggers" >
+       <set>QAbstractItemView::AnyKeyPressed|QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed</set>
+      </property>
+      <property name="gridStyle" >
+       <enum>Qt::SolidLine</enum>
+      </property>
+      <property name="rowCount" >
+       <number>5</number>
+      </property>
+      <property name="columnCount" >
+       <number>5</number>
+      </property>
+      <row/>
+      <row/>
+      <row/>
+      <row/>
+      <row/>
+      <column/>
+      <column/>
+      <column/>
+      <column/>
+      <column/>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menuBar" >
+   <property name="geometry" >
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>562</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menu_File" >
+    <property name="title" >
+     <string>&amp;File</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menuFunctions" >
+    <property name="title" >
+     <string>Functions</string>
+    </property>
+   </widget>
+   <addaction name="menu_File" />
+   <addaction name="menuFunctions" />
+  </widget>
+  <widget class="QToolBar" name="toolBar" >
+   <property name="windowTitle" >
+    <string>toolBar</string>
+   </property>
+   <attribute name="toolBarArea" >
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak" >
+    <bool>true</bool>
+   </attribute>
+   <addaction name="actionTestAction" />
+  </widget>
+  <widget class="QStatusBar" name="statusBar" />
+  <action name="actionTestAction" >
+   <property name="icon" >
+    <iconset>
+     <normaloff>images/Service Manager.png</normaloff>images/Service Manager.png</iconset>
+   </property>
+   <property name="text" >
+    <string>TestAction</string>
+   </property>
+   <property name="iconVisibleInMenu" >
+    <bool>true</bool>
+   </property>
+  </action>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QWebView</class>
+   <extends>QWidget</extends>
+   <header>QtWebKit/QWebView</header>
+  </customwidget>
+  <customwidget>
+   <class>CustomTable</class>
+   <extends>QTableWidget</extends>
+   <header>tableClass</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>
