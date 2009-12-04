@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
 
+'''
+/usr/bin/pyuic4 /home/clowers/workspace/DaQueue/mainwindow.ui  -o /home/clowers/workspace/DaQueue/ui_mainwindow.py
+'''
+
+
 """
 This module contains the class MainWindow.
 """
@@ -93,7 +98,7 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
 
         self.taskTable.resizeColumnsToContents()
         self.taskTable.resizeRowsToContents()
-        self.taskTable.setColumnWidth(0, 100)
+        self.taskTable.setColumnWidth(0, 150)
 
     def updateStatus(self, row):
         curItem = self.taskTable.item(row, self.stateInd)
@@ -102,7 +107,7 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
 
     def updateColumnSizes(self):
         self.taskTable.resizeColumnsToContents()
-        self.taskTable.setColumnWidth(0, 100)
+        self.taskTable.setColumnWidth(0, 150)
 
     def updateCellValue(self, tableItem = None):
         if isinstance(tableItem, cellOFD):

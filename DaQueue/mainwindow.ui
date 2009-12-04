@@ -1,130 +1,221 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>MainWindow</class>
- <widget class="QMainWindow" name="MainWindow" >
-  <property name="geometry" >
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>562</width>
+    <width>874</width>
     <height>745</height>
    </rect>
   </property>
-  <property name="cursor" >
+  <property name="cursor">
    <cursorShape>ArrowCursor</cursorShape>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>DaQueue</string>
   </property>
-  <property name="windowIcon" >
+  <property name="windowIcon">
    <iconset>
     <normaloff>images/Retro Question Block.png</normaloff>images/Retro Question Block.png</iconset>
   </property>
-  <property name="unifiedTitleAndToolBarOnMac" >
+  <property name="unifiedTitleAndToolBarOnMac">
    <bool>false</bool>
   </property>
-  <widget class="QWidget" name="centralWidget" >
-   <layout class="QVBoxLayout" name="verticalLayout" >
-    <item>
-     <layout class="QHBoxLayout" name="horizontalLayout" >
-      <item>
-       <widget class="QLineEdit" name="txtUrl" />
-      </item>
-      <item>
-       <widget class="QPushButton" name="btnNavigate" >
-        <property name="text" >
-         <string>Navigate</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </item>
-    <item>
-     <widget class="QWebView" name="webView" >
-      <property name="contextMenuPolicy" >
-       <enum>Qt::DefaultContextMenu</enum>
+  <widget class="QWidget" name="centralWidget">
+   <layout class="QGridLayout" name="gridLayout_2">
+    <item row="0" column="0">
+     <widget class="QTabWidget" name="tabWidget">
+      <property name="currentIndex">
+       <number>0</number>
       </property>
-      <property name="url" >
-       <url>
-        <string>about:blank</string>
-       </url>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="CustomTable" name="taskTable" >
-      <property name="contextMenuPolicy" >
-       <enum>Qt::ActionsContextMenu</enum>
-      </property>
-      <property name="editTriggers" >
-       <set>QAbstractItemView::AnyKeyPressed|QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed</set>
-      </property>
-      <property name="gridStyle" >
-       <enum>Qt::SolidLine</enum>
-      </property>
-      <property name="rowCount" >
-       <number>5</number>
-      </property>
-      <property name="columnCount" >
-       <number>5</number>
-      </property>
-      <row/>
-      <row/>
-      <row/>
-      <row/>
-      <row/>
-      <column/>
-      <column/>
-      <column/>
-      <column/>
-      <column/>
+      <widget class="QWidget" name="tab">
+       <attribute name="title">
+        <string>Queue</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout">
+        <item row="0" column="0">
+         <widget class="QSplitter" name="splitter">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <widget class="QWidget" name="">
+           <layout class="QVBoxLayout" name="verticalLayout_2">
+            <item>
+             <widget class="CustomTable" name="taskTable">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="contextMenuPolicy">
+               <enum>Qt::ActionsContextMenu</enum>
+              </property>
+              <property name="editTriggers">
+               <set>QAbstractItemView::AnyKeyPressed|QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed</set>
+              </property>
+              <property name="gridStyle">
+               <enum>Qt::SolidLine</enum>
+              </property>
+              <property name="rowCount">
+               <number>5</number>
+              </property>
+              <property name="columnCount">
+               <number>5</number>
+              </property>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <row/>
+              <column/>
+              <column/>
+              <column/>
+              <column/>
+              <column/>
+             </widget>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_2">
+              <item>
+               <spacer name="horizontalSpacer">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pushButton_3">
+                <property name="text">
+                 <string>Delete Job</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pushButton_2">
+                <property name="text">
+                 <string>Update</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pushButton">
+                <property name="text">
+                 <string>Submit Queue</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="">
+           <layout class="QVBoxLayout" name="verticalLayout">
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout">
+              <item>
+               <widget class="QLineEdit" name="txtUrl"/>
+              </item>
+              <item>
+               <widget class="QPushButton" name="btnNavigate">
+                <property name="text">
+                 <string>Navigate</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="QWebView" name="webView">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>500</height>
+               </size>
+              </property>
+              <property name="contextMenuPolicy">
+               <enum>Qt::DefaultContextMenu</enum>
+              </property>
+              <property name="url">
+               <url>
+                <string>about:blank</string>
+               </url>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tab_2">
+       <attribute name="title">
+        <string>Connection</string>
+       </attribute>
+      </widget>
      </widget>
     </item>
    </layout>
   </widget>
-  <widget class="QMenuBar" name="menuBar" >
-   <property name="geometry" >
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>562</width>
-     <height>21</height>
+     <width>874</width>
+     <height>25</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menu_File" >
-    <property name="title" >
+   <widget class="QMenu" name="menu_File">
+    <property name="title">
      <string>&amp;File</string>
     </property>
    </widget>
-   <widget class="QMenu" name="menuFunctions" >
-    <property name="title" >
+   <widget class="QMenu" name="menuFunctions">
+    <property name="title">
      <string>Functions</string>
     </property>
    </widget>
-   <addaction name="menu_File" />
-   <addaction name="menuFunctions" />
+   <addaction name="menu_File"/>
+   <addaction name="menuFunctions"/>
   </widget>
-  <widget class="QToolBar" name="toolBar" >
-   <property name="windowTitle" >
+  <widget class="QToolBar" name="toolBar">
+   <property name="windowTitle">
     <string>toolBar</string>
    </property>
-   <attribute name="toolBarArea" >
+   <attribute name="toolBarArea">
     <enum>TopToolBarArea</enum>
    </attribute>
-   <attribute name="toolBarBreak" >
-    <bool>true</bool>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
    </attribute>
-   <addaction name="actionTestAction" />
+   <addaction name="actionTestAction"/>
   </widget>
-  <widget class="QStatusBar" name="statusBar" />
-  <action name="actionTestAction" >
-   <property name="icon" >
+  <widget class="QStatusBar" name="statusBar"/>
+  <action name="actionTestAction">
+   <property name="icon">
     <iconset>
      <normaloff>images/Service Manager.png</normaloff>images/Service Manager.png</iconset>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>TestAction</string>
    </property>
-   <property name="iconVisibleInMenu" >
+   <property name="iconVisibleInMenu">
     <bool>true</bool>
    </property>
   </action>

@@ -1,4 +1,4 @@
-#! /usr/bin/python2.5
+#! /usr/bin/python2.6
 
 import httplib, simplejson  # http://cheeseshop.python.org/pypi/simplejson
                             # Here only used for prettyprinting
@@ -195,13 +195,15 @@ if __name__ == "__main__":
     for i, key in enumerate(testKey):
         testDict[key] = testItem[i]
 
-    db = s['dummyqueue']
-
-    print len(db)
-    for docId in db:
-        print docId
-#    for j in xrange(5):
-#        db.create(testDict)
+    try:
+        db = s['dummyqueue']
+    except:
+        db = s.create('dummyqueue')
+#    print len(db)
+#    for docId in db:
+#        print docId
+    for j in xrange(5):
+        db.create(testDict)
 
 #    s.delete()
 
