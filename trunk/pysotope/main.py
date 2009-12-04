@@ -118,7 +118,7 @@ class periodicTableWidget(QtSvg.QSvgWidget):
     def __init__(self, parent = None):
         super(periodicTableWidget,  self).__init__(parent)
         print "Periodic Table Started"
-        self.load('images\periodicTable.svg')
+        self.load('periodicTable.svg')
         self.origH = self.renderer().defaultSize().height()
         self.origW = self.renderer().defaultSize().width()
         print "Original Size: ", self.origW, self.origH
