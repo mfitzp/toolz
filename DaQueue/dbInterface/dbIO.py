@@ -151,6 +151,59 @@ def test():
     foo.infoDb('dummyqueue')
     print "Done"
 
+    testKey = ['Data Path', 'Input File', 'Output Path', 'Task Status', 'Task Type', 'Job Queue']
+    testItem = ['/home/clowers/Sandbox/text.xml','/home/clowers/input.xml', '/home/clowers', 'Processing', 'File Conversion', '23']
+    docNames = xrange(5)
+    testDict = {}
+    for i, key in enumerate(testKey):
+        testDict[key] = testItem[i]
+
+#    print foo['dummyqueue']
+#    print foo
+
+#    for j in docNames:
+
+
+#a = db['manifesto']
+#>>> a['title']
+#u'Personal Manifesto'
+#>>> a['title'] = "Ehm. Lame title."
+#>>> a
+#<Document u'manifesto'@u'818144524' {u'txt': u'I strongly believe in something. I thi
+#
+#
+#>>> db = s.create('docs')
+#>>> len(db)
+#0
+#>>> db.create({'type':'Document','title':'Document One','txt':"This is some text."})
+#u'fd179491f0d95268eb1761e0439cf3e2'
+#>>> len(db)
+
+
+
 if __name__ == "__main__":
-    test()
+#    test()
+    import couchdb as C
+    s = C.Server('http://127.0.0.1:5984/')
+
+
+
+    testKey = ['Data Path', 'Input File', 'Output Path', 'Task Status', 'Task Type', 'Job Queue']
+    testItem = ['/home/clowers/Sandbox/text.xml','/home/clowers/input.xml', '/home/clowers', 'Processing', 'File Conversion', '23']
+    docNames = xrange(5)
+    testDict = {'type':'Document','title':'testDoc'}
+    for i, key in enumerate(testKey):
+        testDict[key] = testItem[i]
+
+    db = s['dummyqueue']
+
+    print len(db)
+    for docId in db:
+        print docId
+#    for j in xrange(5):
+#        db.create(testDict)
+
+#    s.delete()
+
+
 
