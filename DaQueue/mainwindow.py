@@ -41,7 +41,7 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         if self.serverStatus:
             self.db = dbIO.DB(self.server, DBNAME, self.dbKeys)
             self.dbOK = self.db.OK
-            self.dbStatusUpdate()
+        self.dbStatusUpdate()
 
     def initServer(self):
         self.serverAddress = str(self.serverAddressLE.text())
