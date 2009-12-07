@@ -14,6 +14,12 @@ from PyQt4.QtCore import pyqtSignature
 from ui_mainwindow import Ui_MainWindow
 from extraWidgets import cellComboBox, cellOFD, cellStatus
 
+from dbInterface import dbIO
+import time
+
+DBNAME = 'labqueue'
+ROOTUSER = 'clowers'
+
 class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
     """
     MainWindow: this is the class that manages all the functionality of receiving input from the user, and navigating the internet.
@@ -25,9 +31,109 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         QtGui.QMainWindow.__init__(self, parent)
         self.setupUi(self)
         self.__setMessages__()
-        self.__additionalVariables__()
+        self.__setVariables__()
         self.__resetTaskTable__()
         self.__setConnections__()
+        self.initServer()
+        self.initDB()
+
+    def initDB(self):
+        if self.serverStatus:
+            self.db = dbIO.DB(self.server, DBNAME, self.dbKeys)
+            self.dbOK = self.db.OK
+            self.dbStatusUpdate()
+
+    def initServer(self):
+        self.serverAddress = str(self.serverAddressLE.text())
+        self.serverPort = self.portSB.value()
+#        print "Server Address, Port: %s:%s"%(self.serverAddress, self.serverPort)
+        self.server = dbIO.CouchDBServer(self.serverAddress, self.serverPort)
+        self.serverStatus = self.server.OK
+
+    def updateTaskType(self, row, comboIndex):
+        curItem = self.taskTable.cellWidget(row, 0)
+        if isinstance(curItem, cellComboBox):
+#            print type(curItem)
+            curItem.setCurrentIndex(comboIndex)
+
+    def testTable(self):
+        for row in xrange(self.taskTable.rowCount()):
+            print type(self.taskTable.item(row, 0))
+
+    def updateQueue(self):
+        '''
+        I don't like to double "db".  Need to find a more elegant way of interfacing
+        i.e. subclass
+        '''
+        if self.dbOK:
+            self.taskTable.setRowCount(0)
+            for i,docID in enumerate(self.db.db):
+                self.taskTable.insRow(i)
+                curDoc = self.db.db[docID]
+                for j, key in enumerate(self.taskHeaders):
+                    if curDoc.has_key(key):
+                        if key == 'State':
+                            if curDoc[key] == 'Processing':
+                                self.updateStatus(i, 0)
+                            elif curDoc[key] == 'Finished':
+                                self.updateStatus(i, 1)
+                            elif curDoc[key] == 'Failed':
+                                self.updateStatus(i, 2)
+                        elif key == 'Task Type':
+                            taskKey = curDoc[key]
+                            self.updateTaskType(i, self.taskTypeDict[taskKey])
+                        else:
+                            newTableItem = QtGui.QTableWidgetItem(curDoc[key])
+                            self.taskTable.setItem(i,j, newTableItem)
+
+                    elif key == 'Task ID':
+                        newTableItem = QtGui.QTableWidgetItem(docID)
+                        self.taskTable.setItem(i,j, newTableItem)
+
+            self.updateColumnSizes()
+
+
+    def __setVariables__(self):
+        '''Variables that are utilized by other functions'''
+        self.__curDir = getHomeDir()
+        self.server = None
+        self.serverStatus = False
+        self.serverAddress = None
+        self.serverPort = None
+        self.db = None
+        self.dbOK = False
+
+        self.taskHeaders = ['Task Type', 'Method File', '', 'Data Path', '','Output Path', '', 'State', 'User', 'Task ID']
+        self.dbKeys = ['Task Type', 'Method File', 'Data Path', 'Output Path', 'State', 'Task ID', 'User']
+        self.taskOptions = ['File Conversion', 'X!Tandem Run', 'Peak Picking']
+        self.taskTypeDict = {'File Conversion':0, 'X!Tandem Run':1, 'Peak Picking':2}
+
+        self.methodFileInd = 1
+        self.dataPathInd = 3
+        self.outputPathInd = 5
+        self.stateInd = 7
+        self.taskIDInd = 8
+
+
+    def dbStatusUpdate(self):
+        '''
+        Updates the server status on the GUI and attempts
+        connection with couchDB server
+        '''
+        if self.serverStatus and self.dbOK:
+            self.serverStatusBtn.setIcon(QtGui.QIcon('images/clean.png'))
+        else:
+            self.serverStatusBtn.setIcon(QtGui.QIcon('images/exit.png'))
+
+    def toggleServerEdit(self, state = None):
+        if state == 2:
+            self.serverAddressLE.setEnabled(True)
+            self.portSB.setEnabled(True)
+            self.resetServerBtn.setEnabled(True)
+        elif state == 0:
+            self.serverAddressLE.setEnabled(False)
+            self.portSB.setEnabled(False)
+            self.resetServerBtn.setEnabled(False)
 
     def __setMessages__(self):
         '''This function is obvious'''
@@ -40,10 +146,6 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         self.OpenDataText = "Choose a data file to open:"
         self.ResetAllDataText = "This operation will reset all your data.\nWould you like to continue?"
         self.EmptyArrayText = "There is no data in the array selected.  Perhaps the search criteria are too stringent.  Check ppm and e-Value cutoff values.\n"
-
-    def __additionalVariables__(self):
-        '''Extra variables that are utilized by other functions'''
-        self.__curDir = getHomeDir()
 
     def __getDataFile__(self):
         dataFileName = QtGui.QFileDialog.getOpenFileName(self,\
@@ -74,19 +176,24 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         '''establishes connections between GUI Slots and Actions'''
         QtCore.QObject.connect(self.taskTable, QtCore.SIGNAL("itemClicked (QTableWidgetItem *)"), self.updateCellValue)
         QtCore.QObject.connect(self.taskTable, QtCore.SIGNAL("itemEntered (QTableWidgetItem *)"), self.updateCellValue)
-        QtCore.QObject.connect(self.actionTestAction, QtCore.SIGNAL("triggered()"),self.testFunc)
 
+        QtCore.QObject.connect(self.editServerCB, QtCore.SIGNAL("stateChanged(int)"),self.toggleServerEdit)
+        QtCore.QObject.connect(self.resetServerBtn, QtCore.SIGNAL("clicked()"),self.initServer)
+
+        QtCore.QObject.connect(self.updateQueueBtn, QtCore.SIGNAL("clicked()"),self.updateQueue)
+#        QtCore.QObject.connect(self.deleteQueueRowBtn, QtCore.SIGNAL("clicked()"),self.deleteQueueRow)
+#        QtCore.QObject.connect(self.submitQueueBtn, QtCore.SIGNAL("clicked()"),submitQueue)
+
+
+
+
+
+        QtCore.QObject.connect(self.actionTestAction, QtCore.SIGNAL("triggered()"),self.testFunc)
 
     def __resetTaskTable__(self):
         self.taskTable.clear()
-        self.taskHeaders = ['Task Type', 'Method File', '', 'Data Path', '','Output Path', '', 'State', 'Task ID']
-        self.methodFileInd = 1
-        self.dataPathInd = 3
-        self.outputPathInd = 5
-        self.stateInd = 7
-        self.taskIDInd = 8
         self.taskTable.setColumnCount(len(self.taskHeaders))
-        self.taskTable.setRowCount(5)
+        self.taskTable.setRowCount(3)
         self.taskTable.setHorizontalHeaderLabels(self.taskHeaders)
 
         for row in xrange(self.taskTable.rowCount()):
@@ -100,10 +207,10 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         self.taskTable.resizeRowsToContents()
         self.taskTable.setColumnWidth(0, 150)
 
-    def updateStatus(self, row):
+    def updateStatus(self, row, state):
         curItem = self.taskTable.item(row, self.stateInd)
         if isinstance(curItem, cellStatus):
-            curItem.switchStatus(state = 2)
+            curItem.switchStatus(state)
 
     def updateColumnSizes(self):
         self.taskTable.resizeColumnsToContents()
@@ -145,7 +252,7 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
 
     def testFunc(self):
         print "Test Function Triggered"
-        self.updateStatus(2)
+        self.updateStatus(2, 2)
 
     @pyqtSignature("")
     def on_btnNavigate_released(self):

@@ -11,7 +11,6 @@ class cellComboBox(QtGui.QComboBox):
         self.options = ['File Conversion', 'X!Tandem Run', 'Peak Picking']
         self.addItems(self.options)
 
-
 #class cellOFD(QtGui.QToolButton):
 #    def __init__(self, parent = None):
 #        QtGui.QToolButton.__init__(self, parent)
@@ -28,7 +27,9 @@ class cellStatus(QtGui.QTableWidgetItem):
         self.setIcon(QtGui.QIcon('images/toolsSmall.png'))
 
     def switchStatus(self, state):
-        if state == 1:
+        if state == 0:#Processing
             self.setIcon(QtGui.QIcon('images/toolsSmall.png'))
-        elif state == 2:
+        elif state == 1:#Finished
             self.setIcon(QtGui.QIcon('images/clean.png'))
+        elif state == 2:#Failed
+            self.setIcon(QtGui.QIcon('images/exitsmall.png'))

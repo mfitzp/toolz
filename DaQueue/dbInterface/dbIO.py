@@ -2,6 +2,7 @@
 
 import httplib, simplejson  # http://cheeseshop.python.org/pypi/simplejson
                             # Here only used for prettyprinting
+import couchdb as CDB
 
 def prettyPrint(s):
     """Prettyprints the json response of an HTTPResponse object"""
@@ -179,26 +180,85 @@ def test():
 #u'fd179491f0d95268eb1761e0439cf3e2'
 #>>> len(db)
 
+class DB:
+    def __init__(self, server, dbName, keys):
+        self.server = server
+        self.dbName = dbName
+        self.keys = keys
+        self.OK = False
+        self.setup()
+
+    def setup(self):
+        try:
+            self.db = self.server.server[self.dbName]
+            self.OK = True
+        except:
+            self.db = None
+            self.OK = False
+
+
+
+class CouchDBServer:
+    def __init__(self, host, port=5984, options=None):
+        self.host = host
+        self.port = port
+        self.timeout = 5
+        self.server = None
+        self.dbList = []
+        self.OK = False
+        self.version = None
+        self.setup()
+
+    def setup(self):
+        serverAddress = 'http://%s:%s/'%(self.host,str(self.port))
+        print "Server Address", serverAddress
+        self.server = CDB.Server(serverAddress, timeout = self.timeout)
+        self.getStatus()
+#        self.getCurrentDB()
+
+    def getStatus(self):
+        '''
+        Simple test to see if couchdb is connected
+        '''
+        try:
+            self.version = self.server.version
+            self.OK = True
+        except:
+            self.version = None
+            self.OK = False
+        return self.OK
+
+    def getCurrentDB(self):
+        if self.OK:
+            for db in self.server:
+#                print db, type(db)
+                self.dbList.append(db)
+
 
 
 if __name__ == "__main__":
 #    test()
-    import couchdb as C
-    s = C.Server('http://127.0.0.1:5984/')
+    import couchdb as CDB
+    s = CDB.Server('http://127.0.0.1:5984/')
 
 
-
-    testKey = ['Data Path', 'Input File', 'Output Path', 'Task Status', 'Task Type', 'Job Queue']
-    testItem = ['/home/clowers/Sandbox/text.xml','/home/clowers/input.xml', '/home/clowers', 'Processing', 'File Conversion', '23']
+    dbName = 'labqueue'
+    dbKeys = ['Task Type', 'Method File', 'Data Path', 'Output Path', 'State', 'User']
+    testItem = ['File Conversion', '/home/clowers/Sandbox/text.xml','/home/clowers/input.xml', '/home/clowers', 'Processing', 'clowers']
     docNames = xrange(5)
-    testDict = {'type':'Document','title':'testDoc'}
-    for i, key in enumerate(testKey):
+#    testDict = {'type':'Document','title':'testDoc'}
+    testDict = {}
+    for i, key in enumerate(dbKeys):
         testDict[key] = testItem[i]
 
     try:
-        db = s['dummyqueue']
+        db = s[dbName]
     except:
-        db = s.create('dummyqueue')
+        try:
+            s.delete(dbName)
+        except:
+            pass
+        db = s.create(dbName)
 #    print len(db)
 #    for docId in db:
 #        print docId

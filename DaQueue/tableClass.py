@@ -95,6 +95,18 @@ class CustomTable(QtGui.QTableWidget):
         QtGui.QTableWidget.__init__(self, parent)
         if parent:
             self.parent = parent
+
+
+        '''
+        These values are specific to the queue and should be changed
+        '''
+        self.methodFileInd = 1
+        self.dataPathInd = 3
+        self.outputPathInd = 5
+        self.stateInd = 7
+        self.taskIDInd = 8
+
+
         self.__initActions__()
         self.__initContextMenus__()
 
@@ -172,17 +184,19 @@ class CustomTable(QtGui.QTableWidget):
             self.cb.clear(QtGui.QClipboard.Clipboard)
     ###############################
 
+    def addCustomRow(self, row):
+        self.setCellWidget(row, 0, cellComboBox())
+        self.setItem(row, self.methodFileInd+1, cellOFD())
+        self.setItem(row, self.dataPathInd+1, cellOFD())
+        self.setItem(row, self.outputPathInd+1, cellOFD())
+        self.setItem(row, self.stateInd, cellStatus())
+
     def addRows(self):
         selRange  = self.selectedRanges()[0]
         topRow = selRange.topRow()
         bottomRow = selRange.bottomRow()
         for i in xrange(topRow, (bottomRow+1)):
             self.insRow(i)
-            self.setCellWidget(i, 0, cellComboBox())
-            self.parent.setItem(i, self.methodFileInd+1, cellOFD())
-            self.parent.setItem(i, self.dataPathInd+1, cellOFD())
-            self.parent.setItem(i, self.outputPathInd+1, cellOFD())
-            self.parent.setItem(i, self.stateInd, cellStatus())
         self.resizeRowsToContents()
         #print topRow,  bottomRow
         #print selRange
@@ -205,8 +219,10 @@ class CustomTable(QtGui.QTableWidget):
     def insRow(self,  row = None):
         if type(row) is int:
             self.insertRow(row)
+            self.addCustomRow(row)
         else:
             self.insertRow(self.currentRow())
+            self.addCustomRow(self.currentRow())
 
     ####################################
 
