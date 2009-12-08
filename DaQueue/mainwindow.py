@@ -41,7 +41,6 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         self.__resetTaskTable__()
         self.__setConnections__()
         self.initServer()
-        self.initDB()
 
     def initDB(self):
         if self.serverStatus:
@@ -55,6 +54,7 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
 #        print "Server Address, Port: %s:%s"%(self.serverAddress, self.serverPort)
         self.server = dbIO.CouchDBServer(self.serverAddress, self.serverPort)
         self.serverStatus = self.server.OK
+        self.initDB()
 
     def updateTaskType(self, row, comboIndex):
         curItem = self.taskTable.cellWidget(row, 0)
@@ -92,9 +92,24 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
                 Need to verify paths
                 '''
                 for key in dbKeys:
-                    jobDict[key] = str(self.taskTable.item(i, indDict[key]).text())
+                    curCol = indDict[key]
+                    if curCol == self.methodFileInd or curCol == self.dataPathInd or curCol == self.outputPathInd:
+                        curItem = self.taskTable.item(i, curCol)
+                        if curItem != None:
+                            dictParam = str(curItem.text())
+                            if os.path.isfile(dictParam) or os.path.isdir(dictParam):
+                                jobDict[key] = dictParam
+                            else:
+                                print "Parameter Error, Row %s, Column %s is not a valid path or file"%(i, curCol)
+                                curItem.setBackgroundColor(QtGui.QColor(255, 106, 106))
+                        else:
+                            print "Parameter Error, Row %s, Column %s is not a valid path or file"%(i, curCol)
+                            newItem = QtGui.QTableWidgetItem('')
+                            newItem.setBackgroundColor(QtGui.QColor(255, 106, 106))
+                            self.taskTable.setItem(i, curCol, newItem)
 
-                self.submitJob(jobDict)
+
+#                self.submitJob(jobDict)
 
 
 
@@ -172,6 +187,16 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         else:
             self.serverStatusBtn.setIcon(QtGui.QIcon('images/exit.png'))
 
+        if self.serverStatus:
+            if self.dbOK:
+                pass
+            else:
+                return QtGui.QMessageBox.warning(self, "Database Error",  self.dbErrorText)
+        else:
+            return QtGui.QMessageBox.warning(self, "Server Connection Error",  self.serverErrorText)
+
+
+
     def toggleServerEdit(self, state = None):
         if state == 2:
             self.serverAddressLE.setEnabled(True)
@@ -193,6 +218,9 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         self.OpenDataText = "Choose a data file to open:"
         self.ResetAllDataText = "This operation will reset all your data.\nWould you like to continue?"
         self.EmptyArrayText = "There is no data in the array selected.  Perhaps the search criteria are too stringent.  Check ppm and e-Value cutoff values.\n"
+
+        self.serverErrorText = "There was an error connecting to the server.  Please try the number and dial again."
+        self.dbErrorText = "There was an error connecting to the 'labqueue' database. Does the database exist?"
 
     def __getDataFile__(self):
         dataFileName = QtGui.QFileDialog.getOpenFileName(self,\
@@ -229,7 +257,7 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
 
         QtCore.QObject.connect(self.updateQueueBtn, QtCore.SIGNAL("clicked()"),self.updateQueue)
 #        QtCore.QObject.connect(self.deleteQueueRowBtn, QtCore.SIGNAL("clicked()"),self.deleteQueueRow)
-#        QtCore.QObject.connect(self.submitQueueBtn, QtCore.SIGNAL("clicked()"),submitQueue)
+        QtCore.QObject.connect(self.submitQueueBtn, QtCore.SIGNAL("clicked()"),self.submitQueue)
 
         QtCore.QObject.connect(self.actionTestAction, QtCore.SIGNAL("triggered()"),self.testFunc)
 
@@ -333,31 +361,6 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
 #        self.addRows()
         self.fillColumnWithCurrent()
 #        self.updateStatus(2, 2)
-
-    @pyqtSignature("")
-    def on_btnNavigate_released(self):
-        """
-        Public slot invoked when the user clicks the Navigate Button
-        """
-        #TODO: check out this code, ensure it does cover all the posibilities
-        theUrl = self.txtUrl.text()
-        if theUrl[0:7] != 'http://':
-            theUrl = 'http://' + theUrl
-        self.webView.setUrl(QtCore.QUrl(theUrl))
-
-    @pyqtSignature("QString")
-    def on_webView_titleChanged(self, title):
-        """
-        Public Slot invoked when the title of the page changes. All we do is to display it as the main window title.
-        """
-        self.setWindowTitle(title)
-
-    @pyqtSignature("QUrl")
-    def on_webView_urlChanged(self, url):
-        """
-        Public Slot invoked when the url changes. All we do is display the current url in txtUrl.
-        """
-        self.txtUrl.setText(url.toString())
 
 def getCurDir(dirString):
     tempStr = str(dirString)#incase it is a QString

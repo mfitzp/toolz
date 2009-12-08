@@ -268,7 +268,7 @@ class CustomTable(QtGui.QTableWidget):
         t1 = time.time()
 #        print "Clipboard split time:",  (t1-t0)
         if (len(clip2paste)+topRow) >= self.rowCount():
-            self.setRowCount(len(clip2paste)+topRow)
+            self.setRowCount(len(clip2paste)+topRow-1)
         t2 = time.time()
 #        print "Row set time:",  (t2-t1)
 
