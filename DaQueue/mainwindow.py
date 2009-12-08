@@ -8,7 +8,8 @@
 """
 This module contains the class MainWindow.
 """
-import os, sys
+import os
+import sys
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import pyqtSignature
 from ui_mainwindow import Ui_MainWindow
@@ -19,6 +20,11 @@ import time
 
 DBNAME = 'labqueue'
 ROOTUSER = 'clowers'
+
+try:
+    USERNAME = os.login()
+except:
+    USERNAME = 'TestUser'
 
 class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
     """
@@ -60,6 +66,41 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         for row in xrange(self.taskTable.rowCount()):
             print type(self.taskTable.item(row, 0))
 
+    def submitJob(self, jobDict):
+        '''
+        Submit Individual Job
+        How to get most recent commit
+        '''
+
+    def submitQueue(self):
+        dbKeys = ['Task Type', 'Method File', 'Data Path', 'Output Path', 'State', 'User']
+        indDict = {'Task Type':0, 'Method File':self.methodFileInd, 'Data Path':self.dataPathInd,
+                   'Output Path':self.outputPathInd, 'State':self.stateInd, 'User':self.uidInd}
+        '''
+        self.methodFileInd = 1
+        self.dataPathInd = 3
+        self.outputPathInd = 5
+        self.stateInd = 7
+        self.uidInd = 8
+        self.taskIDInd = 9
+        '''
+        jobDict = {}
+        for i in xrange(self.taskTable.rowCount()):
+            jobID = str(self.taskTable.item(i, self.taskIDInd).text())
+            if len(jobID) == 0:
+                '''
+                Need to verify paths
+                '''
+                for key in dbKeys:
+                    jobDict[key] = str(self.taskTable.item(i, indDict[key]).text())
+
+                self.submitJob(jobDict)
+
+
+
+
+
+
     def updateQueue(self):
         '''
         I don't like to double "db".  Need to find a more elegant way of interfacing
@@ -82,12 +123,17 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
                         elif key == 'Task Type':
                             taskKey = curDoc[key]
                             self.updateTaskType(i, self.taskTypeDict[taskKey])
+                        elif key == 'User':
+                            newTableItem = QtGui.QTableWidgetItem(curDoc[key])
+                            self.makeItemReadOnly(newTableItem)
+                            self.taskTable.setItem(i,j, newTableItem)
                         else:
                             newTableItem = QtGui.QTableWidgetItem(curDoc[key])
                             self.taskTable.setItem(i,j, newTableItem)
 
                     elif key == 'Task ID':
                         newTableItem = QtGui.QTableWidgetItem(docID)
+                        self.makeItemReadOnly(newTableItem)
                         self.taskTable.setItem(i,j, newTableItem)
 
             self.updateColumnSizes()
@@ -104,7 +150,7 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         self.dbOK = False
 
         self.taskHeaders = ['Task Type', 'Method File', '', 'Data Path', '','Output Path', '', 'State', 'User', 'Task ID']
-        self.dbKeys = ['Task Type', 'Method File', 'Data Path', 'Output Path', 'State', 'Task ID', 'User']
+        self.dbKeys = ['Task Type', 'Method File', 'Data Path', 'Output Path', 'State', 'User', 'Task ID']
         self.taskOptions = ['File Conversion', 'X!Tandem Run', 'Peak Picking']
         self.taskTypeDict = {'File Conversion':0, 'X!Tandem Run':1, 'Peak Picking':2}
 
@@ -112,7 +158,8 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         self.dataPathInd = 3
         self.outputPathInd = 5
         self.stateInd = 7
-        self.taskIDInd = 8
+        self.uidInd = 8
+        self.taskIDInd = 9
 
 
     def dbStatusUpdate(self):
@@ -184,11 +231,11 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
 #        QtCore.QObject.connect(self.deleteQueueRowBtn, QtCore.SIGNAL("clicked()"),self.deleteQueueRow)
 #        QtCore.QObject.connect(self.submitQueueBtn, QtCore.SIGNAL("clicked()"),submitQueue)
 
-
-
-
-
         QtCore.QObject.connect(self.actionTestAction, QtCore.SIGNAL("triggered()"),self.testFunc)
+
+    def makeItemReadOnly(self, tableItem):
+        tableItem.setFlags(QtCore.Qt.ItemIsSelectable)
+        tableItem.setFlags(QtCore.Qt.ItemIsEnabled)
 
     def __resetTaskTable__(self):
         self.taskTable.clear()
@@ -202,6 +249,12 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
             self.taskTable.setItem(row, self.dataPathInd+1, cellOFD())
             self.taskTable.setItem(row, self.outputPathInd+1, cellOFD())
             self.taskTable.setItem(row, self.stateInd, cellStatus())
+            userItem = QtGui.QTableWidgetItem(USERNAME)
+            self.makeItemReadOnly(userItem)
+            self.taskTable.setItem(row, self.uidInd, userItem)
+            taskIDItem = QtGui.QTableWidgetItem('')
+            self.makeItemReadOnly(taskIDItem)
+            self.taskTable.setItem(row, self.uidInd+1, taskIDItem)
 
         self.taskTable.resizeColumnsToContents()
         self.taskTable.resizeRowsToContents()
@@ -244,15 +297,42 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
 
             self.updateColumnSizes()
 
+    def addRows(self):
+        '''
+        Adds the user specified number of rows
+        '''
+        val, ansOK = QtGui.QInputDialog.getInteger(self, 'Modify Table', 'Specify number of rows to add:', 0)
+        if ansOK:
+            curRow = self.taskTable.currentRow()
+            for i in xrange(val):
+                self.taskTable.insRow(i+curRow)
+            return val
+
     def fillColumnWithCurrent(self):
         '''
-        Fills all rows below the current column value
+        Fills all rows below the current column value for the user specified number of rows
         '''
+        curRow = self.taskTable.currentRow()
+        maxRows = self.taskTable.rowCount()
+        numRows = maxRows - curRow
+        if numRows == 0:
+            return False
+
+        curCol = self.taskTable.currentColumn()
+        if curRow == self.methodFileInd or curRow == self.dataPathInd or curRow == self.outputPathInd:
+#            numRows = self.addRows()
+            curItem = self.taskTable.currentItem()
+            curText = str(curItem.text())
+            if curText != None:
+                for i in xrange(numRows):
+                    self.taskTable.setItem(curRow+i, curCol, QtGui.QTableWidgetItem(curText))
 
 
     def testFunc(self):
         print "Test Function Triggered"
-        self.updateStatus(2, 2)
+#        self.addRows()
+        self.fillColumnWithCurrent()
+#        self.updateStatus(2, 2)
 
     @pyqtSignature("")
     def on_btnNavigate_released(self):

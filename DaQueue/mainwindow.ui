@@ -51,7 +51,7 @@
                </sizepolicy>
               </property>
               <property name="contextMenuPolicy">
-               <enum>Qt::ActionsContextMenu</enum>
+               <enum>Qt::DefaultContextMenu</enum>
               </property>
               <property name="editTriggers">
                <set>QAbstractItemView::AnyKeyPressed|QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed</set>
@@ -60,13 +60,11 @@
                <enum>Qt::SolidLine</enum>
               </property>
               <property name="rowCount">
-               <number>5</number>
+               <number>3</number>
               </property>
               <property name="columnCount">
                <number>6</number>
               </property>
-              <row/>
-              <row/>
               <row/>
               <row/>
               <row/>

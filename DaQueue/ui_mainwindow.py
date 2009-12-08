@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/clowers/workspace/DaQueue/mainwindow.ui'
 #
-# Created: Sun Dec  6 21:27:51 2009
+# Created: Mon Dec  7 21:04:16 2009
 #      by: PyQt4 UI code generator 4.4.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -41,14 +41,14 @@ class Ui_MainWindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.taskTable.sizePolicy().hasHeightForWidth())
         self.taskTable.setSizePolicy(sizePolicy)
-        self.taskTable.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
+        self.taskTable.setContextMenuPolicy(QtCore.Qt.DefaultContextMenu)
         self.taskTable.setEditTriggers(QtGui.QAbstractItemView.AnyKeyPressed|QtGui.QAbstractItemView.DoubleClicked|QtGui.QAbstractItemView.EditKeyPressed)
         self.taskTable.setGridStyle(QtCore.Qt.SolidLine)
-        self.taskTable.setRowCount(5)
+        self.taskTable.setRowCount(3)
         self.taskTable.setColumnCount(6)
         self.taskTable.setObjectName("taskTable")
         self.taskTable.setColumnCount(6)
-        self.taskTable.setRowCount(5)
+        self.taskTable.setRowCount(3)
         self.verticalLayout_2.addWidget(self.taskTable)
         self.horizontalLayout_2 = QtGui.QHBoxLayout()
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")

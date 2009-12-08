@@ -19,11 +19,15 @@ class cellComboBox(QtGui.QComboBox):
 class cellOFD(QtGui.QTableWidgetItem):
     def __init__(self, parent = None):
         QtGui.QTableWidgetItem.__init__(self, '')
+        self.setFlags(QtCore.Qt.ItemIsSelectable)
+        self.setFlags(QtCore.Qt.ItemIsEnabled)
         self.setIcon(QtGui.QIcon('images/fileopen.png'))
 
 class cellStatus(QtGui.QTableWidgetItem):
     def __init__(self, parent = None):
         QtGui.QTableWidgetItem.__init__(self, '')
+        self.setFlags(QtCore.Qt.ItemIsSelectable)
+        self.setFlags(QtCore.Qt.ItemIsEnabled)
         self.setIcon(QtGui.QIcon('images/toolsSmall.png'))
 
     def switchStatus(self, state):

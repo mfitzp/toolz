@@ -1,6 +1,11 @@
 from PyQt4 import QtCore, QtGui
-import sys
+import os, sys
 import time
+
+try:
+    USERNAME = os.login()
+except:
+    USERNAME = 'TestUser'
 
 ##custom additions specific to DaQueue
 from extraWidgets import cellComboBox, cellOFD, cellStatus
@@ -96,7 +101,6 @@ class CustomTable(QtGui.QTableWidget):
         if parent:
             self.parent = parent
 
-
         '''
         These values are specific to the queue and should be changed
         '''
@@ -104,11 +108,11 @@ class CustomTable(QtGui.QTableWidget):
         self.dataPathInd = 3
         self.outputPathInd = 5
         self.stateInd = 7
-        self.taskIDInd = 8
-
+        self.uidInd = 8
+        self.taskIDInd = 9
 
         self.__initActions__()
-        self.__initContextMenus__()
+#        self.__initContextMenus__()
 
     def __initContextMenus__(self):
         self.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
@@ -125,10 +129,6 @@ class CustomTable(QtGui.QTableWidget):
         tw_menu.exec_(self.mapToGlobal(point))
 
     def addData(self, data, startrow=None,  startcol = None, enableSort = False):
-        if (len(data[0])) >= self.columnCount():
-            self.setColumnCount(len(data[0]))
-        if (len(data)) >= self.rowCount():
-            self.setRowCount(len(data))
 
         if startcol:
             sc = startcol#start column
@@ -138,6 +138,18 @@ class CustomTable(QtGui.QTableWidget):
             sr = startrow
         else:
             sr = 0
+
+#        print "Row Stats ", len(data), sr, self.rowCount()
+
+        if (len(data[0])) >= self.columnCount():
+            self.setColumnCount(len(data[0]))
+
+        if (len(data)) >= self.rowCount():
+            self.setRowCount(len(data))
+#            newRows = len(data)-self.rowCount()
+#            for i in xrange(newRows):
+#                self.insRow(sr+i)
+#                self.addCustomRow(sr+i)
 
         m = sr
         #print "Row, Col Commit:", sr, n
@@ -150,10 +162,11 @@ class CustomTable(QtGui.QTableWidget):
                 n+=1
             m+=1
 
+        for i in xrange(len(data)):
+            self.addCustomRow(sr+i)
+
         if enableSort:
             self.setSortingEnabled(enableSort)
-
-
 
     def __initActions__(self):
         self.pasteAction = QtGui.QAction("Paste",  self)
@@ -184,12 +197,24 @@ class CustomTable(QtGui.QTableWidget):
             self.cb.clear(QtGui.QClipboard.Clipboard)
     ###############################
 
+    def makeItemReadOnly(self, tableItem):
+        tableItem.setFlags(QtCore.Qt.ItemIsSelectable)
+        tableItem.setFlags(QtCore.Qt.ItemIsEnabled)
+
+
     def addCustomRow(self, row):
         self.setCellWidget(row, 0, cellComboBox())
         self.setItem(row, self.methodFileInd+1, cellOFD())
         self.setItem(row, self.dataPathInd+1, cellOFD())
         self.setItem(row, self.outputPathInd+1, cellOFD())
         self.setItem(row, self.stateInd, cellStatus())
+        userItem = QtGui.QTableWidgetItem(USERNAME)
+        self.makeItemReadOnly(userItem)
+        self.setItem(row, self.uidInd, userItem)
+        taskIDItem = QtGui.QTableWidgetItem('')
+        self.makeItemReadOnly(taskIDItem)
+        self.setItem(row, self.uidInd+1, taskIDItem)
+
 
     def addRows(self):
         selRange  = self.selectedRanges()[0]
@@ -241,11 +266,11 @@ class CustomTable(QtGui.QTableWidget):
 
         #test to ensure pasted area fits in table
         t1 = time.time()
-        print "Clipboard split time:",  (t1-t0)
+#        print "Clipboard split time:",  (t1-t0)
         if (len(clip2paste)+topRow) >= self.rowCount():
             self.setRowCount(len(clip2paste)+topRow)
         t2 = time.time()
-        print "Row set time:",  (t2-t1)
+#        print "Row set time:",  (t2-t1)
 
         if (len(clip2paste[0])+rightColumn) >= self.columnCount():
             self.setColumnCount(len(clip2paste[0])+rightColumn)
