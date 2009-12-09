@@ -246,7 +246,6 @@ class mzXMLDoc:
                 self.handleSpectrum(scan)
             else:
                 self.handleSpectrum(scan, sumBool = True)
-            print i
 
     def getXIC(self, spectra, mzValLo, mzValHi):
         '''Create the chromatogram, Base Peak, and Total Ion'''
@@ -391,15 +390,26 @@ class mzXMLDoc:
         # set data as spectrum or peaklist
         if not self.elmName:
             if sumBool:
-#                self.data['spectrum'][0]+=formatedData[0]
-                self.data['spectrum'][1]+=formatedData[1]
+                try:
+                    self.data['spectrum'][1]+=formatedData[1]
+                    print formatedData[0].min(), formatedData[0].max(), len(formatedData[1]), len(self.data['spectrum'][1])
+                except:
+                    print "THERE IS A MAJOR ERROR WITH THIS FILE, THE NUMBER OF POINTS DO NOT MATCH WHEN SUMMING!"
+                    print formatedData[0].min(), formatedData[0].max(), len(formatedData[1]), len(self.data['spectrum'][1])
+                    self.data['spectrum'] = formatedData
+
             else:
                 self.data['spectrum'] = formatedData
 
         elif self.elmName == 'spectrum':
             if sumBool:
-#                self.data['spectrum'][0]+=formatedData[0]
-                self.data['spectrum'][1]+=formatedData[1]
+                try:
+                    self.data['spectrum'][1]+=formatedData[1]
+                    print formatedData[0].min(), formatedData[0].max(), len(formatedData[1]), len(self.data['spectrum'][1])
+                except:
+                    print "THERE IS A MAJOR ERROR WITH THIS FILE, THE NUMBER OF POINTS DO NOT MATCH WHEN SUMMING!"
+                    print formatedData[0].min(), formatedData[0].max(), len(formatedData[1]), len(self.data['spectrum'][1])
+                    self.data['spectrum'] = formatedData
             else:
                 self.data['spectrum'] = formatedData
 
@@ -644,6 +654,7 @@ if __name__ == "__main__":
 #    app = QApplication(sys.argv)
 #    fn = open_file()
     fn = '/home/clowers/workspace/SimpleView/Blank_B.mzXML'
+    fn = 'C:/Data/Clowers/OrganicSignatures/BSATest/BSA.mzXML'
 
 
     def convertScanNum(val):
@@ -668,6 +679,7 @@ if __name__ == "__main__":
         mzx = mzXMLDoc(fn, sumBool = True)
         #mzx.getDocument(fn)
         spectrum = mzx.data.get('spectrum')
+        print spectrum
 #        BPC = mzx.data.get('BPC')
 #        xvalues = mzx.data.get('expTime')
 

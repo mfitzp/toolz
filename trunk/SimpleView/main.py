@@ -122,6 +122,7 @@ class Plot_Widget(QtGui.QMainWindow,  uiElements.ui_main.Ui_MainWindow):
     def setupVars(self):
         self.dirList = []
         self.curDir = os.getcwd()
+        self.loadOk = False
         self.curDataName = None
         #these are used to keep track of what group is loaded
         self.groupIndex = []
@@ -1706,7 +1707,6 @@ class Plot_Widget(QtGui.QMainWindow,  uiElements.ui_main.Ui_MainWindow):
                 self.curTreeItem = item.parent()
             else:
                 self.curTreeItem = item
-
             self.curFPTreeItem = self.fpSpecTreeWidget.findItems(self.curTreeItem.text(0), QtCore.Qt.MatchExactly, 0)[0]
 
             fileName = self.getMZXMLDialog()
