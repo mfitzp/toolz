@@ -35,5 +35,9 @@ data_files = [(r'mpl-data', glob.glob(r'C:\Python25\Lib\site-packages\matplotlib
 
 
 # for console program use 'console = [{"script" : "scriptname.py"}]
-setup(windows=[{"script" : "main.py"}], options=opts,   data_files=data_files)
+setup(windows=[{"script" : "main.py",
+                "icon_resources":[(1, "uiElements\Retro_Mario_World.ico")]
+                }],
+                options=opts,
+                data_files=data_files)
 

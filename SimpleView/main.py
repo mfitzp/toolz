@@ -1663,6 +1663,32 @@ class Plot_Widget(QtGui.QMainWindow,  uiElements.ui_main.Ui_MainWindow):
         else:
             return None
 
+    def handleSpecFile(self, fileName, curGUIItem):
+        tempmzXML =  mzXMLR(fileName)
+        numScans = tempmzXML.data['totalScans']
+        if numScans == 1:
+            tempSpec = tempmzXML.data['spectrum']
+            if len(tempSpec)>0:
+    #                                print 'Spec OK', os.path.basename(item)
+                data2plot = DataClass(tempSpec[0],  tempSpec[1],  name = os.path.basename(fileName), path = fileName)
+                data2plot.setPeakList(tempmzXML.data['peaklist'], normalized = True)
+                self.updateGUI(data2plot)
+            else:
+                print 'Empty spectrum: ', curGUIItem
+        else:
+            errMsg = "%s has more than one spectrum in the file.\nWould You like to sum all the spectrum and load this composite?"%curGUIItem
+            errTitle = "Too Many Spectra!"
+            if self.__askConfirm__(errTitle,errMsg):
+                tempmzXMLSum =  mzXMLR(fileName, sumBool = True)
+                tempSpec = tempmzXMLSum.data['spectrum']
+                if len(tempSpec)>0:
+                    print tempSpec[0], tempSpec[1]
+                    data2plot = DataClass(tempSpec[0],  tempSpec[1],  name = os.path.basename(fileName), path = fileName)
+                    data2plot.setPeakList(tempmzXML.data['peaklist'], normalized = True)
+                    self.updateGUI(data2plot)
+                else:
+                    print 'Empty spectrum: ', curGUIItem
+
     def addSingleFile(self):
         '''
         Need to handle which group the file will be loaded into....
@@ -1679,21 +1705,7 @@ class Plot_Widget(QtGui.QMainWindow,  uiElements.ui_main.Ui_MainWindow):
 
             fileName = self.getMZXMLDialog()
             if fileName != None:
-                tempmzXML =  mzXMLR(fileName)
-                numScans = tempmzXML.data['totalScans']
-                if numScans == 1:
-                    tempSpec = tempmzXML.data['spectrum']
-                    if len(tempSpec)>0:
-            #                                print 'Spec OK', os.path.basename(item)
-                        data2plot = DataClass(tempSpec[0],  tempSpec[1],  name = os.path.basename(fileName), path = fileName)
-                        data2plot.setPeakList(tempmzXML.data['peaklist'], normalized = True)
-                        self.updateGUI(data2plot)
-                    else:
-                        print 'Empty spectrum: ', item
-                else:
-                    errMsg = "%s has more than one spectrum in the file.\nRemember this is a program for viewing MALDI data!"%item
-                    if self.P != None:
-                        QtGui.QMessageBox.warning(self, "Too many spectra in File", errMsg)
+                self.handleSpecFile(fileName, self.curTreeItem)
         else:
             #test to see if any item groups exists.  If not create a new one.
             self.groupTreeWidget.selectAll()
@@ -1723,22 +1735,25 @@ class Plot_Widget(QtGui.QMainWindow,  uiElements.ui_main.Ui_MainWindow):
                     self.curFPTreeItem.setText(0,self.curGroupName)
                     self.curFPTreeItem.setToolTip(0, self.curDir)
 
-                    tempmzXML =  mzXMLR(fileName)
-                    numScans = tempmzXML.data['totalScans']
-                    if numScans == 1:
-                        tempSpec = tempmzXML.data['spectrum']
-                        if len(tempSpec)>0:
-                            data2plot = DataClass(tempSpec[0],  tempSpec[1],  name = os.path.basename(fileName), path = fileName)
-                            data2plot.setPeakList(tempmzXML.data['peaklist'], normalized = False)
-                            self.updateGUI(data2plot)
-                            self.loadOk = True
-                            self.readFinished(True)
-                        else:
-                            print 'Empty spectrum: ', item
-                    else:
-                        errMsg = "%s has more than one spectrum in the file.\nRemember this is a program for viewing MALDI data!"%item
-                        if self.P != None:
-                            QtGui.QMessageBox.warning(self, "Too many spectra in File", errMsg)
+                    self.handleSpecFile(fileName, self.curTreeItem)
+                    self.loadOk = True
+#THERE IS AN ERROR HERE FIX ME
+#                    tempmzXML =  mzXMLR(fileName)
+#                    numScans = tempmzXML.data['totalScans']
+#                    if numScans == 1:
+#                        tempSpec = tempmzXML.data['spectrum']
+#                        if len(tempSpec)>0:
+#                            data2plot = DataClass(tempSpec[0],  tempSpec[1],  name = os.path.basename(fileName), path = fileName)
+#                            data2plot.setPeakList(tempmzXML.data['peaklist'], normalized = False)
+#                            self.updateGUI(data2plot)
+#                            self.loadOk = True
+#                            self.readFinished(True)
+#                        else:
+#                            print 'Empty spectrum: ', item
+#                    else:
+#                        errMsg = "%s has more than one spectrum in the file.\nRemember this is a program for viewing MALDI data!"%item
+#                        if self.P != None:
+#                            QtGui.QMessageBox.warning(self, "Too many spectra in File", errMsg)
 
     def initDataList(self):
         #handles loading of new group.
@@ -2868,8 +2883,9 @@ class LoadThread(QtCore.QThread):
                                     print 'Empty spectrum: ', item
                             else:
                                 errMsg = "%s has more than one spectrum in the file.\nRemember this is a program for viewing MALDI data!"%item
-                                if self.P != None:
-                                    QtGui.QMessageBox.warning(self, "Too many spectra in File", errMsg)
+                                print errMsg
+#                                if self.P != None:
+#                                    QtGui.QMessageBox.warning(self.P, "Too many spectra in File", errMsg)
 
                             self.numItems -=1
                         self.emit(QtCore.SIGNAL("finished(bool)"),True)
