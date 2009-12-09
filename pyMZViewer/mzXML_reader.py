@@ -50,7 +50,7 @@ class mzXMLDoc:
     """ Get and format data from mzXML document. """
 
 
-    def __init__(self, path, parent=None):
+    def __init__(self, path, parent=None, sumBool = False):
         if parent:
             self.parent = parent
         self.data = {
@@ -75,9 +75,9 @@ class mzXMLDoc:
         self.ns = None #namespace
         self.elmName = None
         self.scanList = None
-        self.getDocument(self.filename)
+        self.getDocument(self.filename, sumBool)
 
-    def getDocument(self, path):
+    def getDocument(self, path, sumBool = False):
         """ Read and parse all data from document. """
 
         # parse XML
@@ -95,7 +95,7 @@ class mzXMLDoc:
         self.data['totalScans'] = int(element.get('scanCount'))
         if element:
             self.scanList = element.findall(self.ns+'scan')
-            status = self.handleSpectrumList(self.scanList)
+            status = self.handleSpectrumList(self.scanList, sumBool = sumBool)
             #status = self.handleSpectrumList(element[0])
 
             # error in data
@@ -200,7 +200,7 @@ class mzXMLDoc:
 
         return True
 
-    def handleSpectrumList(self, elements):
+    def handleSpectrumList(self, elements, sumBool = False):
         """ Get list of spectra from <spectrumList> element. """
 
         # get all spectra
@@ -211,12 +211,13 @@ class mzXMLDoc:
         # get one spectrum
         #if len(spectra) == 1:
         #    print "Single Scan"
-        self.handleSpectrum(spectra[0])
-
-        # get spectrum from list
-        #else:
-        self.getChrom(spectra)#self.scanList
-        return True
+        if sumBool:
+            self.sumMZ(spectra)
+            return True
+        else:
+            self.handleSpectrum(spectra[0])
+            self.getChrom(spectra)
+            return True
 
 
     def getChrom(self, spectra):
@@ -237,6 +238,13 @@ class mzXMLDoc:
                 else:
                     BPC.append(0.0)
                     TIC.append(0.0)
+
+    def sumMZ(self, spectra):
+        for i,scan in enumerate(spectra):
+            if i == 0:
+                self.handleSpectrum(scan)
+            else:
+                self.handleSpectrum(scan, sumBool = True)
 
     def getXIC(self, spectra, mzValLo, mzValHi):
         '''Create the chromatogram, Base Peak, and Total Ion'''
@@ -335,12 +343,9 @@ class mzXMLDoc:
         else:
             return 0.0, True
 
-
-
-
         return True
 
-    def handleSpectrum(self, spectrum):
+    def handleSpectrum(self, spectrum, sumBool = False):
         """ Get spectrum data from <spectrum> element. """
 
         # get data element
@@ -399,10 +404,18 @@ class mzXMLDoc:
 
         # set data as spectrum or peaklist
         if not self.elmName:
-            self.data['spectrum'] = formatedData
+            if sumBool:
+                self.data['spectrum'][0]+=formatedData[0]
+                self.data['spectrum'][1]+=formatedData[1]
+            else:
+                self.data['spectrum'] = formatedData
             # else:
                 # self.data['peaklist'] = self.convertSpectrumToPeaklist(formatedData)
         elif self.elmName == 'spectrum':
+            if sumBool:
+                self.data['spectrum'][0]+=formatedData[0]
+                self.data['spectrum'][1]+=formatedData[1]
+            else:
                 self.data['spectrum'] = formatedData
         # elif self.elmName == 'peaklist':
             # self.data['peaklist'] = self.convertSpectrumToPeaklist(formatedData)
@@ -441,7 +454,6 @@ class mzXMLDoc:
             scans[x][6] = scanInfo['charge']
             scans[x][7] = scanInfo['type']
             scans[x][8] = scanInfo['basePeakIntensity']
-
 
         return scans
 
@@ -672,44 +684,46 @@ if __name__ == "__main__":
 
     if fn:
 
-        mzx = mzXMLDoc(fn)
+        mzx = mzXMLDoc(fn, True)
         #mzx.getDocument(fn)
         spectrum = mzx.data.get('spectrum')
-        BPC = mzx.data.get('BPC')
-        xvalues = mzx.data.get('expTime')
+#        BPC = mzx.data.get('BPC')
+#        xvalues = mzx.data.get('expTime')
 
         fig = P.figure(figsize=(8,6))
         ax = fig.add_subplot(111, axisbg='#FFFFCC')
-        ax2 = ax.twinx()
+        ax.plot(spectrum[0], spectrum[1])
 
-        #x = npy.arange(0.0, 5.0, 0.01)
-        #y = npy.sin(2*npy.pi*x) + 0.5*npy.random.randn(len(x))
-        if len(BPC) >=1:
-            ax.plot(N.array(xvalues), N.array(BPC), 'r-', picker = 5)
-        #ax.set_ylim(-2,2)
-        #ax.set_title('Press left mouse button and drag to test')
-        mzValLo = 835.1
-        mzValHi = 875.1
-        xicKey1 = '%.2f% - .2f'%(mzValLo,mzValHi)
-        mzx.getXIC(mzx.scanList, mzValLo, mzValHi)
-
-        mzValLo = 600
-        mzValHi = 675
-        mzx.getXIC(mzx.scanList, mzValLo, mzValHi)
-
-        xicKey2 = '%.2f% -.2f'%(mzValLo,mzValHi)
-        #xicY = mzx.data.get('XIC')[xicKey]
-        xicDict = mzx.data.get('XIC')
-        for xic in xicDict.itervalues():
-            ax.plot(N.array(xvalues), N.array(xic))
-
-#        def updateTwinAx(ax):
-#           y1, y2 = ax.get_ylim()
-#           ax2.set_ylim(convertTwinAx(y1), convertScanNum(y2))
-#           ax2.figure.canvas.draw()
+#        ax2 = ax.twinx()
 #
-#    # automatically update ylim of ax2 when ylim of ax1 changes.
-#        ax.callbacks.connect("ylim_changed", updateTwinAx)
+#        #x = npy.arange(0.0, 5.0, 0.01)
+#        #y = npy.sin(2*npy.pi*x) + 0.5*npy.random.randn(len(x))
+#        if len(BPC) >=1:
+#            ax.plot(N.array(xvalues), N.array(BPC), 'r-', picker = 5)
+#        #ax.set_ylim(-2,2)
+#        #ax.set_title('Press left mouse button and drag to test')
+#        mzValLo = 835.1
+#        mzValHi = 875.1
+#        xicKey1 = '%.2f% - .2f'%(mzValLo,mzValHi)
+#        mzx.getXIC(mzx.scanList, mzValLo, mzValHi)
+#
+#        mzValLo = 600
+#        mzValHi = 675
+#        mzx.getXIC(mzx.scanList, mzValLo, mzValHi)
+#
+#        xicKey2 = '%.2f% -.2f'%(mzValLo,mzValHi)
+#        #xicY = mzx.data.get('XIC')[xicKey]
+#        xicDict = mzx.data.get('XIC')
+#        for xic in xicDict.itervalues():
+#            ax.plot(N.array(xvalues), N.array(xic))
+#
+##        def updateTwinAx(ax):
+##           y1, y2 = ax.get_ylim()
+##           ax2.set_ylim(convertTwinAx(y1), convertScanNum(y2))
+##           ax2.figure.canvas.draw()
+##
+##    # automatically update ylim of ax2 when ylim of ax1 changes.
+##        ax.callbacks.connect("ylim_changed", updateTwinAx)
 
         P.show()
     #print mzx.data
