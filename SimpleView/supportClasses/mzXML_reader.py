@@ -28,8 +28,10 @@ to allow the primary program to access fragment ion spectra'''
 
 from PyQt4.QtGui import QFileDialog,  QApplication
 import numpy as N
+from pylab import load as pload
 
 import os.path
+import sys
 #import xml.dom.minidom
 import xml.etree.ElementTree
 import xml.etree.cElementTree as ET
@@ -51,6 +53,9 @@ class mzXMLDoc:
 
 
     def __init__(self, path, parent=None, sumBool = False):
+        '''
+        sumBool tells the loader to sum across all of the spectra if more than one is stored in the mzXML file.
+        '''
         if parent:
             self.parent = parent
         self.data = {
@@ -76,6 +81,22 @@ class mzXMLDoc:
         self.elmName = None
         self.scanList = None
         self.getDocument(self.filename, sumBool)
+        self.getPeakList(self.filename)
+
+
+    def getPeakList(self, filePath):
+        peakListFN = filePath.replace('.mzXML', '_pks.csv')#os.path.join(filePath.split('.')[:-1],suffix)
+        if os.path.isfile(peakListFN):
+            try:
+                peakList = pload(peakListFN,  delimiter = ',')
+#                print peakList
+                if len(peakList)>=1:
+                    self.data['peaklist'] = peakList
+
+            except:
+                errorMsg = "Sorry: %s\n\n:%s\n"%(sys.exc_type, sys.exc_value)
+                print errorMsg
+                self.data['peaklist'] = []
 
     def getDocument(self, path, sumBool = False):
         """ Read and parse all data from document. """
@@ -85,7 +106,6 @@ class mzXMLDoc:
             #self.filename = path
             document = ET.parse(path).getroot()
             self.ns = document.tag.split('}')[0]+'}' #makes a string '{some namespace}'
-            #document = xml.dom.minidom.parse(path)
         except:
             return False
 
@@ -96,7 +116,6 @@ class mzXMLDoc:
         if element:
             self.scanList = element.findall(self.ns+'scan')
             status = self.handleSpectrumList(self.scanList, sumBool = sumBool)
-            #status = self.handleSpectrumList(element[0])
 
             # error in data
             if status == False:
@@ -112,9 +131,6 @@ class mzXMLDoc:
 
         # get description
         instrument = element.find(self.ns+'msInstrument')
-        #element = document.getElementsByTagName('msInstrument')
-        #if element:
-        #    self.handleDescription(element[0])
         if instrument:
             self.handleDescription(instrument)
 
@@ -163,30 +179,22 @@ class mzXMLDoc:
 
         # msManufacturer
         msManufacturer = elements.find(self.ns+'msManufacturer')
-        #msManufacturer = elements.getElementsByTagName('msManufacturer')
         if msManufacturer:
-            #self.data['instrument'] = msManufacturer[0].getAttribute('value')
             self.data['instrument'] = msManufacturer.get('value')
 
         # msModel
         msModel = elements.find(self.ns+'msModel')
-        #msModel = elements.getElementsByTagName('msModel')
         if msModel:
-            #self.data['instrument'] += msModel[0].getAttribute('value')
             self.data['instrument'] += msModel.get('value')
 
         # msIonisation
         msIonisation = elements.find(self.ns+'msIonisation')
-        #msIonisation = elements.getElementsByTagName('msIonisation')
         if msIonisation:
-            #self.data['instrument'] += msIonisation[0].getAttribute('value')
             self.data['instrument'] += msIonisation.get('value')
 
         # msMassAnalyzer
         msMassAnalyzer = elements.find(self.ns+'msMassAnalyzer')
-        #msMassAnalyzer = elements.getElementsByTagName('msMassAnalyzer')
         if msMassAnalyzer:
-            #self.data['instrument'] += msMassAnalyzer[0].getAttribute('value')
             self.data['instrument'] += msMassAnalyzer.get('value')
 
         # operator
@@ -208,9 +216,6 @@ class mzXMLDoc:
         if not spectra:
             return False
 
-        # get one spectrum
-        #if len(spectra) == 1:
-        #    print "Single Scan"
         if sumBool:
             self.sumMZ(spectra)
             return True
@@ -231,10 +236,6 @@ class mzXMLDoc:
                 if N.float(scan.get('peaksCount'))>0:
                     BPC.append(N.float(scan.get('basePeakIntensity')))
                     TIC.append(N.float(scan.get('totIonCurrent')))
-                #                print scan.get('num'), type(scan)
-##                print scan.get('basePeakIntensity'), type(scan.get('basePeakIntensity'))
-#                if type(scan.get('basePeakIntensity')) == None:
-#
                 else:
                     BPC.append(0.0)
                     TIC.append(0.0)
@@ -262,10 +263,6 @@ class mzXMLDoc:
                         curXIC.append(xicVal)
                     else:
                         curXIC.append(0.0)
-                #                print scan.get('num'), type(scan)
-##                print scan.get('basePeakIntensity'), type(scan.get('basePeakIntensity'))
-#                if type(scan.get('basePeakIntensity')) == None:
-#
                 else:
                     curXIC.append(0.0)
 
@@ -301,8 +298,6 @@ class mzXMLDoc:
 
         # decode data
         try:
-            #print data[0:20]
-            #print type(data[0:20])
             data = base64.b64decode(data)
         except:
             return None, False
@@ -313,13 +308,8 @@ class mzXMLDoc:
             pointsCount = len(data)/struct.calcsize(endian+'f')
             start, end = 0, len(data)
             data = struct.unpack(endian+'f'*pointsCount, data[start:end])
-            #print data[0:5]
-            #print type(data[0:5])
         except:
             return None, False
-#        print type(data)
-#        for i in xrange(20):
-#            print data[i]
 
         # split data to m/z and intensity
         mzData = data[::2]
@@ -370,8 +360,6 @@ class mzXMLDoc:
 
         # decode data
         try:
-            #print data[0:20]
-            #print type(data[0:20])
             data = base64.b64decode(data)
         except:
             return False
@@ -386,9 +374,6 @@ class mzXMLDoc:
             #print type(data[0:5])
         except:
             return False
-#        print type(data)
-#        for i in xrange(20):
-#            print data[i]
 
         # split data to m/z and intensity
         mzData = data[::2]
@@ -410,16 +395,14 @@ class mzXMLDoc:
                 self.data['spectrum'][1]+=formatedData[1]
             else:
                 self.data['spectrum'] = formatedData
-            # else:
-                # self.data['peaklist'] = self.convertSpectrumToPeaklist(formatedData)
+
         elif self.elmName == 'spectrum':
             if sumBool:
 #                self.data['spectrum'][0]+=formatedData[0]
                 self.data['spectrum'][1]+=formatedData[1]
             else:
                 self.data['spectrum'] = formatedData
-        # elif self.elmName == 'peaklist':
-            # self.data['peaklist'] = self.convertSpectrumToPeaklist(formatedData)
+
 
         # get precursor info for MS/MS data
         scanInfo = self.getScanInfo(spectrum)
@@ -534,7 +517,6 @@ class mzXMLDoc:
             endian = '!'
 
         # get raw data
-        #data = self.getText(peaks[0].childNodes)
         data = peaks.text
 
         # decode data
@@ -550,9 +532,6 @@ class mzXMLDoc:
           data = struct.unpack(endian+'f'*pointsCount, data[start:end])
         except:
             return False
-        #print type(data)
-#        for i in xrange(20):
-#            print data[i]
 
         # split data to m/z and intensity
         mzData = data[::2]
@@ -689,7 +668,6 @@ if __name__ == "__main__":
         mzx = mzXMLDoc(fn, sumBool = True)
         #mzx.getDocument(fn)
         spectrum = mzx.data.get('spectrum')
-        print spectrum[0]
 #        BPC = mzx.data.get('BPC')
 #        xvalues = mzx.data.get('expTime')
 

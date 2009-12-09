@@ -1655,7 +1655,7 @@ class Plot_Widget(QtGui.QMainWindow,  uiElements.ui_main.Ui_MainWindow):
     def getMZXMLDialog(self):
         fileName = QtGui.QFileDialog.getOpenFileName(self,
                                          "Select mzXML File to Load",
-                                         "",
+                                         self.curDir,
                                          "mzXML (*.mzXML)")
         if not fileName.isEmpty():
 #            print fileName
@@ -1673,10 +1673,12 @@ class Plot_Widget(QtGui.QMainWindow,  uiElements.ui_main.Ui_MainWindow):
                 data2plot = DataClass(tempSpec[0],  tempSpec[1],  name = os.path.basename(fileName), path = fileName)
                 data2plot.setPeakList(tempmzXML.data['peaklist'], normalized = True)
                 self.updateGUI(data2plot)
+                return True
             else:
                 print 'Empty spectrum: ', curGUIItem
+                return False
         else:
-            errMsg = "%s has more than one spectrum in the file.\nWould You like to sum all the spectrum and load this composite?"%curGUIItem
+            errMsg = "%s has more than one spectrum in the file.\nWould You like to sum all the spectrum and load this composite?"%fileName
             errTitle = "Too Many Spectra!"
             if self.__askConfirm__(errTitle,errMsg):
                 tempmzXMLSum =  mzXMLR(fileName, sumBool = True)
@@ -1686,8 +1688,12 @@ class Plot_Widget(QtGui.QMainWindow,  uiElements.ui_main.Ui_MainWindow):
                     data2plot = DataClass(tempSpec[0],  tempSpec[1],  name = os.path.basename(fileName), path = fileName)
                     data2plot.setPeakList(tempmzXML.data['peaklist'], normalized = True)
                     self.updateGUI(data2plot)
+                    return True
                 else:
                     print 'Empty spectrum: ', curGUIItem
+                    return False
+            else:
+                return False
 
     def addSingleFile(self):
         '''
@@ -1705,7 +1711,10 @@ class Plot_Widget(QtGui.QMainWindow,  uiElements.ui_main.Ui_MainWindow):
 
             fileName = self.getMZXMLDialog()
             if fileName != None:
-                self.handleSpecFile(fileName, self.curTreeItem)
+                if self.handleSpecFile(fileName, self.curTreeItem):
+                    self.loadOk = True
+                    self.readFinished(True)
+                self.curDir = os.path.dirname(fileName)
         else:
             #test to see if any item groups exists.  If not create a new one.
             self.groupTreeWidget.selectAll()
@@ -1735,25 +1744,9 @@ class Plot_Widget(QtGui.QMainWindow,  uiElements.ui_main.Ui_MainWindow):
                     self.curFPTreeItem.setText(0,self.curGroupName)
                     self.curFPTreeItem.setToolTip(0, self.curDir)
 
-                    self.handleSpecFile(fileName, self.curTreeItem)
-                    self.loadOk = True
-#THERE IS AN ERROR HERE FIX ME
-#                    tempmzXML =  mzXMLR(fileName)
-#                    numScans = tempmzXML.data['totalScans']
-#                    if numScans == 1:
-#                        tempSpec = tempmzXML.data['spectrum']
-#                        if len(tempSpec)>0:
-#                            data2plot = DataClass(tempSpec[0],  tempSpec[1],  name = os.path.basename(fileName), path = fileName)
-#                            data2plot.setPeakList(tempmzXML.data['peaklist'], normalized = False)
-#                            self.updateGUI(data2plot)
-#                            self.loadOk = True
-#                            self.readFinished(True)
-#                        else:
-#                            print 'Empty spectrum: ', item
-#                    else:
-#                        errMsg = "%s has more than one spectrum in the file.\nRemember this is a program for viewing MALDI data!"%item
-#                        if self.P != None:
-#                            QtGui.QMessageBox.warning(self, "Too many spectra in File", errMsg)
+                    if self.handleSpecFile(fileName, self.curTreeItem):
+                        self.loadOk = True
+                        self.readFinished(True)
 
     def initDataList(self):
         #handles loading of new group.
