@@ -71,7 +71,7 @@ import tables as T
 from matplotlib.lines import Line2D
 from matplotlib.mlab import rec2csv
 from matplotlib.patches import Rectangle as Rect
-#import matplotlib.pyplot as P
+import matplotlib.pyplot as P
 
 from supportClasses.folderParse import Load_FID_Folder as LFid
 from supportClasses.folderParse import Load_mzXML_Folder as LmzXML
