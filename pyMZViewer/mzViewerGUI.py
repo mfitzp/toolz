@@ -800,7 +800,7 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
         curIndex = self.spectrumTabWidget.currentIndex()
         curCount = self.spectrumTabWidget.count()
         numFrags = len(self.fragScanList)
-        print "len fragScanList: ", numFrags
+#        print "len fragScanList: ", numFrags
         #case 1: when the next frag spectrum does not exist:
         if curIndex < numFrags:
 #            print "case 1"
@@ -823,7 +823,7 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
 
         #case 2: when at the maximum frag spectrum that is already plotted
         if curIndex == curCount-1:
-            print "case 2"
+#            print "case 2"
             return True
         #case 3: when below the maximum frag spectrum that is already plotted
         if curIndex < curCount-1:
