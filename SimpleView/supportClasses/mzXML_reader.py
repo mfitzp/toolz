@@ -245,13 +245,14 @@ class mzXMLDoc:
                 self.handleSpectrum(scan)
             else:
                 self.handleSpectrum(scan, sumBool = True)
+            print i
 
     def getXIC(self, spectra, mzValLo, mzValHi):
         '''Create the chromatogram, Base Peak, and Total Ion'''
         xicDict = self.data.get('XIC')
         curXIC = []
         curXICKey = '%.2f - %.2f'%(mzValLo,mzValHi)
-        print 'curXICKey: ',curXICKey
+#        print 'curXICKey: ',curXICKey
         xicDict[curXICKey] = curXIC#store xic as a key of the high and low mzVals
         for scan in spectra:
             if scan.find(self.ns+'precursorMz') is None:#case for msLevel == 1 scan
@@ -377,7 +378,7 @@ class mzXMLDoc:
 
         # convert from binary format
         try:
-            print len(data)
+#            print len(data)
             pointsCount = len(data)/struct.calcsize(endian+'f')
             start, end = 0, len(data)
             data = struct.unpack(endian+'f'*pointsCount, data[start:end])
@@ -405,7 +406,7 @@ class mzXMLDoc:
         # set data as spectrum or peaklist
         if not self.elmName:
             if sumBool:
-                self.data['spectrum'][0]+=formatedData[0]
+#                self.data['spectrum'][0]+=formatedData[0]
                 self.data['spectrum'][1]+=formatedData[1]
             else:
                 self.data['spectrum'] = formatedData
@@ -413,7 +414,7 @@ class mzXMLDoc:
                 # self.data['peaklist'] = self.convertSpectrumToPeaklist(formatedData)
         elif self.elmName == 'spectrum':
             if sumBool:
-                self.data['spectrum'][0]+=formatedData[0]
+#                self.data['spectrum'][0]+=formatedData[0]
                 self.data['spectrum'][1]+=formatedData[1]
             else:
                 self.data['spectrum'] = formatedData
@@ -661,8 +662,9 @@ if __name__ == "__main__":
     from base64 import b64encode
     import pylab as P
     from matplotlib.lines import Line2D
-    app = QApplication(sys.argv)
-    fn = open_file()
+#    app = QApplication(sys.argv)
+#    fn = open_file()
+    fn = '/home/clowers/workspace/SimpleView/Blank_B.mzXML'
 
 
     def convertScanNum(val):
@@ -684,7 +686,7 @@ if __name__ == "__main__":
 
     if fn:
 
-        mzx = mzXMLDoc(fn, True)
+        mzx = mzXMLDoc(fn, sumBool = True)
         #mzx.getDocument(fn)
         spectrum = mzx.data.get('spectrum')
         print spectrum[0]
@@ -728,5 +730,5 @@ if __name__ == "__main__":
 
         P.show()
     #print mzx.data
-    sys.exit(app.exec_())
+#    sys.exit(app.exec_())
 
