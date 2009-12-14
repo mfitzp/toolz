@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 import os, sys, traceback
 import time
 
@@ -16,6 +16,9 @@ import supportElements as SE
 import miscFunc as MF
 import ui_mainGUI
 
+'''
+/usr/bin/pyuic4 /home/clowers/workspace/pyXTandem/mainGUI.ui  -o /home/clowers/workspace/pyXTandem/ui_mainGUI.py
+'''
 
 class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
     def __init__(self, parent = None):
@@ -28,7 +31,7 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
 
     def _setupGUI_(self):
         #populate types of fragments
-        defaultFrags = ['b', 'y']#default fragments, add to list if needed
+        defaultFrags = ['b', 'y', 'a']#default fragments, add to list if needed
         for frag in SE.fragTypes:
             curFrag = QtGui.QListWidgetItem()
             curFrag.setText(frag)
@@ -40,6 +43,10 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
 
             self.fragTypeListWidget.addItem(curFrag)
 
+        #populate Default Parameters
+        self.defaultParamCB.addItems(self.defaultParamList)
+        self.defaultParamCB.setEditable(False)
+        self.defaultParamCB.setSizeAdjustPolicy(0)
 
         #populate digestion parameters
         enzymeKeys = SE.enzymeTypes.keys()
@@ -153,6 +160,7 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
         self.XTThread.start()
 
     def _setVars_(self):
+        self.defaultParamList = ['Linear Ion Trap', '3D Ion Trap', 'TOF', 'Orbitrap', 'ICR']
         self.XTThread = XTandemThread(self)
         self.defaultIndex = None
         self.cleaveRule = None
