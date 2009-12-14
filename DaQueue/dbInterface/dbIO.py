@@ -196,6 +196,20 @@ class DB:
             self.db = None
             self.OK = False
 
+    def addDocument(self, docDict):
+        if self.OK:
+            try:
+                docId = self.db.create(docDict)
+                return True, docId
+            except:
+                return False, ''
+
+    def delDocument(self, jobID):
+        if self.OK:
+            try:
+                self.db.__delitem__(jobID)
+            except:
+                print "Error deleting item. Double check deletion"
 
 
 class CouchDBServer:
@@ -239,17 +253,25 @@ class CouchDBServer:
 if __name__ == "__main__":
 #    test()
     import couchdb as CDB
+    from time import strftime, localtime
     s = CDB.Server('http://127.0.0.1:5984/')
 
 
     dbName = 'labqueue'
-    dbKeys = ['Task Type', 'Method File', 'Data Path', 'Output Path', 'State', 'User']
-    testItem = ['File Conversion', '/home/clowers/Sandbox/text.xml','/home/clowers/input.xml', '/home/clowers', 'Processing', 'clowers']
+    dbKeys = ['Task Type', 'Method File', 'Data Path', 'Output Path', 'State', 'User', 'Submit Time']
+    testItem = ['File Conversion', '/home/clowers/Sandbox/text.xml','/home/clowers/input.xml', '/home/clowers', 'Queued', 'clowers']
     docNames = xrange(5)
 #    testDict = {'type':'Document','title':'testDoc'}
     testDict = {}
     for i, key in enumerate(dbKeys):
-        testDict[key] = testItem[i]
+
+        if key == "Submit Time":
+            testDict[key] = strftime("%a, %d %b %Y %H:%M:%S", localtime())
+        else:
+            testDict[key] = testItem[i]
+
+
+
 
     try:
         db = s[dbName]
@@ -263,7 +285,7 @@ if __name__ == "__main__":
 #    for docId in db:
 #        print docId
     for j in xrange(5):
-        db.create(testDict)
+        print db.create(testDict)
 
 #    s.delete()
 

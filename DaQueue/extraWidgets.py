@@ -28,12 +28,23 @@ class cellStatus(QtGui.QTableWidgetItem):
         QtGui.QTableWidgetItem.__init__(self, '')
         self.setFlags(QtCore.Qt.ItemIsSelectable)
         self.setFlags(QtCore.Qt.ItemIsEnabled)
-        self.setIcon(QtGui.QIcon('images/toolsSmall.png'))
+        self.stateList = ['Processing', 'Finished', 'Failed', 'Queued']
+        self.state = 3
+        self.switchStatus(self.state)
 
     def switchStatus(self, state):
         if state == 0:#Processing
-            self.setIcon(QtGui.QIcon('images/toolsSmall.png'))
+            self.state = state
+            self.setIcon(QtGui.QIcon('images/applications.png'))
         elif state == 1:#Finished
+            self.state = state
             self.setIcon(QtGui.QIcon('images/clean.png'))
         elif state == 2:#Failed
+            self.state = state
             self.setIcon(QtGui.QIcon('images/exitsmall.png'))
+        elif state == 3:#Queued
+            self.state == state
+            self.setIcon(QtGui.QIcon('images/remove.png'))
+
+    def getStatusText(self):
+        return self.stateList[self.state]

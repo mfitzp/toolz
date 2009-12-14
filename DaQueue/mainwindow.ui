@@ -281,11 +281,21 @@
     <property name="title">
      <string>&amp;File</string>
     </property>
+    <addaction name="actionExit"/>
    </widget>
    <widget class="QMenu" name="menuFunctions">
     <property name="title">
      <string>Functions</string>
     </property>
+    <addaction name="actionAdd_Row"/>
+    <addaction name="actionAdd_Multiple_Rows"/>
+    <addaction name="actionFill_Column_with_Current_Value"/>
+    <addaction name="separator"/>
+    <addaction name="actionUpdate_Queue"/>
+    <addaction name="actionSubmit_Queue"/>
+    <addaction name="separator"/>
+    <addaction name="actionSubmit_Job"/>
+    <addaction name="actionDelete_Job"/>
    </widget>
    <addaction name="menu_File"/>
    <addaction name="menuFunctions"/>
@@ -301,6 +311,8 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionTestAction"/>
+   <addaction name="actionAdd_Row"/>
+   <addaction name="actionFill_Column_with_Current_Value"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionTestAction">
@@ -313,6 +325,54 @@
    </property>
    <property name="iconVisibleInMenu">
     <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionAdd_Row">
+   <property name="icon">
+    <iconset>
+     <normaloff>images/add.png</normaloff>images/add.png</iconset>
+   </property>
+   <property name="text">
+    <string>Add Row</string>
+   </property>
+  </action>
+  <action name="actionFill_Column_with_Current_Value">
+   <property name="icon">
+    <iconset>
+     <normaloff>images/action_down.png</normaloff>images/action_down.png</iconset>
+   </property>
+   <property name="text">
+    <string>Fill Column with Current Value</string>
+   </property>
+  </action>
+  <action name="actionExit">
+   <property name="text">
+    <string>Exit</string>
+   </property>
+  </action>
+  <action name="actionUpdate_Queue">
+   <property name="text">
+    <string>Update Queue</string>
+   </property>
+  </action>
+  <action name="actionSubmit_Queue">
+   <property name="text">
+    <string>Submit Queue</string>
+   </property>
+  </action>
+  <action name="actionDelete_Job">
+   <property name="text">
+    <string>Delete Job</string>
+   </property>
+  </action>
+  <action name="actionAdd_Multiple_Rows">
+   <property name="text">
+    <string>Add Multiple Rows</string>
+   </property>
+  </action>
+  <action name="actionSubmit_Job">
+   <property name="text">
+    <string>Submit Job</string>
    </property>
   </action>
  </widget>

@@ -76,9 +76,6 @@ class DataTableWindow(QtGui.QWidget):
 
 
         self.connect(self.tableWidget, QtCore.SIGNAL("itemSelectionChanged()"), self.tableSelect)
-
-
-
         self.setLayout(layout)
         self.show()
 
@@ -110,6 +107,7 @@ class CustomTable(QtGui.QTableWidget):
         self.stateInd = 7
         self.uidInd = 8
         self.taskIDInd = 9
+        self.timeInd = 10
 
         self.__initActions__()
 #        self.__initContextMenus__()
@@ -200,7 +198,6 @@ class CustomTable(QtGui.QTableWidget):
     def makeItemReadOnly(self, tableItem):
         tableItem.setFlags(QtCore.Qt.ItemIsSelectable)
         tableItem.setFlags(QtCore.Qt.ItemIsEnabled)
-
 
     def addCustomRow(self, row):
         self.setCellWidget(row, 0, cellComboBox())

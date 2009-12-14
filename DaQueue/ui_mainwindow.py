@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file '/home/clowers/workspace/DaQueue/mainwindow.ui'
 #
-# Created: Tue Dec  8 09:21:46 2009
-#      by: PyQt4 UI code generator 4.6
+# Created: Sun Dec 13 19:56:20 2009
+#      by: PyQt4 UI code generator 4.4.4
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -109,7 +109,7 @@ class Ui_MainWindow(object):
         self.portSB = QtGui.QSpinBox(self.tab_2)
         self.portSB.setEnabled(False)
         self.portSB.setMaximum(20000)
-        self.portSB.setProperty("value", 5984)
+        self.portSB.setProperty("value", QtCore.QVariant(5984))
         self.portSB.setObjectName("portSB")
         self.horizontalLayout_3.addWidget(self.portSB)
         self.resetServerBtn = QtGui.QPushButton(self.tab_2)
@@ -143,9 +143,40 @@ class Ui_MainWindow(object):
         self.actionTestAction.setIcon(icon1)
         self.actionTestAction.setIconVisibleInMenu(True)
         self.actionTestAction.setObjectName("actionTestAction")
+        self.actionAdd_Row = QtGui.QAction(MainWindow)
+        icon2 = QtGui.QIcon()
+        icon2.addPixmap(QtGui.QPixmap("images/add.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.actionAdd_Row.setIcon(icon2)
+        self.actionAdd_Row.setObjectName("actionAdd_Row")
+        self.actionFill_Column_with_Current_Value = QtGui.QAction(MainWindow)
+        icon3 = QtGui.QIcon()
+        icon3.addPixmap(QtGui.QPixmap("images/action_down.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.actionFill_Column_with_Current_Value.setIcon(icon3)
+        self.actionFill_Column_with_Current_Value.setObjectName("actionFill_Column_with_Current_Value")
+        self.actionExit = QtGui.QAction(MainWindow)
+        self.actionExit.setObjectName("actionExit")
+        self.actionUpdate_Queue = QtGui.QAction(MainWindow)
+        self.actionUpdate_Queue.setObjectName("actionUpdate_Queue")
+        self.actionSubmit_Queue = QtGui.QAction(MainWindow)
+        self.actionSubmit_Queue.setObjectName("actionSubmit_Queue")
+        self.actionDelete_Job = QtGui.QAction(MainWindow)
+        self.actionDelete_Job.setObjectName("actionDelete_Job")
+        self.actionAdd_Multiple_Rows = QtGui.QAction(MainWindow)
+        self.actionAdd_Multiple_Rows.setObjectName("actionAdd_Multiple_Rows")
+        self.menu_File.addAction(self.actionExit)
+        self.menuFunctions.addAction(self.actionAdd_Row)
+        self.menuFunctions.addAction(self.actionAdd_Multiple_Rows)
+        self.menuFunctions.addAction(self.actionFill_Column_with_Current_Value)
+        self.menuFunctions.addSeparator()
+        self.menuFunctions.addAction(self.actionUpdate_Queue)
+        self.menuFunctions.addAction(self.actionSubmit_Queue)
+        self.menuFunctions.addSeparator()
+        self.menuFunctions.addAction(self.actionDelete_Job)
         self.menuBar.addAction(self.menu_File.menuAction())
         self.menuBar.addAction(self.menuFunctions.menuAction())
         self.toolBar.addAction(self.actionTestAction)
+        self.toolBar.addAction(self.actionAdd_Row)
+        self.toolBar.addAction(self.actionFill_Column_with_Current_Value)
 
         self.retranslateUi(MainWindow)
         self.tabWidget.setCurrentIndex(0)
@@ -171,5 +202,12 @@ class Ui_MainWindow(object):
         self.menuFunctions.setTitle(QtGui.QApplication.translate("MainWindow", "Functions", None, QtGui.QApplication.UnicodeUTF8))
         self.toolBar.setWindowTitle(QtGui.QApplication.translate("MainWindow", "toolBar", None, QtGui.QApplication.UnicodeUTF8))
         self.actionTestAction.setText(QtGui.QApplication.translate("MainWindow", "TestAction", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionAdd_Row.setText(QtGui.QApplication.translate("MainWindow", "Add Row", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionFill_Column_with_Current_Value.setText(QtGui.QApplication.translate("MainWindow", "Fill Column with Current Value", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionExit.setText(QtGui.QApplication.translate("MainWindow", "Exit", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionUpdate_Queue.setText(QtGui.QApplication.translate("MainWindow", "Update Queue", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionSubmit_Queue.setText(QtGui.QApplication.translate("MainWindow", "Submit Queue", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionDelete_Job.setText(QtGui.QApplication.translate("MainWindow", "Delete Job", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionAdd_Multiple_Rows.setText(QtGui.QApplication.translate("MainWindow", "Add Multiple Rows", None, QtGui.QApplication.UnicodeUTF8))
 
 from tableClass import CustomTable
