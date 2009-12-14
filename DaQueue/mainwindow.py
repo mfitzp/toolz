@@ -225,7 +225,8 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         i.e. subclass
         '''
         if self.dbOK:
-            self.taskTable.setRowCount(0)
+            self.taskTable.setRowCount(0)#need this otherwise there may duplicates added
+            #alternatively, one could test to see if item exists....but right now I'm feeling lazy
             for i,docID in enumerate(self.db.db):
                 self.taskTable.insRow(i)
                 curDoc = self.db.db[docID]
@@ -287,6 +288,7 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
 
     def sortTable(self):
         self.taskTable.sortItems(self.timeInd, QtCore.Qt.AscendingOrder)
+        self.taskTable.scrollToBottom()
 
     def dbStatusUpdate(self):
         '''
@@ -470,6 +472,7 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         '''
         curRow = self.taskTable.rowCount()
         self.taskTable.insRow(curRow)
+        self.taskTable.scrollToBottom()
 
     def addRows(self):
         '''

@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file '/home/clowers/workspace/DaQueue/mainwindow.ui'
 #
-# Created: Sun Dec 13 19:56:20 2009
-#      by: PyQt4 UI code generator 4.4.4
+# Created: Mon Dec 14 09:50:32 2009
+#      by: PyQt4 UI code generator 4.6
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -12,7 +12,7 @@ from PyQt4 import QtCore, QtGui
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(600, 600)
+        MainWindow.resize(975, 620)
         MainWindow.setCursor(QtCore.Qt.ArrowCursor)
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("images/Retro Question Block.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -109,7 +109,7 @@ class Ui_MainWindow(object):
         self.portSB = QtGui.QSpinBox(self.tab_2)
         self.portSB.setEnabled(False)
         self.portSB.setMaximum(20000)
-        self.portSB.setProperty("value", QtCore.QVariant(5984))
+        self.portSB.setProperty("value", 5984)
         self.portSB.setObjectName("portSB")
         self.horizontalLayout_3.addWidget(self.portSB)
         self.resetServerBtn = QtGui.QPushButton(self.tab_2)
@@ -124,7 +124,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_4.addWidget(self.tabWidget)
         MainWindow.setCentralWidget(self.centralWidget)
         self.menuBar = QtGui.QMenuBar(MainWindow)
-        self.menuBar.setGeometry(QtCore.QRect(0, 0, 600, 25))
+        self.menuBar.setGeometry(QtCore.QRect(0, 0, 975, 25))
         self.menuBar.setObjectName("menuBar")
         self.menu_File = QtGui.QMenu(self.menuBar)
         self.menu_File.setObjectName("menu_File")
@@ -139,7 +139,7 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusBar)
         self.actionTestAction = QtGui.QAction(MainWindow)
         icon1 = QtGui.QIcon()
-        icon1.addPixmap(QtGui.QPixmap("images/Service Manager.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon1.addPixmap(QtGui.QPixmap("images/applications.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.actionTestAction.setIcon(icon1)
         self.actionTestAction.setIconVisibleInMenu(True)
         self.actionTestAction.setObjectName("actionTestAction")
@@ -163,6 +163,8 @@ class Ui_MainWindow(object):
         self.actionDelete_Job.setObjectName("actionDelete_Job")
         self.actionAdd_Multiple_Rows = QtGui.QAction(MainWindow)
         self.actionAdd_Multiple_Rows.setObjectName("actionAdd_Multiple_Rows")
+        self.actionSubmit_Job = QtGui.QAction(MainWindow)
+        self.actionSubmit_Job.setObjectName("actionSubmit_Job")
         self.menu_File.addAction(self.actionExit)
         self.menuFunctions.addAction(self.actionAdd_Row)
         self.menuFunctions.addAction(self.actionAdd_Multiple_Rows)
@@ -171,6 +173,7 @@ class Ui_MainWindow(object):
         self.menuFunctions.addAction(self.actionUpdate_Queue)
         self.menuFunctions.addAction(self.actionSubmit_Queue)
         self.menuFunctions.addSeparator()
+        self.menuFunctions.addAction(self.actionSubmit_Job)
         self.menuFunctions.addAction(self.actionDelete_Job)
         self.menuBar.addAction(self.menu_File.menuAction())
         self.menuBar.addAction(self.menuFunctions.menuAction())
@@ -209,5 +212,6 @@ class Ui_MainWindow(object):
         self.actionSubmit_Queue.setText(QtGui.QApplication.translate("MainWindow", "Submit Queue", None, QtGui.QApplication.UnicodeUTF8))
         self.actionDelete_Job.setText(QtGui.QApplication.translate("MainWindow", "Delete Job", None, QtGui.QApplication.UnicodeUTF8))
         self.actionAdd_Multiple_Rows.setText(QtGui.QApplication.translate("MainWindow", "Add Multiple Rows", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionSubmit_Job.setText(QtGui.QApplication.translate("MainWindow", "Submit Job", None, QtGui.QApplication.UnicodeUTF8))
 
 from tableClass import CustomTable

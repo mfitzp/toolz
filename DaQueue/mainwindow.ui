@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>600</width>
-    <height>600</height>
+    <width>975</width>
+    <height>620</height>
    </rect>
   </property>
   <property name="cursor">
@@ -273,7 +273,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>600</width>
+     <width>975</width>
      <height>25</height>
     </rect>
    </property>
@@ -318,7 +318,7 @@
   <action name="actionTestAction">
    <property name="icon">
     <iconset>
-     <normaloff>images/Service Manager.png</normaloff>images/Service Manager.png</iconset>
+     <normaloff>images/applications.png</normaloff>images/applications.png</iconset>
    </property>
    <property name="text">
     <string>TestAction</string>

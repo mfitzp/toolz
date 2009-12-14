@@ -10,6 +10,7 @@ class cellComboBox(QtGui.QComboBox):
 
         self.options = ['File Conversion', 'X!Tandem Run', 'Peak Picking']
         self.addItems(self.options)
+        self.setCurrentIndex(1)
 
 #class cellOFD(QtGui.QToolButton):
 #    def __init__(self, parent = None):
