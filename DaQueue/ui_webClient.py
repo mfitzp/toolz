@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Documents and Settings\d3p483\workspace\DaQueue\webClient.ui'
+# Form implementation generated from reading ui file '/home/clowers/workspace/DaQueue/webClient.ui'
 #
-# Created: Mon Dec 14 17:16:46 2009
-#      by: PyQt4 UI code generator 4.4.3
+# Created: Wed Dec 16 09:49:24 2009
+#      by: PyQt4 UI code generator 4.6
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -109,7 +109,7 @@ class Ui_MainWindow(object):
         self.portSB = QtGui.QSpinBox(self.tab_2)
         self.portSB.setEnabled(False)
         self.portSB.setMaximum(20000)
-        self.portSB.setProperty("value", QtCore.QVariant(5984))
+        self.portSB.setProperty("value", 5984)
         self.portSB.setObjectName("portSB")
         self.horizontalLayout_3.addWidget(self.portSB)
         self.resetServerBtn = QtGui.QPushButton(self.tab_2)
@@ -165,9 +165,12 @@ class Ui_MainWindow(object):
         self.actionAdd_Multiple_Rows.setObjectName("actionAdd_Multiple_Rows")
         self.actionSubmit_Job = QtGui.QAction(MainWindow)
         self.actionSubmit_Job.setObjectName("actionSubmit_Job")
+        self.actionAdd_Entire_Data_Folder = QtGui.QAction(MainWindow)
+        self.actionAdd_Entire_Data_Folder.setObjectName("actionAdd_Entire_Data_Folder")
         self.menu_File.addAction(self.actionExit)
         self.menuFunctions.addAction(self.actionAdd_Row)
         self.menuFunctions.addAction(self.actionAdd_Multiple_Rows)
+        self.menuFunctions.addAction(self.actionAdd_Entire_Data_Folder)
         self.menuFunctions.addAction(self.actionFill_Column_with_Current_Value)
         self.menuFunctions.addSeparator()
         self.menuFunctions.addAction(self.actionUpdate_Queue)
@@ -213,5 +216,6 @@ class Ui_MainWindow(object):
         self.actionDelete_Job.setText(QtGui.QApplication.translate("MainWindow", "Delete Job", None, QtGui.QApplication.UnicodeUTF8))
         self.actionAdd_Multiple_Rows.setText(QtGui.QApplication.translate("MainWindow", "Add Multiple Rows", None, QtGui.QApplication.UnicodeUTF8))
         self.actionSubmit_Job.setText(QtGui.QApplication.translate("MainWindow", "Submit Job", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionAdd_Entire_Data_Folder.setText(QtGui.QApplication.translate("MainWindow", "Add Entire Data Folder", None, QtGui.QApplication.UnicodeUTF8))
 
 from tableClass import CustomTable

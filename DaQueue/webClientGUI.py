@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 '''
-/usr/bin/pyuic4 /home/clowers/workspace/DaQueue/mainwindow.ui  -o /home/clowers/workspace/DaQueue/ui_mainwindow.py
+/usr/bin/pyuic4 /home/clowers/workspace/DaQueue/webClient.ui  -o /home/clowers/workspace/DaQueue/ui_webClient.py
 
 NEED TO ADD A THE FOLLOWING JOB STATES
 QUEUED
@@ -16,6 +16,7 @@ FAILED
 This module contains the class MainWindow.
 """
 import os
+from os import walk
 import sys
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import pyqtSignature
@@ -96,8 +97,10 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
                 else:
                     return QtGui.QMessageBox.warning(self, "Job Deletion Error",  self.wrongUserText)
             else:
+                self.taskTable.removeRow(row)
                 print "JobID or User is empty"
         else:
+            self.taskTable.removeRow(row)
             print "JobItem or UserItem is empty"
 
 
@@ -348,10 +351,10 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
 #            self.loadFileXT(dataFileName)
 
     def __loadDataFolder__(self):
-        directory= QtGui.QFileDialog.getExistingDirectory(self, self.__curDir,
-                                                          "Select Output Data Folder")
+        directory= QtGui.QFileDialog.getExistingDirectory(self, "Select Output Data Folder", self.__curDir)
         if os.path.isdir(str(directory)):
             self.__curDir = str(directory)
+            print self.__curDir, str(directory)
             return str(directory)
 #            for root, dirs, files in walk(str(directory)):
 #                for file in files:
@@ -373,6 +376,7 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         QtCore.QObject.connect(self.submitQueueBtn, QtCore.SIGNAL("clicked()"),self.submitQueue)
 
         QtCore.QObject.connect(self.actionFill_Column_with_Current_Value, QtCore.SIGNAL("triggered()"),self.fillColumnWithCurrent)
+        QtCore.QObject.connect(self.actionAdd_Entire_Data_Folder, QtCore.SIGNAL("triggered()"),self.processEntireFolder)
         QtCore.QObject.connect(self.actionUpdate_Queue, QtCore.SIGNAL("triggered()"),self.updateQueue)
         QtCore.QObject.connect(self.actionSubmit_Queue, QtCore.SIGNAL("triggered()"),self.submitQueue)
         QtCore.QObject.connect(self.actionAdd_Multiple_Rows, QtCore.SIGNAL("triggered()"),self.addRows)
@@ -389,8 +393,54 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
     def testFunc(self):
         print "Test Function Triggered"
 #        self.addRows()
-        self.fillColumnWithCurrent()
+#        self.fillColumnWithCurrent()
 #        self.updateStatus(2, 2)
+#        self.processEntireFolder()
+
+    def parseFolder(self, directory, debug = False):
+        '''
+        At this point this just looks for mzXML and mgf files for X!Tandem to examine
+        '''
+        fileList = []
+        startDir = []
+        for root, dirs, files in walk(directory):
+            #for dir in dirs:
+            for file in files:
+                if '.mzXML' in file or '.mgf' in file:
+                    #temptime = time.clock()
+                    filePath = os.path.abspath(os.path.join(root, file))
+                    fileList.append(filePath)
+
+                    if debug:
+                        i+=1
+                        if i == 30:
+                            t2 = time.clock()
+                            for item in dirList:
+                                print item
+                                print ''
+                            print t2-t1,  " sec Total"
+                            return fileList
+
+#        for item in fileList:
+#            print item
+        return fileList
+
+    def processEntireFolder(self):
+        '''
+        Goes through an entire folder and adds the acceptable files to a input file list
+        '''
+        folderName = self.__loadDataFolder__()
+        if folderName != None:
+            fileList = self.parseFolder(folderName)
+            if len(fileList)>0:
+                rowStart = self.taskTable.rowCount()
+                self.addRows(len(fileList))
+                for i,dataFile in enumerate(fileList):
+                    self.taskTable.setItem(rowStart+i, self.dataPathInd, QtGui.QTableWidgetItem(dataFile))
+
+
+
+
 
     def makeItemReadOnly(self, tableItem):
         tableItem.setFlags(QtCore.Qt.ItemIsSelectable)
@@ -475,11 +525,14 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         self.taskTable.insRow(curRow)
         self.taskTable.scrollToBottom()
 
-    def addRows(self):
+    def addRows(self, val = None):
         '''
         Adds the user specified number of rows
         '''
-        val, ansOK = QtGui.QInputDialog.getInteger(self, 'Modify Table', 'Specify number of rows to add:', 0)
+        if val == None:
+            val, ansOK = QtGui.QInputDialog.getInteger(self, 'Modify Table', 'Specify number of rows to add:', 0)
+        elif type(val) == int:
+            ansOK = True
         if ansOK:
             curRow = self.taskTable.currentRow()
             for i in xrange(val):

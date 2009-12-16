@@ -289,6 +289,7 @@
     </property>
     <addaction name="actionAdd_Row"/>
     <addaction name="actionAdd_Multiple_Rows"/>
+    <addaction name="actionAdd_Entire_Data_Folder"/>
     <addaction name="actionFill_Column_with_Current_Value"/>
     <addaction name="separator"/>
     <addaction name="actionUpdate_Queue"/>
@@ -373,6 +374,11 @@
   <action name="actionSubmit_Job">
    <property name="text">
     <string>Submit Job</string>
+   </property>
+  </action>
+  <action name="actionAdd_Entire_Data_Folder">
+   <property name="text">
+    <string>Add Entire Data Folder</string>
    </property>
   </action>
  </widget>
