@@ -18,6 +18,13 @@ import ui_mainGUI
 
 '''
 /usr/bin/pyuic4 /home/clowers/workspace/pyXTandem/mainGUI.ui  -o /home/clowers/workspace/pyXTandem/ui_mainGUI.py
+
+#General Defaults
+Threads=6
+Minimum Log(e) Peptides=-1
+Minimum Log(e) Proteins=(-1)
+Maximum Parent Charge=3
+
 '''
 
 class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
