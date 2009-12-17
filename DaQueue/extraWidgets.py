@@ -8,14 +8,11 @@ class cellComboBox(QtGui.QComboBox):
         if parent:
             self.parent = parent
 
-        self.options = ['File Conversion', 'X!Tandem Run', 'Peak Picking']
+        self.options = ['X!Tandem Run', 'Peak Picking','File Conversion']
         self.addItems(self.options)
-        self.setCurrentIndex(1)
-
-#class cellOFD(QtGui.QToolButton):
-#    def __init__(self, parent = None):
-#        QtGui.QToolButton.__init__(self, parent)
-#        self.setIcon(QtGui.QIcon('images/fileopen.png'))
+        self.setCurrentIndex(0)
+        self.setEditable(False)
+        self.setEnabled(False)#Setting this option because only X!Tandem runs are enabled at this point
 
 class cellOFD(QtGui.QTableWidgetItem):
     def __init__(self, parent = None):

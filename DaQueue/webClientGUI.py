@@ -277,8 +277,8 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
 
         self.taskHeaders = ['Task Type', 'Method File', '', 'Data Path', '','Output Path', '', 'State', 'User', 'Task ID', 'Submit Time']
         self.dbKeys = ['Task Type', 'Method File', 'Data Path', 'Output Path', 'State', 'User', 'Task ID', 'Submit Time']
-        self.taskOptions = ['File Conversion', 'X!Tandem Run', 'Peak Picking']
-        self.taskTypeDict = {'File Conversion':0, 'X!Tandem Run':1, 'Peak Picking':2}
+        self.taskOptions = ['X!Tandem Run', 'Peak Picking','File Conversion']
+        self.taskTypeDict = {'X!Tandem Run':0, 'Peak Picking':1, 'File Conversion':2}
 
         self.methodFileInd = 1
         self.dataPathInd = 3
@@ -437,6 +437,7 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
                 self.addRows(len(fileList))
                 for i,dataFile in enumerate(fileList):
                     self.taskTable.setItem(rowStart+i, self.dataPathInd, QtGui.QTableWidgetItem(dataFile))
+                self.updateColumnSizes()
 
 
 
