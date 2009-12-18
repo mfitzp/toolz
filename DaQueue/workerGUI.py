@@ -1,208 +1,916 @@
-from PyQt4 import QtCore, QtGui
-import os, os.path
+#from PyQt4 import QtCore, QtGui
+#import os, os.path
+#import sys
+#from string import join
+#import subprocess as sub
+#
+#import time
+#from dbInterface import dbIO
+
+
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+'''
+/usr/bin/pyuic4 /home/clowers/workspace/DaQueue/workerGUI.ui  -o /home/clowers/workspace/DaQueue/ui_workerGUI.py
+
+NEED TO ADD A THE FOLLOWING JOB STATES
+QUEUED
+PROCESSING
+FINISHED
+FAILED
+
+Need to add logging
+'''
+
+
+"""
+This module contains the class MainWindow.
+"""
+import os
+from os import walk
 import sys
+from PyQt4 import QtCore, QtGui
+from PyQt4.QtCore import pyqtSignature
+from ui_workerGUI import Ui_MainWindow
+from extraWidgets import cellComboBox, cellOFD, cellStatus
+from time import strftime, localtime, sleep
+#strftime("%a, %d %b %Y %H:%M:%S +0000", localtime())
+from dbInterface import dbIO
+import time
+
 from string import join
 import subprocess as sub
 
-import time
-from dbInterface import dbIO
+
+DBNAME = 'labqueue'
+ROOTUSER = 'clowers'
+
+try:
+    USERNAME = os.login()
+except:
+    USERNAME = 'TestUser'
+
+class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
+    """
+    MainWindow: this is the class that manages all the functionality of receiving input from the user, and navigating the internet.
+    """
+    def __init__(self, parent = None):
+        """
+        Default Constructor. It can receive a top window as parent.
+        """
+        QtGui.QMainWindow.__init__(self, parent)
+        self.setupUi(self)
+        self.__setMessages__()
+        self.__setVariables__()
+        self.__resetTaskTable__()
+        self.__setConnections__()
+        self.initServer()
+        self.getUnprocessedTask()
+
+    def initDB(self):
+        if self.serverStatus:
+            self.db = dbIO.DB(self.server, DBNAME, self.dbKeys)
+            self.dbOK = self.db.OK
+        self.dbStatusUpdate()
+
+    def initServer(self):
+        self.serverAddress = str(self.serverAddressLE.text())
+        self.serverPort = self.portSB.value()
+#        print "Server Address, Port: %s:%s"%(self.serverAddress, self.serverPort)
+        self.server = dbIO.CouchDBServer(self.serverAddress, self.serverPort)
+        self.serverStatus = self.server.OK
+        self.initDB()
+
+    def taskTest(self, val = None):
+        print "taskTest Called"
+        sleep(2)
+        self.taskFinished(val, "Ok")
+
+    def getUnprocessedTask(self):
+        '''
+        starts the next unprocessed task in queue
+
+        look at existing table
+        if there are any unprocessed jobs
+        get that job
+        run it
+        change status upon thread completion
+        if there are no unprocessed jobsthat should be called ONLY once
+        updated from database and repeat
+        '''
+#        self.stateList = ['Processing', 'Finished', 'Failed', 'Queued']
+#        States = 0, 1, 2, 3
+        if len(self.unprocessedRows) == 0:
+            print "Polling Database Queue"
+            self.updateQueue()#clears and resets tables and checks for new values
+            self.taskLoop()
+        elif len(self.unprocessedRows) > 0:
+            self.curRow = self.unprocessedRows.pop(0)
+#            print "Processing row: %s"%self.curRow
+            jobID = self.getTaskID(self.curRow)
+            if jobID != None:
+                self.updateStatus(self.curRow, 0)
+                self.updateDoc(jobID, 'State', 'Processing')
+                self.taskTest(0)
+            else:
+                print "JobID Empty"
+            #update database
+            #prepare thread
+            #run thread
+
+    def updateDoc(self, docID, docKey, docVal):
+        '''
+        This is not working the way I want....
+        '''
+        doc = self.db.db[docID]
+#        self.db.db.updatetype='Person', name='John Doe'
+#        print doc['State'], docKey
+#        doc['State'] = 'Finished'
+#        print doc['State']
+#        print self.db.db[docID]['State']
+        doc[docKey] = docVal
+        self.db.db.update([doc])
 
 
-class RAWConvert(ui_main.Ui_MainWindow):
-    def __init__(self, MainWindow):
-        self.MainWindow = MainWindow
-        ui_main.Ui_MainWindow.setupUi(self,MainWindow)
+    def getTaskID(self, row):
+        jobItem = self.taskTable.item(row, self.taskIDInd)
+        if jobItem != None:
+            jobID = str(jobItem.text())
+            return jobID
 
-        self.__setup__()
-        self.__makeConnections__()
+    def taskFinished(self, retVal, retStr):
+        '''
+        To be called when the thread finishes
 
-    def __setup__(self):
-        self.RAWDataOk = False
-        self.RAWData = None
-
-        self.outputFileOk = False
-        self.outputFile = None
-
-        self.outputTE.clear()
-
-        self._curDir_ = os.getcwd()
-
-        self.retCode = None
-        self.err = False
-        self.errMsg = None
-        self.outMsg = None
-
-        self.useSingleFile = False
-
-        self.loadThread = LoadThread(self)
-
-        self.iterScroll = 0
-        #self.filePathError()
-
-    def __updateGUI__(self):
-        if self.RAWDataOk and self.RAWData != None:
-            self.RAWFolderLE.setText(self.RAWData)
+        update table
+        update database
+        process next task
+        '''
+        print "Task Finished, RetVal: %s"%retVal
+        if retVal == 1:
+            self.updateStatus(self.curRow, 2)#failed State
+            self.updateDoc(self.getTaskID(self.curRow), 'State', 'Failed')
+            #process retStr
+            #update DB
+            #add to log
+        elif retVal == 0:
+            self.updateStatus(self.curRow, 1)
+            self.updateDoc(self.getTaskID(self.curRow), 'State', 'Finished')
+            #process retStr
+            #update DB
+            #add to log
+        self.getUnprocessedTask()
 
 
+    def taskLoop(self):
+        '''
+        This is the main worker loop that is called whenever a job finishes are there
+        are no more jobs to run
+        '''
+        print "Task Loop Called"
+#        waitTime = 10000
+        waitTime = 5000
+        QtCore.QTimer.singleShot(waitTime, self.getUnprocessedTask)
 
-        if self.outputFileOk and self.outputFile != None:
-            self.outputFileLE.setText(self.outputFile)
 
-        #need to reset command sequence
-        self.cmdOut = ['ReAdW']
+    def getTaskType(self, row):
+        curWidget = self.taskTable.cellWidget(row, 0)
+        if isinstance(curWidget, cellComboBox):
+            return str(curWidget.currentText())
+
+    def updateTaskType(self, row, comboIndex):
+        curItem = self.taskTable.cellWidget(row, 0)
+        if isinstance(curItem, cellComboBox):
+#            print type(curItem)
+            curItem.setCurrentIndex(comboIndex)
+
+    def testTable(self):
+        for row in xrange(self.taskTable.rowCount()):
+            print type(self.taskTable.item(row, 0))
+
+    def deleteJob(self, row = None):
+        if row == None:
+            row = self.taskTable.currentRow()
+        jobItem = self.taskTable.item(row, self.taskIDInd)
+        userItem = self.taskTable.item(row, self.uidInd)
+
+        if jobItem != None and userItem != None:
+            jobID = str(jobItem.text())
+            userID = str(userItem.text())
+            if len(jobID)>0 and len(userID)>0:
+                if userID == USERNAME or USERNAME == ROOTUSER:
+                    print jobID
+                    self.db.delDocument(jobID)
+                    self.taskTable.removeRow(row)
+                else:
+                    return QtGui.QMessageBox.warning(self, "Job Deletion Error",  self.wrongUserText)
+            else:
+                self.taskTable.removeRow(row)
+                print "JobID or User is empty"
+        else:
+            self.taskTable.removeRow(row)
+            print "JobItem or UserItem is empty"
 
 
-    def __makeConnections__(self):
-        QtCore.QObject.connect(self.actionClose,QtCore.SIGNAL("clicked()"),self.__mainClose__)
-        QtCore.QObject.connect(self.selRAWDataBtn,QtCore.SIGNAL("clicked()"),self.__getRAWData__)
-        QtCore.QObject.connect(self.outputBtn,QtCore.SIGNAL("clicked()"),self.__setOutputFile__)
-        QtCore.QObject.connect(self.cnvrtRAWBtn,QtCore.SIGNAL("clicked()"),self.__convertRAW__)
-        QtCore.QObject.connect(self.actionConvert2XML,QtCore.SIGNAL("triggered()"),self.__convertRAW__)
-        QtCore.QObject.connect(self.singleFileCB, QtCore.SIGNAL("stateChanged (int)"),self.__changeInputFile__)
-        QtCore.QObject.connect(self.RAWFolderLE, QtCore.SIGNAL("editingFinished()"),self.__RAWLEChanged__)
-        QtCore.QObject.connect(self.outputFileLE, QtCore.SIGNAL("editingFinished()"),self.__outputLEChanged__)
-        QtCore.QObject.connect(self.action_About,QtCore.SIGNAL("triggered()"),self.__showAbout__)
-        QtCore.QObject.connect(self.loadThread, QtCore.SIGNAL("itemLoaded(PyQt_PyObject)"), self.updateOutputMsg)
 
-    def __RAWLEChanged__(self):
-        self.RAWDataOk = True
-        self.RAWData = self.RAWFolderLE.text()
+    def submitJob(self, row = None):
+        '''
+        Submit Individual Job
+        There needs to be a better way of detecting a
+        problem in the dictionary parameters and aborting the job
+        '''
+        dbKeys = ['Task Type', 'Method File', 'Data Path', 'Output Path', 'State', 'User', 'Submit Time']
+        indDict = {'Task Type':0, 'Method File':self.methodFileInd, 'Data Path':self.dataPathInd,
+                   'Output Path':self.outputPathInd, 'State':self.stateInd, 'User':self.uidInd, 'Submit Time':self.timeInd}
+        #self.taskTypeDict = {'File Conversion':0, 'X!Tandem Run':1, 'Peak Picking':2}
 
-    def __outputLEChanged__(self):
-        self.outputFileOk = True
-        self.outputFile = self.outputFileLE.text()
+        if row == None:
+            row = self.taskTable.currentRow()
 
-    def __changeInputFile__(self, state):
+        jobOK = True#assume job is ok to start
+        jobID = str(self.taskTable.item(row, self.taskIDInd).text())
+        #if the job already has been loaded to the couchdb server
+        #then it will have a job ID and we only want to submit new jobs
+        if len(jobID) == 0:
+            '''
+            Need to verify paths
+            '''
+            jobDict = {}#initiate an empty job
+            for key in dbKeys:
+                curCol = indDict[key]
+                if curCol == self.methodFileInd or curCol == self.dataPathInd or curCol == self.outputPathInd:
+                    curItem = self.taskTable.item(row, curCol)
+                    if curItem != None:
+                        dictParam = str(curItem.text())
+                        if os.path.isfile(dictParam) or os.path.isdir(dictParam):
+                            jobDict[key] = dictParam
+                            curItem.setBackgroundColor(QtGui.QColor(255, 255, 255))
+                        else:
+                            jobOK = False
+                            print "Parameter Error, Row %s, Column %s is not a valid path or file"%(row, curCol)
+                            curItem.setBackgroundColor(QtGui.QColor(255, 106, 106))
+                    else:
+                        jobOK = False
+                        print "Parameter Error, Row %s, Column %s is not a valid path or file"%(row, curCol)
+                        newItem = QtGui.QTableWidgetItem('')
+                        newItem.setBackgroundColor(QtGui.QColor(255, 106, 106))
+                        self.taskTable.setItem(row, curCol, newItem)
+                elif curCol == 0:
+                    #this is the column for the task type
+                    jobDict[key] = self.getTaskType(row)
+
+                elif curCol == self.timeInd:
+                    jobDict[key] = strftime("%a, %d %b %Y %H:%M:%S", localtime())
+
+                elif curCol == self.uidInd:
+                    curItem = self.taskTable.item(row, curCol)
+                    if curItem != None:
+                        dictParam = str(curItem.text())
+                        if dictParam != None:
+                            if len(dictParam)>0:
+                                jobDict[key] = dictParam
+                            else:
+                                jobOK = False
+                                print "Parameter Error, Row %s, Column %s is not a valid user"%(row, curCol)
+                                curItem.setBackgroundColor(QtGui.QColor(255, 106, 106))
+                        else:
+                            jobOK = False
+                            print "Parameter Error, Row %s, Column %s is not a valid user"%(row, curCol)
+                            curItem.setBackgroundColor(QtGui.QColor(255, 106, 106))
+                    else:
+                        jobOK = False
+                        print "Parameter Error, Row %s, Column %s is not a valid user"%(row, curCol)
+                        curItem.setBackgroundColor(QtGui.QColor(255, 106, 106))
+
+                elif curCol == self.stateInd:
+                    curItem = self.taskTable.item(row, curCol)
+                    if curItem != None:
+                        dictParam = self.getTableJobStatus(row)
+                        if dictParam != None:
+                            if len(dictParam)>0:
+                                jobDict[key] = dictParam
+                            else:
+                                jobOK = False
+                                print "Parameter Error, Row %s, Column %s State Error"%(row, curCol)
+                                curItem.setBackgroundColor(QtGui.QColor(255, 106, 106))
+                        else:
+                            jobOK = False
+                            print "Parameter Error, Row %s, Column %s State Error"%(row, curCol)
+                            curItem.setBackgroundColor(QtGui.QColor(255, 106, 106))
+                    else:
+                        jobOK = False
+                        print "Parameter Error, Row %s, Column %s State Error"%(row, curCol)
+                        curItem.setBackgroundColor(QtGui.QColor(255, 106, 106))
+
+            if jobOK:
+                ans = self.db.addDocument(jobDict)
+                #boolean, jobID
+                if ans[0]:
+                    self.taskTable.setItem(row, self.taskIDInd, QtGui.QTableWidgetItem(ans[1]))
+                    self.taskTable.setItem(row, self.timeInd, QtGui.QTableWidgetItem(jobDict['Submit Time']))
+                    print jobDict
+                else:
+                    curItem = QtGui.QTableWidgetItem('Error submitting job!')
+                    self.taskTable.setItem(row, self.taskIDInd, curItem)
+                    curItem.setBackgroundColor(QtGui.QColor(255, 106, 106))
+                    print "There was an error submitting job....contact Clowers"
+            else:
+                print "Job Error at Row %s"%row
+
+    def submitQueue(self):
+        '''
+        self.methodFileInd = 1
+        self.dataPathInd = 3
+        self.outputPathInd = 5
+        self.stateInd = 7
+        self.uidInd = 8
+        self.taskIDInd = 9
+        self.timeInd = 10
+        '''
+        for i in xrange(self.taskTable.rowCount()):#iterate through the table of jobs
+            self.submitJob(i)
+
+
+    def updateQueue(self):
+        '''
+        I don't like to double "db".  Need to find a more elegant way of interfacing
+        i.e. subclass
+        '''
+        if self.dbOK:
+            self.taskTable.setRowCount(0)#need this otherwise there may duplicates added
+            #alternatively, one could test to see if item exists....but right now I'm feeling lazy
+            for i,docID in enumerate(self.db.db):
+                self.taskTable.insRow(i)
+                curDoc = self.db.db[docID]
+                for j, key in enumerate(self.taskHeaders):
+                    if curDoc.has_key(key):
+                        if key == 'State':
+                            if curDoc[key] == 'Processing':
+                                self.updateStatus(i, 0)
+                            elif curDoc[key] == 'Finished':
+                                self.updateStatus(i, 1)
+                            elif curDoc[key] == 'Failed':
+                                self.updateStatus(i, 2)
+                            elif curDoc[key] == 'Queued':
+                                self.updateStatus(i, 3)
+                        elif key == 'Task Type':
+                            taskKey = curDoc[key]
+                            self.updateTaskType(i, self.taskTypeDict[taskKey])
+                        elif key == 'User':
+                            newTableItem = QtGui.QTableWidgetItem(curDoc[key])
+                            self.makeItemReadOnly(newTableItem)
+                            self.taskTable.setItem(i,j, newTableItem)
+                        else:
+                            newTableItem = QtGui.QTableWidgetItem(curDoc[key])
+                            self.taskTable.setItem(i,j, newTableItem)
+
+                    elif key == 'Task ID':
+                        newTableItem = QtGui.QTableWidgetItem(docID)
+                        self.makeItemReadOnly(newTableItem)
+                        self.taskTable.setItem(i,j, newTableItem)
+
+            self.updateColumnSizes()
+            self.sortTable()
+            self.setTaskList()
+
+    def setTaskList(self):
+        '''
+        Fills up the variable containing the rows to process
+        '''
+        self.unprocessedRows = []
+        # self.stateList = ['Processing', 'Finished', 'Failed', 'Queued']
+        # States = 0, 1, 2, 3
+        for row in xrange(self.taskTable.rowCount()):
+            if self.getTableJobStatus(row) == 'Queued':#third value
+                self.unprocessedRows.append(row)
+
+    def __setVariables__(self):
+        '''Variables that are utilized by other functions'''
+        self.__curDir = getHomeDir()
+        self.server = None
+        self.serverStatus = False
+        self.serverAddress = None
+        self.serverPort = None
+        self.db = None
+        self.dbOK = False
+
+        self.taskHeaders = ['Task Type', 'Method File', '', 'Data Path', '','Output Path', '', 'State', 'User', 'Task ID', 'Submit Time']
+        self.dbKeys = ['Task Type', 'Method File', 'Data Path', 'Output Path', 'State', 'User', 'Task ID', 'Submit Time']
+        self.taskOptions = ['X!Tandem Run', 'Peak Picking','File Conversion']
+        self.taskTypeDict = {'X!Tandem Run':0, 'Peak Picking':1, 'File Conversion':2}
+
+        self.curRow = 0
+
+        self.methodFileInd = 1
+        self.dataPathInd = 3
+        self.outputPathInd = 5
+        self.stateInd = 7
+        self.uidInd = 8
+        self.taskIDInd = 9
+        self.timeInd = 10
+
+        self.unprocessedRows = []
+
+        self.taskTable.setSortingEnabled(True)
+
+    def sortTable(self):
+        self.taskTable.sortItems(self.timeInd, QtCore.Qt.AscendingOrder)
+        self.taskTable.scrollToBottom()
+
+    def dbStatusUpdate(self):
+        '''
+        Updates the server status on the GUI and attempts
+        connection with couchDB server
+        '''
+        if self.serverStatus and self.dbOK:
+            self.serverStatusBtn.setIcon(QtGui.QIcon('images/clean.png'))
+        else:
+            self.serverStatusBtn.setIcon(QtGui.QIcon('images/exit.png'))
+
+        if self.serverStatus:
+            if self.dbOK:
+                pass
+            else:
+                return QtGui.QMessageBox.warning(self, "Database Error",  self.dbErrorText)
+        else:
+            return QtGui.QMessageBox.warning(self, "Server Connection Error",  self.serverErrorText)
+
+
+    def toggleServerEdit(self, state = None):
         if state == 2:
-            self.useSingleFile = True
+            self.serverAddressLE.setEnabled(True)
+            self.portSB.setEnabled(True)
+            self.resetServerBtn.setEnabled(True)
+        elif state == 0:
+            self.serverAddressLE.setEnabled(False)
+            self.portSB.setEnabled(False)
+            self.resetServerBtn.setEnabled(False)
+
+    def __setMessages__(self):
+        '''This function is obvious'''
+        self.ClearTableText = "Are you sure you want to erase\nthe entire table content?"
+        self.ClearAllDataText = "Are you sure you want to erase\nthe entire data set?"
+        self.NotEditableText = "Sorry, this data format is not table-editable."
+        self.OpenScriptText = "Choose a python script to launch:"
+        self.SaveDataText = "Choose a name for the data file to save:"
+        self.ScratchSavePrompt = "Choose file name to save the scratch pad:"
+        self.OpenDataText = "Choose a data file to open:"
+        self.ResetAllDataText = "This operation will reset all your data.\nWould you like to continue?"
+        self.EmptyArrayText = "There is no data in the array selected.  Perhaps the search criteria are too stringent.  Check ppm and e-Value cutoff values.\n"
+
+        self.serverErrorText = "There was an error connecting to the server.  Please try the number and dial again."
+        self.dbErrorText = "There was an error connecting to the 'labqueue' database. Does the database exist?"
+        self.wrongUserText = "You do not have the permissions to delete this job as you are not the owner."
+
+    def __getDataFile__(self):
+        dataFileName = QtGui.QFileDialog.getOpenFileName(self,\
+                                                         self.OpenDataText,\
+                                                         self.__curDir, '*.* (*.*);;X!Tandem XML (*.xml);;SQLite Database (*.db)')
+        if dataFileName:
+            self.__curDir = getCurDir(dataFileName)
+            return str(dataFileName)
         else:
-            self.useSingleFile = False
-        self.outputFileLE.clear()
-        self.outputFileOk = False
-        self.RAWFolderLE.clear()
-        self.RAWDataOk = False
+            return None
+#            self.loadFileXT(dataFileName)
+
+    def __loadDataFolder__(self):
+        directory= QtGui.QFileDialog.getExistingDirectory(self, "Select Output Data Folder", self.__curDir)
+        if os.path.isdir(str(directory)):
+            self.__curDir = str(directory)
+            print self.__curDir, str(directory)
+            return str(directory)
+#            for root, dirs, files in walk(str(directory)):
+#                for file in files:
+#                    if '.xml' in file:
+#                        ##full file path name
+#                        ffpn=path.abspath(path.join(root, file))#file full path name
+        else:
+            return None
+
+    def __setConnections__(self):
+        '''establishes connections between GUI Slots and Actions'''
+        QtCore.QObject.connect(self.taskTable, QtCore.SIGNAL("itemClicked (QTableWidgetItem *)"), self.updateCellValue)
+        QtCore.QObject.connect(self.taskTable, QtCore.SIGNAL("itemEntered (QTableWidgetItem *)"), self.updateCellValue)
+
+        QtCore.QObject.connect(self.editServerCB, QtCore.SIGNAL("stateChanged(int)"),self.toggleServerEdit)
+        QtCore.QObject.connect(self.resetServerBtn, QtCore.SIGNAL("clicked()"),self.initServer)
+
+        QtCore.QObject.connect(self.updateQueueBtn, QtCore.SIGNAL("clicked()"),self.updateQueue)
+        QtCore.QObject.connect(self.submitQueueBtn, QtCore.SIGNAL("clicked()"),self.submitQueue)
+
+        QtCore.QObject.connect(self.actionFill_Column_with_Current_Value, QtCore.SIGNAL("triggered()"),self.fillColumnWithCurrent)
+        QtCore.QObject.connect(self.actionAdd_Entire_Data_Folder, QtCore.SIGNAL("triggered()"),self.processEntireFolder)
+        QtCore.QObject.connect(self.actionUpdate_Queue, QtCore.SIGNAL("triggered()"),self.updateQueue)
+        QtCore.QObject.connect(self.actionSubmit_Queue, QtCore.SIGNAL("triggered()"),self.submitQueue)
+        QtCore.QObject.connect(self.actionAdd_Multiple_Rows, QtCore.SIGNAL("triggered()"),self.addRows)
+        QtCore.QObject.connect(self.actionAdd_Row, QtCore.SIGNAL("triggered()"),self.addSingleRow)
+        QtCore.QObject.connect(self.actionDelete_Job, QtCore.SIGNAL("triggered()"),self.deleteJob)
+        QtCore.QObject.connect(self.deleteQueueRowBtn, QtCore.SIGNAL("clicked()"),self.deleteJob)
+
+        '''
+        QtCore.QObject.connect(self.actionExit, QtCore.SIGNAL("triggered()"),self.testFunc)
+        actionSubmit_Job
+        '''
+        QtCore.QObject.connect(self.actionTestAction, QtCore.SIGNAL("triggered()"),self.testFunc)
+
+    def testFunc(self):
+        print "Test Function Triggered"
+#        self.addRows()
+#        self.fillColumnWithCurrent()
+#        self.updateStatus(2, 2)
+#        self.processEntireFolder()
+
+    def parseFolder(self, directory, debug = False):
+        '''
+        At this point this just looks for mzXML and mgf files for X!Tandem to examine
+        '''
+        fileList = []
+        startDir = []
+        for root, dirs, files in walk(directory):
+            #for dir in dirs:
+            for file in files:
+                if '.mzXML' in file or '.mgf' in file:
+                    #temptime = time.clock()
+                    filePath = os.path.abspath(os.path.join(root, file))
+                    fileList.append(filePath)
+
+                    if debug:
+                        i+=1
+                        if i == 30:
+                            t2 = time.clock()
+                            for item in dirList:
+                                print item
+                                print ''
+                            print t2-t1,  " sec Total"
+                            return fileList
+
+#        for item in fileList:
+#            print item
+        return fileList
+
+    def processEntireFolder(self):
+        '''
+        Goes through an entire folder and adds the acceptable files to a input file list
+        '''
+        folderName = self.__loadDataFolder__()
+        if folderName != None:
+            fileList = self.parseFolder(folderName)
+            if len(fileList)>0:
+                rowStart = self.taskTable.rowCount()
+                self.addRows(len(fileList))
+                for i,dataFile in enumerate(fileList):
+                    self.taskTable.setItem(rowStart+i, self.dataPathInd, QtGui.QTableWidgetItem(dataFile))
+                self.updateColumnSizes()
 
 
-    def updateOutputMsg(self, outputStr):
-        self.iterScroll+=1
-        self.outputTE.insertPlainText(QtCore.QString(outputStr))
-        scrollBar = self.outputTE.verticalScrollBar();
-        scrollBar.setValue(scrollBar.maximum())
+    def makeItemReadOnly(self, tableItem):
+        tableItem.setFlags(QtCore.Qt.ItemIsSelectable)
+        tableItem.setFlags(QtCore.Qt.ItemIsEnabled)
 
-    def __convertRAW__(self):
-        if self.RAWDataOk:
-            self.outputTE.clear()
-            if self.useSingleFile == False:
-                fileList = getRAWFiles(str(self.RAWData))
-                if self.loadThread.updateThread(fileList):
-                    self.loadThread.start()
+    def __resetTaskTable__(self):
+        self.taskTable.clear()
+        self.taskTable.setColumnCount(len(self.taskHeaders))
+        self.taskTable.setRowCount(3)
+        self.taskTable.setHorizontalHeaderLabels(self.taskHeaders)
+
+        for row in xrange(self.taskTable.rowCount()):
+            self.taskTable.setCellWidget(row, 0, cellComboBox())
+            self.taskTable.setItem(row, self.methodFileInd+1, cellOFD())
+            self.taskTable.setItem(row, self.dataPathInd+1, cellOFD())
+            self.taskTable.setItem(row, self.outputPathInd+1, cellOFD())
+            self.taskTable.setItem(row, self.stateInd, cellStatus())
+            userItem = QtGui.QTableWidgetItem(USERNAME)
+            self.makeItemReadOnly(userItem)
+            self.taskTable.setItem(row, self.uidInd, userItem)
+            taskIDItem = QtGui.QTableWidgetItem('')
+            self.makeItemReadOnly(taskIDItem)
+            self.taskTable.setItem(row, self.uidInd+1, taskIDItem)
+
+        self.taskTable.resizeColumnsToContents()
+        self.taskTable.resizeRowsToContents()
+        self.taskTable.setColumnWidth(0, 150)
+
+    def getTableJobStatus(self, row):
+        '''
+        Returns the state of processing from the table NOT THE DATABASE
+        '''
+        curItem = self.taskTable.item(row, self.stateInd)
+        if isinstance(curItem, cellStatus):
+            return curItem.getStatusText()
+
+    def updateStatus(self, row, state):
+        curItem = self.taskTable.item(row, self.stateInd)
+        if isinstance(curItem, cellStatus):
+            curItem.switchStatus(state)
+
+    def updateColumnSizes(self):
+        self.taskTable.resizeColumnsToContents()
+        self.taskTable.setColumnWidth(0, 150)
+
+    def updateCellValue(self, tableItem = None):
+        if isinstance(tableItem, cellOFD):
+            if tableItem.column() == self.outputPathInd+1:
+                dataPath = self.__loadDataFolder__()
+                if dataPath != None:
+                    prevTableItem = QtGui.QTableWidgetItem(dataPath)
+                    self.taskTable.setItem(tableItem.row(), tableItem.column()-1, prevTableItem)
 
             else:
-                newFile = None
-                if self.outputFileOk:
-                    newFile =str(self.outputFile)
-                else:
-                    datadir = os.path.abspath(str(self.RAWData))
-                    coreName = os.path.basename(datadir).split('.')[:-1][0]
-                    newFile = coreName
-#                    print "New File name: ", newFile, str(self.RAWData)
-                curFile = os.path.abspath(str(self.RAWData))
-                if self.loadThread.updateThread([(curFile, newFile)]):
-                    self.loadThread.start()
+                dataFileName = self.__getDataFile__()
+                if dataFileName != None:
+                    prevTableItem = QtGui.QTableWidgetItem(dataFileName)
+                    self.taskTable.setItem(tableItem.row(), tableItem.column()-1, prevTableItem)
 
-#                self.updateOutputMsg(self.loadThread.exeRAW(str(self.RAWData), newFile))
-        else:
-            reply = QtGui.QMessageBox.warning(self.MainWindow, "No Input File Set",  "An input file must be selected before continuing.")
-            self.__getRAWData__()
-#            exec_str = '-multi '+str(self.RAWData)
-#            self.cmdOut.append(exec_str)
-#            file_str = ' -multiName '+'RAWConvert.1231.test.mzXML'
-#            self.cmdOut.append(file_str)
+                    if tableItem.column() == self.dataPathInd+1:
+                        nextItem = self.taskTable.item(tableItem.row(), tableItem.column()+1)
+                        baseDir = os.path.dirname(dataFileName)
+                        if nextItem == None:
+                            nextItem = QtGui.QTableWidgetItem()
+                        curText = str(nextItem.text())
+                        if os.path.isdir(curText) or os.path.isfile(curText):
+                            return True
+                        else:
+                            nextItem.setText(baseDir)
+                            self.taskTable.setItem(tableItem.row(), tableItem.column()+1, nextItem)
 
-    def __getRAWData__(self):
-        if self.RAWDataOk:
-            try:
-                if self.useSingleFile:
-                    self.dir = os.path.dirname(str(self.RAWData))
-                else:
-                    self.dir = str(self.RAWData)
-            except:
-                print "Directory split didn't work"
-                self.dir = self._curDir_
-        else:
-            self.dir = self._curDir_
-        if self.RAWDataOk and self.RAWData != None:
-            if self.useSingleFile:
-                self.dir = os.path.dirname(str(self.RAWData))
-            else:
-                self.dir = self.RAWData
-
-        if self.useSingleFile:
-            data = QtGui.QFileDialog.getOpenFileName(self.MainWindow,\
-                                'Select RAW Data File',\
-                                self.dir, 'Thermo RAW File (*.RAW)')
-        else:
-            data= QtGui.QFileDialog.getExistingDirectory(self.MainWindow,\
-                                                             "Select RAW Data Folder")
-        if data:
-            if ' ' in data:
-                self.filePathError()
-            else:
-                self.RAWDataOk = True
-                self.RAWData = data
-                self.__updateGUI__()
+            self.updateColumnSizes()
+            self.sortTable()
 
 
+    def addSingleRow(self):
+        '''
+        Adds a single row to the job queue
+        '''
+        curRow = self.taskTable.rowCount()
+        self.taskTable.insRow(curRow)
+        self.taskTable.scrollToBottom()
 
-    def __setOutputFile__(self):
-        if self.RAWDataOk and self.RAWData != None:
-            if self.useSingleFile:
-                outputFile = QtGui.QFileDialog.getSaveFileName(self.MainWindow,\
-                            'Select Output File Name',\
-                            self.dir, 'mzXML (*.mzXML);;mzML (*.mzML)')
+    def addRows(self, val = None):
+        '''
+        Adds the user specified number of rows
+        '''
+        if val == None:
+            val, ansOK = QtGui.QInputDialog.getInteger(self, 'Modify Table', 'Specify number of rows to add:', 0)
+        elif type(val) == int:
+            ansOK = True
+        if ansOK:
+            curRow = self.taskTable.currentRow()
+            for i in xrange(val):
+                self.addSingleRow()
+#                self.taskTable.insRow(i+curRow)
+            return val
 
-                if outputFile:
-                    if ' ' in outputFile:
-                        self.filePathError()
-                    else:
-                        self.outputFileOk = True
-                        self.outputFile = outputFile
-                        self.__updateGUI__()
-            else:
-                outFolder= QtGui.QFileDialog.getExistingDirectory(self.MainWindow,\
-                                                             "Select Output Folder")
-                if outFolder:
-                    if ' ' in outFolder:
-                        self.filePathError()
-                    else:
-                        self.outputFileOk = True
-                        self.outputFile = outFolder
-                        self.__updateGUI__()
-        else:
-            reply = QtGui.QMessageBox.warning(self.MainWindow, "No Input File Set",  "An input file must be selected before continuing.")
-            self.__getRAWData__()
+    def fillColumnWithCurrent(self):
+        '''
+        Fills all rows below the current column value for the user specified number of rows
+        '''
+        curRow = self.taskTable.currentRow()
+        maxRows = self.taskTable.rowCount()
+        numRows = maxRows - curRow
+        if numRows == 0:
+            return False
 
-
-    def filePathError(self):
-        reply = QtGui.QMessageBox.warning(self.MainWindow, "File Naming Warning",  "This conversion utility requires the file path names to not have any spaces or special characters.  You've been warned!")
-
-    def __showAbout__(self):
-        return QtGui.QMessageBox.information(self.MainWindow,
-                                            ("RAW2mzXML V.0.9, December, 2008"),
-                                            ("<p><b>RAW2mzXML</b> was written in Python by Brian H. Clowers (bhclowers@gmail.com).</p>"
-        "<p>Please keep in mind that the entire effort is very much a"
-        " work in progress and that Brian won't quit his day job for programming."
-        " The original purpose of RAW2mzXML was to provide a user-friendly interface to the"
-        " ReAdW conversion tool (which must be installed for this program to work)."
-        " At this time concatenation of the output files is not possible, though certainly "
-        " feasible.  If you'd like the source code please let me know.  Please feel free to make "
-        " modifications (preferably with documentation) and share your contributions with the "
-        " rest of the community.</p>"))
+        curCol = self.taskTable.currentColumn()
+        if curCol == self.methodFileInd or curCol == self.dataPathInd or curCol == self.outputPathInd:
+#            numRows = self.addRows()
+            curItem = self.taskTable.currentItem()
+            if curItem != None:
+                curText = str(curItem.text())
+                if curText != None:
+                    for i in xrange(numRows):
+                        self.taskTable.setItem(curRow+i, curCol, QtGui.QTableWidgetItem(curText))
 
 
-    def __mainClose__(self):
-        self.MainWindow.close()
-############################
+
+
+def getCurDir(dirString):
+    tempStr = str(dirString)#incase it is a QString
+    if os.path.isfile(tempStr):
+        return os.path.dirname(tempStr)
+    else:
+        return os.getcwd()
+
+def valid(path):
+    if path and os.path.isdir(path):
+        return True
+    return False
+
+def env(name):
+    return os.environ.get( name, '' )
+
+def getHomeDir():
+    if sys.platform != 'win32':
+        return os.path.expanduser( '~' )
+
+    homeDir = env( 'USERPROFILE' )
+    if not valid(homeDir):
+        homeDir = env( 'HOME' )
+        if not valid(homeDir) :
+            homeDir = '%s%s' % (env('HOMEDRIVE'),env('HOMEPATH'))
+            if not valid(homeDir) :
+                homeDir = env( 'SYSTEMDRIVE' )
+                if homeDir and (not homeDir.endswith('\\')) :
+                    homeDir += '\\'
+                if not valid(homeDir) :
+                    homeDir = 'C:\\'
+    return homeDir
+
+#class RAWConvert(ui_main.Ui_MainWindow):
+#    def __init__(self, MainWindow):
+#        self.MainWindow = MainWindow
+#        ui_main.Ui_MainWindow.setupUi(self,MainWindow)
+#
+#        self.__setup__()
+#        self.__makeConnections__()
+#
+#    def __setup__(self):
+#        self.RAWDataOk = False
+#        self.RAWData = None
+#
+#        self.outputFileOk = False
+#        self.outputFile = None
+#
+#        self.outputTE.clear()
+#
+#        self._curDir_ = os.getcwd()
+#
+#        self.retCode = None
+#        self.err = False
+#        self.errMsg = None
+#        self.outMsg = None
+#
+#        self.useSingleFile = False
+#
+#        self.loadThread = LoadThread(self)
+#
+#        self.iterScroll = 0
+#        #self.filePathError()
+#
+#    def __updateGUI__(self):
+#        if self.RAWDataOk and self.RAWData != None:
+#            self.RAWFolderLE.setText(self.RAWData)
+#
+#
+#
+#        if self.outputFileOk and self.outputFile != None:
+#            self.outputFileLE.setText(self.outputFile)
+#
+#        #need to reset command sequence
+#        self.cmdOut = ['ReAdW']
+#
+#
+#    def __makeConnections__(self):
+#        QtCore.QObject.connect(self.actionClose,QtCore.SIGNAL("clicked()"),self.__mainClose__)
+#        QtCore.QObject.connect(self.selRAWDataBtn,QtCore.SIGNAL("clicked()"),self.__getRAWData__)
+#        QtCore.QObject.connect(self.outputBtn,QtCore.SIGNAL("clicked()"),self.__setOutputFile__)
+#        QtCore.QObject.connect(self.cnvrtRAWBtn,QtCore.SIGNAL("clicked()"),self.__convertRAW__)
+#        QtCore.QObject.connect(self.actionConvert2XML,QtCore.SIGNAL("triggered()"),self.__convertRAW__)
+#        QtCore.QObject.connect(self.singleFileCB, QtCore.SIGNAL("stateChanged (int)"),self.__changeInputFile__)
+#        QtCore.QObject.connect(self.RAWFolderLE, QtCore.SIGNAL("editingFinished()"),self.__RAWLEChanged__)
+#        QtCore.QObject.connect(self.outputFileLE, QtCore.SIGNAL("editingFinished()"),self.__outputLEChanged__)
+#        QtCore.QObject.connect(self.action_About,QtCore.SIGNAL("triggered()"),self.__showAbout__)
+#        QtCore.QObject.connect(self.loadThread, QtCore.SIGNAL("itemLoaded(PyQt_PyObject)"), self.updateOutputMsg)
+#
+#    def __RAWLEChanged__(self):
+#        self.RAWDataOk = True
+#        self.RAWData = self.RAWFolderLE.text()
+#
+#    def __outputLEChanged__(self):
+#        self.outputFileOk = True
+#        self.outputFile = self.outputFileLE.text()
+#
+#    def __changeInputFile__(self, state):
+#        if state == 2:
+#            self.useSingleFile = True
+#        else:
+#            self.useSingleFile = False
+#        self.outputFileLE.clear()
+#        self.outputFileOk = False
+#        self.RAWFolderLE.clear()
+#        self.RAWDataOk = False
+#
+#
+#    def updateOutputMsg(self, outputStr):
+#        self.iterScroll+=1
+#        self.outputTE.insertPlainText(QtCore.QString(outputStr))
+#        scrollBar = self.outputTE.verticalScrollBar();
+#        scrollBar.setValue(scrollBar.maximum())
+#
+#    def __convertRAW__(self):
+#        if self.RAWDataOk:
+#            self.outputTE.clear()
+#            if self.useSingleFile == False:
+#                fileList = getRAWFiles(str(self.RAWData))
+#                if self.loadThread.updateThread(fileList):
+#                    self.loadThread.start()
+#
+#            else:
+#                newFile = None
+#                if self.outputFileOk:
+#                    newFile =str(self.outputFile)
+#                else:
+#                    datadir = os.path.abspath(str(self.RAWData))
+#                    coreName = os.path.basename(datadir).split('.')[:-1][0]
+#                    newFile = coreName
+##                    print "New File name: ", newFile, str(self.RAWData)
+#                curFile = os.path.abspath(str(self.RAWData))
+#                if self.loadThread.updateThread([(curFile, newFile)]):
+#                    self.loadThread.start()
+#
+##                self.updateOutputMsg(self.loadThread.exeRAW(str(self.RAWData), newFile))
+#        else:
+#            reply = QtGui.QMessageBox.warning(self.MainWindow, "No Input File Set",  "An input file must be selected before continuing.")
+#            self.__getRAWData__()
+##            exec_str = '-multi '+str(self.RAWData)
+##            self.cmdOut.append(exec_str)
+##            file_str = ' -multiName '+'RAWConvert.1231.test.mzXML'
+##            self.cmdOut.append(file_str)
+#
+#    def __getRAWData__(self):
+#        if self.RAWDataOk:
+#            try:
+#                if self.useSingleFile:
+#                    self.dir = os.path.dirname(str(self.RAWData))
+#                else:
+#                    self.dir = str(self.RAWData)
+#            except:
+#                print "Directory split didn't work"
+#                self.dir = self._curDir_
+#        else:
+#            self.dir = self._curDir_
+#        if self.RAWDataOk and self.RAWData != None:
+#            if self.useSingleFile:
+#                self.dir = os.path.dirname(str(self.RAWData))
+#            else:
+#                self.dir = self.RAWData
+#
+#        if self.useSingleFile:
+#            data = QtGui.QFileDialog.getOpenFileName(self.MainWindow,\
+#                                'Select RAW Data File',\
+#                                self.dir, 'Thermo RAW File (*.RAW)')
+#        else:
+#            data= QtGui.QFileDialog.getExistingDirectory(self.MainWindow,\
+#                                                             "Select RAW Data Folder")
+#        if data:
+#            if ' ' in data:
+#                self.filePathError()
+#            else:
+#                self.RAWDataOk = True
+#                self.RAWData = data
+#                self.__updateGUI__()
+#
+#
+#
+#    def __setOutputFile__(self):
+#        if self.RAWDataOk and self.RAWData != None:
+#            if self.useSingleFile:
+#                outputFile = QtGui.QFileDialog.getSaveFileName(self.MainWindow,\
+#                            'Select Output File Name',\
+#                            self.dir, 'mzXML (*.mzXML);;mzML (*.mzML)')
+#
+#                if outputFile:
+#                    if ' ' in outputFile:
+#                        self.filePathError()
+#                    else:
+#                        self.outputFileOk = True
+#                        self.outputFile = outputFile
+#                        self.__updateGUI__()
+#            else:
+#                outFolder= QtGui.QFileDialog.getExistingDirectory(self.MainWindow,\
+#                                                             "Select Output Folder")
+#                if outFolder:
+#                    if ' ' in outFolder:
+#                        self.filePathError()
+#                    else:
+#                        self.outputFileOk = True
+#                        self.outputFile = outFolder
+#                        self.__updateGUI__()
+#        else:
+#            reply = QtGui.QMessageBox.warning(self.MainWindow, "No Input File Set",  "An input file must be selected before continuing.")
+#            self.__getRAWData__()
+#
+#
+#    def filePathError(self):
+#        reply = QtGui.QMessageBox.warning(self.MainWindow, "File Naming Warning",  "This conversion utility requires the file path names to not have any spaces or special characters.  You've been warned!")
+#
+#    def __showAbout__(self):
+#        return QtGui.QMessageBox.information(self.MainWindow,
+#                                            ("RAW2mzXML V.0.9, December, 2008"),
+#                                            ("<p><b>RAW2mzXML</b> was written in Python by Brian H. Clowers (bhclowers@gmail.com).</p>"
+#        "<p>Please keep in mind that the entire effort is very much a"
+#        " work in progress and that Brian won't quit his day job for programming."
+#        " The original purpose of RAW2mzXML was to provide a user-friendly interface to the"
+#        " ReAdW conversion tool (which must be installed for this program to work)."
+#        " At this time concatenation of the output files is not possible, though certainly "
+#        " feasible.  If you'd like the source code please let me know.  Please feel free to make "
+#        " modifications (preferably with documentation) and share your contributions with the "
+#        " rest of the community.</p>"))
+#
+#
+#    def __mainClose__(self):
+#        self.MainWindow.close()
+#############################
 
 
 class runThread(QtCore.QThread):
@@ -489,9 +1197,17 @@ def run_main():
 
     sys.exit(app.exec_())
 
+def run_main2():
+    import sys
+    app = QtGui.QApplication(sys.argv)
+    ui = MainWindow()
+    ui.show()
+    sys.exit(app.exec_())
+
 
 if __name__ == "__main__":
-    run_main()
+#    run_main()
+    run_main2()
 
 
 '''    def exeRAW(self, file2Convert,  newFileName = None):

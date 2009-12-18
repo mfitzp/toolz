@@ -196,6 +196,13 @@ class DB:
             self.db = None
             self.OK = False
 
+    def updateDoc(self, docID, docKey, docVal):
+        '''
+        This is not working the way I want....
+        '''
+        doc = self.db.get(docID)
+        doc[docKey] = docVal
+
     def addDocument(self, docDict):
         if self.OK:
             try:
@@ -270,9 +277,6 @@ if __name__ == "__main__":
         else:
             testDict[key] = testItem[i]
 
-
-
-
     try:
         db = s[dbName]
     except:
@@ -284,6 +288,7 @@ if __name__ == "__main__":
 #    print len(db)
 #    for docId in db:
 #        print docId
+#    print db[docId], type(db[docId])
     for j in xrange(5):
         print db.create(testDict)
 
