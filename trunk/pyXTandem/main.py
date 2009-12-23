@@ -16,6 +16,8 @@ import supportElements as SE
 import miscFunc as MF
 import ui_mainGUI
 
+DEBUG = True
+
 '''
 /usr/bin/pyuic4 /home/clowers/workspace/pyXTandem/mainGUI.ui  -o /home/clowers/workspace/pyXTandem/ui_mainGUI.py
 
@@ -24,7 +26,6 @@ Threads=6
 Minimum Log(e) Peptides=-1
 Minimum Log(e) Proteins=(-1)
 Maximum Parent Charge=3
-
 '''
 
 class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
@@ -79,15 +80,15 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
 
         #Set file path defaults:
         tempInput = os.path.join(self.defaultDir,"input.xml")
-        tempInput = '/home/clowers/Proteomics/XTandem/pyinput.xml'#on clowers' linux box
+        tempInput = '/usr/local/sandbox/proteomics/XTandem/pyinput.xml'#on clowers' linux box
         self.inputFile_LE.setText(tempInput)
 
         tempOutput = os.path.join(self.defaultDir,"output.xml")
-        tempOutput = '/home/clowers/Proteomics/XTandem/pyoutput.xml'#on clowers' linux box
+        tempOutput = '/usr/local/sandbox/proteomics/XTandem/pyoutput.xml'#on clowers' linux box
         self.outputFile_LE.setText(tempOutput)
 
-        specPath = "chickenInput.tmp"
-        specPath = '/home/clowers/Proteomics/XTandem/test_spectra.mgf'#on clowers' linux box
+#        specPath = "chickenInput.tmp"
+        specPath = '/usr/local/sandbox/proteomics/XTandem/test_spectra.mgf'#on clowers' linux box
         self.rawData_LE.setText(specPath)
         self.rawInputDataPath = specPath
         #Setup default Values:
@@ -125,9 +126,10 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
             defaultFile.close()
             '''
             #pyXTandem Default Configuration File
-            XTandem Executable=C:\XTandem\thegpm-cgi\tandem.exe
-            Taxonomy Location=C:\XTandem\tandem\taxonomy.xml
-            Default Input File=C:\XTandem\iontrap.xml
+            XTandem Executable=/usr/local/sandbox/proteomics/XTandem/tandem.exe
+            Taxonomy Location=/usr/local/sandbox/proteomics/XTandem/taxonomy.xml
+            Default Input File=/usr/local/sandbox/proteomics/XTandem/default_input.xml
+            Default Output Directory=/usr/local/sandbox/data/processed
             '''
             for line in confValues[1:]:#skip first line
                 lineVals = line.split('=')
@@ -139,7 +141,9 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
 #                    print defType, '***', defValue
                     if "XTandem Executable" in defType:
                         self.defaultXTEXE_LE.clear()
-                        self.defaultXTEXE_LE.setText(os.path.abspath(defValue))
+                        pathStr = os.path.abspath(defValue)
+                        if os.path.isfile(pathStr):
+                            self.defaultXTEXE_LE.setText(pathStr)
                     elif "Taxonomy Location" in defType:
                         taxaFile = os.path.abspath(os.path.abspath(defValue))
 #                        taxaFile = os.path.normpath(taxaFile)
@@ -152,7 +156,14 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
                             print "Taxa file not valid"
                     elif "Default Input File" in defType:
                         self.defaultMethod_LE.clear()
-                        self.defaultMethod_LE.setText(os.path.abspath(defValue))
+                        pathStr = os.path.abspath(defValue)
+                        if os.path.isfile(pathStr):
+                            self.defaultMethod_LE.setText(pathStr)
+                    elif "Default Output Directory" in defType:
+                        self.defaultOutput_LE.clear()
+                        pathStr = os.path.abspath(defValue)
+                        if os.path.isdir(pathStr):
+                            self.defaultOutput_LE.setText(pathStr)
 
         else:
             errMsg = "'default.ini' is missing or corrupted. Re-install to fix problem!"
@@ -172,12 +183,16 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
                     self.taxonListWidget.addItem(curTaxon)
 
     def startXT(self):
-        self.makeXTOutput()
-        xtPath = os.path.abspath(str(self.defaultXTEXE_LE.text()))
-        inputPath = os.path.abspath(str(self.inputFile_LE.text()))
-        taxonomyPath = os.path.dirname(str(self.defaultTaxFile_LE.text()))
-        self.XTThread.updateThread(xtPath, inputPath, taxonomyPath)
-        self.XTThread.start()
+        if DEBUG:
+            self.makeXTOutput()
+            xtPath = os.path.abspath(str(self.defaultXTEXE_LE.text()))
+            inputPath = os.path.abspath(str(self.inputFile_LE.text()))
+            taxonomyPath = os.path.dirname(str(self.defaultTaxFile_LE.text()))
+            self.XTThread.updateThread(xtPath, inputPath, taxonomyPath)
+            self.XTThread.start()
+        else:
+            errMsg = "Please submit jobs through DaQueue!\nUse this program to generate input control files."
+            return QtGui.QMessageBox.warning(self, "Search Aborted", errMsg)
 
     def _setVars_(self):
 #        self.defaultParamList = ['Linear Ion Trap', '3D Ion Trap', 'TOF', 'Orbitrap', 'ICR']
