@@ -599,10 +599,14 @@ class XTandemThread(QtCore.QThread):
             self.ready = False
 
         def updateThread(self, tandemPath, inputPath, cwd):
-            self.tandemPath = tandemPath
-            self.inputPath = inputPath
-            self.cwd = cwd
-            self.ready = True
+            if os.path.isfile(tandemPath) and os.path.isfile(inputPath):
+                self.tandemPath = tandemPath
+                self.inputPath = inputPath
+                self.cwd = cwd
+                self.ready = True
+            else:
+                self.ready = False
+                self.updateMsg("Check tandem.exe directory or input path. These may not be valid.")
 
         def run(self):
             if self.ready:
