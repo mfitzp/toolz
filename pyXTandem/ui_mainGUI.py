@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Documents and Settings\d3p483\workspace\pyXTandem\mainGUI.ui'
 #
-# Created: Wed Dec 23 10:57:24 2009
+# Created: Wed Dec 23 12:40:48 2009
 #      by: PyQt4 UI code generator 4.4.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -12,7 +12,7 @@ from PyQt4 import QtCore, QtGui
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1057, 1083)
+        MainWindow.resize(955, 877)
         self.centralwidget = QtGui.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout_5 = QtGui.QGridLayout(self.centralwidget)
@@ -34,13 +34,15 @@ class Ui_MainWindow(object):
         self.splitter.setOrientation(QtCore.Qt.Vertical)
         self.splitter.setObjectName("splitter")
         self.scrollArea = QtGui.QScrollArea(self.splitter)
+        self.scrollArea.setMinimumSize(QtCore.QSize(0, 0))
+        self.scrollArea.setMaximumSize(QtCore.QSize(16777215, 700))
         font = QtGui.QFont()
         font.setPointSize(9)
         self.scrollArea.setFont(font)
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setObjectName("scrollArea")
         self.scrollAreaWidgetContents = QtGui.QWidget(self.scrollArea)
-        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 996, 661))
+        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 894, 661))
         self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
         self.horizontalLayout_7 = QtGui.QHBoxLayout(self.scrollAreaWidgetContents)
         self.horizontalLayout_7.setObjectName("horizontalLayout_7")
@@ -758,6 +760,11 @@ class Ui_MainWindow(object):
         self.label_30.setObjectName("label_30")
         self.verticalLayout_3.addWidget(self.label_30)
         self.output_TE = QtGui.QTextEdit(self.layoutWidget)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.MinimumExpanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.output_TE.sizePolicy().hasHeightForWidth())
+        self.output_TE.setSizePolicy(sizePolicy)
         font = QtGui.QFont()
         font.setPointSize(9)
         self.output_TE.setFont(font)
@@ -829,7 +836,7 @@ class Ui_MainWindow(object):
         self.gridLayout_5.addWidget(self.tabWidget, 0, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1057, 21))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 955, 21))
         self.menubar.setObjectName("menubar")
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtGui.QStatusBar(MainWindow)
