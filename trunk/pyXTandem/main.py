@@ -586,6 +586,24 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
             self.isotopeErr_CB.setChecked(True)
             self.fragType_CB.setCurrentIndex(self.fragType_CB.findText("monoisotopic", QtCore.Qt.MatchExactly)) #monoisotopic or average
 
+'''
+Other GUI Elements
+self.minLogEPep_SB.setValue()
+self.minLogEProt_SB.setValue()
+self.minFrag_SB.setValue()
+self.totalPeaks_SB.setValue()
+self.minPeaks_SB.setValue()
+self.specSyn_CB.setCurrentIndex findText("", QtCore.Qt.MatchExactly)
+self.noiseSuppress_CB.setCurrentIndex findText("", QtCore.Qt.MatchExactly)
+self.refineModel_CB.setCurrentIndex findText("", QtCore.Qt.MatchExactly)
+self.useSeqAnno2_CB.setCurrentIndex findText("", QtCore.Qt.MatchExactly)
+self.pointMut_CB.setCurrentIndex findText("", QtCore.Qt.MatchExactly)
+self.singleAAPoly_CB.setCurrentIndex findText("", QtCore.Qt.MatchExactly)
+self.useModsThroughout_CB.setCurrentIndex findText("", QtCore.Qt.MatchExactly)
+self.unanticipatedCleave_CB.setCurrentIndex findText("", QtCore.Qt.MatchExactly)
+self.refineEVal_SB.setCurrentIndex findText("", QtCore.Qt.MatchExactly)
+'''
+
 class XTandemThread(QtCore.QThread):
         def __init__(self, parent, tandemPath = None, inputPath = None):
             QtCore.QThread.__init__(self, None)#parent)
