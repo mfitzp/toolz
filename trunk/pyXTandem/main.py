@@ -37,6 +37,19 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
         self._setConnections_()
 
     def _setupGUI_(self):
+        #populate analyzer and source defaults
+        analyzers = ['Ion Trap', 'TOF', 'FTMS']
+        sources = ['ESI', 'MALDI']
+
+        self.defaultSourceParamCB.addItems(sources)
+        self.defaultSourceParamCB.setEditable(False)
+#        self.defaultSourceParamCB.setSizeAdjustPolicy(0)
+        self.defaultAnalyzerParamCB.addItems(analyzers)
+        self.defaultAnalyzerParamCB.setEditable(False)
+#        self.defaultAnalyzerParamCB.setSizeAdjustPolicy(0)
+
+
+
         #populate types of fragments
         defaultFrags = ['b', 'y', 'a']#default fragments, add to list if needed
         for frag in SE.fragTypes:
@@ -50,10 +63,7 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
 
             self.fragTypeListWidget.addItem(curFrag)
 
-        #populate Default Parameters
-        self.defaultParamCB.addItems(self.defaultParamList)
-        self.defaultParamCB.setEditable(False)
-        self.defaultParamCB.setSizeAdjustPolicy(0)
+
 
         #populate digestion parameters
         enzymeKeys = SE.enzymeTypes.keys()
@@ -103,6 +113,9 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
         QtCore.QObject.connect(self.runXT_Btn, QtCore.SIGNAL("clicked()"), self.startXT)
 
         QtCore.QObject.connect(self.XTThread, QtCore.SIGNAL("itemLoaded(PyQt_PyObject)"), self.updateOutputMsg)
+
+        QtCore.QObject.connect(self.defaultSourceParamCB, QtCore.SIGNAL("currentIndexChanged (int)"), self.setSourceDefaults)
+        QtCore.QObject.connect(self.defaultAnalyzerParamCB, QtCore.SIGNAL("currentIndexChanged (int)"), self.setAnalyzerDefault)
 
     def setupDefaults(self):
         fileName = "default.ini"
@@ -167,7 +180,7 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
         self.XTThread.start()
 
     def _setVars_(self):
-        self.defaultParamList = ['Linear Ion Trap', '3D Ion Trap', 'TOF', 'Orbitrap', 'ICR']
+#        self.defaultParamList = ['Linear Ion Trap', '3D Ion Trap', 'TOF', 'Orbitrap', 'ICR']
         self.XTThread = XTandemThread(self)
         self.defaultIndex = None
         self.cleaveRule = None
@@ -521,6 +534,57 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
             return os.path.abspath(str(fileName))
         else:
             return None
+
+    #GUI ELEMENT HANDLERS
+    def setSourceDefaults(self, intVal):
+        '''
+        Options:
+        ESI
+        MALDI
+        '''
+        val = str(self.defaultSourceParamCB.currentText())
+
+        if val == 'MALDI':
+            self.maxCharge_SB.setValue(1)
+            self.minParent_SB.setValue(400)
+
+        elif val == 'ESI':
+            self.maxCharge_SB.setValue(4)
+            self.minParent_SB.setValue(400)
+
+    def setAnalyzerDefault(self, intVal):
+        val = str(self.defaultAnalyzerParamCB.currentText())
+        '''
+        TOF
+        FTMS
+        Ion Trap
+        '''
+        if val == 'Ion Trap':
+            self.fragErr_SB.setValue(0.4)
+            self.fragErr_Type_CB.setCurrentIndex(self.fragErr_Type_CB.findText("Daltons", QtCore.Qt.MatchExactly))
+            self.parentErrPos_SB.setValue(150)
+            self.parentErrType_CB.setCurrentIndex(self.parentErrType_CB.findText("ppm", QtCore.Qt.MatchExactly))#ppm or Daltons
+            self.parentErrNeg_SB.setValue(150)
+            self.isotopeErr_CB.setChecked(True)
+            self.fragType_CB.setCurrentIndex(self.fragType_CB.findText("monoisotopic", QtCore.Qt.MatchExactly)) #monoisotopic or average
+
+        elif val == 'TOF':
+            self.fragErr_SB.setValue(200)
+            self.fragErr_Type_CB.setCurrentIndex(self.fragErr_Type_CB.findText("ppm", QtCore.Qt.MatchExactly))
+            self.parentErrPos_SB.setValue(100)
+            self.parentErrType_CB.setCurrentIndex(self.parentErrType_CB.findText("ppm", QtCore.Qt.MatchExactly))#ppm or Daltons
+            self.parentErrNeg_SB.setValue(100)
+            self.isotopeErr_CB.setChecked(True)
+            self.fragType_CB.setCurrentIndex(self.fragType_CB.findText("monoisotopic", QtCore.Qt.MatchExactly)) #monoisotopic or average
+
+        elif val == 'FTMS':
+            self.fragErr_SB.setValue(20)
+            self.fragErr_Type_CB.setCurrentIndex(self.fragErr_Type_CB.findText("ppm", QtCore.Qt.MatchExactly))
+            self.parentErrPos_SB.setValue(20)
+            self.parentErrType_CB.setCurrentIndex(self.parentErrType_CB.findText("ppm", QtCore.Qt.MatchExactly))#ppm or Daltons
+            self.parentErrNeg_SB.setValue(20)
+            self.isotopeErr_CB.setChecked(True)
+            self.fragType_CB.setCurrentIndex(self.fragType_CB.findText("monoisotopic", QtCore.Qt.MatchExactly)) #monoisotopic or average
 
 class XTandemThread(QtCore.QThread):
         def __init__(self, parent, tandemPath = None, inputPath = None):
