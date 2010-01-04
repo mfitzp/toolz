@@ -24,23 +24,29 @@ def modXML(fileName, inputFile, outputPath):
         coreName = os.path.basename(inputFile)
 
     xml = open(fileName, 'r')
-    r = ET.parse(xml).getroot()
-    rr = r[0]
-    if 'bioml' in rr.tag:
-        for node in rr:
-            if node.get('label') == outPathKey:
-                if os.path.isdir(outputPath):
-                    fullOutPath = os.path.join(outputPath, coreName)
-                    node.text = fullOutPath
-            elif node.get('label') == dataPathKey:
-                if os.path.isfile(inputFile):
-                    node.text = inputFile
-            print node.get('label'), node.text
-    xml.close()
-    tree = ET.ElementTree(r)
-    tree.write('queueXTInput.xml', encoding = 'utf-8')
-
+    try:
+        r = ET.parse(xml).getroot()
+        rr = r[0]
+        if 'bioml' in rr.tag:
+            for node in rr:
+                if node.get('label') == outPathKey:
+                    if os.path.isdir(outputPath):
+                        fullOutPath = os.path.join(outputPath, coreName)
+                        node.text = fullOutPath
+                elif node.get('label') == dataPathKey:
+                    if os.path.isfile(inputFile):
+                        node.text = inputFile
+                print node.get('label'), node.text
+        xml.close()
+        tree = ET.ElementTree(r)
+        tree.write('queueXTInput.xml', encoding = 'utf-8')
+    except:
+        exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+        traceback.print_exception(exceptionType, exceptionValue, exceptionTraceback, file=sys.stdout)
+        errorMsg = "Sorry: %s\n\n:%s\n%s\n"%(exceptionType, exceptionValue, exceptionTraceback)
+        print errorMsg
 
 if __name__ == "__main__":
 #    readXML('pyInput.xml')
+    #modXML(fileName, inputFile, outputPath)
     modXML('/home/clowers/workspace/DaQueue/pyInput.xml', '/home/clowers/workspace/DaQueue/modXT.py', '/home/clowers/Sandbox')

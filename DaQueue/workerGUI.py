@@ -1,13 +1,3 @@
-#from PyQt4 import QtCore, QtGui
-#import os, os.path
-#import sys
-#from string import join
-#import subprocess as sub
-#
-#import time
-#from dbInterface import dbIO
-
-
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
@@ -46,6 +36,8 @@ import subprocess as sub
 DBNAME = 'labqueue'
 ROOTUSER = 'clowers'
 
+XT_EXE_PATH = ''
+
 try:
     USERNAME = os.login()
 except:
@@ -66,7 +58,7 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         self.__resetTaskTable__()
         self.__setConnections__()
         self.initServer()
-        self.getUnprocessedTask()
+#        self.getUnprocessedTask()
 
     def initDB(self):
         if self.serverStatus:
@@ -82,10 +74,47 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         self.serverStatus = self.server.OK
         self.initDB()
 
-    def taskTest(self, val = None):
-        print "taskTest Called"
-        sleep(2)
-        self.taskFinished(val, "Ok")
+    def updateQueue(self):
+        '''
+        I don't like to double "db".  Need to find a more elegant way of interfacing
+        i.e. subclass
+        '''
+        if self.dbOK:
+            self.taskTable.setRowCount(0)#need this otherwise there may duplicates added
+            #alternatively, one could test to see if item exists....but right now I'm feeling lazy
+            for i,docID in enumerate(self.db.db):
+                self.taskTable.insRow(i)
+                curDoc = self.db.db[docID]
+                for j, key in enumerate(self.taskHeaders):
+                    if curDoc.has_key(key):
+                        if key == 'State':
+                            if curDoc[key] == 'Processing':
+                                self.updateStatus(i, 0)
+                            elif curDoc[key] == 'Finished':
+                                self.updateStatus(i, 1)
+                            elif curDoc[key] == 'Failed':
+                                self.updateStatus(i, 2)
+                            elif curDoc[key] == 'Queued':
+                                self.updateStatus(i, 3)
+                        elif key == 'Task Type':
+                            taskKey = curDoc[key]
+                            self.updateTaskType(i, self.taskTypeDict[taskKey])
+                        elif key == 'User':
+                            newTableItem = QtGui.QTableWidgetItem(curDoc[key])
+                            self.makeItemReadOnly(newTableItem)
+                            self.taskTable.setItem(i,j, newTableItem)
+                        else:
+                            newTableItem = QtGui.QTableWidgetItem(curDoc[key])
+                            self.taskTable.setItem(i,j, newTableItem)
+
+                    elif key == 'Task ID':
+                        newTableItem = QtGui.QTableWidgetItem(docID)
+                        self.makeItemReadOnly(newTableItem)
+                        self.taskTable.setItem(i,j, newTableItem)
+
+            self.updateColumnSizes()
+            self.sortTable()
+            self.setTaskList()
 
     def getUnprocessedTask(self):
         '''
@@ -112,12 +141,15 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
             if jobID != None:
                 self.updateStatus(self.curRow, 0)
                 self.updateDoc(jobID, 'State', 'Processing')
-                self.taskTest(0)
             else:
                 print "JobID Empty"
             #update database
             #prepare thread
             #run thread
+
+    def taskTest(self, val = None):
+        print "taskTest Called"
+        self.taskFinished(val, "Ok")
 
     def updateDoc(self, docID, docKey, docVal):
         '''
@@ -155,13 +187,12 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
             #update DB
             #add to log
         elif retVal == 0:
-            self.updateStatus(self.curRow, 1)
+            self.updateStatus(self.curRow, 1)#finished State
             self.updateDoc(self.getTaskID(self.curRow), 'State', 'Finished')
             #process retStr
             #update DB
             #add to log
         self.getUnprocessedTask()
-
 
     def taskLoop(self):
         '''
@@ -169,9 +200,11 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         are no more jobs to run
         '''
         print "Task Loop Called"
-#        waitTime = 10000
-        waitTime = 5000
-        QtCore.QTimer.singleShot(waitTime, self.getUnprocessedTask)
+        waitTime = 2
+#        waitTime = 5000
+#        QtCore.QTimer.singleShot(waitTime, self.getUnprocessedTask)
+        sleep(waitTime)
+        self.getUnprocessedTask()
 
 
     def getTaskType(self, row):
@@ -211,7 +244,6 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         else:
             self.taskTable.removeRow(row)
             print "JobItem or UserItem is empty"
-
 
 
     def submitJob(self, row = None):
@@ -331,48 +363,6 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         for i in xrange(self.taskTable.rowCount()):#iterate through the table of jobs
             self.submitJob(i)
 
-
-    def updateQueue(self):
-        '''
-        I don't like to double "db".  Need to find a more elegant way of interfacing
-        i.e. subclass
-        '''
-        if self.dbOK:
-            self.taskTable.setRowCount(0)#need this otherwise there may duplicates added
-            #alternatively, one could test to see if item exists....but right now I'm feeling lazy
-            for i,docID in enumerate(self.db.db):
-                self.taskTable.insRow(i)
-                curDoc = self.db.db[docID]
-                for j, key in enumerate(self.taskHeaders):
-                    if curDoc.has_key(key):
-                        if key == 'State':
-                            if curDoc[key] == 'Processing':
-                                self.updateStatus(i, 0)
-                            elif curDoc[key] == 'Finished':
-                                self.updateStatus(i, 1)
-                            elif curDoc[key] == 'Failed':
-                                self.updateStatus(i, 2)
-                            elif curDoc[key] == 'Queued':
-                                self.updateStatus(i, 3)
-                        elif key == 'Task Type':
-                            taskKey = curDoc[key]
-                            self.updateTaskType(i, self.taskTypeDict[taskKey])
-                        elif key == 'User':
-                            newTableItem = QtGui.QTableWidgetItem(curDoc[key])
-                            self.makeItemReadOnly(newTableItem)
-                            self.taskTable.setItem(i,j, newTableItem)
-                        else:
-                            newTableItem = QtGui.QTableWidgetItem(curDoc[key])
-                            self.taskTable.setItem(i,j, newTableItem)
-
-                    elif key == 'Task ID':
-                        newTableItem = QtGui.QTableWidgetItem(docID)
-                        self.makeItemReadOnly(newTableItem)
-                        self.taskTable.setItem(i,j, newTableItem)
-
-            self.updateColumnSizes()
-            self.sortTable()
-            self.setTaskList()
 
     def setTaskList(self):
         '''
@@ -512,14 +502,17 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         QtCore.QObject.connect(self.actionExit, QtCore.SIGNAL("triggered()"),self.testFunc)
         actionSubmit_Job
         '''
-        QtCore.QObject.connect(self.actionTestAction, QtCore.SIGNAL("triggered()"),self.testFunc)
+        QtCore.QObject.connect(self.actionTestAction, QtCore.SIGNAL("triggered()"), self.testFunc)
+        QtCore.QObject.connect(self.runJobBtn, QtCore.SIGNAL("clicked()"), self.testFunc)
 
     def testFunc(self):
         print "Test Function Triggered"
 #        self.addRows()
 #        self.fillColumnWithCurrent()
-#        self.updateStatus(2, 2)
+#        self.updateStatus(0,0)
 #        self.processEntireFolder()
+        self.updateQueue()#FIX
+        self.getUnprocessedTask()
 
     def parseFolder(self, directory, debug = False):
         '''
