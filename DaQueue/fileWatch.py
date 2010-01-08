@@ -123,5 +123,25 @@ def run_main():
     qb.show()
     sys.exit(app.exec_())
 
+
+'''
+class MyOutput():
+    def __init__(self, logfile):
+        self.stdout = sys.stdout
+        self.log = open(logfile, 'w')
+
+    def write(self, text):
+        self.stdout.write(text)
+        self.log.write(text)
+        self.log.flush()
+
+    def close(self):
+        self.stdout.close()
+        self.log.close()
+
+sys.stdout = MyOutput("log.txt")
+print "blah blah blah"
+'''
+
 if __name__ == "__main__":
     run_main()
