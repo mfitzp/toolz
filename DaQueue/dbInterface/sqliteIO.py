@@ -11,6 +11,15 @@ import time
 
 '''
 
+Basic usgae
+
+start new DB
+q = queueDB('newDatabase.db')
+qTableName = 'queueTable'
+q.CREATE_QUEUE_TABLE(qTableName)
+q.INSERT_QUEUE_VALUES(qTableName, newQueueDictInstance)
+
+
 '''
 
 #class dbError(object):
@@ -22,7 +31,7 @@ import time
 #
 class queueDB(object):#X!Tandem Database Class
     '''Represents the interface to SQLite'''
-    def __init__(self,  db, createNew=False,  tableName = None, parent = None):#db is the path to the database on disk
+    def __init__(self, db, createNew=False,  tableName = None, parent = None):#db is the path to the database on disk
         if parent:
             self.parent = parent
         self.dbOK = True
@@ -77,8 +86,8 @@ class queueDB(object):#X!Tandem Database Class
         print "SQLite Read Time for %s (s): %s"%(tableName, t2)
 
 
-    def INSERT_XT_VALUES(self, tableName, XT_RESULTS):
-        '''This is for filling data for a full XT data run, but may not
+    def INSERT_QUEUE_VALUES(self, tableName, queueDict):
+        '''This is for filling data for a file queue run, but may not
         be appropriate for a custom table as they may not have all of the appropriate
         keys'''
         t1 = time.clock()
@@ -97,24 +106,16 @@ class queueDB(object):#X!Tandem Database Class
             else:
                 return False
         try:
-            for i in xrange(XT_RESULTS.iterLen):
+            for i in xrange(queueDict.iterLen):
                 self.cur.execute(
-                                'INSERT INTO "%s" VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)'%tableName,#again I know %s is not recommended but I don't know how to do this more elegantly.
+                                'INSERT INTO "%s" VALUES (?,?,?,?,?,?)'%tableName,#again I know %s is not recommended but I don't know how to do this more elegantly.
                                 (
                                 i,
-                                XT_RESULTS.dataDict.get('pepID')[i],
-                                XT_RESULTS.dataDict.get('pep_eVal')[i],
-                                XT_RESULTS.dataDict.get('scanID')[i],
-                                XT_RESULTS.dataDict.get('ppm_error')[i],
-                                XT_RESULTS.dataDict.get('theoMZ')[i],
-                                XT_RESULTS.dataDict.get('hScore')[i],
-                                XT_RESULTS.dataDict.get('nextScore')[i],
-                                XT_RESULTS.dataDict.get('deltaH')[i],
-                                XT_RESULTS.dataDict.get('pepLen')[i],
-                                XT_RESULTS.dataDict.get('proID')[i],
-                                XT_RESULTS.dataDict.get('pro_eVal')[i],
-                                XT_RESULTS.dataDict.get('xFrags')[i],
-                                XT_RESULTS.dataDict.get('yFrags')[i]
+                                queueDict.dataDict['dataFiles'][i],
+                                queueDict.dataDict['cfgFiles'][i],
+                                queueDict.dataDict['outputFiles'][i],
+                                queueDict.dataDict['statuses'][i],
+                                queueDict.dataDict['statusIDs'][i]
                                 ))
             self.cnx.commit()
             t2 = time.clock()
@@ -201,7 +202,9 @@ class queueDB(object):#X!Tandem Database Class
         except:
             self.errorMsg = "Sorry: %s:%s"%(sys.exc_type, sys.exc_value)
             msg = self.errorMsg + '\nCheck File Name! No Funky Characters'
-            error = QtGui.QMessageBox.warning(self.parent, "Table Drop Error!",  msg)
+            print msg
+            if self.parent:
+                error = QtGui.QMessageBox.warning(self.parent, "Table Drop Error!",  msg)
             return False
 
 

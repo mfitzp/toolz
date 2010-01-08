@@ -5,6 +5,7 @@
 from os import walk, path
 import sys
 from PyQt4 import QtGui, QtCore
+from dbInterface import sqliteIO
 
 
 class GridLayout(QtGui.QWidget):
@@ -94,9 +95,26 @@ class GridLayout(QtGui.QWidget):
     def __setupDB__(self):
         '''
         Initialize DB
-        ''
         '''
+        q = queueDB('newDatabase.db')
+        qTableName = 'queueTable'
+        q.CREATE_QUEUE_TABLE(qTableName)
 
+class queueDict(object):
+    def __init__(self):
+        self.dataDict = {'cfgFiles':[],
+                         'dataFiles':[],
+                         'outputFiles':[],
+                         'statuses':[],
+                         'statusIDs':[]}
+
+
+    def popluateDict(self, configFileList, dataFileList, outputFileList, statsList, statusIDList):
+            self.dataDict['cfgFiles'] = configFileList
+            self.dataDict['dataFiles'] = dataFileList
+            self.dataDict['outputFiles'] = outputFileList
+            self.dataDict['statuses'] = statsList
+            self.dataDict['statusIDs'] = statusIDList
 
 
 def run_main():
