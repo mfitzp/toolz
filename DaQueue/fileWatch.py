@@ -77,7 +77,13 @@ class GridLayout(QtGui.QWidget):
     def checkConfigFile(self):
         '''
         Test to see if config file exists...
+
+        xml files are the config...
+
         '''
+
+
+
 
     def updateFiles(self, startDir, firstRun = False, debug = False):
         '''
@@ -153,12 +159,10 @@ class GridLayout(QtGui.QWidget):
         self.jobKey = [0, 1, 2, 3]
         self.jobTypes = ['X!Tandem', 'File Conversion', 'Peak Picking', 'Polygraph']
 
-
         self.watcher = QtCore.QFileSystemWatcher(self)
 
 #        QtCore.QObject.connect(self.watcher,QtCore.SIGNAL("fileChanged(const QString&)"), self.fileChanged)
         QtCore.QObject.connect(self.watcher,QtCore.SIGNAL("directoryChanged(const QString&)"), self.dirChanged)
-
 
     def __setMessages__(self):
         '''This function is obvious'''
@@ -210,7 +214,6 @@ class queueDict(object):
                          'statusIDs':[],
                          'jobIDs':[],
                          'uuIDs':[]}
-
 
     def popluateDict(self, configFileList, dataFileList, outputFileList, statsList, statusIDList, jobIDList, uuIDList):
             self.dataDict['cfgFiles'] = configFileList
