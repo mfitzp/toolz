@@ -29,7 +29,7 @@ q.INSERT_QUEUE_VALUES(qTableName, newQueueDictInstance)
 #    def __str__(self):
 #        return self.msg
 #
-class queueDB(object):#X!Tandem Database Class
+class queueDB(object):#DaQueue Database Class
     '''Represents the interface to SQLite'''
     def __init__(self, db, createNew=False,  tableName = None, parent = None):#db is the path to the database on disk
         if parent:
@@ -108,14 +108,16 @@ class queueDB(object):#X!Tandem Database Class
         try:
             for i in xrange(queueDict.iterLen):
                 self.cur.execute(
-                                'INSERT INTO "%s" VALUES (?,?,?,?,?,?)'%tableName,#again I know %s is not recommended but I don't know how to do this more elegantly.
+                                'INSERT INTO "%s" VALUES (?,?,?,?,?,?,?,?)'%tableName,#again I know %s is not recommended but I don't know how to do this more elegantly.
                                 (
                                 i,
                                 queueDict.dataDict['dataFiles'][i],
                                 queueDict.dataDict['cfgFiles'][i],
                                 queueDict.dataDict['outputFiles'][i],
                                 queueDict.dataDict['statuses'][i],
-                                queueDict.dataDict['statusIDs'][i]
+                                queueDict.dataDict['statusIDs'][i],
+                                queueDict.dataDict['jobIDs'][i],
+                                queueDict.dataDict['uuIDs'][i]
                                 ))
             self.cnx.commit()
             t2 = time.clock()
@@ -219,7 +221,9 @@ class queueDB(object):#X!Tandem Database Class
         cfgFile TEXT,\
         outputFile TEXT,\
         status TEXT,\
-        statusID INTEGER)'
+        statusID INTEGER,\
+        jobID INTEGER,\
+        uuID INTEGER)'
         %tableName)
 
     def GET_CURRENT_QUERY(self,  truncate = False):
