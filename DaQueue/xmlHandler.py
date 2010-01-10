@@ -195,19 +195,19 @@ def createXML(dict,xml):
 
 if __name__ == '__main__':
     from pprint import pprint
-    from dict2xml import verbose_dict2xml
+#    from dict2xml import verbose_dict2xml
     # Test file parsing
     xml = XML2Dict()
     xmlDict = xml.parse('config.xml')
-#    pprint(xmlDict)
+    pprint(xmlDict)
 #    print type(xmlDict)
 #    print '\n\n'
 #    xmlHeader = ''
 #    xmlStr = createXML(xmlDict, xmlHeader)
 #    print xmlStr
 
-    xmlOut = verbose_dict2xml(xmlDict)
-    print(xmlOut.toprettyxml())
-    print("done")
+#    xmlOut = verbose_dict2xml(xmlDict)
+#    print(xmlOut.toprettyxml())
+#    print("done")
 
 

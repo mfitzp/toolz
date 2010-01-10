@@ -9,6 +9,41 @@ import sys
 from PyQt4 import QtGui, QtCore
 from dbInterface import sqliteIO
 
+'''
+This module is designed to add rows to a sqlite database when a watch directory is altered.
+The sqlite db will then be polled by another threaded module to process the file
+as directed by the configuration file.
+
+The configuration files to be used now and in the future need to be xml files.
+Currently this process is designed for X!Tandem (a proteomics data analysis package).
+
+At present there are two actions that are ignored in the file structure.
+One is the creation of results files and the other is modification or creation
+of a log file.
+
+By adding a new configuration file to the raw data folder the files will be processed again.
+
+Config Files can have any primary name, however, the file extension must have
+the cfgXML extension.
+
+import binascii as b
+define vars for
+config file name
+config file creation date
+datafile
+c = config file name + config file create date + datafile
+hexelify(c)
+
+uuID = uuid.uuid5(uuid.NAMESPACE_DNS, c)
+
+os.path.getctime(path) which returns a number
+
+'''
+STATUSIDS = [0,1,2,3]
+STATUSTYPES = ['Queued', 'Processing', 'Finished', 'Failed']
+
+JOBKEYS = [0, 1, 2, 3]
+JOBTYPES = ['X!Tandem', 'File Conversion', 'Peak Picking', 'Polygraph']
 
 class GridLayout(QtGui.QWidget):
     def __init__(self, parent=None):
@@ -44,18 +79,26 @@ class GridLayout(QtGui.QWidget):
         self.updateWatcher()
 
 
-#    def fileChanged(self, val):
-#        print "File String", str(val)
-#        for dir in self.watcher.directories():
-#            print '\t',str(dir)
+    def fileChanged(self, val):
+        '''
+        When a new file is added
+        '''
+        print "File String", str(val)
+        for dir in self.watcher.directories():
+            print '\t',str(dir)
 
     def dirChanged(self, val):
+        '''
+        When a file is added or the directory is changed then this is called.
+        '''
         print "Dir String", str(val)
         for dir in self.watcher.directories():
             print '\t',str(dir)
         print '\n'
 
         self.updateDirs(self.startDir)
+        #test to see if configuration file exists in the same directory
+
         self.updateFiles(self.startDir)
 #        for f in self.watcher.files():
 #            print '\t\t',str(f)
@@ -78,9 +121,9 @@ class GridLayout(QtGui.QWidget):
         '''
         Test to see if config file exists...
 
-        xml files are the config...
-
+        MUST HAVE THE ".cfgXML" EXTENSION!!!!!!!!!!!!!!!!!!!!!!!!
         '''
+
 
 
 
@@ -153,11 +196,8 @@ class GridLayout(QtGui.QWidget):
         self.jobIDs = []
         self.uuIDs = []
 
-        self.statusID = [0,1,2,3]
-        self.statusType = ['Queued', 'Processing', 'Finished', 'Failed']
-
-        self.jobKey = [0, 1, 2, 3]
-        self.jobTypes = ['X!Tandem', 'File Conversion', 'Peak Picking', 'Polygraph']
+        self.watchedFiles = []
+        self.watchedFolders = []
 
         self.watcher = QtCore.QFileSystemWatcher(self)
 
