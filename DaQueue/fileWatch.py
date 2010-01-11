@@ -2,12 +2,20 @@
 
 # gridlayout2.py
 
-from os import walk, path
+from os import walk, path, listdir
 import uuid
+from time import strftime, localtime
+from binascii import hexlify
 
 import sys
 from PyQt4 import QtGui, QtCore
 from dbInterface import sqliteIO
+
+#WATCHDB = 'watchList.db'
+QUEUEDB = 'labqueue.db'
+QUEUETABLE = 'queueTable'
+WATCHTABLE = 'watchTable'
+CONFIGEXTENSION = '.cfgXML'
 
 '''
 This module is designed to add rows to a sqlite database when a watch directory is altered.
@@ -26,18 +34,6 @@ By adding a new configuration file to the raw data folder the files will be proc
 Config Files can have any primary name, however, the file extension must have
 the cfgXML extension.
 
-import binascii as b
-define vars for
-config file name
-config file creation date
-datafile
-c = config file name + config file create date + datafile
-hexelify(c)
-
-uuID = uuid.uuid5(uuid.NAMESPACE_DNS, c)
-
-os.path.getctime(path) which returns a number
-
 '''
 STATUSIDS = [0,1,2,3]
 STATUSTYPES = ['Queued', 'Processing', 'Finished', 'Failed']
@@ -45,7 +41,7 @@ STATUSTYPES = ['Queued', 'Processing', 'Finished', 'Failed']
 JOBKEYS = [0, 1, 2, 3]
 JOBTYPES = ['X!Tandem', 'File Conversion', 'Peak Picking', 'Polygraph']
 
-class GridLayout(QtGui.QWidget):
+class FileWatcher(QtGui.QWidget):
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self, parent)
 
@@ -117,14 +113,22 @@ class GridLayout(QtGui.QWidget):
                         if QtCore.QString(dir) not in self.watcher.directories():
                             self.watcher.addPath(dir)
 
-    def checkConfigFile(self):
+
+    def checkConfigFile(self, dataPath):
         '''
         Test to see if config file exists...
 
         MUST HAVE THE ".cfgXML" EXTENSION!!!!!!!!!!!!!!!!!!!!!!!!
         '''
 
+        configList = []
 
+        if path.isdir(dataPath):
+            for i in listdir(dataPath):
+                if CONFIGEXTENSION in i:
+                    configList.append(path.abspath(i))
+
+            return configList
 
 
 
@@ -165,19 +169,27 @@ class GridLayout(QtGui.QWidget):
         self.updateDirs(self.startDir, firstRun = True)
         self.updateFiles(self.startDir, firstRun = True)
 
-    def __setupDB__(self, useMemory = True):
+    def __setupDB__(self, useMemory = True, newDB = False):
         '''
         Initialize DB
+        The following methods from the sqlitIO.py module will create a table if one
+        does not exist.  Otherwise the values will be added to the existing tables.
+
+        INSERT_WATCH_VALUES
+        INSERT_QUEUE_VALUES
+
         '''
         if useMemory:
-            dbName=':memory:'
-        else:
+            dbName =':memory:'
+        elif newDB:
             dbName = self.__saveDataFile__()
+        else:
+            dbName = self.qDBName
 
         if dbName != None:
             self.qDB = queueDB(dbName)
-            qTableName = 'queueTable'
-            self.qDB.CREATE_QUEUE_TABLE(qTableName)
+#            self.qDB.CREATE_QUEUE_TABLE(self.qTableName)
+#            self.qDB.CREATE_WATCH_TABLE(self.qWatchName)
         else:
             errorMsg = 'There was an error establishing a connection to the data base.  Contact Clowers'
             return QtGui.QMessageBox.warning(self, "DB Error",  errorMsg)
@@ -195,6 +207,12 @@ class GridLayout(QtGui.QWidget):
         self.statusIDs = []
         self.jobIDs = []
         self.uuIDs = []
+
+#        self.watchDBName = WATCHDB
+        self.qDBName = QUEUEDB
+
+        self.qTableName = QUEUETABLE
+        self.qWatchName = WATCHTABLE
 
         self.watchedFiles = []
         self.watchedFolders = []
@@ -264,6 +282,24 @@ class queueDict(object):
             self.dataDict['jobIDs'] = jobIDList
             self.dataDict['uuIDs'] = uuIDList
 
+def generateUUID(dataPathStr, configPathStr):
+    '''
+    Returns a uuid that is a combination of a datapath and a configuration file string
+    The other marker is the time at which the configuration file was made
+    '''
+    if path.isfile(dataPathStr) and path.isfile(configPathStr):
+            definerStr = ''
+            startTime = str(path.getctime(configPathStr))
+            definerStr+=dataPathStr
+            definerStr+=configPathStr
+            definerStr+=startTime
+            hexStr = hexlify(definerStr)
+            uuID = str(uuid.uuid5(uuid.NAMESPACE_DNS, hexStr))
+            return True, uuID
+    else:
+        print "File paths provided are not valid"
+        return False, None
+
 def getCurDir(dirString):
     tempStr = str(dirString)#incase it is a QString
     if os.path.isfile(tempStr):
@@ -299,8 +335,8 @@ def getHomeDir():
 
 def run_main():
     app = QtGui.QApplication(sys.argv)
-    qb = GridLayout()
-    qb.show()
+    fw = FileWatcher()
+    fw.show()
     sys.exit(app.exec_())
 
 
@@ -324,4 +360,6 @@ print "blah blah blah"
 '''
 
 if __name__ == "__main__":
+#    testStr = '/home/clowers/Sandbox/text.xml'
+#    print generateUUID(testStr, testStr)
     run_main()
