@@ -1,4 +1,4 @@
-import os, sys
+import os, sys, traceback
 import sqlite3 as sql
 import tables as T
 import numpy as N
@@ -129,31 +129,32 @@ class queueDB(object):#DaQueue Database Class
         t1 = time.clock()
         tableExists =self.cnx.execute("SELECT COUNT(*) FROM sqlite_master WHERE name=?", (tableName,)).fetchone()[0]
         if tableExists == 0:
-            self.CREATE_QUEUE_TABLE(tableName)
-        else:
-            reply = QtGui.QMessageBox.question(self.parent, "Table Already Exists in Database",  "Overwrite existing Table and Overwite?", QtGui.QMessageBox.Yes,QtGui.QMessageBox.No)
-            if reply:
-                dropOK = self.DROP_TABLE(tableName)
-                if dropOK:
-                    self.CREATE_QUEUE_TABLE(tableName)
-                    pass
-                else:
-                    return False
-            else:
-                return False
+            print "%s already exists, will simply add to existing."%tableName
+#            self.CREATE_QUEUE_TABLE(tableName)
+#        else:
+#            reply = QtGui.QMessageBox.question(self.parent, "Table Already Exists in Database",  "Overwrite existing Table and Overwite?", QtGui.QMessageBox.Yes,QtGui.QMessageBox.No)
+#            if reply:
+#                dropOK = self.DROP_TABLE(tableName)
+#                if dropOK:
+#                    self.CREATE_QUEUE_TABLE(tableName)
+#                    pass
+#                else:
+#                    return False
+#            else:
+#                return False
         try:
-            for i in xrange(queueDict.iterLen):
+            for i in xrange(len(queueDict[queueDict.keys()[0]])):
                 self.cur.execute(
                                 'INSERT INTO "%s" VALUES (?,?,?,?,?,?,?,?)'%tableName,#again I know %s is not recommended but I don't know how to do this more elegantly.
                                 (
                                 i,
-                                queueDict.dataDict['dataFiles'][i],
-                                queueDict.dataDict['cfgFiles'][i],
-                                queueDict.dataDict['outputFiles'][i],
-                                queueDict.dataDict['statuses'][i],
-                                queueDict.dataDict['statusIDs'][i],
-                                queueDict.dataDict['jobIDs'][i],
-                                queueDict.dataDict['uuIDs'][i]
+                                queueDict['dataFiles'][i],
+                                queueDict['cfgFiles'][i],
+                                queueDict['outputFiles'][i],
+                                queueDict['statuses'][i],
+                                queueDict['statusIDs'][i],
+                                queueDict['jobIDs'][i],
+                                queueDict['uuIDs'][i]
                                 ))
             self.cnx.commit()
             t2 = time.clock()
@@ -161,6 +162,10 @@ class queueDB(object):#DaQueue Database Class
             return True
         except:
             print "Insert into Table False"
+            exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+            traceback.print_exception(exceptionType, exceptionValue, exceptionTraceback, file=sys.stdout)
+            errorMsg = "Sorry: %s\n\n:%s\n%s\n"%(exceptionType, exceptionValue, exceptionTraceback)
+            print errorMsg
             return False
 
     def close(self):

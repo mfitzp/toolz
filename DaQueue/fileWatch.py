@@ -14,7 +14,9 @@ from dbInterface import sqliteIO
 QUEUEDB = 'labqueue.db'
 QUEUETABLE = 'queueTable'
 WATCHTABLE = 'watchTable'
-CONFIGEXTENSION = '.cfgXML'
+CONFIGEXTENSION = '.cfgXML'#, '.db']
+
+EXCLUDEDIRS = ['.svn', '.db', '.cfgXML']
 
 '''
 This module is designed to add rows to a sqlite database when a watch directory is altered.
@@ -34,11 +36,11 @@ Config Files can have any primary name, however, the file extension must have
 the cfgXML extension.
 
 '''
-STATUSIDS = [0,1,2,3]
-STATUSTYPES = ['Queued', 'Processing', 'Finished', 'Failed']
+STATUSIDS = [0,1,2,3,4]
+STATUSTYPES = ['Queued', 'Processing', 'Finished', 'Failed', 'Waiting for User Action']
 
-JOBKEYS = [0, 1, 2, 3]
-JOBTYPES = ['X!Tandem', 'File Conversion', 'Peak Picking', 'Polygraph']
+JOBKEYS = [0,1,2,3,4]
+JOBTYPES = ['X!Tandem', 'File Conversion', 'Peak Picking', 'Polygraph', 'Unspecified']
 
 class FileWatcher(QtGui.QWidget):
     def __init__(self, parent=None):
@@ -72,6 +74,17 @@ class FileWatcher(QtGui.QWidget):
         self.__setupVars__()
         self.__setupDB__(useMemory = False)
         self.updateWatcher()
+        self.pollWatcher()
+
+
+    def pollWatcher(self):
+        watcherDirs = self.watcher.directories()
+        watcherFiles = self.watcher.files()
+        for dir in watcherDirs:
+            print str(dir)
+
+        for f in watcherFiles:
+            print str(f)
 
 
     def fileChanged(self, val):
@@ -86,10 +99,10 @@ class FileWatcher(QtGui.QWidget):
         '''
         When a file is added or the directory is changed then this is called.
         '''
-        print "Dir String", str(val)
-        for dir in self.watcher.directories():
-            print '\t',str(dir)
-        print '\n'
+#        print "Dir String", str(val)
+#        for dir in self.watcher.directories():
+#            print '\t',str(dir)
+#        print '\n'
 
         self.updateDirs(self.startDir)
         #test to see if configuration file exists in the same directory
@@ -98,19 +111,29 @@ class FileWatcher(QtGui.QWidget):
 #        for f in self.watcher.files():
 #            print '\t\t',str(f)
 
-    def updateDirs(self, startDir, firstRun = False, debug = False):
-        '''update the watch dir list'''
+
+    def updateDirs(self, startDir, firstRun = False, debug = False, exclude = EXCLUDEDIRS):
+        '''
+        update the watch dir list
+
+        Do I need to exclude special character directories?
+        How best to do this
+        '''
         if startDir:
             numFiles = 0
             for root, dirs, files in walk(startDir):
                 if firstRun:
                     if len(dirs) > 0:
                         for dir in dirs:
-                            self.watcher.addPath(dir)
+                            if '.svn' not in dir and '.svn' not in root:
+                                print "updateDirs added %s"%dir
+                                self.watcher.addPath(dir)
                 else:
                     for dir in dirs:
                         if QtCore.QString(dir) not in self.watcher.directories():
-                            self.watcher.addPath(dir)
+                            if '.svn' not in dir and '.svn' not in root:
+                                print "updateDirs added %s"%dir
+                                self.watcher.addPath(dir)
 
 
     def checkConfigFile(self, dataPath):
@@ -119,22 +142,24 @@ class FileWatcher(QtGui.QWidget):
 
         MUST HAVE THE ".cfgXML" EXTENSION!!!!!!!!!!!!!!!!!!!!!!!!
         '''
-
+#        print "Checking Config File in %s\n"%dataPath
         configList = []
 
         if path.isdir(dataPath):
             for i in listdir(dataPath):
                 if self.configExt in i:
-                    configList.append(path.abspath(i))
+                    configList.append(path.join(dataPath,i))
 
             return configList
         else:
-            print "Not a valid directory to check fof config files!!!!!!!!!!"
+            print "Not a valid directory to check for config files!!!!!!!!!!"
             return configList
 
 
 
-    def updateFiles(self, startDir, firstRun = False, debug = False):
+
+
+    def updateFiles(self, startDir, firstRun = False, debug = False, exclude = EXCLUDEDIRS):
         '''
         dataFile TEXT,\
         cfgFile TEXT,\
@@ -147,6 +172,7 @@ class FileWatcher(QtGui.QWidget):
         self.configFiles = []
         self.queuedFiles = []
         self.finishedFiles = []
+        self.outputFiles = []
         self.failedFiles = []
         self.fileStatus = []
         self.statusIDs = []
@@ -155,26 +181,65 @@ class FileWatcher(QtGui.QWidget):
 
         I know this is not as efficient as it could be but I'm looking
         for a solution NOW
+
+        STATUSIDS = [0,1,2,3,4]
+        STATUSTYPES = ['Queued', 'Processing', 'Finished', 'Failed', 'Waiting for User Action']
+
+        JOBKEYS = [0, 1, 2, 3, 4]
+        JOBTYPES = ['X!Tandem', 'File Conversion', 'Peak Picking', 'Polygraph', 'Unspecified']
         '''
         if startDir:
             numFiles = 0
             for root, dirs, files in walk(startDir):
-                for f in files:
-                    '''
-                    need to check if config file exists
-                    need to check type of config file and update jobID
-                    need to create UUID, if no config file don't add
-                    '''
-                    configList = self.checkConfigFile(path.dirname(f))
-                    if len(configList)>0:
-                        for cfgFile in configList:
-                            self.configFiles.append(cfgFile)
-                            self.queuedFiles.append(path.abspath(f))
-                            self.fileStatus.append('Queued')
-                    else:
-                        print "No Configuration Files"
+                for basename in dirs + files:
+#                    print "Basename", basename
+                    if basename in exclude:
+                        if basename in dirs:
+                            dirs.remove(basename)
+                        continue
+                    workingPath = os.path.join(root, basename)
+                    if CONFIGEXTENSION not in workingPath:#don't add config files to queue
+                        '''
+                        need to check if config file exists
+                        need to check type of config file and update jobID
+                        need to create UUID, if no config file don't add
+                        '''
+#                        print path.abspath(workingPath)
+                        configList = self.checkConfigFile(root)
+                        if len(configList)>0:
+                            for cfgFile in configList:
 
-                    self.queuedFiles.append(path.abspath(f))
+                                boolAns, tempUUID = generateUUID(path.abspath(workingPath), cfgFile)
+                                if boolAns:
+                                     if tempUUID not in self.uuIDs:
+                                        self.uuIDs.append(tempUUID)
+                                        self.configFiles.append(cfgFile)
+                                        self.queuedFiles.append(path.abspath(workingPath))
+                                        self.fileStatus.append(STATUSTYPES[0])
+                                        self.statusIDs.append(STATUSIDS[0])
+                                        #need to add a function to discern what kind of job is to be run
+                                        #hard-coding to XTandem initially
+                                        self.outputFiles.append('None at this Time')
+                                        self.jobIDs.append(JOBKEYS[4])
+            #                            self.jobIDs.append(STATUSIDS[0])
+                                else:
+                                    self.uuIDs.append('UUID Error')
+#                        else:
+#                            '''
+#                            I don't like this.  Need to catch the case where the file has been
+#                            added WIHTOUT a config file and then overwrite the entry when a config file
+#                            is added.  Or don't add that file to begin with?
+#                            '''
+#                            print "No Configuration Files"
+#                            boolAns, tempUUID = generateStrUUID(path.abspath(f))
+#                            if boolAns:
+#                                if tempUUID not in self.uuIDs:
+#                                    self.configFiles.append('Not Specified')
+#                                    self.queuedFiles.append(path.abspath(f))
+#                                    self.fileStatus.append(STATUSTYPES[4])
+#                                    self.statusIDs.append(STATUSIDS[4])
+#                                    self.jobIDs.append(JOBKEYS[4])
+#                                    self.uuIDs.append(tempUUID)
 
     def updateWatcher(self, useDefault = True):
         if useDefault:
@@ -185,6 +250,18 @@ class FileWatcher(QtGui.QWidget):
                 self.watcher.addPath(newDir)
         self.updateDirs(self.startDir, firstRun = True)
         self.updateFiles(self.startDir, firstRun = True)
+        self.updateDB()
+
+    def updateDB(self):
+        '''
+        Need to check for unique ids
+        need to check for unique keys
+        '''
+        qDict = queueDict()
+        qDict.popluateDict(self.configFiles, self.queuedFiles, self.outputFiles,
+                           self.fileStatus, self.statusIDs, self.jobIDs, self.uuIDs)
+#        tempDict = qDict.dataDict
+        self.qDB.INSERT_QUEUE_VALUES(QUEUETABLE, qDict.dataDict)
 
     def __setupDB__(self, useMemory = True, newDB = False):
         '''
@@ -194,21 +271,22 @@ class FileWatcher(QtGui.QWidget):
 
         INSERT_WATCH_VALUES
         INSERT_QUEUE_VALUES
-
         '''
         if useMemory:
             dbName =':memory:'
         elif newDB:
             dbName = self.__saveDataFile__()
         else:
-            dbName = self.qDBName #Defined Globally in self.__setupVars__()
+#            print self.startDir, self.qDBName, type(self.startDir), type(self.qDBName)
+#            print path.join(self.startDir, self.qDBName)
+            dbName = path.join(self.startDir,self.qDBName) #Defined Globally in self.__setupVars__()
 
         if dbName != None:
             '''
             Explicit creation of tables is not necessary as when the tables are updated
             if they do not exist they are created
             '''
-            self.qDB = queueDB(dbName)
+            self.qDB = sqliteIO.queueDB(dbName, parent = self)
 #            self.qDB.CREATE_QUEUE_TABLE(self.qTableName)
 #            self.qDB.CREATE_WATCH_TABLE(self.qWatchName)
         else:
@@ -223,11 +301,12 @@ class FileWatcher(QtGui.QWidget):
         self.startDir +='\workspace\DaQueue\\testData'
 
         self.startDir = path.abspath(self.startDir)
-        print self.startDir, path.isdir(self.startDir)
+#        print self.startDir, path.isdir(self.startDir)
 
         self.configFiles = []
         self.queuedFiles = []
         self.finishedFiles = []
+        self.outputFiles = []
         self.failedFiles = []
         self.fileStatus = []
         self.statusIDs = []
@@ -293,6 +372,9 @@ class FileWatcher(QtGui.QWidget):
 
 class queueDict(object):
     def __init__(self):
+        '''
+
+        '''
         self.dataDict = {'cfgFiles':[],
                          'dataFiles':[],
                          'outputFiles':[],
@@ -301,14 +383,17 @@ class queueDict(object):
                          'jobIDs':[],
                          'uuIDs':[]}
 
-    def popluateDict(self, configFileList, dataFileList, outputFileList, statsList, statusIDList, jobIDList, uuIDList):
-            self.dataDict['cfgFiles'] = configFileList
-            self.dataDict['dataFiles'] = dataFileList
-            self.dataDict['outputFiles'] = outputFileList
-            self.dataDict['statuses'] = statsList
-            self.dataDict['statusIDs'] = statusIDList
-            self.dataDict['jobIDs'] = jobIDList
-            self.dataDict['uuIDs'] = uuIDList
+    def popluateDict(self, configFileList, dataFileList, outputFileList, statusList, statusIDList, jobIDList, uuIDList):
+        '''
+
+        '''
+        self.dataDict['cfgFiles'] = configFileList
+        self.dataDict['dataFiles'] = dataFileList
+        self.dataDict['outputFiles'] = outputFileList
+        self.dataDict['statuses'] = statusList
+        self.dataDict['statusIDs'] = statusIDList
+        self.dataDict['jobIDs'] = jobIDList
+        self.dataDict['uuIDs'] = uuIDList
 
 
 def generateStrUUID(definerStr):
@@ -339,6 +424,7 @@ def generateUUID(dataPathStr, configPathStr):
 
     else:
         print "File paths provided are not valid"
+        print dataPathStr, configPathStr, '\n'
         return False, None
 
 def getCurDir(dirString):
