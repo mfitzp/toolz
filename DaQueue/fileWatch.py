@@ -1,7 +1,6 @@
 #!/usr/bin/python
 
-# gridlayout2.py
-
+import os
 from os import walk, path, listdir
 import uuid
 from time import strftime, localtime
@@ -71,7 +70,7 @@ class FileWatcher(QtGui.QWidget):
         self.resize(350, 300)
 
         self.__setupVars__()
-        self.__setupDB__(useMemory = True)
+        self.__setupDB__(useMemory = False)
         self.updateWatcher()
 
 
@@ -125,9 +124,12 @@ class FileWatcher(QtGui.QWidget):
 
         if path.isdir(dataPath):
             for i in listdir(dataPath):
-                if CONFIGEXTENSION in i:
+                if self.configExt in i:
                     configList.append(path.abspath(i))
 
+            return configList
+        else:
+            print "Not a valid directory to check fof config files!!!!!!!!!!"
             return configList
 
 
@@ -142,7 +144,7 @@ class FileWatcher(QtGui.QWidget):
         jobID INTEGER,\
         uuID INTEGER)'
 
-
+        self.configFiles = []
         self.queuedFiles = []
         self.finishedFiles = []
         self.failedFiles = []
@@ -151,11 +153,26 @@ class FileWatcher(QtGui.QWidget):
         self.jobIDs = []
         self.uuIDs = []
 
+        I know this is not as efficient as it could be but I'm looking
+        for a solution NOW
         '''
         if startDir:
             numFiles = 0
             for root, dirs, files in walk(startDir):
                 for f in files:
+                    '''
+                    need to check if config file exists
+                    need to check type of config file and update jobID
+                    need to create UUID, if no config file don't add
+                    '''
+                    configList = self.checkConfigFile(path.dirname(f))
+                    if len(configList)>0:
+                        for cfgFile in configList:
+                            self.configFiles.append(cfgFile)
+                            self.queuedFiles.append(path.abspath(f))
+                            self.fileStatus.append('Queued')
+                    else:
+                        print "No Configuration Files"
 
                     self.queuedFiles.append(path.abspath(f))
 
@@ -184,9 +201,13 @@ class FileWatcher(QtGui.QWidget):
         elif newDB:
             dbName = self.__saveDataFile__()
         else:
-            dbName = self.qDBName
+            dbName = self.qDBName #Defined Globally in self.__setupVars__()
 
         if dbName != None:
+            '''
+            Explicit creation of tables is not necessary as when the tables are updated
+            if they do not exist they are created
+            '''
             self.qDB = queueDB(dbName)
 #            self.qDB.CREATE_QUEUE_TABLE(self.qTableName)
 #            self.qDB.CREATE_WATCH_TABLE(self.qWatchName)
@@ -199,7 +220,12 @@ class FileWatcher(QtGui.QWidget):
 
         self.__setMessages__()
         self.startDir = getHomeDir()
+        self.startDir +='\workspace\DaQueue\\testData'
 
+        self.startDir = path.abspath(self.startDir)
+        print self.startDir, path.isdir(self.startDir)
+
+        self.configFiles = []
         self.queuedFiles = []
         self.finishedFiles = []
         self.failedFiles = []
@@ -216,6 +242,8 @@ class FileWatcher(QtGui.QWidget):
 
         self.watchedFiles = []
         self.watchedFolders = []
+
+        self.configExt = CONFIGEXTENSION
 
         self.watcher = QtCore.QFileSystemWatcher(self)
 
@@ -282,6 +310,18 @@ class queueDict(object):
             self.dataDict['jobIDs'] = jobIDList
             self.dataDict['uuIDs'] = uuIDList
 
+
+def generateStrUUID(definerStr):
+    if type(definerStr) is str:
+        if len(definerStr)>=0:
+            hexStr = hexlify(definerStr)
+            uuID = str(uuid.uuid5(uuid.NAMESPACE_DNS, hexStr))
+            return True, uuID
+        else:
+            return False, None
+    else:
+        return False, None
+
 def generateUUID(dataPathStr, configPathStr):
     '''
     Returns a uuid that is a combination of a datapath and a configuration file string
@@ -296,6 +336,7 @@ def generateUUID(dataPathStr, configPathStr):
             hexStr = hexlify(definerStr)
             uuID = str(uuid.uuid5(uuid.NAMESPACE_DNS, hexStr))
             return True, uuID
+
     else:
         print "File paths provided are not valid"
         return False, None
