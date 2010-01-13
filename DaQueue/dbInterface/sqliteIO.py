@@ -129,8 +129,10 @@ class queueDB(object):#DaQueue Database Class
         t1 = time.clock()
         tableExists =self.cnx.execute("SELECT COUNT(*) FROM sqlite_master WHERE name=?", (tableName,)).fetchone()[0]
         if tableExists == 0:
-            print "%s already exists, will simply add to existing."%tableName
-#            self.CREATE_QUEUE_TABLE(tableName)
+            self.CREATE_QUEUE_TABLE(tableName)
+#        else:
+#            print "%s already exists, will simply add to existing."%tableName
+
 #        else:
 #            reply = QtGui.QMessageBox.question(self.parent, "Table Already Exists in Database",  "Overwrite existing Table and Overwite?", QtGui.QMessageBox.Yes,QtGui.QMessageBox.No)
 #            if reply:
@@ -143,19 +145,29 @@ class queueDB(object):#DaQueue Database Class
 #            else:
 #                return False
         try:
+#            print "Row Count", self.cur.rowcount
             for i in xrange(len(queueDict[queueDict.keys()[0]])):
-                self.cur.execute(
-                                'INSERT INTO "%s" VALUES (?,?,?,?,?,?,?,?)'%tableName,#again I know %s is not recommended but I don't know how to do this more elegantly.
-                                (
-                                i,
-                                queueDict['dataFiles'][i],
-                                queueDict['cfgFiles'][i],
-                                queueDict['outputFiles'][i],
-                                queueDict['statuses'][i],
-                                queueDict['statusIDs'][i],
-                                queueDict['jobIDs'][i],
-                                queueDict['uuIDs'][i]
-                                ))
+                try:
+                    self.cur.execute(
+                                    'INSERT INTO "%s" VALUES (?,?,?,?,?,?,?)'%tableName,#again I know %s is not recommended but I don't know how to do this more elegantly.
+                                    (
+                                    queueDict['uuIDs'][i],
+                                    queueDict['dataFiles'][i],
+                                    queueDict['cfgFiles'][i],
+                                    queueDict['outputFiles'][i],
+                                    queueDict['statuses'][i],
+                                    queueDict['statusIDs'][i],
+                                    queueDict['jobIDs'][i]
+                                    ))
+                except:
+                    exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+                    if exceptionValue[0] == 'column uuID is not unique':#exceptionValue is a tuple
+                        #this is specific to Sqlite Tables with uuid as the primary key
+#                        print "Not a unique UUID...skipping"
+                        continue
+#                    traceback.print_exception(exceptionType, exceptionValue, exceptionTraceback, file=sys.stdout)
+#                    errorMsg = "Sorry: %s\n\n:%s\n%s\n"%(exceptionType, exceptionValue, exceptionTraceback)
+#                    print errorMsg
             self.cnx.commit()
             t2 = time.clock()
             print "SQLite Commit Time (s): ", (t2-t1)
@@ -262,20 +274,39 @@ class queueDB(object):#DaQueue Database Class
         uuID TEXT)'
         %tableName)
 
+#    def CREATE_QUEUE_TABLE(self, tableName,  overWrite = False):
+#        if overWrite:
+#            self.DROP_TABLE(tableName)
+#
+#        self.curTblName = tableName
+#
+#        self.cur.execute('CREATE TABLE IF NOT EXISTS "%s"(id INTEGER PRIMARY KEY AUTOINCREMENT,\
+#        dataFile TEXT,\
+#        cfgFile TEXT,\
+#        outputFile TEXT,\
+#        status TEXT,\
+#        statusID INTEGER,\
+#        jobID INTEGER,\
+#        uuID TEXT)'
+#        %tableName)
+
     def CREATE_QUEUE_TABLE(self, tableName,  overWrite = False):
+        '''
+        ,\
+        uuID TEXT)'
+        '''
         if overWrite:
             self.DROP_TABLE(tableName)
 
         self.curTblName = tableName
 
-        self.cur.execute('CREATE TABLE IF NOT EXISTS "%s"(id INTEGER PRIMARY KEY AUTOINCREMENT,\
+        self.cur.execute('CREATE TABLE IF NOT EXISTS "%s"(uuID TEXT PRIMARY KEY NOT NULL,\
         dataFile TEXT,\
         cfgFile TEXT,\
         outputFile TEXT,\
         status TEXT,\
         statusID INTEGER,\
-        jobID INTEGER,\
-        uuID INTEGER)'
+        jobID INTEGER)'
         %tableName)
 
     def GET_CURRENT_QUERY(self,  truncate = False):

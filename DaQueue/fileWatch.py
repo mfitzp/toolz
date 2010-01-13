@@ -5,6 +5,7 @@ from os import walk, path, listdir
 import uuid
 from time import strftime, localtime
 from binascii import hexlify
+import time
 
 import sys
 from PyQt4 import QtGui, QtCore
@@ -12,11 +13,12 @@ from dbInterface import sqliteIO
 
 #WATCHDB = 'watchList.db'
 QUEUEDB = 'labqueue.db'
+QUEUEDIR = '\workspace\DaQueue'
 QUEUETABLE = 'queueTable'
 WATCHTABLE = 'watchTable'
 CONFIGEXTENSION = '.cfgXML'#, '.db']
 
-EXCLUDEDIRS = ['.svn', '.db', '.cfgXML']
+EXCLUDE = ['.svn', '.db', '.cfgXML']
 
 '''
 This module is designed to add rows to a sqlite database when a watch directory is altered.
@@ -91,28 +93,33 @@ class FileWatcher(QtGui.QWidget):
         '''
         When a new file is added
         '''
-        print "File String", str(val)
-        for dir in self.watcher.directories():
-            print '\t',str(dir)
+        if self.ignoreSignal:
+            return False
+        else:
+            print "File String", str(val)
+            for dir in self.watcher.directories():
+                print '\t',str(dir)
 
     def dirChanged(self, val):
         '''
         When a file is added or the directory is changed then this is called.
         '''
-#        print "Dir String", str(val)
-#        for dir in self.watcher.directories():
-#            print '\t',str(dir)
-#        print '\n'
+        self.increment+=1
+        print "dir Changed Called ",self.increment
+        if self.ignoreSignal:
+            return False
+        else:
 
-        self.updateDirs(self.startDir)
-        #test to see if configuration file exists in the same directory
+    #        print "Dir String", str(val)
+    #        for dir in self.watcher.directories():
+    #            print '\t',str(dir)
+    #        print '\n'
+            self.updateDirs(self.startDir)
+            self.updateFiles(self.startDir)
+            self.updateDB()
 
-        self.updateFiles(self.startDir)
-#        for f in self.watcher.files():
-#            print '\t\t',str(f)
 
-
-    def updateDirs(self, startDir, firstRun = False, debug = False, exclude = EXCLUDEDIRS):
+    def updateDirs(self, startDir, firstRun = False, debug = False, exclude = EXCLUDE):
         '''
         update the watch dir list
 
@@ -125,15 +132,17 @@ class FileWatcher(QtGui.QWidget):
                 if firstRun:
                     if len(dirs) > 0:
                         for dir in dirs:
+                            newDir = os.path.join(root,dir)
                             if '.svn' not in dir and '.svn' not in root:
-                                print "updateDirs added %s"%dir
-                                self.watcher.addPath(dir)
+                                print "updateDirs added %s"%newDir, os.path.isdir(newDir)
+                                self.watcher.addPath(newDir)
                 else:
                     for dir in dirs:
-                        if QtCore.QString(dir) not in self.watcher.directories():
+                        newDir = os.path.join(root,dir)
+                        if QtCore.QString(newDir) not in self.watcher.directories():
                             if '.svn' not in dir and '.svn' not in root:
-                                print "updateDirs added %s"%dir
-                                self.watcher.addPath(dir)
+                                print "updateDirs added %s"%os.path.join(root,dir), os.path.isdir(os.path.join(root,dir))
+                                self.watcher.addPath(os.path.join(root,dir))
 
 
     def checkConfigFile(self, dataPath):
@@ -156,19 +165,8 @@ class FileWatcher(QtGui.QWidget):
             return configList
 
 
-
-
-
-    def updateFiles(self, startDir, firstRun = False, debug = False, exclude = EXCLUDEDIRS):
+    def updateFiles(self, startDir, firstRun = False, debug = False, exclude = EXCLUDE):
         '''
-        dataFile TEXT,\
-        cfgFile TEXT,\
-        outputFile TEXT,\
-        status TEXT,\
-        statusID INTEGER,\
-        jobID INTEGER,\
-        uuID INTEGER)'
-
         self.configFiles = []
         self.queuedFiles = []
         self.finishedFiles = []
@@ -188,17 +186,25 @@ class FileWatcher(QtGui.QWidget):
         JOBKEYS = [0, 1, 2, 3, 4]
         JOBTYPES = ['X!Tandem', 'File Conversion', 'Peak Picking', 'Polygraph', 'Unspecified']
         '''
+        self.__resetLists__()
         if startDir:
             numFiles = 0
             for root, dirs, files in walk(startDir):
                 for basename in dirs + files:
-#                    print "Basename", basename
                     if basename in exclude:
                         if basename in dirs:
                             dirs.remove(basename)
                         continue
+
+                    excluded = False
+                    for ignoreStr in EXCLUDE:
+                        if ignoreStr in basename:
+                            excluded = True
+
+
                     workingPath = os.path.join(root, basename)
-                    if CONFIGEXTENSION not in workingPath:#don't add config files to queue
+                    if not excluded:#CONFIGEXTENSION not in workingPath:#don't add config files to queue
+#                        print "Basename", basename, workingPath
                         '''
                         need to check if config file exists
                         need to check type of config file and update jobID
@@ -222,8 +228,8 @@ class FileWatcher(QtGui.QWidget):
                                         self.outputFiles.append('None at this Time')
                                         self.jobIDs.append(JOBKEYS[4])
             #                            self.jobIDs.append(STATUSIDS[0])
-                                else:
-                                    self.uuIDs.append('UUID Error')
+#                                else:
+#                                    self.uuIDs.append('UUID Error')
 #                        else:
 #                            '''
 #                            I don't like this.  Need to catch the case where the file has been
@@ -257,11 +263,13 @@ class FileWatcher(QtGui.QWidget):
         Need to check for unique ids
         need to check for unique keys
         '''
+        self.ignoreSignal = True
         qDict = queueDict()
         qDict.popluateDict(self.configFiles, self.queuedFiles, self.outputFiles,
                            self.fileStatus, self.statusIDs, self.jobIDs, self.uuIDs)
-#        tempDict = qDict.dataDict
         self.qDB.INSERT_QUEUE_VALUES(QUEUETABLE, qDict.dataDict)
+#        time.sleep(5)
+        self.ignoreSignal = False
 
     def __setupDB__(self, useMemory = True, newDB = False):
         '''
@@ -279,7 +287,8 @@ class FileWatcher(QtGui.QWidget):
         else:
 #            print self.startDir, self.qDBName, type(self.startDir), type(self.qDBName)
 #            print path.join(self.startDir, self.qDBName)
-            dbName = path.join(self.startDir,self.qDBName) #Defined Globally in self.__setupVars__()
+            dbName = path.join(self.queueDir, self.qDBName) #Defined Globally in self.__setupVars__()
+            print "DB Name:", dbName
 
         if dbName != None:
             '''
@@ -294,11 +303,29 @@ class FileWatcher(QtGui.QWidget):
             return QtGui.QMessageBox.warning(self, "DB Error",  errorMsg)
 
 
+    def __resetLists__(self):
+        self.configFiles = []
+        self.queuedFiles = []
+        self.finishedFiles = []
+        self.outputFiles = []
+        self.failedFiles = []
+        self.fileStatus = []
+        self.statusIDs = []
+        self.jobIDs = []
+        self.uuIDs = []
+
     def __setupVars__(self):
+
+        self.ignoreSignal = False #used to block directory changes and signal registers
+
+        self.increment = 0
 
         self.__setMessages__()
         self.startDir = getHomeDir()
+        ##################
         self.startDir +='\workspace\DaQueue\\testData'
+        self.queueDir = getHomeDir()+QUEUEDIR
+        ##################
 
         self.startDir = path.abspath(self.startDir)
 #        print self.startDir, path.isdir(self.startDir)
