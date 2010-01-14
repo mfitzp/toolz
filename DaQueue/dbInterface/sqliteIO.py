@@ -308,6 +308,32 @@ class queueDB(object):#DaQueue Database Class
         statusID INTEGER,\
         jobID INTEGER)'
         %tableName)
+        '''
+        http://stackoverflow.com/questions/811548/sqlite-and-python-return-a-dictionary-using-fetchone
+        def dict_factory(cursor, row):
+            d = {}
+            for idx,col in enumerate(cursor.description):
+                d[col[0]] = row[idx]
+            return d
+
+        from pysqlite2 import dbapi2 as sqlite
+        conn = sqlite.connect(...)
+        conn.row_factory = dict_factory
+        '''
+    def DICT_FACTORY(self, cursor, row):
+        '''
+        http://stackoverflow.com/questions/811548/sqlite-and-python-return-a-dictionary-using-fetchone
+        '''
+        d={}
+        for idx,col in enumerate(cursor.description):
+            d[col[0]] = str(row[idx])
+        return d
+
+    def GET_CURRENT_QUERY_AS_DICT(self):
+        result = []
+        for row in self.cur.fetchall():
+            result.append(self.DICT_FACTORY(self.cur, row))
+        return result
 
     def GET_CURRENT_QUERY(self,  truncate = False):
         result = []

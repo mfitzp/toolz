@@ -18,6 +18,7 @@ QUEUETABLE = 'queueTable'
 WATCHTABLE = 'watchTable'
 CONFIGEXTENSION = '.cfgXML'#, '.db']
 
+#1SRef is a Bruker File Folder Structure that should be ignored
 EXCLUDE = ['.svn', '.db', '.cfgXML']
 
 '''
@@ -36,6 +37,11 @@ By adding a new configuration file to the raw data folder the files will be proc
 
 Config Files can have any primary name, however, the file extension must have
 the cfgXML extension.
+
+TODO:
+
+Modify database to catch when a file is deleted and adjust appropriately...
+Optimize...currently there are too many call to the database which I don't like.
 
 '''
 STATUSIDS = [0,1,2,3,4]
@@ -88,6 +94,28 @@ class FileWatcher(QtGui.QWidget):
         for f in watcherFiles:
             print str(f)
 
+    def pollDB(self):
+        if self.dbOK:
+            self.getQueued()
+
+    def getQueued(self):
+        '''
+        dataFile TEXT,\
+        cfgFile TEXT,\
+        outputFile TEXT,\
+        status TEXT,\
+        statusID INTEGER,\
+        jobID INTEGER)'
+        '''
+        if self.dbOK:
+            '''
+            Need to test if table exists
+            '''
+            #SELECT THE QUEUED FILES
+            self.qDB.cur.execute(("SELECT * FROM %s WHERE %s LIKE '%s'"%(QUEUETABLE, 'statusID', str(STATUSIDS[0]))))
+            self.queryResult = self.qDB.GET_CURRENT_QUERY_AS_DICT()#GET_CURRENT_QUERY()
+            for row in self.queryResult:
+                print row
 
     def fileChanged(self, val):
         '''
@@ -103,6 +131,13 @@ class FileWatcher(QtGui.QWidget):
     def dirChanged(self, val):
         '''
         When a file is added or the directory is changed then this is called.
+
+
+        print "Dir String", str(val)
+        for dir in self.watcher.directories():
+        print '\t',str(dir)
+        print '\n'
+
         '''
         self.increment+=1
         print "dir Changed Called ",self.increment
@@ -110,10 +145,6 @@ class FileWatcher(QtGui.QWidget):
             return False
         else:
 
-    #        print "Dir String", str(val)
-    #        for dir in self.watcher.directories():
-    #            print '\t',str(dir)
-    #        print '\n'
             self.updateDirs(self.startDir)
             self.updateFiles(self.startDir)
             self.updateDB()
@@ -205,12 +236,6 @@ class FileWatcher(QtGui.QWidget):
                     workingPath = os.path.join(root, basename)
                     if not excluded:#CONFIGEXTENSION not in workingPath:#don't add config files to queue
 #                        print "Basename", basename, workingPath
-                        '''
-                        need to check if config file exists
-                        need to check type of config file and update jobID
-                        need to create UUID, if no config file don't add
-                        '''
-#                        print path.abspath(workingPath)
                         configList = self.checkConfigFile(root)
                         if len(configList)>0:
                             for cfgFile in configList:
@@ -247,6 +272,7 @@ class FileWatcher(QtGui.QWidget):
 #                                    self.jobIDs.append(JOBKEYS[4])
 #                                    self.uuIDs.append(tempUUID)
 
+
     def updateWatcher(self, useDefault = True):
         if useDefault:
             self.watcher.addPath(self.startDir)
@@ -270,6 +296,7 @@ class FileWatcher(QtGui.QWidget):
         self.qDB.INSERT_QUEUE_VALUES(QUEUETABLE, qDict.dataDict)
 #        time.sleep(5)
         self.ignoreSignal = False
+        self.pollDB()
 
     def __setupDB__(self, useMemory = True, newDB = False):
         '''
@@ -296,6 +323,7 @@ class FileWatcher(QtGui.QWidget):
             if they do not exist they are created
             '''
             self.qDB = sqliteIO.queueDB(dbName, parent = self)
+            self.dbOK = True
 #            self.qDB.CREATE_QUEUE_TABLE(self.qTableName)
 #            self.qDB.CREATE_WATCH_TABLE(self.qWatchName)
         else:
@@ -342,6 +370,9 @@ class FileWatcher(QtGui.QWidget):
 
 #        self.watchDBName = WATCHDB
         self.qDBName = QUEUEDB
+        self.qDB = None
+        self.dbOK = False
+        self.numQueuedFiles = 0
 
         self.qTableName = QUEUETABLE
         self.qWatchName = WATCHTABLE
@@ -351,7 +382,7 @@ class FileWatcher(QtGui.QWidget):
 
         self.configExt = CONFIGEXTENSION
 
-        self.watcher = QtCore.QFileSystemWatcher(self)
+        self.watcher = QtCore.QFileSystemWatcher()
 
 #        QtCore.QObject.connect(self.watcher,QtCore.SIGNAL("fileChanged(const QString&)"), self.fileChanged)
         QtCore.QObject.connect(self.watcher,QtCore.SIGNAL("directoryChanged(const QString&)"), self.dirChanged)
