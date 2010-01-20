@@ -20,6 +20,7 @@ CONFIGEXTENSION = '.cfgXML'#, '.db']
 
 #1SRef is a Bruker File Folder Structure that should be ignored
 EXCLUDE = ['.svn', '.db', '.cfgXML']
+INCLUDED = ['.RAW', '.mzXML', '1SRef']
 
 '''
 This module is designed to add rows to a sqlite database when a watch directory is altered.
@@ -263,9 +264,13 @@ class FileWatcher(QtGui.QWidget):
                         if ignoreStr in basename:
                             excluded = True
 
+                    included = False
+                    for includeStr in INCLUDED:
+                        if includeStr in basename:
+                            included = True
 
                     workingPath = os.path.join(root, basename)
-                    if not excluded:#CONFIGEXTENSION not in workingPath:#don't add config files to queue
+                    if not excluded and included:#CONFIGEXTENSION not in workingPath:#don't add config files to queue
 #                        print "Basename", basename, workingPath
                         configList = self.checkConfigFile(root)
                         if len(configList)>0:

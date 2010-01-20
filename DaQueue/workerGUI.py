@@ -154,10 +154,9 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         '''
 
         if len(self.unprocessedRows) == 0:
-            print "Polling Database Queue"
             self.pollDB()
             self.updateQueue()#clears and resets tables and checks for new values
-#            self.taskLoop()
+            self.taskLoop()
         elif len(self.unprocessedRows) > 0:
             self.curDBRow = self.unprocessedRows.pop(0)
             if self.curDBRow.has_key('uuid'):
@@ -176,7 +175,6 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         for row in xrange(self.taskTable.rowCount()):
             if str(self.taskTable.item(row,self.uuIDInd)) is jobID:
                 return row
-
 
     def taskTest(self, val = None):
         print "taskTest Called"
