@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/clowers/workspace/DaQueue/workerGUI.ui'
 #
-# Created: Thu Dec 17 19:58:03 2009
+# Created: Tue Jan 19 17:10:45 2010
 #      by: PyQt4 UI code generator 4.6
 #
 # WARNING! All changes made in this file will be lost!
@@ -23,6 +23,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_4 = QtGui.QVBoxLayout(self.centralWidget)
         self.verticalLayout_4.setObjectName("verticalLayout_4")
         self.tabWidget = QtGui.QTabWidget(self.centralWidget)
+        self.tabWidget.setEnabled(True)
         self.tabWidget.setObjectName("tabWidget")
         self.tab = QtGui.QWidget()
         self.tab.setObjectName("tab")
@@ -88,6 +89,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout = QtGui.QHBoxLayout()
         self.horizontalLayout.setObjectName("horizontalLayout")
         self.editServerCB = QtGui.QCheckBox(self.tab_2)
+        self.editServerCB.setEnabled(False)
         self.editServerCB.setObjectName("editServerCB")
         self.horizontalLayout.addWidget(self.editServerCB)
         self.line = QtGui.QFrame(self.tab_2)
@@ -101,6 +103,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_3 = QtGui.QHBoxLayout()
         self.horizontalLayout_3.setObjectName("horizontalLayout_3")
         self.label = QtGui.QLabel(self.tab_2)
+        self.label.setEnabled(False)
         self.label.setObjectName("label")
         self.horizontalLayout_3.addWidget(self.label)
         self.serverAddressLE = QtGui.QLineEdit(self.tab_2)
@@ -108,6 +111,7 @@ class Ui_MainWindow(object):
         self.serverAddressLE.setObjectName("serverAddressLE")
         self.horizontalLayout_3.addWidget(self.serverAddressLE)
         self.label_2 = QtGui.QLabel(self.tab_2)
+        self.label_2.setEnabled(False)
         self.label_2.setObjectName("label_2")
         self.horizontalLayout_3.addWidget(self.label_2)
         self.portSB = QtGui.QSpinBox(self.tab_2)

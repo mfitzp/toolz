@@ -97,8 +97,8 @@ class Connection(object):
 def main():
     """Little test when called directly."""
     # Set these to your own details.
-    myssh = Connection('example.com')
-    myssh.put('ssh.py')
+    myssh = Connection('172.16.249.129')
+    myssh.put('pyInput.xml')
     myssh.close()
 
 # start the ball rolling.

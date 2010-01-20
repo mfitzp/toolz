@@ -26,20 +26,14 @@ from ui_workerGUI import Ui_MainWindow
 from extraWidgets import cellComboBox, cellOFD, cellStatus
 from time import strftime, localtime, sleep
 #strftime("%a, %d %b %Y %H:%M:%S +0000", localtime())
-from dbInterface import dbIO, sqliteIO
+from dbInterface import dbIO
 import time
 
 from string import join
 import subprocess as sub
 
-STATUSIDS = [0,1,2,3,4]
-STATUSTYPES = ['Queued', 'Processing', 'Finished', 'Failed', 'Waiting for User Action']
 
-JOBKEYS = [0,1,2,3,4]
-JOBTYPES = ['X!Tandem', 'File Conversion', 'Peak Picking', 'Polygraph', 'Unspecified']
-
-DBNAME = 'labqueue.db'
-QUEUETABLE = 'queueTable'
+DBNAME = 'labqueue'
 ROOTUSER = 'clowers'
 
 XT_EXE_PATH = ''
@@ -63,82 +57,64 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         self.__setVariables__()
         self.__resetTaskTable__()
         self.__setConnections__()
-        self.initDB()
-        self.getUnprocessedTask()
+        self.initServer()
+#        self.getUnprocessedTask()
 
     def initDB(self):
-        self.db = sqliteIO.queueDB(DBNAME, parent = self)
-        self.dbOK = self.db.dbOK
+        if self.serverStatus:
+            self.db = dbIO.DB(self.server, DBNAME, self.dbKeys)
+            self.dbOK = self.db.OK
         self.dbStatusUpdate()
 
-    def pollDB(self):
-        if self.dbOK:
-            self.getQueued()
-
-    def getQueued(self):
-        '''
-        dataFile TEXT,\
-        cfgFile TEXT,\
-        outputFile TEXT,\
-        status TEXT,\
-        statusID INTEGER,\
-        jobID INTEGER,\
-        timeID TEXT)'
-        '''
-        if self.dbOK:
-            #SELECT THE QUEUED FILES
-            self.db.cur.execute(("SELECT * FROM %s WHERE %s LIKE '%s'"%(QUEUETABLE, 'statusID', str(STATUSIDS[0]))))
-            self.unprocessedRows = self.db.GET_CURRENT_QUERY_AS_DICT()
-
+    def initServer(self):
+        self.serverAddress = str(self.serverAddressLE.text())
+        self.serverPort = self.portSB.value()
+#        print "Server Address, Port: %s:%s"%(self.serverAddress, self.serverPort)
+        self.server = dbIO.CouchDBServer(self.serverAddress, self.serverPort)
+        self.serverStatus = self.server.OK
+        self.initDB()
 
     def updateQueue(self):
         '''
         I don't like to double "db".  Need to find a more elegant way of interfacing
         i.e. subclass
-
-        STATUSIDS = [0,1,2,3,4]
-        STATUSTYPES = ['Queued', 'Processing', 'Finished', 'Failed', 'Waiting for User Action']
-
-        JOBKEYS = [0,1,2,3,4]
-        JOBTYPES = ['X!Tandem', 'File Conversion', 'Peak Picking', 'Polygraph', 'Unspecified']
-
         '''
         if self.dbOK:
             self.taskTable.setRowCount(0)#need this otherwise there may duplicates added
             #alternatively, one could test to see if item exists....but right now I'm feeling lazy
-            for i, dbRow in enumerate(self.unprocessedRows):
-                self.taskTable.insRow(i)#REMEBER THIS USES A CUSTOM CALL in tableClass.py
-                for j, key in enumerate(self.dbKeys):
-                    if dbRow.has_key(key):
-                        if key == 'statusID':
-                            if dbRow[key] == '1':
-                                self.updateStatus(i, 1)
-                            elif dbRow[key] == '2':
-                                self.updateStatus(i, 2)
-                            elif dbRow[key] == '3':
-                                self.updateStatus(i, 3)
-                            elif dbRow[key] == '0':
+            for i,docID in enumerate(self.db.db):
+                self.taskTable.insRow(i)
+                curDoc = self.db.db[docID]
+                for j, key in enumerate(self.taskHeaders):
+                    if curDoc.has_key(key):
+                        if key == 'State':
+                            if curDoc[key] == 'Processing':
                                 self.updateStatus(i, 0)
-                        elif key == 'jobID':
-                            jobKey = dbRow[key]
-#                            self.taskTypeDict = {'X!Tandem Run':0, 'Peak Picking':1, 'File Conversion':2}
-                            self.updateTaskType(i, int(jobKey))
+                            elif curDoc[key] == 'Finished':
+                                self.updateStatus(i, 1)
+                            elif curDoc[key] == 'Failed':
+                                self.updateStatus(i, 2)
+                            elif curDoc[key] == 'Queued':
+                                self.updateStatus(i, 3)
+                        elif key == 'Task Type':
+                            taskKey = curDoc[key]
+                            self.updateTaskType(i, self.taskTypeDict[taskKey])
                         elif key == 'User':
                             newTableItem = QtGui.QTableWidgetItem(curDoc[key])
                             self.makeItemReadOnly(newTableItem)
                             self.taskTable.setItem(i,j, newTableItem)
                         else:
-                            newTableItem = QtGui.QTableWidgetItem(dbRow[key])
+                            newTableItem = QtGui.QTableWidgetItem(curDoc[key])
                             self.taskTable.setItem(i,j, newTableItem)
 
-                    elif key == 'uuID':
-                        newTableItem = QtGui.QTableWidgetItem(dbRow[uuID])
+                    elif key == 'Task ID':
+                        newTableItem = QtGui.QTableWidgetItem(docID)
                         self.makeItemReadOnly(newTableItem)
                         self.taskTable.setItem(i,j, newTableItem)
 
             self.updateColumnSizes()
             self.sortTable()
-#            self.setTaskList()
+            self.setTaskList()
 
     def getUnprocessedTask(self):
         '''
@@ -152,83 +128,44 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         if there are no unprocessed jobsthat should be called ONLY once
         updated from database and repeat
         '''
-
+#        self.stateList = ['Processing', 'Finished', 'Failed', 'Queued']
+#        States = 0, 1, 2, 3
         if len(self.unprocessedRows) == 0:
             print "Polling Database Queue"
-            self.pollDB()
             self.updateQueue()#clears and resets tables and checks for new values
-#            self.taskLoop()
+            self.taskLoop()
         elif len(self.unprocessedRows) > 0:
-            self.curDBRow = self.unprocessedRows.pop(0)
-            if self.curDBRow.has_key('uuid'):
-                jobID = self.curDBRow['uuID']
-                if jobID != None:
-                    self.curRow = self.getRowFromTaskID(jobID)
-                    self.updateStatus(self.curRow, 1)#1 is Processing
-                    self.updateDB(jobID, 'status', 'Processing')
-                else:
-                    print "JobID Empty"
-                #update database
-                #prepare thread
-                #run thread
-
-    def getRowFromTaskID(self, jobID):
-        for row in xrange(self.taskTable.rowCount()):
-            if str(self.taskTable.item(row,self.uuIDInd)) is jobID:
-                return row
-
+            self.curRow = self.unprocessedRows.pop(0)
+#            print "Processing row: %s"%self.curRow
+            jobID = self.getTaskID(self.curRow)
+            if jobID != None:
+                self.updateStatus(self.curRow, 0)
+                self.updateDoc(jobID, 'State', 'Processing')
+            else:
+                print "JobID Empty"
+            #update database
+            #prepare thread
+            #run thread
 
     def taskTest(self, val = None):
         print "taskTest Called"
         self.taskFinished(val, "Ok")
 
-    def updateDB(self, jobID, updateField, updateValue):
+    def updateDoc(self, docID, docKey, docVal):
         '''
         This is not working the way I want....
-        STATUSIDS = [0,1,2,3,4]
-        STATUSTYPES = ['Queued', 'Processing', 'Finished', 'Failed', 'Waiting for User Action']
-
-        JOBKEYS = [0,1,2,3,4]
-        JOBTYPES = ['X!Tandem', 'File Conversion', 'Peak Picking', 'Polygraph', 'Unspecified']
-
-        uuID TEXT,\
-        dataFile TEXT,\
-        cfgFile TEXT,\
-        outputFile TEXT,\
-        status TEXT,\
-        statusID INTEGER,\
-        jobID INTEGER,\
-        timeID TEXT)'
-
         '''
-        keyField = 'uuID'
-        keyValue = jobID
-        nextField = 'statusID'
-        #self.updateDB(jobID, 'State', 'Processing')
-        #UPDATE queueTable SET jobID = 7, status = 'YOGI' WHERE uuID LIKE "f065ec40-839b-5022-a528-b5764845f20d"
-        updateField = 'statusID'
-        for i,val in enumerate(STATUSTYPES):
-            if updateValue == val:
-                nextValue = i
-                continue
+        doc = self.db.db[docID]
+#        self.db.db.updatetype='Person', name='John Doe'
+#        print doc['State'], docKey
+#        doc['State'] = 'Finished'
+#        print doc['State']
+#        print self.db.db[docID]['State']
+        doc[docKey] = docVal
+        self.db.db.update([doc])
 
-        execStr = 'UPDATE %s SET %s = %s, %s = %d WHERE %s LIKE "%s"'%(QUEUETABLE,updateField, updateValue, nextField, nextValue, keyField, keyValue)
 
-        self.db.EXEC_QUERY(execStr)
-
-    def getTaskID(self, dbRow):
-        '''
-        dbRow is a dictionary format with the following keys
-        uuID TEXT,\
-        dataFile TEXT,\
-        cfgFile TEXT,\
-        outputFile TEXT,\
-        status TEXT,\
-        statusID INTEGER,\
-        jobID INTEGER,\
-        timeID TEXT)'
-
-        '''
+    def getTaskID(self, row):
         jobItem = self.taskTable.item(row, self.taskIDInd)
         if jobItem != None:
             jobID = str(jobItem.text())
@@ -244,14 +181,14 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         '''
         print "Task Finished, RetVal: %s"%retVal
         if retVal == 1:
-            self.updateStatus(self.curRow, 3)#failed State
-            self.updateDB(self.curDBRow['uuID'], 'status', 'Failed')
+            self.updateStatus(self.curRow, 2)#failed State
+            self.updateDoc(self.getTaskID(self.curRow), 'State', 'Failed')
             #process retStr
             #update DB
             #add to log
         elif retVal == 0:
-            self.updateStatus(self.curRow, 2)#finished State
-            self.updateDB(self.curDBRow['uuID'], 'status', 'Finished')
+            self.updateStatus(self.curRow, 1)#finished State
+            self.updateDoc(self.getTaskID(self.curRow), 'State', 'Finished')
             #process retStr
             #update DB
             #add to log
@@ -317,7 +254,7 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         '''
         dbKeys = ['Task Type', 'Method File', 'Data Path', 'Output Path', 'State', 'User', 'Submit Time']
         indDict = {'Task Type':0, 'Method File':self.methodFileInd, 'Data Path':self.dataPathInd,
-                   'Output Path':self.outputPathInd, 'State':self.stateInd, 'User':self.uidInd, 'Submit Time':self.timeIDInd}
+                   'Output Path':self.outputPathInd, 'State':self.stateInd, 'User':self.uidInd, 'Submit Time':self.timeInd}
         #self.taskTypeDict = {'File Conversion':0, 'X!Tandem Run':1, 'Peak Picking':2}
 
         if row == None:
@@ -355,7 +292,7 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
                     #this is the column for the task type
                     jobDict[key] = self.getTaskType(row)
 
-                elif curCol == self.timeIDInd:
+                elif curCol == self.timeInd:
                     jobDict[key] = strftime("%a, %d %b %Y %H:%M:%S", localtime())
 
                 elif curCol == self.uidInd:
@@ -403,7 +340,7 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
                 #boolean, jobID
                 if ans[0]:
                     self.taskTable.setItem(row, self.taskIDInd, QtGui.QTableWidgetItem(ans[1]))
-                    self.taskTable.setItem(row, self.timeIDInd, QtGui.QTableWidgetItem(jobDict['Submit Time']))
+                    self.taskTable.setItem(row, self.timeInd, QtGui.QTableWidgetItem(jobDict['Submit Time']))
                     print jobDict
                 else:
                     curItem = QtGui.QTableWidgetItem('Error submitting job!')
@@ -421,7 +358,7 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         self.stateInd = 7
         self.uidInd = 8
         self.taskIDInd = 9
-        self.timeIDInd = 10
+        self.timeInd = 10
         '''
         for i in xrange(self.taskTable.rowCount()):#iterate through the table of jobs
             self.submitJob(i)
@@ -447,58 +384,47 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         self.serverPort = None
         self.db = None
         self.dbOK = False
-        self.queryResult = []#will hold a list of dictionaries from the sqlite DB
 
-        '''
-        uuID TEXT,\
-        dataFile TEXT,\
-        cfgFile TEXT,\
-        outputFile TEXT,\
-        status TEXT,\
-        statusID INTEGER,\
-        jobID INTEGER,\
-        timeID INTEGER)'
-        '''
-
-        #OLD self.taskHeaders = ['Task Type', 'Method File', '', 'Data Path', '','Output Path', '', 'State', 'User', 'Task ID', 'Submit Time']
-        self.taskHeaders = ['Task Type', 'State', 'Method File', 'Data Path','Output Path','State ID','Task ID', 'Submit Time']
-        self.dbKeys = ['jobID', 'statusID', 'cfgFile', 'dataFile', 'outputFile', 'status', 'uuID', 'timeID']
+        self.taskHeaders = ['Task Type', 'Method File', '', 'Data Path', '','Output Path', '', 'State', 'User', 'Task ID', 'Submit Time']
+        self.dbKeys = ['Task Type', 'Method File', 'Data Path', 'Output Path', 'State', 'User', 'Task ID', 'Submit Time']
         self.taskOptions = ['X!Tandem Run', 'Peak Picking','File Conversion']
         self.taskTypeDict = {'X!Tandem Run':0, 'Peak Picking':1, 'File Conversion':2}
 
         self.curRow = 0
-        self.curDBRow = {}
 
-        self.taskSelectorInd = 0
-        self.stateIconInd = 1
-        self.methodFileInd = 2
+        self.methodFileInd = 1
         self.dataPathInd = 3
-        self.outputPathInd = 4
-        self.stateInd = 5
-        self.uuIDInd = 6
-        self.timeIDInd = 7
-
-#        self.taskIDInd = 9
-#        self.timeIDInd = 10
+        self.outputPathInd = 5
+        self.stateInd = 7
+        self.uidInd = 8
+        self.taskIDInd = 9
+        self.timeInd = 10
 
         self.unprocessedRows = []
 
         self.taskTable.setSortingEnabled(True)
 
     def sortTable(self):
-        self.taskTable.sortItems(self.timeIDInd, QtCore.Qt.AscendingOrder)
+        self.taskTable.sortItems(self.timeInd, QtCore.Qt.AscendingOrder)
         self.taskTable.scrollToBottom()
 
     def dbStatusUpdate(self):
         '''
-        Updates the status on the GUI and attempts
-        connection with sqlite server
+        Updates the server status on the GUI and attempts
+        connection with couchDB server
         '''
-        if self.dbOK:
+        if self.serverStatus and self.dbOK:
             self.serverStatusBtn.setIcon(QtGui.QIcon('images/clean.png'))
         else:
             self.serverStatusBtn.setIcon(QtGui.QIcon('images/exit.png'))
-            return QtGui.QMessageBox.warning(self, "Database Error",  self.dbErrorText)
+
+        if self.serverStatus:
+            if self.dbOK:
+                pass
+            else:
+                return QtGui.QMessageBox.warning(self, "Database Error",  self.dbErrorText)
+        else:
+            return QtGui.QMessageBox.warning(self, "Server Connection Error",  self.serverErrorText)
 
 
     def toggleServerEdit(self, state = None):
@@ -558,17 +484,17 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         QtCore.QObject.connect(self.taskTable, QtCore.SIGNAL("itemEntered (QTableWidgetItem *)"), self.updateCellValue)
 
         QtCore.QObject.connect(self.editServerCB, QtCore.SIGNAL("stateChanged(int)"),self.toggleServerEdit)
-#        QtCore.QObject.connect(self.resetServerBtn, QtCore.SIGNAL("clicked()"),self.initServer)
+        QtCore.QObject.connect(self.resetServerBtn, QtCore.SIGNAL("clicked()"),self.initServer)
 
         QtCore.QObject.connect(self.updateQueueBtn, QtCore.SIGNAL("clicked()"),self.updateQueue)
-#        QtCore.QObject.connect(self.submitQueueBtn, QtCore.SIGNAL("clicked()"),self.submitQueue)
+        QtCore.QObject.connect(self.submitQueueBtn, QtCore.SIGNAL("clicked()"),self.submitQueue)
 
-#        QtCore.QObject.connect(self.actionFill_Column_with_Current_Value, QtCore.SIGNAL("triggered()"),self.fillColumnWithCurrent)
-#        QtCore.QObject.connect(self.actionAdd_Entire_Data_Folder, QtCore.SIGNAL("triggered()"),self.processEntireFolder)
+        QtCore.QObject.connect(self.actionFill_Column_with_Current_Value, QtCore.SIGNAL("triggered()"),self.fillColumnWithCurrent)
+        QtCore.QObject.connect(self.actionAdd_Entire_Data_Folder, QtCore.SIGNAL("triggered()"),self.processEntireFolder)
         QtCore.QObject.connect(self.actionUpdate_Queue, QtCore.SIGNAL("triggered()"),self.updateQueue)
-#        QtCore.QObject.connect(self.actionSubmit_Queue, QtCore.SIGNAL("triggered()"),self.submitQueue)
-#        QtCore.QObject.connect(self.actionAdd_Multiple_Rows, QtCore.SIGNAL("triggered()"),self.addRows)
-#        QtCore.QObject.connect(self.actionAdd_Row, QtCore.SIGNAL("triggered()"),self.addSingleRow)
+        QtCore.QObject.connect(self.actionSubmit_Queue, QtCore.SIGNAL("triggered()"),self.submitQueue)
+        QtCore.QObject.connect(self.actionAdd_Multiple_Rows, QtCore.SIGNAL("triggered()"),self.addRows)
+        QtCore.QObject.connect(self.actionAdd_Row, QtCore.SIGNAL("triggered()"),self.addSingleRow)
         QtCore.QObject.connect(self.actionDelete_Job, QtCore.SIGNAL("triggered()"),self.deleteJob)
         QtCore.QObject.connect(self.deleteQueueRowBtn, QtCore.SIGNAL("clicked()"),self.deleteJob)
 
@@ -642,17 +568,17 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         self.taskTable.setHorizontalHeaderLabels(self.taskHeaders)
 
         for row in xrange(self.taskTable.rowCount()):
-            self.taskTable.setCellWidget(row, self.taskSelectorInd, cellComboBox())
-#            self.taskTable.setItem(row, self.methodFileInd+1, cellOFD())
-#            self.taskTable.setItem(row, self.dataPathInd+1, cellOFD())
-#            self.taskTable.setItem(row, self.outputPathInd+1, cellOFD())
-            self.taskTable.setItem(row, self.stateIconInd, cellStatus())
-#            userItem = QtGui.QTableWidgetItem(USERNAME)
-#            self.makeItemReadOnly(userItem)
-#            self.taskTable.setItem(row, self.uidInd, userItem)
+            self.taskTable.setCellWidget(row, 0, cellComboBox())
+            self.taskTable.setItem(row, self.methodFileInd+1, cellOFD())
+            self.taskTable.setItem(row, self.dataPathInd+1, cellOFD())
+            self.taskTable.setItem(row, self.outputPathInd+1, cellOFD())
+            self.taskTable.setItem(row, self.stateInd, cellStatus())
+            userItem = QtGui.QTableWidgetItem(USERNAME)
+            self.makeItemReadOnly(userItem)
+            self.taskTable.setItem(row, self.uidInd, userItem)
             taskIDItem = QtGui.QTableWidgetItem('')
             self.makeItemReadOnly(taskIDItem)
-            self.taskTable.setItem(row, self.uuIDInd, taskIDItem)
+            self.taskTable.setItem(row, self.uidInd+1, taskIDItem)
 
         self.taskTable.resizeColumnsToContents()
         self.taskTable.resizeRowsToContents()
@@ -667,7 +593,7 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
             return curItem.getStatusText()
 
     def updateStatus(self, row, state):
-        curItem = self.taskTable.item(row, self.stateIconInd)
+        curItem = self.taskTable.item(row, self.stateInd)
         if isinstance(curItem, cellStatus):
             curItem.switchStatus(state)
 

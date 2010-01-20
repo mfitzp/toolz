@@ -101,13 +101,13 @@ class CustomTable(QtGui.QTableWidget):
         '''
         These values are specific to the queue and should be changed
         '''
-        self.methodFileInd = 1
+        self.taskSelectorInd = 0
+        self.stateIconInd = 1
+        self.methodFileInd = 2
         self.dataPathInd = 3
-        self.outputPathInd = 5
-        self.stateInd = 7
-        self.uidInd = 8
-        self.taskIDInd = 9
-        self.timeInd = 10
+        self.outputPathInd = 4
+        self.stateInd = 5
+        self.uuIDInd = 6
 
         self.__initActions__()
 #        self.__initContextMenus__()
@@ -200,18 +200,11 @@ class CustomTable(QtGui.QTableWidget):
         tableItem.setFlags(QtCore.Qt.ItemIsEnabled)
 
     def addCustomRow(self, row):
-        self.setCellWidget(row, 0, cellComboBox())
-        self.setItem(row, self.methodFileInd+1, cellOFD())
-        self.setItem(row, self.dataPathInd+1, cellOFD())
-        self.setItem(row, self.outputPathInd+1, cellOFD())
-        self.setItem(row, self.stateInd, cellStatus())
-        userItem = QtGui.QTableWidgetItem(USERNAME)
-        self.makeItemReadOnly(userItem)
-        self.setItem(row, self.uidInd, userItem)
+        self.setCellWidget(row, self.taskSelectorInd, cellComboBox())
+        self.setItem(row, self.stateIconInd, cellStatus())
         taskIDItem = QtGui.QTableWidgetItem('')
         self.makeItemReadOnly(taskIDItem)
-        self.setItem(row, self.uidInd+1, taskIDItem)
-
+        self.setItem(row, self.uuIDInd, taskIDItem)
 
     def addRows(self):
         selRange  = self.selectedRanges()[0]

@@ -1,6 +1,5 @@
 import os, sys, traceback
 import sqlite3 as sql
-import tables as T
 import numpy as N
 import csv
 
@@ -31,7 +30,7 @@ q.INSERT_QUEUE_VALUES(qTableName, newQueueDictInstance)
 #
 class queueDB(object):#DaQueue Database Class
     '''Represents the interface to SQLite'''
-    def __init__(self, db, createNew=False,  tableName = None, parent = None):#db is the path to the database on disk
+    def __init__(self, db, createNew=False, tableName = None, parent = None):#db is the path to the database on disk
         if parent:
             self.parent = parent
         self.dbOK = True
@@ -42,6 +41,7 @@ class queueDB(object):#DaQueue Database Class
             #self.curTblName = tableName
         except:
             self.errorMsg = "Sorry: %s:%s"%(sys.exc_type, sys.exc_value)
+            print self.errorMsg
             self.dbOK = False
         try:
             if createNew:
@@ -53,6 +53,22 @@ class queueDB(object):#DaQueue Database Class
 
     def getCurrentTableName(self):
         return self.curTblName
+
+    def UPDATEROWBYKEY(self, tableName, updateField, updateValue, keyField, keyValue):
+
+        #UPDATE queueTable SET jobID = 5 WHERE uuID LIKE 'f065ec40-839b-5022-a528-b5764845f20d'
+        '''This inserts the specified values into the identified row'''
+        t1 = time.clock()
+        tableExists =self.cnx.execute("SELECT COUNT(*) FROM sqlite_master WHERE name=?", (tableName,)).fetchone()[0]
+        if tableExists == 0:
+            print "Table %s does not exist, ignoring"%tableName
+        else:
+            self.cur.execute('UPDATE %s SET %s = %s WHERE %s LIKE "%s"'%(tableName, updateField, updateValue, keyField, keyValue))
+            self.cnx.commit()
+            t2 = str(time.clock()-t1)
+            print "SQLite Row Update Time for %s (s): %s"%(tableName, t2)
+
+
 
     def READ_CUSTOM_VALUES(self, tableName, XT_RESULTS):
         '''This is for processed query of an XT run'''
@@ -149,7 +165,7 @@ class queueDB(object):#DaQueue Database Class
             for i in xrange(len(queueDict[queueDict.keys()[0]])):
                 try:
                     self.cur.execute(
-                                    'INSERT INTO "%s" VALUES (?,?,?,?,?,?,?)'%tableName,#again I know %s is not recommended but I don't know how to do this more elegantly.
+                                    'INSERT INTO "%s" VALUES (?,?,?,?,?,?,?,?)'%tableName,#again I know %s is not recommended but I don't know how to do this more elegantly.
                                     (
                                     queueDict['uuIDs'][i],
                                     queueDict['dataFiles'][i],
@@ -157,7 +173,8 @@ class queueDB(object):#DaQueue Database Class
                                     queueDict['outputFiles'][i],
                                     queueDict['statuses'][i],
                                     queueDict['statusIDs'][i],
-                                    queueDict['jobIDs'][i]
+                                    queueDict['jobIDs'][i],
+                                    queueDict['timeIDs'][i]
                                     ))
                 except:
                     exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
@@ -306,7 +323,8 @@ class queueDB(object):#DaQueue Database Class
         outputFile TEXT,\
         status TEXT,\
         statusID INTEGER,\
-        jobID INTEGER)'
+        jobID INTEGER,\
+        timeID TEXT)'
         %tableName)
         '''
         http://stackoverflow.com/questions/811548/sqlite-and-python-return-a-dictionary-using-fetchone
@@ -385,12 +403,13 @@ class queueDB(object):#DaQueue Database Class
         else:
             return False, [], []
 
-    def EXEC_QUERY(self, queryStr):
+    def EXEC_QUERY(self, execStr):
         self.cur.execute(execStr)
-        result = self.GET_CURRENT_QUERY()
-        if len(result)>0:
-            colNames = self.GET_COLUMN_NAMES()
-            return newTableName, result, colNames
+        self.cnx.commit()
+#        result = self.GET_CURRENT_QUERY()
+#        if len(result)>0:
+#            colNames = self.GET_COLUMN_NAMES()
+#            return newTableName, result, colNames
 
 
     def GET_VALUE_BY_TYPE(self, tableName, fieldType, fieldValue, savePrompt = False):

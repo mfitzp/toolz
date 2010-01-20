@@ -1,6 +1,12 @@
 # -*- coding: utf-8 -
 from PyQt4 import QtCore, QtGui
 
+JOBKEYS = [0,1,2,3,4]
+JOBTYPES = ['X!Tandem', 'File Conversion', 'Peak Picking', 'Polygraph', 'Unspecified']
+
+STATUSIDS = [0,1,2,3,4]
+STATUSTYPES = ['Queued', 'Processing', 'Finished', 'Failed', 'Waiting for User Action']
+
 
 class cellComboBox(QtGui.QComboBox):
     def __init__(self, parent = None):
@@ -8,7 +14,8 @@ class cellComboBox(QtGui.QComboBox):
         if parent:
             self.parent = parent
 
-        self.options = ['X!Tandem Run', 'Peak Picking','File Conversion']
+#        self.options = ['X!Tandem Run','Peak Picking','File Conversion']
+        self.options = JOBTYPES
         self.addItems(self.options)
         self.setCurrentIndex(0)
         self.setEditable(False)
@@ -26,21 +33,21 @@ class cellStatus(QtGui.QTableWidgetItem):
         QtGui.QTableWidgetItem.__init__(self, '')
         self.setFlags(QtCore.Qt.ItemIsSelectable)
         self.setFlags(QtCore.Qt.ItemIsEnabled)
-        self.stateList = ['Processing', 'Finished', 'Failed', 'Queued']
-        self.state = 3
+        self.stateList = STATUSTYPES
+        self.state = 0
         self.switchStatus(self.state)
 
     def switchStatus(self, state):
-        if state == 0:#Processing
+        if state == 1:#Processing
             self.state = state
             self.setIcon(QtGui.QIcon('images/applications.png'))
-        elif state == 1:#Finished
+        elif state == 2:#Finished
             self.state = state
             self.setIcon(QtGui.QIcon('images/clean.png'))
-        elif state == 2:#Failed
+        elif state == 3:#Failed
             self.state = state
             self.setIcon(QtGui.QIcon('images/exitsmall.png'))
-        elif state == 3:#Queued
+        elif state == 0:#Queued
             self.state == state
             self.setIcon(QtGui.QIcon('images/remove.png'))
 

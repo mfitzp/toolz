@@ -13,7 +13,7 @@ from dbInterface import sqliteIO
 
 #WATCHDB = 'watchList.db'
 QUEUEDB = 'labqueue.db'
-QUEUEDIR = '\workspace\DaQueue'
+QUEUEDIR = '/workspace/DaQueue'
 QUEUETABLE = 'queueTable'
 WATCHTABLE = 'watchTable'
 CONFIGEXTENSION = '.cfgXML'#, '.db']
@@ -116,6 +116,37 @@ class FileWatcher(QtGui.QWidget):
             self.queryResult = self.qDB.GET_CURRENT_QUERY_AS_DICT()#GET_CURRENT_QUERY()
             for row in self.queryResult:
                 print row
+
+    def dummyFunc(self):
+        '''
+        dummy function for QTimer Slot
+        Useful as QTimer runs in a separate thread.
+        '''
+        print "\t DummyFunc Called"
+        return True
+
+    def checkStable(self, targetFile):
+        '''
+        Takes an input file and checks to see if it is stable
+        i.e. not changing from a file transfer process.
+        '''
+        print "CheckStable Called"
+        stable = False
+        curSize = os.path.getsize(targetFile)
+        time.sleep(1)
+#        QtCore.QTimer.singleShot(2000, self.dummyFunc)
+        nextSize = os.path.getsize(targetFile)
+        #While Loop to check if the file is changing
+        while (curSize != nextSize):
+            curSize = os.path.getsize(targetFile)
+            time.sleep(1)
+#            QtCore.QTimer.singleShot(2000, self.dummyFunc)
+            nextSize = os.path.getsize(targetFile)
+
+        if curSize == nextSize:
+            stable = True
+
+        return stable
 
     def fileChanged(self, val):
         '''
@@ -238,39 +269,40 @@ class FileWatcher(QtGui.QWidget):
 #                        print "Basename", basename, workingPath
                         configList = self.checkConfigFile(root)
                         if len(configList)>0:
-                            for cfgFile in configList:
-
-                                boolAns, tempUUID = generateUUID(path.abspath(workingPath), cfgFile)
-                                if boolAns:
-                                     if tempUUID not in self.uuIDs:
-                                        self.uuIDs.append(tempUUID)
-                                        self.configFiles.append(cfgFile)
-                                        self.queuedFiles.append(path.abspath(workingPath))
-                                        self.fileStatus.append(STATUSTYPES[0])
-                                        self.statusIDs.append(STATUSIDS[0])
-                                        #need to add a function to discern what kind of job is to be run
-                                        #hard-coding to XTandem initially
-                                        self.outputFiles.append('None at this Time')
-                                        self.jobIDs.append(JOBKEYS[4])
-            #                            self.jobIDs.append(STATUSIDS[0])
-#                                else:
-#                                    self.uuIDs.append('UUID Error')
-#                        else:
-#                            '''
-#                            I don't like this.  Need to catch the case where the file has been
-#                            added WIHTOUT a config file and then overwrite the entry when a config file
-#                            is added.  Or don't add that file to begin with?
-#                            '''
-#                            print "No Configuration Files"
-#                            boolAns, tempUUID = generateStrUUID(path.abspath(f))
-#                            if boolAns:
-#                                if tempUUID not in self.uuIDs:
-#                                    self.configFiles.append('Not Specified')
-#                                    self.queuedFiles.append(path.abspath(f))
-#                                    self.fileStatus.append(STATUSTYPES[4])
-#                                    self.statusIDs.append(STATUSIDS[4])
-#                                    self.jobIDs.append(JOBKEYS[4])
-#                                    self.uuIDs.append(tempUUID)
+                            if self.checkStable(workingPath):
+                                for cfgFile in configList:
+                                    boolAns, tempUUID = generateUUID(path.abspath(workingPath), cfgFile)
+                                    if boolAns:
+                                         if tempUUID not in self.uuIDs:
+                                            self.uuIDs.append(tempUUID)
+                                            self.configFiles.append(cfgFile)
+                                            self.queuedFiles.append(path.abspath(workingPath))
+                                            self.fileStatus.append(STATUSTYPES[0])
+                                            self.statusIDs.append(STATUSIDS[0])
+                                            #need to add a function to discern what kind of job is to be run
+                                            #hard-coding to XTandem initially
+                                            self.outputFiles.append('None at this Time')
+                                            self.jobIDs.append(JOBKEYS[0])
+                                            self.timeIDs.append(strftime("%a, %d %b %Y %H:%M:%S", localtime()))
+                #                            self.jobIDs.append(STATUSIDS[0])
+    #                                else:
+    #                                    self.uuIDs.append('UUID Error')
+    #                        else:
+    #                            '''
+    #                            I don't like this.  Need to catch the case where the file has been
+    #                            added WIHTOUT a config file and then overwrite the entry when a config file
+    #                            is added.  Or don't add that file to begin with?
+    #                            '''
+    #                            print "No Configuration Files"
+    #                            boolAns, tempUUID = generateStrUUID(path.abspath(f))
+    #                            if boolAns:
+    #                                if tempUUID not in self.uuIDs:
+    #                                    self.configFiles.append('Not Specified')
+    #                                    self.queuedFiles.append(path.abspath(f))
+    #                                    self.fileStatus.append(STATUSTYPES[4])
+    #                                    self.statusIDs.append(STATUSIDS[4])
+    #                                    self.jobIDs.append(JOBKEYS[4])
+    #                                    self.uuIDs.append(tempUUID)
 
 
     def updateWatcher(self, useDefault = True):
@@ -292,7 +324,7 @@ class FileWatcher(QtGui.QWidget):
         self.ignoreSignal = True
         qDict = queueDict()
         qDict.popluateDict(self.configFiles, self.queuedFiles, self.outputFiles,
-                           self.fileStatus, self.statusIDs, self.jobIDs, self.uuIDs)
+                           self.fileStatus, self.statusIDs, self.jobIDs, self.uuIDs, self.timeIDs)
         self.qDB.INSERT_QUEUE_VALUES(QUEUETABLE, qDict.dataDict)
 #        time.sleep(5)
         self.ignoreSignal = False
@@ -341,6 +373,7 @@ class FileWatcher(QtGui.QWidget):
         self.statusIDs = []
         self.jobIDs = []
         self.uuIDs = []
+        self.timeIDs = []
 
     def __setupVars__(self):
 
@@ -351,7 +384,7 @@ class FileWatcher(QtGui.QWidget):
         self.__setMessages__()
         self.startDir = getHomeDir()
         ##################
-        self.startDir +='\workspace\DaQueue\\testData'
+        self.startDir +='/workspace/DaQueue/testData'
         self.queueDir = getHomeDir()+QUEUEDIR
         ##################
 
@@ -367,6 +400,7 @@ class FileWatcher(QtGui.QWidget):
         self.statusIDs = []
         self.jobIDs = []
         self.uuIDs = []
+        self.timeIDs = []
 
 #        self.watchDBName = WATCHDB
         self.qDBName = QUEUEDB
@@ -439,9 +473,10 @@ class queueDict(object):
                          'statuses':[],
                          'statusIDs':[],
                          'jobIDs':[],
-                         'uuIDs':[]}
+                         'uuIDs':[],
+                         'timeIDs':[]}
 
-    def popluateDict(self, configFileList, dataFileList, outputFileList, statusList, statusIDList, jobIDList, uuIDList):
+    def popluateDict(self, configFileList, dataFileList, outputFileList, statusList, statusIDList, jobIDList, uuIDList, timeIDList):
         '''
 
         '''
@@ -452,6 +487,7 @@ class queueDict(object):
         self.dataDict['statusIDs'] = statusIDList
         self.dataDict['jobIDs'] = jobIDList
         self.dataDict['uuIDs'] = uuIDList
+        self.dataDict['timeIDs'] = timeIDList
 
 
 def generateStrUUID(definerStr):
