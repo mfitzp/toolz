@@ -50,25 +50,27 @@ def doFrag(curSeq):
     serTypeDict['c-ladder'] = 14
 
     series = []
-    #series.append('a')
+    series.append('a')
     series.append('b')
     series.append('y')
-#    series.append('a-H2O')
+    series.append('a-H2O')
     series.append('b-H2O')
     series.append('y-H2O')
     #series.append('int')
     i = 0
     serTypeDict = {}
-    #configP.sequence['fragment']['fragments'].append('a')
+    configP.sequence['fragment']['fragments'].append('a')
+    serTypeDict[configP.sequence['fragment']['fragments'][-1]] = i
+    i+=1
     configP.sequence['fragment']['fragments'].append('b')
     serTypeDict[configP.sequence['fragment']['fragments'][-1]] = i
     i+=1
     configP.sequence['fragment']['fragments'].append('y')
     serTypeDict[configP.sequence['fragment']['fragments'][-1]] = i
     i+=1
-#    configP.sequence['fragment']['fragments'].append('a-H2O')
-#    serTypeDict[configP.sequence['fragment']['fragments'][-1]] = i
-#    i+=1
+    configP.sequence['fragment']['fragments'].append('a-H2O')
+    serTypeDict[configP.sequence['fragment']['fragments'][-1]] = i
+    i+=1
     configP.sequence['fragment']['fragments'].append('b-H2O')
     serTypeDict[configP.sequence['fragment']['fragments'][-1]] = i
     i+=1
@@ -223,14 +225,14 @@ def pepFrag(seq, X, Y, plotCanvas, annotation = None):
     ppmErrs = []
     ppmErrType = []
     for i,frag in enumerate(fragMZ):
-        foundInd = mz.searchsorted(frag)
+        foundInd = X.searchsorted(frag)
 
         if foundInd == 0:
             prevInd = 0
         else:
             prevInd = foundInd-1
 
-        if foundInd >= len(mz):
+        if foundInd >= len(X):
             foundInd+=-1
             prevInd+=-1
 
@@ -266,7 +268,7 @@ def pepFrag(seq, X, Y, plotCanvas, annotation = None):
             fragYVals[i] = Y[prevInd]
 
     #plot the lines for each spectrum before being matched
-    ax1.vlines(X, 0, Y, colors = 'k', alpha = 0.6)
+    ax1.vlines(X, 0, Y, colors = 'k', alpha = 1.0)#0.6)
 
 
 
@@ -278,8 +280,8 @@ def pepFrag(seq, X, Y, plotCanvas, annotation = None):
     errY+=1
 #    ax2.plot(errs, errY, 'go', ms = 5, alpha = 0.6)
 
-    tempColors = ['r', 'b', 'g', 'y']
-    tempMarkers = ['o','s','d','^', 'h', 'p']
+    tempColors = ['r', 'b', 'g', 'y', 'm', 'b', 'k']
+    tempMarkers = ['o','s','d','^', 'h', 'p', 'o', 'd', 's']
     n = 1
     for m,frag in enumerate(fragRange):
         fragInd = N.where(fragType == frag)[0]
@@ -310,29 +312,30 @@ def pepFrag(seq, X, Y, plotCanvas, annotation = None):
     else:
         textTag = seq
 
-    ax1.text(0.03, 0.95, textTag, fontsize=7,\
+    ax1.text(0.03, 0.95, textTag, fontsize=10,\
             bbox=dict(facecolor='yellow', alpha=0.1),\
             transform=ax1.transAxes, va='top')
 
 
     matchedInd = N.where(fragYVals>1)[0]
-    labelPeaks(fragMZ[matchedInd], fragYVals[matchedInd], ax1)
+    labelPeaks(fragMZ[matchedInd], fragYVals[matchedInd], ax1, yCutoff = 10)
 
     plotCanvas.format_labels()
     plotCanvas.draw()
 
 
-def labelPeaks(xVals, yVals, mplAxis):
+def labelPeaks(xVals, yVals, mplAxis, yCutoff = 1):
     if len(xVals)>0:
         yMax = yVals.max()
         yIncrement = yMax*0.01
         mplAxis.set_ylim(ymax = yMax*1.1)
         for i, xVal in enumerate(xVals):
-            showText = '%.2f'%(xVal)
-            mplAxis.text(xVal,yVals[i]+yIncrement, showText, fontsize=6, rotation = 90)
+            if yVals[i]>yCutoff:
+                showText = '%.2f'%(xVal)
+                mplAxis.text(xVal,yVals[i]+yIncrement, showText, fontsize=7, rotation = 90)
 
 
-if __name__ == "__main__":
+def mainA():
     import numpy as N
     import pylab as P
     import sys
@@ -364,6 +367,41 @@ if __name__ == "__main__":
 #    print type(X), type(Y)
     pepFrag(seq, X, Y, w.canvas)
     w.show()
+    sys.exit(app.exec_())
+
+
+def mainB():
+    import numpy as N
+    import pylab as P
+    import scipy as S
+    import sys
+    from PyQt4 import QtGui, QtCore
+    from mpl_pyqt4_widget import MPL_Widget
+    app = QtGui.QApplication(sys.argv)
+    w = MPL_Widget(enableAutoScale = False, doublePlot = True, enableEdit = True)
+    #seq = 'ANTHRACISAMES'
+    seq = 'ANTHRACISSTERNE'
+    #X = P.load('amesPredicted.csv', delimiter = ',')
+    X = P.load('sternePredicted.csv', delimiter = ',')
+    Y = S.rand(len(X))
+    Y*=10
+    randInt = []
+    for i in xrange(int(0.25*len(X))):
+        ind = N.random.random_integers(len(Y)-1)
+        Y[ind] = N.random.random_integers(10)*10
+
+    Y/=Y.max()
+    Y*=100
+#    X = N.array(X, dtype = N.float)#conver to array with dtype set or it will default to string types
+#    Y = N.array(Y, dtype = N.float)
+#    print type(X), type(Y)
+    pepFrag(seq, X, Y, w.canvas)
+    w.show()
+    sys.exit(app.exec_())
+
+if __name__ == "__main__":
+    mainB()
+
 
 #    mz = N.array([360.051, 371.971, 408.168, 475.257, 572.221, 592.733, 595.249, 605.034, 623.413, 635.276, 642.189,
 #          643.776, 648.206, 683.262, 690.683, 692.273, 700.84, 716.189, 719.344, 736.303, 749.344, 763.286,
@@ -373,7 +411,7 @@ if __name__ == "__main__":
 #    yVals = N.array([6, 14, 6, 6, 5, 7, 14, 4, 4, 12, 8, 100, 5, 5, 5, 10, 57, 5, 8, 21, 7, 5, 5, 4, 5, 5, 6, 12, 48, 6,
 #                     10, 5, 7, 9, 4, 22, 10, 5, 6, 4, 9, 6, 23, 5, 7, 4, 90, 9, 4, 7])
 
-    sys.exit(app.exec_())
+
 
 ###############Original mMass Code#########################
 #    def doDigestion(self):
