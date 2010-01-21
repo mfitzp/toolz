@@ -1084,7 +1084,8 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         if len(tblList)>1:
             if self.dbStatus:
                 self.sqlQueryString.clear()
-                queryStr = QF.GET_UNIQUE_PEPTIDE_GROUP(tblList)
+#                queryStr = QF.GET_UNIQUE_PEPTIDE_GROUP(tblList)
+                queryStr = QF.GET_UNIQUE_PEPTIDE_GROUP_SIMPLE(tblList)
                 self.sqlQueryString.setText(queryStr)
 #                self.viewQueryResults()
         elif len(tblList) == 1:#need to just show for a single table....
