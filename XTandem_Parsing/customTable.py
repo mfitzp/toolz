@@ -14,6 +14,21 @@ def main():
     #w.show()
     sys.exit(app.exec_())
 
+#class EventFilter(QtCore.QObject):
+#    def __init__(self, parent=None):
+#        QtCore.QObject.__init__(self, parent)
+#        if parent != None:
+#            self.parent = parent
+#    def eventFilter(self, obj, event):
+#        if event.type() == QtCore.QEvent.Enter:
+#            obj.focusEvent(self.parent)
+#            #print "got the focus"
+#        elif event.type() == QtCore.QEvent.Leave:
+#            obj.lossFocusEvent(self.parent)
+#            #print "lost the focus"
+#        return QtCore.QObject.eventFilter(self, obj, event)
+
+
 class DBTable(QWidget):
 #            super(Plot_Widget, self).__init__(None)#new  new^2:changed from parent
 #        self.setAttribute(Qt.WA_DeleteOnClose)
@@ -21,6 +36,8 @@ class DBTable(QWidget):
     def __init__(self, dataList = None, colHeaderList = None, enableSort = False, title = None):
         QWidget.__init__(self)
         self.setAttribute(Qt.WA_DeleteOnClose)
+#        self.installEventFilter(EventFilter(self))
+
         if title != None:
             self.title = title
             self.setWindowTitle(title)
@@ -51,6 +68,8 @@ class DBTable(QWidget):
 
 
         self.connect(self.tableWidget, SIGNAL("itemSelectionChanged()"), self.tableSelect)
+
+
 
         self.setLayout(layout)
         self.show()

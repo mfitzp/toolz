@@ -1053,7 +1053,7 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                 self.sqlQueryString.clear()
                 queryStr = QF.GET_UNIQUE_PROTEINS(curTbl)
                 self.sqlQueryString.setText(queryStr)
-                self.viewQueryResults()
+#                self.viewQueryResults()
 
     def UNIQUE_PEPTIDES(self):
         curItem = self.queryTblList.currentItem()
@@ -1063,7 +1063,7 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                 self.sqlQueryString.clear()
                 queryStr = QF.GET_UNIQUE_PEPTIDES(curTbl)
                 self.sqlQueryString.setText(queryStr)
-                self.viewQueryResults()
+#                self.viewQueryResults()
 
     def GROUP_UNIQUE_PEPTIDES_BY_PROTEIN(self):
         curItem = self.queryTblList.currentItem()
@@ -1073,7 +1073,7 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                 self.sqlQueryString.clear()
                 queryStr = QF.GET_UNIQUE_PEPTIDES_BY_PROTEIN(curTbl)
                 self.sqlQueryString.setText(queryStr)
-                self.viewQueryResults()
+#                self.viewQueryResults()
 
     def MULTI_UNIQUE_PEPTIDE_GROUP(self):
         tblList = []
@@ -1086,12 +1086,12 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                 self.sqlQueryString.clear()
                 queryStr = QF.GET_UNIQUE_PEPTIDE_GROUP(tblList)
                 self.sqlQueryString.setText(queryStr)
-                self.viewQueryResults()
+#                self.viewQueryResults()
         elif len(tblList) == 1:#need to just show for a single table....
             curTbl = tblList[0]
             queryStr = QF.GET_UNIQUE_PEPTIDES_BY_PROTEIN(curTbl)
             self.sqlQueryString.setText(queryStr)
-            self.viewQueryResults()
+#            self.viewQueryResults()
 
 
     def __setMessages__(self):
