@@ -13,7 +13,7 @@ from dbInterface import sqliteIO
 
 from uiSupport import QUEUEDB,QUEUEDIR,QUEUETABLE,WATCHTABLE,CONFIGEXTENSION,\
                       EXCLUDE, INCLUDED, STATUSIDS, STATUSTYPES, JOBKEYS,\
-                      JOBTYPES, JOBDICT
+                      JOBTYPES, JOBDICT, WATCHDIR
 '''
 This module is designed to add rows to a sqlite database when a watch directory is altered.
 The sqlite db will then be polled by another threaded module to process the file
@@ -379,7 +379,7 @@ class FileWatcher(QtGui.QWidget):
         else:
 #            print self.startDir, self.qDBName, type(self.startDir), type(self.qDBName)
 #            print path.join(self.startDir, self.qDBName)
-            dbName = path.join(self.queueDir, self.qDBName) #Defined Globally in self.__setupVars__()
+            dbName = self.qDBName#path.join(self.queueDir, self.qDBName) #Defined Globally in self.__setupVars__()
             print "DB Name:", dbName
 
         if dbName != None:
@@ -415,10 +415,10 @@ class FileWatcher(QtGui.QWidget):
         self.increment = 0
 
         self.__setMessages__()
-        self.startDir = getHomeDir()
+        self.startDir = WATCHDIR#getHomeDir()
         ##################
-        self.startDir +='/workspace/DaQueue/testData'
-        self.queueDir = getHomeDir()+QUEUEDIR
+        #self.startDir +='/workspace/DaQueue/testData'
+        #self.queueDir = getHomeDir()+QUEUEDIR
         ##################
 
         self.startDir = path.abspath(self.startDir)

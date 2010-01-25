@@ -26,7 +26,7 @@ from ui_workerGUI import Ui_MainWindow
 from extraWidgets import cellComboBox, cellOFD, cellStatus
 from time import strftime, localtime, sleep
 #strftime("%a, %d %b %Y %H:%M:%S +0000", localtime())
-from dbInterface import dbIO, sqliteIO
+from dbInterface import sqliteIO#, dbIO 
 import time
 
 from string import join
