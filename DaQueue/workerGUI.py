@@ -165,6 +165,8 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
                     self.curRow = self.getRowFromTaskID(jobID)
                     self.updateStatus(self.curRow, 1)#1 is Processing
                     self.updateDB(jobID, 'status', 'Processing')
+                    #prep thread
+                    #run thread
                 else:
                     print "JobID Empty"
                 #update database
@@ -984,8 +986,8 @@ class runThread(QtCore.QThread):
             '''
             Valid Process Types:
             XTandem
+            File Conversion
             '''
-
             self.P = parent
             self.processType = None
             self.inputFile = None

@@ -1,5 +1,6 @@
-#Fri Jan 08 21:49:59 GMT-08:00 2010
+#Mon Jan 25 09:56:32 PST 2010
 eclipse.preferences.version=1
 encoding/extraWidgets.py=UTF-8
 encoding/ui_mainwindow.py=UTF-8
 encoding/webClientGUI.py=UTF-8
+encoding/workerGUI.py=UTF-8
