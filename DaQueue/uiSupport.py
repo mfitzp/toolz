@@ -2,11 +2,16 @@
 
 import os
 
+DEBUG = True
+
 if os.sys.platform == 'win32':
     print "Win32"
     ROOTDIR = "C:\ChemBio"
     DBDIR = 'db'
-    WATCHDIR = 'Z:\ChemBio\Data'
+    if DEBUG:
+        WATCHDIR = 'C:\ChemBio\Data'
+    else:
+        WATCHDIR = 'Z:\ChemBio\Data'
 else:
     ROOTDIR = '/usr/local/PNL/ChemBio'
     DBDIR = 'db'
