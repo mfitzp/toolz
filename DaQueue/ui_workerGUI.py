@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/home/clowers/workspace/DaQueue/workerGUI.ui'
+# Form implementation generated from reading ui file 'C:\Documents and Settings\d3p483\workspace\DaQueue\workerGUI.ui'
 #
-# Created: Tue Jan 19 17:10:45 2010
-#      by: PyQt4 UI code generator 4.6
+# Created: Mon Jan 25 11:23:40 2010
+#      by: PyQt4 UI code generator 4.4.3
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -117,7 +117,7 @@ class Ui_MainWindow(object):
         self.portSB = QtGui.QSpinBox(self.tab_2)
         self.portSB.setEnabled(False)
         self.portSB.setMaximum(20000)
-        self.portSB.setProperty("value", 5984)
+        self.portSB.setProperty("value", QtCore.QVariant(5984))
         self.portSB.setObjectName("portSB")
         self.horizontalLayout_3.addWidget(self.portSB)
         self.resetServerBtn = QtGui.QPushButton(self.tab_2)
@@ -132,7 +132,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_4.addWidget(self.tabWidget)
         MainWindow.setCentralWidget(self.centralWidget)
         self.menuBar = QtGui.QMenuBar(MainWindow)
-        self.menuBar.setGeometry(QtCore.QRect(0, 0, 975, 25))
+        self.menuBar.setGeometry(QtCore.QRect(0, 0, 975, 21))
         self.menuBar.setObjectName("menuBar")
         self.menu_File = QtGui.QMenu(self.menuBar)
         self.menu_File.setObjectName("menu_File")

@@ -11,17 +11,9 @@ import sys
 from PyQt4 import QtGui, QtCore
 from dbInterface import sqliteIO
 
-#WATCHDB = 'watchList.db'
-QUEUEDB = 'labqueue.db'
-QUEUEDIR = '/workspace/DaQueue'
-QUEUETABLE = 'queueTable'
-WATCHTABLE = 'watchTable'
-CONFIGEXTENSION = '.cfgXML'#, '.db']
-
-#1SRef is a Bruker File Folder Structure that should be ignored
-EXCLUDE = ['.svn', '.db', '.cfgXML']
-INCLUDED = ['.RAW', '.mzXML', '1SRef']
-
+from uiSupport import QUEUEDB,QUEUEDIR,QUEUETABLE,WATCHTABLE,CONFIGEXTENSION,\
+                      EXCLUDE, INCLUDED, STATUSIDS, STATUSTYPES, JOBKEYS,\
+                      JOBTYPES, JOBDICT
 '''
 This module is designed to add rows to a sqlite database when a watch directory is altered.
 The sqlite db will then be polled by another threaded module to process the file
@@ -45,11 +37,12 @@ Modify database to catch when a file is deleted and adjust appropriately...
 Optimize...currently there are too many call to the database which I don't like.
 
 '''
-STATUSIDS = [0,1,2,3,4]
-STATUSTYPES = ['Queued', 'Processing', 'Finished', 'Failed', 'Waiting for User Action']
-
-JOBKEYS = [0,1,2,3,4]
-JOBTYPES = ['X!Tandem', 'File Conversion', 'Peak Picking', 'Polygraph', 'Unspecified']
+#STATUSIDS = [0,1,2,3,4]
+#STATUSTYPES = ['Queued', 'Processing', 'Finished', 'Failed', 'Waiting for User Action']
+#
+#JOBKEYS = [0,1,2,3,4,5,6]
+#JOBTYPES = ['X!Tandem', 'RAW File Conversion', 'Bruker File Conversion', 'Peak Picking', 'Polygraph', 'Unspecified', 'Ignored']
+#JOBDICT = {'X!Tandem':0, 'RAW File Conversion':1, 'Bruker File Conversion':2, 'Peak Picking':3, 'Polygraph':4, 'Unspecified':5, 'Ignored':6}
 
 class FileWatcher(QtGui.QWidget):
     def __init__(self, parent=None):
@@ -246,8 +239,8 @@ class FileWatcher(QtGui.QWidget):
         STATUSIDS = [0,1,2,3,4]
         STATUSTYPES = ['Queued', 'Processing', 'Finished', 'Failed', 'Waiting for User Action']
 
-        JOBKEYS = [0, 1, 2, 3, 4]
-        JOBTYPES = ['X!Tandem', 'File Conversion', 'Peak Picking', 'Polygraph', 'Unspecified']
+        JOBKEYS = [0,1,2,3,4,5]
+        JOBTYPES = ['X!Tandem', 'RAW File Conversion', 'Bruker File Conversion', 'Peak Picking', 'Polygraph', 'Unspecified']
         '''
         self.__resetLists__()
         if startDir:
@@ -286,8 +279,10 @@ class FileWatcher(QtGui.QWidget):
                                             self.statusIDs.append(STATUSIDS[0])
                                             #need to add a function to discern what kind of job is to be run
                                             #hard-coding to XTandem initially
-                                            self.outputFiles.append('None at this Time')
-                                            self.jobIDs.append(JOBKEYS[0])
+                                            print path.abspath(workingPath)
+                                            jobID, outputFile = self.getJobType(path.abspath(workingPath))
+                                            self.outputFiles.append(outputFile)
+                                            self.jobIDs.append(jobID)
                                             self.timeIDs.append(strftime("%a, %d %b %Y %H:%M:%S", localtime()))
                 #                            self.jobIDs.append(STATUSIDS[0])
     #                                else:
@@ -309,6 +304,39 @@ class FileWatcher(QtGui.QWidget):
     #                                    self.jobIDs.append(JOBKEYS[4])
     #                                    self.uuIDs.append(tempUUID)
 
+
+    def getJobType(self, filePath):
+        '''
+        Used to determine which job type should be queued...
+
+        JOBKEYS = [0,1,2,3,4,5,6]
+        JOBTYPES = ['X!Tandem', 'RAW File Conversion', 'Bruker File Conversion', 'Peak Picking', 'Polygraph', 'Unspecified', 'Ignored']
+        JOBDICT = {'X!Tandem':0, 'RAW File Conversion':1, 'Bruker File Conversion':2, 'Peak Picking':3, 'Polygraph':4, 'Unspecified':5, 'Ignored':6}
+        '''
+        self.fileTypeDict = {}
+        self.fileTypeDict['.RAW']='RAW File Conversion'
+        self.fileTypeDict['.raw']='RAW File Conversion'
+        self.fileTypeDict['1SRef']='Bruker File Conversion'
+        self.fileTypeDict['.mzXML']='Unspecified'
+        self.fileTypeDict['.mzxml']='Unspecified'
+        if os.path.isfile(filePath):
+            root, fileType = os.path.splitext(filePath)
+            if fileType != None:
+                if self.fileTypeDict.has_key(fileType):
+                    jobType = self.fileTypeDict[fileType]
+                    jobID = JOBDICT[jobType]
+                    if jobID is 1:
+                        outputFile = root+'.mzXML'
+                    else:
+                        outputFile = 'None'
+
+                    print jobID, outputFile
+                    return jobID, outputFile
+                else:
+                    jobType = 'Ignored'
+                    jobID = JOBDICT[jobType]
+                    outputFile = 'None'
+                    return jobID, outputFile
 
     def updateWatcher(self, useDefault = True):
         if useDefault:

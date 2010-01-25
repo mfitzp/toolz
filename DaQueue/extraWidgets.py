@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -
 from PyQt4 import QtCore, QtGui
 
-JOBKEYS = [0,1,2,3,4]
-JOBTYPES = ['X!Tandem', 'File Conversion', 'Peak Picking', 'Polygraph', 'Unspecified']
-
-STATUSIDS = [0,1,2,3,4]
-STATUSTYPES = ['Queued', 'Processing', 'Finished', 'Failed', 'Waiting for User Action']
+from uiSupport import JOBKEYS, JOBTYPES, STATUSIDS, STATUSTYPES
+#JOBKEYS = [0,1,2,3,4]
+#JOBTYPES = ['X!Tandem', 'File Conversion', 'Peak Picking', 'Polygraph', 'Unspecified']
+#
+#STATUSIDS = [0,1,2,3,4]
+#STATUSTYPES = ['Queued', 'Processing', 'Finished', 'Failed', 'Waiting for User Action']
 
 
 class cellComboBox(QtGui.QComboBox):
