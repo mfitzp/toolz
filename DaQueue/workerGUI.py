@@ -26,7 +26,7 @@ from ui_workerGUI import Ui_MainWindow
 from extraWidgets import cellComboBox, cellOFD, cellStatus
 from time import strftime, localtime, sleep
 #strftime("%a, %d %b %Y %H:%M:%S +0000", localtime())
-from dbInterface import sqliteIO#, dbIO 
+from dbInterface import sqliteIO#, dbIO
 import time
 
 from string import join
@@ -220,11 +220,14 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         are no more jobs to run
         '''
         print "Task Loop Called"
-        waitTime = 2
-#        waitTime = 5000
-#        QtCore.QTimer.singleShot(waitTime, self.getUnprocessedTask)
-        sleep(waitTime)
-        self.getUnprocessedTask()
+
+        waitTime = 2000
+        QtCore.QTimer.singleShot(waitTime, self.getUnprocessedTask)
+
+
+        #waitTime = 2
+        #sleep(waitTime)
+        #self.getUnprocessedTask()
 
 
     def taskTest(self, val = None):
@@ -306,7 +309,8 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
             #process retStr
             #update DB
             #add to log
-        self.getUnprocessedTask()
+        self.taskLoop()
+#        self.getUnprocessedTask()
 
     def getTaskType(self, row):
         curWidget = self.taskTable.cellWidget(row, 0)
@@ -400,8 +404,11 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         if self.thread.updateThread(inputDict):
             self.thread.start()
         else:
-            print "Update Thread Failed"
-            print inputDict
+            msg = "Update Thread Failed\n"
+            msg += str(inputDict)
+            print msg
+            #call taskFinished with failed error
+            self.taskFinished([1,msg])
 
     def submitQueue(self):
         '''

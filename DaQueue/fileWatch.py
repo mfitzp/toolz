@@ -13,7 +13,7 @@ from dbInterface import sqliteIO
 
 from uiSupport import QUEUEDB,QUEUEDIR,QUEUETABLE,WATCHTABLE,CONFIGEXTENSION,\
                       EXCLUDE, INCLUDED, STATUSIDS, STATUSTYPES, JOBKEYS,\
-                      JOBTYPES, JOBDICT, WATCHDIR
+                      JOBTYPES, JOBDICT, WATCHDIR, NETWORKSHARE
 '''
 This module is designed to add rows to a sqlite database when a watch directory is altered.
 The sqlite db will then be polled by another threaded module to process the file
@@ -128,13 +128,13 @@ class FileWatcher(QtGui.QWidget):
         print "CheckStable Called"
         stable = False
         curSize = os.path.getsize(targetFile)
-        time.sleep(1)
+        time.sleep(0.25)
 #        QtCore.QTimer.singleShot(2000, self.dummyFunc)
         nextSize = os.path.getsize(targetFile)
         #While Loop to check if the file is changing
         while (curSize != nextSize):
             curSize = os.path.getsize(targetFile)
-            time.sleep(1)
+            time.sleep(0.25)
 #            QtCore.QTimer.singleShot(2000, self.dummyFunc)
             nextSize = os.path.getsize(targetFile)
 
@@ -593,13 +593,13 @@ def getHomeDir():
 def run_main():
     app = QtGui.QApplication(sys.argv)
     fw = FileWatcher()
-    
+
     #fw.show()
-    
+
     #This is lame as win32 won't allow watches on Network Drives....
 	#This is sooo ghetto...
     sysType = os.sys.platform
-    if sysType == 'win32':
+    if sysType == 'win32' and NETWORKSHARE:
         try:
             while (True):
                 fw.updateWatcher(firstRun = False)

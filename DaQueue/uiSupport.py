@@ -2,7 +2,11 @@
 
 import os
 
-DEBUG = False
+DEBUG = True
+
+#Apparently M$ does not enable file watching via a network share
+#As a result in direct polling must be done on that path. Ugly but effective.
+NETWORKSHARE = False
 
 if os.sys.platform == 'win32':
     print "Win32"
