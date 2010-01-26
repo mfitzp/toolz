@@ -82,6 +82,7 @@ class FileWatcher(QtGui.QWidget):
     def pollWatcher(self):
         watcherDirs = self.watcher.directories()
         watcherFiles = self.watcher.files()
+        print "Poll Watcher"
         for dir in watcherDirs:
             print str(dir)
 
@@ -108,8 +109,8 @@ class FileWatcher(QtGui.QWidget):
             #SELECT THE QUEUED FILES
             self.qDB.cur.execute(("SELECT * FROM %s WHERE %s LIKE '%s'"%(QUEUETABLE, 'statusID', str(STATUSIDS[0]))))
             self.queryResult = self.qDB.GET_CURRENT_QUERY_AS_DICT()#GET_CURRENT_QUERY()
-            for row in self.queryResult:
-                print row
+            #for row in self.queryResult:
+            #    print row
 
     def dummyFunc(self):
         '''
@@ -338,15 +339,17 @@ class FileWatcher(QtGui.QWidget):
                     outputFile = 'None'
                     return jobID, outputFile
 
-    def updateWatcher(self, useDefault = True):
+    def updateWatcher(self, useDefault = True, firstRun = True):
         if useDefault:
-            self.watcher.addPath(self.startDir)
+            print os.path.isdir(self.startDir), self.startDir
+            self.watcher.addPath(QtCore.QString(os.path.abspath(self.startDir)))
         else:
             newDir = self.__getDataFolder__()
             if newDir != None:
+                print os.path.isdir(newDir), newDir
                 self.watcher.addPath(newDir)
-        self.updateDirs(self.startDir, firstRun = True)
-        self.updateFiles(self.startDir, firstRun = True)
+        self.updateDirs(self.startDir, firstRun = firstRun)
+        self.updateFiles(self.startDir, firstRun = firstRun)
         self.updateDB()
 
     def updateDB(self):
@@ -590,7 +593,19 @@ def getHomeDir():
 def run_main():
     app = QtGui.QApplication(sys.argv)
     fw = FileWatcher()
-    fw.show()
+    
+    #fw.show()
+    
+    #This is lame as win32 won't allow watches on Network Drives....
+	#This is sooo ghetto...
+    sysType = os.sys.platform
+    if sysType == 'win32':
+        try:
+            while (True):
+                fw.updateWatcher(firstRun = False)
+                time.sleep(10)  # wait 5 seconds before checking again
+        except KeyboardInterrupt:
+            sys.exit(app.exec_())
     sys.exit(app.exec_())
 
 

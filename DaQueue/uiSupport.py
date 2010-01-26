@@ -2,7 +2,7 @@
 
 import os
 
-DEBUG = True
+DEBUG = False
 
 if os.sys.platform == 'win32':
     print "Win32"
