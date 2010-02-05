@@ -182,7 +182,7 @@ def doFrag(curSeq):
 # ----
 
 
-def pepFrag(seq, X, Y, plotCanvas, annotation = None):
+def pepFrag(seq, X, Y, plotCanvas, annotation = None, plotSpec = True):
 
 #    w = MPL_Widget(enableAutoScale = False, doublePlot = True, enableEdit = True)
     ax1 = plotCanvas.ax
@@ -268,7 +268,8 @@ def pepFrag(seq, X, Y, plotCanvas, annotation = None):
             fragYVals[i] = Y[prevInd]
 
     #plot the lines for each spectrum before being matched
-    ax1.vlines(X, 0, Y, colors = 'k', alpha = 1.0)#0.6)
+    if plotSpec:
+        ax1.vlines(X, 0, Y, colors = 'k', alpha = 1.0)#0.6)
 
 
 
@@ -372,7 +373,7 @@ def mainA():
 
 def mainB():
     import numpy as N
-    import pylab as P
+#    import pylab as P
     import scipy as S
     import sys
     from PyQt4 import QtGui, QtCore
@@ -382,7 +383,7 @@ def mainB():
     #seq = 'ANTHRACISAMES'
     seq = 'ANTHRACISSTERNE'
     #X = P.load('amesPredicted.csv', delimiter = ',')
-    X = P.load('sternePredicted.csv', delimiter = ',')
+    X = N.loadtxt('sternePredicted.csv', delimiter = ',')
     Y = S.rand(len(X))
     Y*=10
     randInt = []
@@ -395,7 +396,7 @@ def mainB():
 #    X = N.array(X, dtype = N.float)#conver to array with dtype set or it will default to string types
 #    Y = N.array(Y, dtype = N.float)
 #    print type(X), type(Y)
-    pepFrag(seq, X, Y, w.canvas)
+    pepFrag(seq, X, Y, w.canvas, plotSpec = False)
     w.show()
     sys.exit(app.exec_())
 
