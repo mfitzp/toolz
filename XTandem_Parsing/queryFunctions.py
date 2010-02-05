@@ -47,8 +47,7 @@ def GET_UNIQUE_PROTEINS(tableName):
 
     return execStr
 
-
-def GET_UNIQUE_PEPTIDE_GROUP_SIMPLE(tblList):
+def GET_UNIQUE_PEP_PRO_GROUP(tblList):
     '''
     returns a query string to obtain the unique peptides across multiple tables
     SELECT
@@ -87,6 +86,45 @@ SELECT
     DISTINCT `pepID`,
     `proID` from T5
 ORDER BY `pepID`
+
+    '''
+    print tblList
+    colList = ['pepID']
+    primKey = 'pepID'
+    secondKey = 'proID'
+    execStr = ''
+    if len(tblList)>1:
+        for i in xrange(len(tblList)-1):
+            tbl = tblList[i]
+            execStr+='SELECT\n\t'
+            execStr+="`%s`, `%s` FROM %s\n\t"%(primKey, secondKey, tbl)
+            execStr+='INTERSECT\n'
+        tbl = tblList[-1]
+        execStr+='SELECT\n\t'
+        execStr+="`%s`, `%s` from %s\n"%(primKey, secondKey, tbl)
+        execStr+="ORDER BY `%s`"%primKey
+        return execStr
+    else:
+        return "Need more than 1 Table to compare"
+
+def GET_UNIQUE_PEPTIDE_GROUP_SIMPLE(tblList):
+    '''
+    returns a query string to obtain the unique peptides across multiple tables
+    SELECT
+        DISTINCT `pepID` from T1
+        INTERSECT
+    SELECT
+        DISTINCT `pepID` from T2
+        INTERSECT
+    SELECT
+        DISTINCT `pepID` from T3
+        INTERSECT
+    SELECT
+        DISTINCT `pepID` from T4
+        INTERSECT
+    SELECT
+        DISTINCT `pepID` from T5
+    ORDER BY `pepID`
 
     '''
     colList = ['pepID']
@@ -325,3 +363,6 @@ if __name__ == "__main__":
     ans = GET_UNIQUE_PEPTIDE_GROUP_SIMPLE(tblList)
     print ans
     print '5'
+    ans = GET_UNIQUE_PEP_PRO_GROUP(tblList)
+    print ans
+    print '6'

@@ -797,9 +797,10 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                 curVal = self.curSelectInfo[str(curItem.text())]
                 curTbl = self.curTbl
                 if saveTable:
-                    tblName, result, colNames = self.curDB.GET_VALUE_BY_TYPE(curTbl, curType, curVal, savePrompt = True)
+                    tblName, result, colNames, execStr = self.curDB.GET_VALUE_BY_TYPE(curTbl, curType, curVal, savePrompt = True)
 
                     if len(result)>0 and tblName != None:
+                        self.sqlQueryString.setText(execStr)
                         curResults = XT_RESULTS(parseFile = False)
                         self.curDB.READ_CUSTOM_VALUES(tblName, curResults)
                         self.activeDict[tblName] = curResults
@@ -807,7 +808,7 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
 
                 else:
-                    tblName, result, colNames = self.curDB.GET_VALUE_BY_TYPE(curTbl, curType, curVal)
+                    tblName, result, colNames, execStr = self.curDB.GET_VALUE_BY_TYPE(curTbl, curType, curVal)
                 if result == False:
                     print "User aborted query"
                 else:
@@ -819,6 +820,7 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                     colHeaders = self.curDB.LIST_COLUMNS(curTbl)
                     self.openTableList.append(DBTable(result, colHeaders, enableSort = True, title = tempTitle))
                     self.curDBTable = self.openTableList[-1]#append adds to the end of the list so adding the most recent addition
+                    self.sqlQueryString.setText(execStr)
 
             except:
                 errorMsg = "Sorry: %s\n\n:%s\n"%(sys.exc_type, sys.exc_value)
@@ -843,7 +845,7 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                     if ok:
                         queryValue = str(queryValue)
                         if len(queryValue) != 0:#make sure the user didn't leave the prompt blank
-                            tempName, result, colNames = self.curDB.GET_VALUE_BY_TYPE(curTbl,  curField,  queryValue)
+                            tempName, result, colNames, execStr = self.curDB.GET_VALUE_BY_TYPE(curTbl,  curField,  queryValue)
                             tempTitle = curTbl+', '+curField+', '+queryValue
 
             elif self.keyTypeMap[curField] == int:
@@ -853,13 +855,13 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 #                    print self.loVal, self.hiVal
                     self.loVal = int(self.loVal)
                     self.hiVal = int(self.hiVal)
-                    result, colNames = self.curDB.GET_VALUE_BY_RANGE(curTbl, curField, self.loVal, self.hiVal)
+                    result, colNames, execStr = self.curDB.GET_VALUE_BY_RANGE(curTbl, curField, self.loVal, self.hiVal)
                     tempTitle = curTbl+', '+curField+', '+str(self.loVal)+' to '+str(self.hiVal)
 
             elif self.keyTypeMap[curField] == float:
                 if RD(self.loVal, self.hiVal, parent = self).exec_():
 #                    print self.loVal, self.hiVal
-                    result, colNames = self.curDB.GET_VALUE_BY_RANGE(curTbl, curField, self.loVal, self.hiVal)
+                    result, colNames, execStr = self.curDB.GET_VALUE_BY_RANGE(curTbl, curField, self.loVal, self.hiVal)
                     tempTitle = curTbl+', '+curField+', '+str(self.loVal)+' to '+str(self.hiVal)
 
 #            if len(result) == 0:
@@ -870,6 +872,7 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             QtCore.QObject.connect(curTableWin,QtCore.SIGNAL("itemSelected(PyQt_PyObject)"), self.tableSelChanged)
             self.openTableList.append(curTableWin)
             self.curDBTable = self.openTableList[-1]#append adds to the end of the list so adding the most recent addition
+            self.sqlQueryString.setText(execStr)
 #            QtCore.QObject.connect(self.curDBTable, QtCore.SIGNAL("itemSelected(PyQt_PyObject)"), self.tableSelChange)
 
     def queryFieldContext(self, point):
@@ -898,10 +901,12 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         queryList_menu = QtGui.QMenu("Menu", self.queryTblList)
         queryList_menu.addAction(self.showTableAction)
         queryList_menu.addSeparator()
-        queryList_menu.addAction(self.uniqePeptidesAction)
-        queryList_menu.addAction(self.uniqeProteinsAction)
-        queryList_menu.addAction(self.uniqePepByProtAction)
-        queryList_menu.addAction(self.uniqeMultiPepAction)
+        queryList_menu.addAction(self.uniquePeptidesAction)
+        queryList_menu.addAction(self.uniqueProteinsAction)
+        queryList_menu.addAction(self.uniquePepByProtAction)
+        queryList_menu.addSeparator()
+        queryList_menu.addAction(self.uniqueMultiPepAction)
+        queryList_menu.addAction(self.uniquePepProAction)
         queryList_menu.addSeparator()
         queryList_menu.addAction(self.dumpTableAction)#this is a save function
         queryList_menu.addSeparator()
@@ -1044,6 +1049,25 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 #                    errorMsg+='\n There was an error executing the SQL Query.'
 #                    return QtGui.QMessageBox.information(self,'SQL Execute Error', errorMsg)
 
+    def UNIQUE_PEP_PRO(self):
+
+        tblList = []
+        for i in xrange(self.queryTblList.count()):
+            curItem = self.queryTblList.item(i)
+            if curItem.checkState() == 2:# QtCore.Qt.Checked:
+                tblList.append(str(curItem.text()))
+        if len(tblList)>1:
+            if self.dbStatus:
+                self.sqlQueryString.clear()
+#                queryStr = QF.GET_UNIQUE_PEPTIDE_GROUP(tblList)
+                queryStr = QF.GET_UNIQUE_PEP_PRO_GROUP(tblList)
+                self.sqlQueryString.setText(queryStr)
+#                self.viewQueryResults()
+        elif len(tblList) == 1:#need to just show for a single table....
+            curTbl = tblList[0]
+            queryStr = QF.GET_UNIQUE_PEPTIDES_BY_PROTEIN(curTbl)
+            self.sqlQueryString.setText(queryStr)
+#            self.viewQueryResults()
 
     def UNIQUE_PROTEINS(self):
         curItem = self.queryTblList.currentItem()
@@ -1159,21 +1183,25 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         QtCore.QObject.connect(self.queryByTypeAction,QtCore.SIGNAL("triggered()"), self.queryByType)
 
         '''Peptide and Protein Query slots'''
-        self.uniqePeptidesAction = QtGui.QAction("Get Unique Peptides", self)
-        self.queryTblList.addAction(self.uniqePeptidesAction)
-        QtCore.QObject.connect(self.uniqePeptidesAction, QtCore.SIGNAL("triggered()"), self.UNIQUE_PEPTIDES)
+        self.uniquePeptidesAction = QtGui.QAction("Get Unique Peptides", self)
+        self.queryTblList.addAction(self.uniquePeptidesAction)
+        QtCore.QObject.connect(self.uniquePeptidesAction, QtCore.SIGNAL("triggered()"), self.UNIQUE_PEPTIDES)
 
-        self.uniqeProteinsAction = QtGui.QAction("Get Unique Proteins", self)
-        self.queryTblList.addAction(self.uniqeProteinsAction)
-        QtCore.QObject.connect(self.uniqeProteinsAction, QtCore.SIGNAL("triggered()"), self.UNIQUE_PROTEINS)
+        self.uniqueProteinsAction = QtGui.QAction("Get Unique Proteins", self)
+        self.queryTblList.addAction(self.uniqueProteinsAction)
+        QtCore.QObject.connect(self.uniqueProteinsAction, QtCore.SIGNAL("triggered()"), self.UNIQUE_PROTEINS)
 
-        self.uniqePepByProtAction = QtGui.QAction("Get Unique Peptides by Protein", self)
-        self.queryTblList.addAction(self.uniqePepByProtAction)
-        QtCore.QObject.connect(self.uniqePepByProtAction, QtCore.SIGNAL("triggered()"), self.GROUP_UNIQUE_PEPTIDES_BY_PROTEIN)
+        self.uniquePepProAction = QtGui.QAction("Get Unique Proteins and Peptides Across Tables", self)
+        self.queryTblList.addAction(self.uniquePepProAction)
+        QtCore.QObject.connect(self.uniquePepProAction, QtCore.SIGNAL("triggered()"), self.UNIQUE_PEP_PRO)
 
-        self.uniqeMultiPepAction = QtGui.QAction("Group Unique Peptides Across Tables", self)
-        self.queryTblList.addAction(self.uniqeMultiPepAction)
-        QtCore.QObject.connect(self.uniqeMultiPepAction, QtCore.SIGNAL("triggered()"), self.MULTI_UNIQUE_PEPTIDE_GROUP)
+        self.uniquePepByProtAction = QtGui.QAction("Get Unique Peptides by Protein", self)
+        self.queryTblList.addAction(self.uniquePepByProtAction)
+        QtCore.QObject.connect(self.uniquePepByProtAction, QtCore.SIGNAL("triggered()"), self.GROUP_UNIQUE_PEPTIDES_BY_PROTEIN)
+
+        self.uniqueMultiPepAction = QtGui.QAction("Group Unique Peptides Across Tables", self)
+        self.queryTblList.addAction(self.uniqueMultiPepAction)
+        QtCore.QObject.connect(self.uniqueMultiPepAction, QtCore.SIGNAL("triggered()"), self.MULTI_UNIQUE_PEPTIDE_GROUP)
 
 
         '''Database Connection slots'''

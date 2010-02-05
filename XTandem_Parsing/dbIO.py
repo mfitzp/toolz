@@ -183,8 +183,7 @@ class XT_DB(object):#X!Tandem Database Class
                     msg = self.errorMsg + '\nSave Error'
                     error = QtGui.QMessageBox.warning(self.parent, "CSV Table Save Error!",  msg)
 
-
-    def LIST_COLUMNS(self,  tableName):
+    def LIST_COLUMNS(self, tableName):
         self.colList = []
         self.cur.execute('PRAGMA TABLE_INFO(%s)'%tableName)
         for row in self.cur.fetchall():
@@ -300,26 +299,27 @@ class XT_DB(object):#X!Tandem Database Class
                     if reply == QtGui.QMessageBox.Yes:
                         self.DROP_TABLE(newTableName)
                     else:
-                        return None, []#this will be captured by the len condition on the receiving end...
+                        return None, [], None, None#this will be captured by the len condition on the receiving end...
 
-
+                execStr = "CREATE TABLE %s AS SELECT * FROM %s WHERE %s LIKE '%s'"%(newTableName, tableName, fieldType, fieldValue)
                 self.cur.execute("CREATE TABLE %s AS SELECT * FROM %s WHERE %s LIKE '%s'"%(newTableName, tableName, fieldType, fieldValue))
                 self.cur.execute("SELECT * FROM %s"%(newTableName))
                 #print "CREATE TABLE %s AS SELECT * FROM %s WHERE %s LIKE '%s'"%(newTableName, tableName, fieldType, fieldValue)
                 result = self.GET_CURRENT_QUERY()
                 print 'The table named: "%s" created in current database.'%newTableName
                 colNames = self.GET_COLUMN_NAMES()
-                return newTableName, result, colNames
+                return newTableName, result, colNames, execStr
             else:#this is the case if the user cancels the input of the new table
-                return None, []
+                return None, [], None, None
 
         else:
             '''Simply returns the selected query but does not save it to the database'''
+            execStr = "SELECT * FROM %s WHERE %s LIKE '%s'"%(tableName, fieldType, fieldValue)
             self.cur.execute("SELECT * FROM %s WHERE %s LIKE '%s'"%(tableName, fieldType, fieldValue))
             print "SELECT * FROM %s WHERE %s LIKE '%s'"%(tableName, fieldType, fieldValue)
             result = self.GET_CURRENT_QUERY()
             colNames = self.GET_COLUMN_NAMES()
-            return None, result, colNames
+            return None, result, colNames, execStr
 
     def GET_VALUE_BY_RANGE(self, tableName, fieldType, loVal, hiVal, savePrompt = False):
         if savePrompt:
@@ -334,27 +334,28 @@ class XT_DB(object):#X!Tandem Database Class
                     if reply == QtGui.QMessageBox.Yes:
                         self.DROP_TABLE(newTableName)
                     else:
-                        return False#this will be captured by the len condition on the receiving end...
+                        return False, None, None#this will be captured by the len condition on the receiving end...
 
-
+                execStr = "CREATE TABLE %s AS SELECT * FROM %s WHERE %s > %s AND %s < %s"%(newTableName, tableName, fieldType, str(loVal), fieldType, str(hiVal))
                 self.cur.execute("CREATE TABLE %s AS SELECT * FROM %s WHERE %s > %s AND %s < %s"%(newTableName, tableName, fieldType, str(loVal), fieldType, str(hiVal)))
                 self.cur.execute("SELECT * FROM %s"%(newTableName))
                 #print "CREATE TABLE %s AS SELECT * FROM %s WHERE %s LIKE '%s'"%(newTableName, tableName, fieldType, fieldValue)
                 result = self.GET_CURRENT_QUERY()
                 colNames = self.GET_COLUMN_NAMES()
                 print 'The table named: "%s" created in current database.'%newTableName
-                return result, colNames
+                return result, colNames, execStr
 
             else:#this is the case if the user cancels the input of the new table
-                return False
+                return False, None, None
 
         else:
             '''Simply returns the selected query but does not save it to the database'''
+            execStr = "SELECT * FROM %s WHERE %s > %s AND %s < %s"%(tableName, fieldType, str(loVal), fieldType, str(hiVal))
             self.cur.execute("SELECT * FROM %s WHERE %s > %s AND %s < %s"%(tableName, fieldType, str(loVal), fieldType, str(hiVal)))
             print "SELECT * FROM %s WHERE %s > %s AND %s < %s"%(tableName, fieldType, str(loVal), fieldType, str(hiVal))
             result = self.GET_CURRENT_QUERY()
             colNames = self.GET_COLUMN_NAMES()
-            return result, colNames
+            return result, colNames, execStr
 
     def GET_COLUMN_NAMES(self):
         colNames = [tuple[0] for tuple in self.cur.description]
