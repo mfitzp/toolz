@@ -1,0 +1,60 @@
+CREATE TEMP TABLE
+'PepList' AS
+SELECT
+	`pepID` FROM T2
+	INTERSECT
+SELECT
+	`pepID` FROM T3
+	INTERSECT
+SELECT
+	`pepID` from T1
+ORDER BY `pepID`
+
+
+##########################
+
+SELECT DISTINCT
+	T1.pepID,
+	AVG(T1.ppm_error) AS AVG_T1_ppm_error,
+	AVG(T1.pep_eVal) AS AVG_T1_pep_eVal,
+	MIN(T1.pep_eVal) AS MIN_T1_pep_eVal,
+	T2.pepID,
+	AVG(T2.ppm_error) AS AVG_T2_ppm_error,
+	AVG(T2.pep_eVal) AS AVG_T2_pep_eVal,
+	MIN(T2.pep_eVal) AS MIN_T2_pep_eVal,
+	T3.pepID,
+	AVG(T3.ppm_error) AS AVG_T3_ppm_error,
+	AVG(T3.pep_eVal) AS AVG_T3_pep_eVal,
+	MIN(T3.pep_eVal) AS MIN_T3_pep_eVal,
+	COUNT(T3.pepID) AS pepIDCount,
+	T3.proID
+FROM
+	T1
+	INNER JOIN T2 ON (T1.pepID=T2.pepID)
+	INNER JOIN T3 ON (T2.pepID=T3.pepID)
+GROUP BY
+	T1.pepID,
+	T1.proID
+
+#################################
+SELECT DISTINCT
+	T1.pepID,
+	AVG(T1.ppm_error) AS AVG_T1_ppm_error,
+	AVG(T1.pep_eVal) AS AVG_T1_pep_eVal,
+	COUNT(T1.pepID) AS pepIDCount,
+	T1.proID
+FROM
+	 T1 WHERE T1.pepID IN PepList
+GROUP BY
+	T1.pepID
+
+SELECT DISTINCT
+	T2.pepID,
+	AVG(T2.ppm_error) AS AVG_T2_ppm_error,
+	AVG(T2.pep_eVal) AS AVG_T2_pep_eVal,
+	COUNT(T2.pepID) AS pepIDCount,
+	T2.proID
+FROM
+	 T2 WHERE T2.pepID IN PepList
+GROUP BY
+	T2.pepID
