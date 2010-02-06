@@ -355,11 +355,11 @@ if __name__ == "__main__":
     print ans
     print '3'
     print '\n'
-    tblList = ['T1', 'T2', 'T3', 'T4', 'T5']
+    tblList = ['T1', 'T2', 'T3']
     ans = GET_UNIQUE_PEPTIDE_GROUP(tblList)
     print ans
     print '4'
-    tblList = ['T1', 'T2', 'T3', 'T4', 'T5']
+    tblList = ['T1', 'T2', 'T3']
     ans = GET_UNIQUE_PEPTIDE_GROUP_SIMPLE(tblList)
     print ans
     print '5'
