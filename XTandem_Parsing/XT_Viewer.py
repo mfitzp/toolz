@@ -1056,14 +1056,22 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 #                    errorMsg+='\n There was an error executing the SQL Query.'
 #                    return QtGui.QMessageBox.information(self,'SQL Execute Error', errorMsg)
 
-    def parseCombined(self, combinedResults):
+    def parseCombined(self, combinedResults, headerList = None, tblNames = None):
         '''
         Parses and formats the combined results from UNIQUE_PEP_PRO_FULL
         '''
-        for result in combinedResults:
-            print "\n\nNEXT TABLE"
+        newResults = []
+        print "Col Names ", headerList
+        for i,result in enumerate(combinedResults):
+            curTable = tblNames[i]
+            newResults.append([curTable])
+            print "\n\n%s"%curTable
             for row in result:
                 print row
+                newResults.append(row)
+        tblTitle = 'Cross Table Peptide Stats'
+        self.openTableList.append(DBTable(newResults, enableSort = False, title = tblTitle, colHeaderList = headerList))
+        self.curDBTable = self.openTableList[-1]#append adds to the end of the list so adding the most recent addition
 
     def UNIQUE_PEP_PRO_FULL(self):
         '''
@@ -1085,6 +1093,11 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                 #future searches for each
                 ANS = self.curDB.EXEC_QUERY_W_NEW_TABLE(queryStr, newTableName = cmnTableName, overWrite = True)
                 newTableName, result, colNames = ANS
+                ##FIX THIS?????
+                self.activeDict[newTableName] = result
+                self.__resetDB__()
+                ##
+
                 if len(result) == 0:
                     #Terminate call if an empty string is returned
                     self.sqlErrorMessage.setText('No Error, but an empty result was returned')
@@ -1094,6 +1107,7 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                     queryStr = QF.GET_COMMON_WITH_STATS(tblName, cmnTableName)
                     self.curDB.cur.execute(queryStr)
                     result = self.curDB.GET_CURRENT_QUERY()
+                    colNames = self.curDB.GET_COLUMN_NAMES()
                     if len(result) == 0:
                         #Terminate call if an empty string is returned
                         self.sqlErrorMessage.setText('No Error, but an empty result was returned')
@@ -1101,7 +1115,7 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                     else:
                         combinedResults.append(result)
 
-                self.parseCombined(combinedResults)
+                self.parseCombined(combinedResults, headerList = colNames, tblNames = tblList)
 
 
 #                self.viewQueryResults()
