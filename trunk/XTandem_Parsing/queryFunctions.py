@@ -107,6 +107,81 @@ ORDER BY `pepID`
     else:
         return "Need more than 1 Table to compare"
 
+
+def GET_COMMON_WITH_STATS(tblName, commonTable):
+    '''
+    SELECT DISTINCT
+        T1.pepID,
+        AVG(T1.ppm_error) AS AVG_T1_ppm_error,
+        AVG(T1.pep_eVal) AS AVG_T1_pep_eVal,
+        MIN(T1.pep_eVal) AS MIN_T1_pep_eVal,
+        COUNT(T1.pepID) AS pepIDCount,
+        T1.proID
+    FROM
+        T1 WHERE T1.pepID IN _CommonList
+    GROUP BY
+        T1.pepID
+    '''
+    selStr = 'SELECT DISTINCT\n\t'
+    colList = ['pepID', 'ppm_error', 'pep_eVal', 'pep_eVal']
+    primKey = 'pepID'
+    endKey = 'proID'
+    operatorList = [None, 'AVG', 'AVG', 'MIN']
+    nameSep = '_'
+    colSep = '.'
+    groupStr = 'GROUP BY\n\t'
+
+    fromStr = 'FROM\n\t'
+    querySep = ',\n\t'
+    retStr = '\n\t'
+
+    for i,op in enumerate(operatorList):
+        tempCol = tblName+colSep+colList[i]
+        if op == None:
+            selStr+=tempCol
+        else:
+            tempStr = op+'('+tempCol+')'
+            tempStr+= ' AS '+op+'_'+tblName+'_'+colList[i]
+            selStr+=tempStr
+
+        selStr+=querySep
+
+    selStr+='COUNT('+tblName+colSep+primKey+')'
+    selStr+=' AS '+primKey+'Count'
+    selStr+=querySep
+    selStr+=tblName+colSep+endKey+'\n'
+#        selStr = selStr[:-2]#remove last comma
+    selStr += fromStr
+    selStr += tblName + ' WHERE '
+    selStr += tblName+colSep+primKey+' IN '+commonTable
+    selStr += '\n'
+#    i=0
+#    for i,tbl in enumerate(tblList):
+#        if i == 0:
+#            selStr+=tbl
+#        elif i < len(tblList):
+#            selStr+=joinMainStr
+#            selStr+=tbl
+#            selStr+=onStr
+#            selStr+='('
+#            selStr+=tblList[i-1]+colSep+primKey
+#            selStr+='='
+#            selStr+=tbl+colSep+primKey
+#            selStr+=')'
+#        if i<len(tblList)-1:
+#            selStr+=retStr
+#        else:
+#            selStr+='\n'
+
+    selStr+=groupStr
+    selStr+=tblName
+    selStr+=colSep+primKey
+#    selStr+=tblList[0]
+#    selStr+=colSep+endKey
+
+    execStr = selStr
+    return execStr
+
 def GET_UNIQUE_PEPTIDE_GROUP_SIMPLE(tblList):
     '''
     returns a query string to obtain the unique peptides across multiple tables
@@ -144,72 +219,10 @@ def GET_UNIQUE_PEPTIDE_GROUP_SIMPLE(tblList):
     else:
         return "Need more than 1 Table to compare"
 
-#
-#        selStr = 'SELECT DISTINCT\n\t'
-#        colList = ['pepID']
-#        primKey = 'pepID'
-#        endKey = 'proID'
-#        operatorList = [None]
-#        nameSep = '_'
-#        colSep = '.'
-#        groupStr = 'GROUP BY\n\t'
-#
-#        joinStr = ''
-#        joinMainStr = 'INNER JOIN '
-#        fromStr = 'FROM\n\t'
-#        onStr = ' ON '
-#        andStr = ' AND '
-#        querySep = ',\n\t'
-#        retStr = '\n\t'
-#
-#        for j,tbl in enumerate(tblList):
-#            for i,op in enumerate(operatorList):
-#                tempCol = tbl+colSep+colList[i]
-#                if op == None:
-#                    selStr+=tempCol
-#                else:
-#                    tempStr = op+'('+tempCol+')'
-#                    tempStr+= ' AS '+op+'_'+tbl+'_'+colList[i]
-#                    selStr+=tempStr
-#
-#                selStr+=querySep
-#
-#        selStr+='COUNT('+tbl+colSep+primKey+')'
-#        selStr+=' AS '+primKey+'Count'
-#        selStr+=querySep
-#        selStr+=tbl+colSep+endKey+'\n'
-#        selStr = selStr[:-2]#remove last comma
-#        selStr += fromStr
-#        i=0
-#        for i,tbl in enumerate(tblList):
-#            if i == 0:
-#                selStr+=tbl
-#            elif i < len(tblList):
-#                selStr+=joinMainStr
-#                selStr+=tbl
-#                selStr+=onStr
-#                selStr+='('
-#                selStr+=tblList[i-1]+colSep+primKey
-#                selStr+='='
-#                selStr+=tbl+colSep+primKey
-#                selStr+=')'
-#            if i<len(tblList)-1:
-#                selStr+=retStr
-#            else:
-#                selStr+='\n'
-#
-#        selStr+=groupStr
-#        selStr+=tblList[0]
-#        selStr+=colSep+primKey+querySep
-#        selStr+=tblList[0]
-#        selStr+=colSep+endKey
-#
-#        execStr = selStr
-#        return execStr
-
 def GET_UNIQUE_PEPTIDE_GROUP(tblList):
     '''
-    returns a query string to obtain the unique peptides across multiple tables
+    returns a query string to obtain the unique
+    peptides across multiple tables
     '''
 
     if len(tblList)>0:
@@ -274,7 +287,6 @@ def GET_UNIQUE_PEPTIDE_GROUP(tblList):
 
         execStr = selStr
         return execStr
-
 
 def GET_UNIQUE_PEPTIDES_BY_PROTEIN(tableName):
     '''
@@ -366,3 +378,8 @@ if __name__ == "__main__":
     ans = GET_UNIQUE_PEP_PRO_GROUP(tblList)
     print ans
     print '6'
+    ans = GET_COMMON_WITH_STATS('T1', '_CommonList')
+    print ans
+    print '7'
+
+
