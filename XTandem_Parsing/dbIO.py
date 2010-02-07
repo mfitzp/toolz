@@ -250,10 +250,22 @@ class XT_DB(object):#X!Tandem Database Class
                 result.append(rowList)
             return result
 
-    def EXEC_QUERY_W_NEW_TABLE(self, queryStr):
-        '''Saves query to the database--only if the user commits to the database upon close of the application'''
-        newTableName, ok = QtGui.QInputDialog.getText(self.parent, 'Create New Database Table',\
-                                        'Enter New Table Name: ', QtGui.QLineEdit.Normal, 'newTable')
+    def EXEC_QUERY_W_NEW_TABLE(self, queryStr, newTableName = None, overWrite = False):
+        '''
+        Saves query to the database
+        only if the user commits to the database upon
+        close of the application
+        '''
+        if newTableName == None:
+            newTableName, ok = QtGui.QInputDialog.getText(self.parent, 'Create New Database Table',\
+                                            'Enter New Table Name: ', QtGui.QLineEdit.Normal, 'newTable')
+        else:
+            if overWrite:
+                #need to drop table to make sure there is no conflicts
+                self.DROP_TABLE(newTableName)
+
+            ok = True
+
         if ok:
             execStr = "CREATE TABLE %s AS "%str(newTableName)
             execStr += queryStr
@@ -284,6 +296,8 @@ class XT_DB(object):#X!Tandem Database Class
         if len(result)>0:
             colNames = self.GET_COLUMN_NAMES()
             return newTableName, result, colNames
+        else:
+            return None, [], None
 
 
     def GET_VALUE_BY_TYPE(self, tableName, fieldType, fieldValue, savePrompt = False):

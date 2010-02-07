@@ -158,10 +158,12 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.__setupPlot__()
 
     def __testFunc__(self):
+        print "TEST FUNCTION CALLED"
+        self.UNIQUE_PEP_PRO_FULL()
 
-        if RD(self.loVal, self.hiVal, parent = self).exec_():
-            print self.loVal, self.hiVal
-            print "Ok"
+#        if RD(self.loVal, self.hiVal, parent = self).exec_():
+#            print self.loVal, self.hiVal
+#            print "Ok"
 #        else:
 #            print self.loVal, self.hiVal
 #            print "Cancel"
@@ -291,6 +293,8 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                             tempTitle = queryStr
                         self.openTableList.append(DBTable(result, enableSort = True, title = tempTitle, colHeaderList = colNames))
                         self.curDBTable = self.openTableList[-1]#append adds to the end of the list so adding the most recent addition
+                    else:
+                        self.sqlErrorMessage.setText('No Error, but query returned no results')
                 except:
                     self.sqlErrorMessage.setText(str(sys.exc_value))
 #                    errorMsg = "Error: %s\n\n%s\n"%(sys.exc_type, sys.exc_value)
@@ -1021,11 +1025,15 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                     self.curDBTable = self.openTableList[-1]#append adds to the end of the list so adding the most recent addition
 
     def commitFullQuery(self):
+        '''
+        Writes the result of the current query to the database
+        '''
         if self.dbStatus:
             queryStr = str(self.sqlQueryString.toPlainText())
             if queryStr != None:
                 try:
                     newTableName, result, colNames = self.curDB.EXEC_QUERY_W_NEW_TABLE(queryStr)
+                    #EXEC_QUERY_W_NEW_TABLE asks for a table name unless it is give
                     self.sqlErrorMessage.setText('No Error')
                     print len(result)
                     if len(result) > 0 and newTableName != None:
@@ -1042,15 +1050,68 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                         self.activeDict[newTableName] = curResults
                         self.__resetDB__()
 
-
                 except:
                     self.sqlErrorMessage.setText(str(sys.exc_value))
 #                    errorMsg = "Error: %s\n\n%s\n"%(sys.exc_type, sys.exc_value)
 #                    errorMsg+='\n There was an error executing the SQL Query.'
 #                    return QtGui.QMessageBox.information(self,'SQL Execute Error', errorMsg)
 
-    def UNIQUE_PEP_PRO(self):
+    def parseCombined(self, combinedResults):
+        '''
+        Parses and formats the combined results from UNIQUE_PEP_PRO_FULL
+        '''
+        for result in combinedResults:
+            print "\n\nNEXT TABLE"
+            for row in result:
+                print row
 
+    def UNIQUE_PEP_PRO_FULL(self):
+        '''
+        The idea here is to get a full on list of peptides
+        across tables along with the status associated with each
+        '''
+        cmnTableName = '_CommonList'
+        tblList = []
+        for i in xrange(self.queryTblList.count()):
+            curItem = self.queryTblList.item(i)
+            if curItem.checkState() == 2:# Item is selected: QtCore.Qt.Checked
+                tblList.append(str(curItem.text()))
+        if len(tblList)>1:
+            if self.dbStatus:
+                self.sqlQueryString.clear()
+                queryStr = QF.GET_UNIQUE_PEPTIDE_GROUP_SIMPLE(tblList)
+                self.sqlQueryString.setText(queryStr)
+                #commit _CommonList to database and use this for
+                #future searches for each
+                ANS = self.curDB.EXEC_QUERY_W_NEW_TABLE(queryStr, newTableName = cmnTableName, overWrite = True)
+                newTableName, result, colNames = ANS
+                if len(result) == 0:
+                    #Terminate call if an empty string is returned
+                    self.sqlErrorMessage.setText('No Error, but an empty result was returned')
+                    return False
+                combinedResults = []#used to hold combined stats for each table
+                for tblName in tblList:
+                    queryStr = QF.GET_COMMON_WITH_STATS(tblName, cmnTableName)
+                    self.curDB.cur.execute(queryStr)
+                    result = self.curDB.GET_CURRENT_QUERY()
+                    if len(result) == 0:
+                        #Terminate call if an empty string is returned
+                        self.sqlErrorMessage.setText('No Error, but an empty result was returned')
+                        return False
+                    else:
+                        combinedResults.append(result)
+
+                self.parseCombined(combinedResults)
+
+
+#                self.viewQueryResults()
+        elif len(tblList) == 1:#need to just show for a single table....
+            curTbl = tblList[0]
+            queryStr = QF.GET_UNIQUE_PEPTIDES_BY_PROTEIN(curTbl)
+            self.sqlQueryString.setText(queryStr)
+#            self.viewQueryResults()
+
+    def UNIQUE_PEP_PRO(self):
         tblList = []
         for i in xrange(self.queryTblList.count()):
             curItem = self.queryTblList.item(i)
@@ -1059,7 +1120,6 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         if len(tblList)>1:
             if self.dbStatus:
                 self.sqlQueryString.clear()
-#                queryStr = QF.GET_UNIQUE_PEPTIDE_GROUP(tblList)
                 queryStr = QF.GET_UNIQUE_PEP_PRO_GROUP(tblList)
                 self.sqlQueryString.setText(queryStr)
 #                self.viewQueryResults()
@@ -1221,7 +1281,7 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         QtCore.QObject.connect(self.actionHints,QtCore.SIGNAL("triggered()"),self.__showHints__)
         QtCore.QObject.connect(self.action_Exit,QtCore.SIGNAL("triggered()"),self.__exitProgram__)
 
-#        QtCore.QObject.connect(self.actionTools, QtCore.SIGNAL("triggered()"),self.__testFunc__)
+        QtCore.QObject.connect(self.actionTools, QtCore.SIGNAL("triggered()"),self.__testFunc__)
         #QtCore.QObject.connect(self.MainWindow,QtCore.SIGNAL("close()"),self.__exitProgram__)
 
 
