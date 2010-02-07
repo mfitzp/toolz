@@ -149,7 +149,7 @@ def GET_COMMON_WITH_STATS(tblName, commonTable):
     selStr+='COUNT('+tblName+colSep+primKey+')'
     selStr+=' AS '+primKey+'Count'
     selStr+=querySep
-    selStr+=tblName+colSep+endKey+'\n'
+    selStr+=tblName+colSep+endKey+' AS proID\n'
 #        selStr = selStr[:-2]#remove last comma
     selStr += fromStr
     selStr += tblName + ' WHERE '

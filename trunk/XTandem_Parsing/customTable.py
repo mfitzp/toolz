@@ -47,7 +47,10 @@ class DBTable(QWidget):
         self.resize(900, 400)
         self.tableWidget = CustomTable(self)
         self.numRows = 5
-        self.numCols = 5
+        if colHeaderList != None:
+            self.numCols = len(colHeaderList)
+        else:
+            self.numCols = 5
         self.tableWidget.setRowCount(self.numRows)
         self.tableWidget.setColumnCount(self.numCols)
         self.sortOk = enableSort
