@@ -1069,7 +1069,7 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             newResults.append([curTable])
             print "\n\n%s"%curTable
             for row in result:
-                print row
+                #print row
                 newResults.append(row)
         tblTitle = 'Cross Table Peptide Stats'
         self.openTableList.append(DBTable(newResults, enableSort = False, title = tblTitle, colHeaderList = headerList))
