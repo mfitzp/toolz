@@ -123,10 +123,10 @@ def GET_COMMON_WITH_STATS(tblName, commonTable):
         T1.pepID
     '''
     selStr = 'SELECT DISTINCT\n\t'
-    colList = ['pepID', 'ppm_error', 'pep_eVal', 'pep_eVal']
+    colList = ['pepID', 'theoMZ', 'ppm_error', 'pep_eVal', 'pep_eVal']
     primKey = 'pepID'
     endKey = 'proID'
-    operatorList = [None, 'AVG', 'AVG', 'MIN']
+    operatorList = [None, None, 'AVG', 'AVG', 'MIN']
     nameSep = '_'
     colSep = '.'
     groupStr = 'GROUP BY\n\t'
