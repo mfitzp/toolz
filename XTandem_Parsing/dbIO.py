@@ -1,6 +1,6 @@
 import os, sys
 import sqlite3 as sql
-import tables as T
+#import tables as T
 import numpy as N
 import csv
 
@@ -435,110 +435,110 @@ class XT_DB(object):#X!Tandem Database Class
         t2 = str(time.clock()-t1)
         print "SQLite Read Time for %s (s): %s"%(tableName, t2)
 
-#############################################
-'''Begin HDF5 and PyTables Interface'''
-#############################################
-#Row class for PyTables
-class XTResultsTable(T.IsDescription):
-    idnum = T.Int32Col()
-    pepID = T.StringCol(64)
-    pep_eVal = T.Float64Col()
-    scanID = T.Int32Col()
-    ppm_error = T.Float64Col()
-    theoMZ = T.Float64Col()
-    hScore = T.Float64Col()
-    nextScore = T.Float64Col()
-    deltaH = T.Float64Col()
-    pepLen = T.Int32Col()
-    proID = T.StringCol(64)
-    pro_eVal = T.Float64Col()
-
-def save_XT_HDF5(filename, xtXML):
-    #xtXML is an instance of XT_RESULTS found i xtandem_parse_class.py
-
-    xtTbl = True
-    hdf = T.openFile(filename, mode = "w", title = 'X!Tandem Results')
-    try:
-        varGroup = hdf.createGroup("/", 'pepGroup', 'Peptide Results')
-
-        if xtTbl:
-            pepTbl = hdf.createTable(varGroup, 'pepResults', XTResultsTable, "XT Peptides")
-            pepTbl.attrs.origFileName = str(xtXML.fileName)
-            xtTbl = False
-            peptide = pepTbl.row
-            for i in xrange(len(xtXML.dataDict.get('scanID'))):
-                peptide['idnum'] = i
-                peptide['pepID'] = xtXML.dataDict.get('pepID')[i]
-                peptide['pep_eVal'] = xtXML.dataDict.get('pep_eVal')[i]
-                peptide['scanID'] = xtXML.dataDict.get('scanID')[i]
-                peptide['ppm_error'] = xtXML.dataDict.get('ppm_error')[i]
-                peptide['theoMZ'] = xtXML.dataDict.get('theoMZ')[i]
-                peptide['hScore'] = xtXML.dataDict.get('hScore')[i]
-                peptide['nextScore'] = xtXML.dataDict.get('nextScore')[i]
-                peptide['pepLen'] = xtXML.dataDict.get('pepLen')[i]
-                peptide['proID'] = xtXML.dataDict.get('proID')[i]
-                peptide['pro_eVal'] = xtXML.dataDict.get('pro_eVal')[i]
-                peptide['deltaH'] = xtXML.dataDict.get('deltaH')[i]
-
-                peptide.append()
-
-
-        if xtTbl is False:
-            pepTbl.flush()
-        hdf.close()
-    except:
-        hdf.close()
-
-def load_XT_HDF5(filename,  xtXML):
-    if os.path.isfile(filename):
-
-        pepID = []
-        pep_eValue= []
-        scanID = []
-        ppm_error = []
-        theoMZ = []
-        hScore = []
-        nextScore = []
-        pepLen= []
-        proID = []
-        pro_eVal = []
-        deltaH = []
-
-        origFileName = None
-
-        hdf = T.openFile(filename, mode = "r")
-        groupDict = hdf.root._v_groups
-        if groupDict.has_key('pepGroup'):
-            for node in hdf.root.pepGroup._f_iterNodes():
-                if node._c_classId is 'TABLE':
-                    origFileName = node.attrs.origFileName
-                    for row in node.iterrows():
-                        pepID.append(row['pepID'])
-                        pep_eValue.append(row['pep_eVal'])
-                        scanID.append(row['scanID'])
-                        ppm_error.append(row['ppm_error'])
-                        theoMZ.append(row['theoMZ'])
-                        hScore.append(row['hScore'])
-                        nextScore.append(row['nextScore'])
-                        pepLen.append(row['pepLen'])
-                        proID.append(row['proID'])
-                        pro_eVal.append(row['pro_eVal'])
-                        deltaH.append(row['deltaH'])
-
-
-        hdf.close()
-        arrayDict = {
-                        'pepID': pepID,
-                        'pep_eVal' : N.array(pep_eValue),
-                        'scanID' : N.array(scanID),
-                        'ppm_error':N.array(ppm_error),
-                        'theoMZ':N.array(theoMZ),
-                        'hScore':N.array(hScore),
-                        'nextScore':N.array(nextScore),
-                        'pepLen':N.array(pepLen),
-                        'proID':proID,
-                        'pro_eVal':N.array(pro_eVal),
-                        'deltaH':N.array(deltaH)
-                        }
-        xtXML.setArrays(arrayDict)
-        xtXML.setFN(origFileName)
+##############################################
+#'''Begin HDF5 and PyTables Interface'''
+##############################################
+##Row class for PyTables
+#class XTResultsTable(T.IsDescription):
+#    idnum = T.Int32Col()
+#    pepID = T.StringCol(64)
+#    pep_eVal = T.Float64Col()
+#    scanID = T.Int32Col()
+#    ppm_error = T.Float64Col()
+#    theoMZ = T.Float64Col()
+#    hScore = T.Float64Col()
+#    nextScore = T.Float64Col()
+#    deltaH = T.Float64Col()
+#    pepLen = T.Int32Col()
+#    proID = T.StringCol(64)
+#    pro_eVal = T.Float64Col()
+#
+#def save_XT_HDF5(filename, xtXML):
+#    #xtXML is an instance of XT_RESULTS found i xtandem_parse_class.py
+#
+#    xtTbl = True
+#    hdf = T.openFile(filename, mode = "w", title = 'X!Tandem Results')
+#    try:
+#        varGroup = hdf.createGroup("/", 'pepGroup', 'Peptide Results')
+#
+#        if xtTbl:
+#            pepTbl = hdf.createTable(varGroup, 'pepResults', XTResultsTable, "XT Peptides")
+#            pepTbl.attrs.origFileName = str(xtXML.fileName)
+#            xtTbl = False
+#            peptide = pepTbl.row
+#            for i in xrange(len(xtXML.dataDict.get('scanID'))):
+#                peptide['idnum'] = i
+#                peptide['pepID'] = xtXML.dataDict.get('pepID')[i]
+#                peptide['pep_eVal'] = xtXML.dataDict.get('pep_eVal')[i]
+#                peptide['scanID'] = xtXML.dataDict.get('scanID')[i]
+#                peptide['ppm_error'] = xtXML.dataDict.get('ppm_error')[i]
+#                peptide['theoMZ'] = xtXML.dataDict.get('theoMZ')[i]
+#                peptide['hScore'] = xtXML.dataDict.get('hScore')[i]
+#                peptide['nextScore'] = xtXML.dataDict.get('nextScore')[i]
+#                peptide['pepLen'] = xtXML.dataDict.get('pepLen')[i]
+#                peptide['proID'] = xtXML.dataDict.get('proID')[i]
+#                peptide['pro_eVal'] = xtXML.dataDict.get('pro_eVal')[i]
+#                peptide['deltaH'] = xtXML.dataDict.get('deltaH')[i]
+#
+#                peptide.append()
+#
+#
+#        if xtTbl is False:
+#            pepTbl.flush()
+#        hdf.close()
+#    except:
+#        hdf.close()
+#
+#def load_XT_HDF5(filename,  xtXML):
+#    if os.path.isfile(filename):
+#
+#        pepID = []
+#        pep_eValue= []
+#        scanID = []
+#        ppm_error = []
+#        theoMZ = []
+#        hScore = []
+#        nextScore = []
+#        pepLen= []
+#        proID = []
+#        pro_eVal = []
+#        deltaH = []
+#
+#        origFileName = None
+#
+#        hdf = T.openFile(filename, mode = "r")
+#        groupDict = hdf.root._v_groups
+#        if groupDict.has_key('pepGroup'):
+#            for node in hdf.root.pepGroup._f_iterNodes():
+#                if node._c_classId is 'TABLE':
+#                    origFileName = node.attrs.origFileName
+#                    for row in node.iterrows():
+#                        pepID.append(row['pepID'])
+#                        pep_eValue.append(row['pep_eVal'])
+#                        scanID.append(row['scanID'])
+#                        ppm_error.append(row['ppm_error'])
+#                        theoMZ.append(row['theoMZ'])
+#                        hScore.append(row['hScore'])
+#                        nextScore.append(row['nextScore'])
+#                        pepLen.append(row['pepLen'])
+#                        proID.append(row['proID'])
+#                        pro_eVal.append(row['pro_eVal'])
+#                        deltaH.append(row['deltaH'])
+#
+#
+#        hdf.close()
+#        arrayDict = {
+#                        'pepID': pepID,
+#                        'pep_eVal' : N.array(pep_eValue),
+#                        'scanID' : N.array(scanID),
+#                        'ppm_error':N.array(ppm_error),
+#                        'theoMZ':N.array(theoMZ),
+#                        'hScore':N.array(hScore),
+#                        'nextScore':N.array(nextScore),
+#                        'pepLen':N.array(pepLen),
+#                        'proID':proID,
+#                        'pro_eVal':N.array(pro_eVal),
+#                        'deltaH':N.array(deltaH)
+#                        }
+#        xtXML.setArrays(arrayDict)
+#        xtXML.setFN(origFileName)
