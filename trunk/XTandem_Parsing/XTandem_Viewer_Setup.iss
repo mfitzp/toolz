@@ -16,7 +16,7 @@ DefaultDirName={pf}\X!Tandem Data Viewer
 DefaultGroupName=X!Tandem Data Viewer
 AllowNoIcons=yes
 OutputBaseFilename=XT_Viewer_Setup
-SetupIconFile=C:\Documents and Settings\d3p483\workspace\GCAlign\icons\Clone.ico
+SetupIconFile=C:\Documents and Settings\d3p483\My Documents\Python\GCAlign\icons\Clone.ico
 Compression=lzma
 SolidCompression=yes
 
@@ -27,8 +27,8 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "C:\Documents and Settings\d3p483\workspace\XTandem_Parsing\dist\XT_Viewer.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Documents and Settings\d3p483\workspace\XTandem_Parsing\dist\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "C:\Documents and Settings\d3p483\My Documents\Python\XTandem_Parsing\dist\XT_Viewer.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Documents and Settings\d3p483\My Documents\Python\XTandem_Parsing\dist\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
