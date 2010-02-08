@@ -159,7 +159,7 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
     def __testFunc__(self):
         print "TEST FUNCTION CALLED"
-        self.UNIQUE_PEP_PRO_FULL()
+#        self.UNIQUE_PEP_PRO_FULL()
 
 #        if RD(self.loVal, self.hiVal, parent = self).exec_():
 #            print self.loVal, self.hiVal
@@ -317,11 +317,12 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         if len(self.activeDict) > 0:
             activeTbls = self.activeDict.keys()
             for tbl in activeTbls:
-                curTbl = QtGui.QListWidgetItem()
-                curTbl.setText(tbl)
-                curTbl.setFlags(QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsSelectable)
-                curTbl.setCheckState(QtCore.Qt.Unchecked)
-                self.queryTblList.addItem(curTbl)
+                if tbl[0] != '_':#ignore special tables
+                    curTbl = QtGui.QListWidgetItem()
+                    curTbl.setText(tbl)
+                    curTbl.setFlags(QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsSelectable)
+                    curTbl.setCheckState(QtCore.Qt.Unchecked)
+                    self.queryTblList.addItem(curTbl)
             self.queryTblList.setCurrentRow(0)
             self.setQueryLists(self.queryTblList.currentItem())
 
@@ -910,6 +911,7 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         queryList_menu.addAction(self.uniquePepByProtAction)
         queryList_menu.addSeparator()
         queryList_menu.addAction(self.uniqueMultiPepAction)
+        queryList_menu.addAction(self.uniqueMultiPepStatsAction)
         queryList_menu.addAction(self.uniquePepProAction)
         queryList_menu.addSeparator()
         queryList_menu.addAction(self.dumpTableAction)#this is a save function
@@ -1096,7 +1098,6 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                 ##FIX THIS?????
                 self.activeDict[newTableName] = result
                 self.__resetDB__()
-                ##
 
                 if len(result) == 0:
                     #Terminate call if an empty string is returned
@@ -1277,6 +1278,9 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.queryTblList.addAction(self.uniqueMultiPepAction)
         QtCore.QObject.connect(self.uniqueMultiPepAction, QtCore.SIGNAL("triggered()"), self.MULTI_UNIQUE_PEPTIDE_GROUP)
 
+        self.uniqueMultiPepStatsAction = QtGui.QAction("Group Unique Peptides Across Tables with Stats", self)
+        self.queryTblList.addAction(self.uniqueMultiPepStatsAction)
+        QtCore.QObject.connect(self.uniqueMultiPepStatsAction, QtCore.SIGNAL("triggered()"), self.UNIQUE_PEP_PRO_FULL)
 
         '''Database Connection slots'''
         QtCore.QObject.connect(self.openDBButton, QtCore.SIGNAL("clicked()"), self.setDBConnection)
