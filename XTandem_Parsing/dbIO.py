@@ -200,7 +200,8 @@ class XT_DB(object):#X!Tandem Database Class
         except:
             self.errorMsg = "Sorry: %s:%s"%(sys.exc_type, sys.exc_value)
             msg = self.errorMsg + '\nCheck File Name! No Funky Characters'
-            error = QtGui.QMessageBox.warning(self.parent, "Table Drop Error!",  msg)
+            print msg
+#            error = QtGui.QMessageBox.warning(self.parent, "Table Drop Error!",  msg)
             return False
 
 
