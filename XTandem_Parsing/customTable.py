@@ -2,6 +2,7 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 import sys
 import time
+import webbrowser as W
 
 my_array = [['00','01','02'],
             ['10','11','12'],
@@ -69,7 +70,6 @@ class DBTable(QWidget):
         layout = QVBoxLayout(self)
         layout.addWidget(self.tableWidget)
 
-
         self.connect(self.tableWidget, SIGNAL("itemSelectionChanged()"), self.tableSelect)
 
 
@@ -109,7 +109,7 @@ class CustomTable(QTableWidget):
         tw_menu.addAction(self.copyAction)
         tw_menu.addAction(self.insRowAction)
         tw_menu.addAction(self.insColAction)
-        tw_menu.addAction(self.testAction)
+#        tw_menu.addAction(self.testAction)
         tw_menu.exec_(self.mapToGlobal(point))
 
     def addData(self, data, startrow=None,  startcol = None, enableSort = False):
@@ -166,9 +166,40 @@ class CustomTable(QTableWidget):
         self.addAction(self.testAction)
         self.connect(self.testAction, SIGNAL("triggered()"), self.testFunc)
 
-    def testFunc(self):
+        #customFunction to perform web query based upon cell text
+        self.connect(self, SIGNAL("itemDoubleClicked (QTableWidgetItem *)"), self.getWebProID)
+
+
+    def getWebProID(self, selectedItem = None):
+        '''
+        Used to select the proID from a protein
+        Table.  If this is the case, fire up the web browser and run
+        the query for that protein.
+        '''
+        if selectedItem != None:
+            matchVar = 'proID'
+            webStr = 'http://www.uniprot.org/uniprot/?query='
+            curCol = self.column(selectedItem)
+#            print curCol, type(curCol)
+            curColHeader = self.horizontalHeaderItem(curCol)
+            if curColHeader != None:
+                colText = str(curColHeader.text())
+                if colText == 'proID':#column is the protein ID
+                    cellStr = str(selectedItem.text())
+                    if len(cellStr)>0:
+                        if '|' in cellStr:#example: sp|ALBU_BOVIN|
+                            queryStr = cellStr.split('|')[1]
+                        else:
+                            queryStr = cellStr
+                        if len(queryStr)>0:
+                            webStr+=queryStr
+                            W.open_new_tab(webStr)
+#                print "Col Header", str(curColHeader.text())
+
+    def testFunc(self, var = None):
+        print "Test Function"
         if self.cb:
-            #print sizeof(self.cb)
+            print sizeof(self.cb)
             self.cb.clear(QClipboard.Clipboard)
     ###############################
 
