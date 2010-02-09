@@ -193,7 +193,10 @@ class CustomTable(QTableWidget):
                             queryStr = cellStr
                         if len(queryStr)>0:
                             webStr+=queryStr
-                            W.open_new_tab(webStr)
+                            try:
+                                W.open_new_tab(webStr)
+                            except:
+                                print "Web Search Error: %s"%webStr
 #                print "Col Header", str(curColHeader.text())
 
     def testFunc(self, var = None):
