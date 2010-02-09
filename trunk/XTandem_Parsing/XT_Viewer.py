@@ -1285,7 +1285,6 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         '''Database Connection slots'''
         QtCore.QObject.connect(self.openDBButton, QtCore.SIGNAL("clicked()"), self.setDBConnection)
         QtCore.QObject.connect(self.useMemDB_CB, QtCore.SIGNAL("stateChanged (int)"), self.setMemDB)
-
         QtCore.QObject.connect(self.dbCommitQuery, QtCore.SIGNAL("clicked()"), self.commitFullQuery)
 
 
