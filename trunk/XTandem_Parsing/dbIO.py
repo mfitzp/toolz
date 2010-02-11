@@ -1,5 +1,6 @@
 import os, sys
 import sqlite3 as sql
+
 #import tables as T
 import numpy as N
 import csv
@@ -99,15 +100,13 @@ class XT_DB(object):#X!Tandem Database Class
 #        try:
 #        for key in XT_RESULTS.dataDict.keys():
 #            print key, XT_RESULTS.dataDict[key], type(XT_RESULTS.dataDict[key])
+        stmt = 'INSERT INTO "%s" VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)'%tableName
         for i in xrange(XT_RESULTS.iterLen):
             xFrags = unicode(XT_RESULTS.dataDict.get('xFrags')[i])
             yFrags = unicode(XT_RESULTS.dataDict.get('yFrags')[i])
-            xFrags = unicode("GOJOE")
-            yFrags = unicode("GOJOE")
             print XT_RESULTS.dataDict.keys()
             #again I know %s is not recommended but I don't know how to do this more elegantly.
-            self.cur.execute(
-                            'INSERT INTO "%s" VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)'%tableName,
+            self.cur.execute(stmt,
                             (
                             i,
                             XT_RESULTS.dataDict.get('pepID')[i],
@@ -218,7 +217,6 @@ class XT_DB(object):#X!Tandem Database Class
             self.DROP_TABLE(tableName)
 
         self.curTblName = tableName
-
         self.cur.execute('CREATE TABLE IF NOT EXISTS "%s"(id INTEGER PRIMARY KEY AUTOINCREMENT,\
         pepID TEXT,\
         pep_eVal REAL,\
