@@ -96,33 +96,41 @@ class XT_DB(object):#X!Tandem Database Class
                     return False
             else:
                 return False
-        try:
-            for i in xrange(XT_RESULTS.iterLen):
-                self.cur.execute(
-                                'INSERT INTO "%s" VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)'%tableName,#again I know %s is not recommended but I don't know how to do this more elegantly.
-                                (
-                                i,
-                                XT_RESULTS.dataDict.get('pepID')[i],
-                                XT_RESULTS.dataDict.get('pep_eVal')[i],
-                                XT_RESULTS.dataDict.get('scanID')[i],
-                                XT_RESULTS.dataDict.get('ppm_error')[i],
-                                XT_RESULTS.dataDict.get('theoMZ')[i],
-                                XT_RESULTS.dataDict.get('hScore')[i],
-                                XT_RESULTS.dataDict.get('nextScore')[i],
-                                XT_RESULTS.dataDict.get('deltaH')[i],
-                                XT_RESULTS.dataDict.get('pepLen')[i],
-                                XT_RESULTS.dataDict.get('proID')[i],
-                                XT_RESULTS.dataDict.get('pro_eVal')[i],
-                                XT_RESULTS.dataDict.get('xFrags')[i],
-                                XT_RESULTS.dataDict.get('yFrags')[i]
-                                ))
-            self.cnx.commit()
-            t2 = time.clock()
-            print "SQLite Commit Time (s): ", (t2-t1)
-            return True
-        except:
-            print "Insert into Table False"
-            return False
+#        try:
+#        for key in XT_RESULTS.dataDict.keys():
+#            print key, XT_RESULTS.dataDict[key], type(XT_RESULTS.dataDict[key])
+        for i in xrange(XT_RESULTS.iterLen):
+            xFrags = unicode(XT_RESULTS.dataDict.get('xFrags')[i])
+            yFrags = unicode(XT_RESULTS.dataDict.get('yFrags')[i])
+            xFrags = unicode("GOJOE")
+            yFrags = unicode("GOJOE")
+            print XT_RESULTS.dataDict.keys()
+            #again I know %s is not recommended but I don't know how to do this more elegantly.
+            self.cur.execute(
+                            'INSERT INTO "%s" VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)'%tableName,
+                            (
+                            i,
+                            XT_RESULTS.dataDict.get('pepID')[i],
+                            XT_RESULTS.dataDict.get('pep_eVal')[i],
+                            XT_RESULTS.dataDict.get('scanID')[i],
+                            XT_RESULTS.dataDict.get('ppm_error')[i],
+                            XT_RESULTS.dataDict.get('theoMZ')[i],
+                            XT_RESULTS.dataDict.get('hScore')[i],
+                            XT_RESULTS.dataDict.get('nextScore')[i],
+                            XT_RESULTS.dataDict.get('deltaH')[i],
+                            XT_RESULTS.dataDict.get('pepLen')[i],
+                            XT_RESULTS.dataDict.get('proID')[i],
+                            XT_RESULTS.dataDict.get('pro_eVal')[i],
+                            xFrags,
+                            yFrags
+                            ))
+        self.cnx.commit()
+        t2 = time.clock()
+        print "SQLite Commit Time (s): ", (t2-t1)
+        return True
+#        except:
+#            print "Insert into Table False"
+#            return False
 
     def close(self):
         self.cur.close()
@@ -224,8 +232,7 @@ class XT_DB(object):#X!Tandem Database Class
         proID TEXT,\
         pro_eVal REAL,\
         xFrags TEXT,\
-        yFrags TEXT)'
-            %tableName)
+        yFrags TEXT)'%tableName)
 
     #def CREATE_CUSTOM_TABLE(self, tableName, overWrite = False):
 
