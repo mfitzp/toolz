@@ -98,8 +98,8 @@ class XT_DB(object):#X!Tandem Database Class
             else:
                 return False
 #        try:
-#        for key in XT_RESULTS.dataDict.keys():
-#            print key, XT_RESULTS.dataDict[key], type(XT_RESULTS.dataDict[key])
+        for key in XT_RESULTS.dataDict.keys():
+            print key, XT_RESULTS.dataDict[key], type(XT_RESULTS.dataDict[key])
         stmt = 'INSERT INTO "%s" VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)'%tableName
         for i in xrange(XT_RESULTS.iterLen):
             xFrags = unicode(XT_RESULTS.dataDict.get('xFrags')[i])
