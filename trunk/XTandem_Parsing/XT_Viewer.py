@@ -45,6 +45,10 @@ plot_colors = ['#297AA3','#A3293D','#3B9DCE','#293DA3','#5229A3','#8F29A3','#A32
 
 markers = ['o', 'd','>', 's', '^',  'p', '<', 'h', 'v']
 
+#SAVE FIGURE TEST
+from fig2xml import Figure2XML
+
+
 class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
     def __init__(self, parent = None):
         super(XTViewer,  self).__init__(parent)
@@ -159,6 +163,9 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
     def __testFunc__(self):
         print "TEST FUNCTION CALLED"
+        
+        xmlFig = Figure2XML(self.plotWidget.canvas.fig)
+        xmlFig.print_xml('mplFig.xml')
 #        self.UNIQUE_PEP_PRO_FULL()
 
 #        if RD(self.loVal, self.hiVal, parent = self).exec_():
