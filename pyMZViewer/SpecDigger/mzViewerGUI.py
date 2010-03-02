@@ -8,7 +8,7 @@ from os import walk,  path
 import base64
 import struct
 import string
-import time
+
 import xml.etree.cElementTree as ET
 
 from PyQt4 import QtCore, QtGui
@@ -69,7 +69,6 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
 
         self.drawProfile = False
 
-
     def startup(self):
 
         self.curFile = None
@@ -88,7 +87,6 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
         self.yMax = 1.0#will be the maximum for the Y scale after autozoom
         self.fragScanList = []
         self.fragPlotList = []
-        self.precLineList = []#used to keep an index of the lines that can be picked to generate fragment spectra
         self.fragTabDict = {}
         self.xicDict = {}
         self.scanInfoList = []
@@ -195,15 +193,8 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
                                         bbox=dict(facecolor='yellow', alpha=0.1),\
                                         transform=self.mzWidget.canvas.ax.transAxes, va='top')
 
-        for i in xrange(self.spectrumTabWidget.count()):
-            if str(self.spectrumTabWidget.tabText(i)) == showText:
-                self.spectrumTabWidget.setCurrentIndex(i)
-                self.mzWidget.canvas.ax.set_xlim(curXlim)#needed to prevent autoscale of vline cursor
-                self.mzWidget.canvas.draw()
-                return True
-
-
         #handle precursor ion setup
+
         if self.fragScanList != None:
             if len(self.fragScanList) > 0:
                 for fragScan in self.fragScanList:
@@ -283,7 +274,7 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
                                  useblit=True, rectprops=dict(alpha=0.5, facecolor='#C6DEFF') )
         self.chromSpan.visible = False
         self.is_hZoomChrom = False
-        self.chromWidget.canvas.draw()
+        self.chromWidget.canvas.ax.draw()
 
     def __setupMZ__(self):
         self.mzWidget.canvas.ax.cla()
@@ -297,7 +288,7 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
         self.zoomWasTrue = False
         self.mzWidget.canvas.xtitle="m/z"
         self.mzWidget.canvas.ytitle="Intensity"
-        self.mzWidget.canvas.draw()
+        self.mzWidget.canvas.ax.draw()
 
     def initiateChrom(self, ignoreDraw = False):
         if self.basePeak:
@@ -306,10 +297,9 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
             #self.scanHSlider.setMaximum(len(self.BPC))
             if len(self.BPC) >=1:
                 self.xvalues = N.array(self.curFile.data.get('expTime'))
-                self.curLine, = self.chromWidget.canvas.ax.plot(self.xvalues, self.BPC, 'r', picker = 5, label = '_nolegend_')
+                self.curLine, = self.chromWidget.canvas.ax.plot(self.xvalues, self.BPC, 'r', picker = 5, label = 'BPC')
                 self.bpcOk = True
                 self.chromLine = self.curLine
-                self.chromMax = self.BPC.max()*1.1
                 #self.chromYScale = (BPC.min(), (BPC.max()*1.1))
                 #self.chromWidget.canvas.ax.set_ylim(self.chromYScale[0], self.chromYScale[1])
                 self.chromWidget.canvas.xtitle="Scan #"
@@ -323,33 +313,26 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
 
     def updateMZScan(self):
         if self.curFile.data.get('spectrum'):
-            
             self.mzscan = self.curFile.data.get('spectrum')
-            
             if self.drawProfile:
                 self.mzWidget.canvas.ax.plot(self.mzscan[0], self.mzscan[1],  'b')
             else:
                 self.mzWidget.canvas.ax.vlines(self.mzscan[0], 0, self.mzscan[1],  'b')
 
-            t0 = time.clock()
-            #self.labelPeaks(self.mzWidget.canvas.ax, self.mzscan)#slowest call oddly enough
+
+            self.labelPeaks(self.mzWidget.canvas.ax, self.mzscan)
 
             self.mzWidget.canvas.plotTitle = "Scan #"+self.curScanInfo.get('id')
             #self.mzWidget.canvas.format_labels()
             self.mzYScale = (self.mzscan[1].min(), (self.mzscan[1].max()*1.1))
             self.mzWidget.canvas.ax.set_ylim(self.mzYScale[0], self.mzYScale[1])#so that high intensity vlines don't dominate
             self.mzWidget.canvas.format_labels()
-            print "access time: ", time.clock()-t0
             self.mzWidget.canvas.draw()
-            
-
 
 
     def getMZScan(self, index, curIndexdjust=None):#0 is subtract, 1 is add
         self.scanInfoList = []
-        self.precLineList = []
         if self.curFile:
-                
                 #print self.curFile.data.get('')
                 if curIndexdjust:
                     if curIndexdjust == 0:
@@ -363,9 +346,6 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
                 self.curScanInfo = self.scanInfoList[0]
                 #self.curScanInfo = self.curFile.getScanInfo(self.curParentScan)
                 self.fragScanList = self.curParentScan.findall(self.curFile.ns+'scan')
-                self.fragScanList.reverse()#we do this so that the mz values will be increasing
-                
-
 
                 self.mzWidget.canvas.ax.cla()
                 self.fragPlotList = []
@@ -387,18 +367,16 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
                         self.scanInfoList.append(self.curFile.getScanInfo(fragScan))
                         precurMZ = N.float(self.curFile.getScanInfo(fragScan).get('mz'))
 
-                        self.precLineList.append(self.mzWidget.canvas.ax.axvline(precurMZ, ls=':', alpha = 0.7,  color='r',  picker = 3))
-#                        print self.precLineList
+                        self.mzWidget.canvas.ax.axvline(precurMZ, ls=':', alpha = 0.7,  color='r',  picker = 3)
 
 
                 self.curScanId = int(self.curScanInfo.get('id'))
                 self.scanSBox.setValue(self.curScanId)
                 #print self.curScanId
                 #print type(self.curScanId)
-                
-                self.updateMZScan()#this is the slow method call
-                self.updateScanInfo()
 
+                self.updateMZScan()
+                self.updateScanInfo()
         else:
             print "No file loaded..."
 
@@ -451,9 +429,6 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
 
     def labelPeaks(self, mplAxis, xyVals):
         dbscanOK = False
-        '''
-        As of python 2.6 this is not working...need to investigate.
-        '''
         try:
             newPeaks = consolidatePeaks(xyVals[0], xyVals[1], xyVals[1].argsort(), diffCutoff = 2.00)
             dbscanOK = newPeaks[3]
@@ -546,18 +521,11 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
                     self.chromWidget.canvas.ax.set_xlim(xmin,  xmax)
                 self.chromWidget.canvas.draw()
 
-    def scaleMZYAxis(self, boolAns):
+    def scaleYAxis(self, boolAns):
         if boolAns:
-            self.autoscaleMZ()
+            self.autoscale_plot()
 
-    def scaleChromYAxis(self, boolAns):
-        if boolAns:
-            self.chromWidget.canvas.ax.autoscale_view(tight = False, scalex=True, scaley=True)
-            self.chromWidget.canvas.ax.set_ylim(0, self.chromMax)
-            self.chromWidget.canvas.draw()
-
-
-    def autoscaleMZ(self):
+    def autoscale_plot(self):
         #self.rescale_plot()
         self.mzWidget.canvas.ax.autoscale_view(tight = False, scalex=True, scaley=True)
         self.mzWidget.canvas.ax.set_ylim(self.mzYScale[0], self.mzYScale[1])
@@ -689,15 +657,6 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
         self.actionScanDown.setShortcut("Down")
         QtCore.QObject.connect(self.actionScanDown,QtCore.SIGNAL("triggered()"), self.scanDown)
 
-        self.actionTabLeft = QtGui.QAction("",  self.mzWidget)
-        self.chromWidget.addAction(self.actionTabLeft)
-        self.actionTabLeft.setShortcut("Left")
-        QtCore.QObject.connect(self.actionTabLeft,QtCore.SIGNAL("triggered()"), self.tabLeft)
-
-        self.actionTabRight = QtGui.QAction("",  self.mzWidget)
-        self.chromWidget.addAction(self.actionTabRight)
-        self.actionTabRight.setShortcut("Right")
-        QtCore.QObject.connect(self.actionTabRight,QtCore.SIGNAL("triggered()"), self.tabRight)
 
         '''File menu actions slots'''
         QtCore.QObject.connect(self.action_Open,QtCore.SIGNAL("triggered()"),self.__readDataFile__)
@@ -715,9 +674,7 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
 
 
         #I know this scaling mechanism is a hack but in order to allow for the axvlines to work appropriately this will have to do.
-        QtCore.QObject.connect(self.mzWidget,QtCore.SIGNAL("autoScaleAxis(bool)"),self.scaleMZYAxis)
-
-        QtCore.QObject.connect(self.chromWidget,QtCore.SIGNAL("autoScaleAxis(bool)"),self.scaleChromYAxis)
+        QtCore.QObject.connect(self.mzWidget,QtCore.SIGNAL("autoScaleAxis(bool)"),self.scaleYAxis)
 
         QtCore.QMetaObject.connectSlotsByName(self.MainWindow)
 
@@ -784,7 +741,6 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
                             #need to add instance where it is already plotted
                             curIndex = self.xicList_CB.currentIndex()
                             self.xicDict[plotKey], = self.chromWidget.canvas.ax.plot(self.xvalues, xicVals, color = COLORS[curIndex], label = curString, alpha = 0.6, picker = 5)
-                            self.chromMax = xicVals.max()*1.1
                             self.curLine = self.xicDict[plotKey]
                             self.chromWidget.canvas.ax.legend(borderaxespad = 0.03, axespad=0.25)
                             self.chromWidget.canvas.format_labels()
@@ -806,51 +762,6 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
             self.tempIndex = val
             QtCore.QTimer.singleShot(3, self.valChange)
             self.ignoreSignal = True
-
-    def tabRight(self):
-#        print "Tab Right"
-        curIndex = self.spectrumTabWidget.currentIndex()
-        curCount = self.spectrumTabWidget.count()
-        numFrags = len(self.fragScanList)
-#        print "len fragScanList: ", numFrags
-        #case 1: when the next frag spectrum does not exist:
-        if curIndex < numFrags:
-#            print "case 1"
-            if self.fragScanList != None:
-                if len(self.fragScanList) > 0:
-                    fragScan = self.fragScanList[curIndex]
-                    self.scanInfoList.append(self.curFile.getScanInfo(fragScan))
-                    precurMZ = float(self.curFile.getScanInfo(fragScan).get('mz'))
-                    #print precurMZ
-                    tabName = "m/z %.1f"%(precurMZ)
-                    if not self.fragTabDict.has_key(str(fragScan)):
-                        self.spectrumTabWidget.addTab(self.makePrecursorTab(fragScan, tabName), tabName)
-
-                    for i in xrange(self.spectrumTabWidget.count()):
-                        if str(self.spectrumTabWidget.tabText(i)) == tabName:
-                            self.spectrumTabWidget.setCurrentIndex(i)
-                            return True
-#                            continue
-
-
-        #case 2: when at the maximum frag spectrum that is already plotted
-        if curIndex == curCount-1:
-#            print "case 2"
-            return True
-        #case 3: when below the maximum frag spectrum that is already plotted
-        if curIndex < curCount-1:
-#            print "case 3"
-            self.spectrumTabWidget.setCurrentIndex(curIndex+1)
-            return True
-
-    def tabLeft(self):
-#        print "Tab Left"
-        curIndex = self.spectrumTabWidget.currentIndex()
-        #case 1: when at the minimum frag spectrum that is already plotted
-        if curIndex == 0:
-            return True
-        else:
-            self.spectrumTabWidget.setCurrentIndex(curIndex-1)
 
     def scanUp(self):
         if self.curScanId:
