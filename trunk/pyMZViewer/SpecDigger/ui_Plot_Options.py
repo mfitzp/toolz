@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Documents and Settings\d3p483\My Documents\Python\pyMZViewer\Plot_Options.ui'
+# Form implementation generated from reading ui file 'C:\Documents and Settings\d3p483\workspace\pyMZViewer\Plot_Options.ui'
 #
-# Created: Mon Mar 01 09:17:40 2010
-#      by: PyQt4 UI code generator 4.5.4
+# Created: Tue Oct 13 14:37:08 2009
+#      by: PyQt4 UI code generator 4.4.3
 #
 # WARNING! All changes made in this file will be lost!
 

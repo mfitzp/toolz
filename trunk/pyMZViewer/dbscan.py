@@ -147,7 +147,7 @@ def dbscan(x,k,Eps = None, distMethod = 'euclidean'):
                         no+=1
         else:#this is the very slow way but gets around the memory problem.
             print "The Input Array is too big and a squareform cannot be computed"
-            raise "MemoryError"
+            raise 
 #            for i in xrange(m):
 #                if touched[i] == 0:
 #                    ob = x[i]

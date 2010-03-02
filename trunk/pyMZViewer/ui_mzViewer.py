@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Documents and Settings\d3p483\workspace\pyMZViewer\mzViewer.ui'
+# Form implementation generated from reading ui file 'C:\Documents and Settings\d3p483\My Documents\Python\pyMZViewer\mzViewer.ui'
 #
-# Created: Fri Oct 16 12:19:59 2009
-#      by: PyQt4 UI code generator 4.4.3
+# Created: Mon Mar 01 09:17:40 2010
+#      by: PyQt4 UI code generator 4.5.4
 #
 # WARNING! All changes made in this file will be lost!
 
