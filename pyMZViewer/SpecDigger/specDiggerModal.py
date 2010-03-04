@@ -63,6 +63,7 @@ class SpecDiggerModal(QtGui.QWidget):
         if isinstance(mzXMLResult, mzXMLDoc):
             self.mzXMLOk = self.setDataFile(dataFileInstance = mzXMLResult)
         else:
+            print "Not and mzXMLDoc"
             #if this fails need to abort TODO
             self.mzXMLOk = self.setDataFile(fileName = self.__getFileName__())
             #self.mzXMLOk = self.setDataFile(fileName = 'R19.mzXML')
@@ -72,7 +73,7 @@ class SpecDiggerModal(QtGui.QWidget):
             self.xtOk = self.setXTResults(xtInstance = xtResult)
         else:
             try:
-                coreName = os.path.splitext(self.curDataFileName)[0]
+                coreName = os.path.splitext(os.path.abspath(self.curDataFileName))[0]
                 coreName = coreName+'.xml'
                 print "Trying %s as a default X!Tandem Result File"%coreName
                 self.xtOk = self.setXTResults(coreName)
@@ -96,7 +97,7 @@ class SpecDiggerModal(QtGui.QWidget):
         if annotation != None:
             self.annotation = annotation
             
-        if self.xtOk and self.mzXMLOk:
+        if self.xtOk and self.mzXMLOk:#not sure this is working
             self.__updateGUI__()
         ######################
 
@@ -147,7 +148,7 @@ class SpecDiggerModal(QtGui.QWidget):
 #        if self.firstLoad:
         dataFileName = QtGui.QFileDialog.getOpenFileName(self,\
                                                          self.OpenDataText,\
-                                                         self.__curDir, 'XML (*.xml)')
+                                                         self.__curDir, 'mzXML (*.mzXML);;xml (*.xml);;All Files (*.*)')
         if dataFileName != None:
             if os.path.isfile(os.path.abspath(str(dataFileName))):
                 return os.path.abspath(str(dataFileName))
@@ -169,7 +170,7 @@ class SpecDiggerModal(QtGui.QWidget):
         line = event.artist
         lineLabel = line.get_label()
         if lineLabel == 'X!Tandem Results':
-            xVals = self.xtScanVals#THESE ARE NOT SORTED.....
+            xVals = self.xtScanVals
             yVals = self.xtHitVals
             self.handleA.set_color('r')
             print "Length of xVals", len(xVals)
@@ -265,6 +266,7 @@ class SpecDiggerModal(QtGui.QWidget):
         elif dataFileInstance != None:
             self.curDataFile = dataFileInstance
             self.curDataFileName = self.curDataFile.fileName
+            print "%s passed to SpecDigger"%self.curDataFileName
             self.BPC = N.array(self.curDataFile.data.get('BPC'))
             self.scanVals = N.array(self.curDataFile.data.get('expTime'), dtype = N.int32)
             return True
@@ -290,6 +292,12 @@ class SpecDiggerModal(QtGui.QWidget):
         self.xtScanVals = self.curXTResults.dataDict['scanID']
         self.scanScores = self.curXTResults.dataDict['hScore']
         self.nextScores = self.curXTResults.dataDict['deltaH']
+        
+        xtOrderInd = self.xtScanVals.argsort()
+        self.xtScanVals = self.xtScanVals[xtOrderInd]
+        self.scanScores = self.scanScores[xtOrderInd]
+        self.nextScores = self.nextScores[xtOrderInd]
+        
         print "%s Load Time %.4f s"%(self.curXTFileName, time.clock()-t0)
         return True
 

@@ -22,11 +22,10 @@ import numpy as N
 from matplotlib.backends import backend_qt4, backend_qt4agg
 backend_qt4.qApp = QtGui.qApp
 
-
-
-
 #from io import hdfIO
-from mzXML_reader import mzXMLDoc
+#from mzXML_reader import mzXMLDoc
+#from mzXMLReader import mzXMLDoc
+from SpecDigger.mzXMLReader import mzXMLDoc#needed because of isinstance call
 from dbscan import dbscan#used to consolidate peaks
 
 from matplotlib.lines import Line2D
@@ -35,6 +34,7 @@ from matplotlib.widgets import SpanSelector
 import ui_mzViewer
 #from mpl_custom_widget import MPL_Widget
 from mpl_pyqt4_widget import MPL_Widget
+from SpecDigger.specDiggerModal import SpecDiggerModal as SpecDig
 
 
 '''
@@ -52,10 +52,11 @@ COLORS = ['#A3293D','#3B9DCE','#293DA3','#5229A3','#297AA3','#8F29A3','#A3297A',
 '#00FF00','#00FF80','#00FFFF','#3D9EFF','#FF9E3D','#FFBD7A']
 
 
-class mzViewer(ui_mzViewer.Ui_MainWindow):
-    def __init__(self, MainWindow):
-        self.MainWindow = MainWindow
-        ui_mzViewer.Ui_MainWindow.setupUi(self,MainWindow)
+class mzViewer(QtGui.QMainWindow, ui_mzViewer.Ui_MainWindow):
+    def __init__(self, parent = None):
+        super(mzViewer,  self).__init__(parent)
+        self.ui = self.setupUi(self)
+        #ui_mzViewer.Ui_MainWindow.setupUi(self,MainWindow)
 
         #self.__updatePlotScripts__()
         #self.__addWidgets__()
@@ -109,6 +110,8 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
 
         self.chromWidget.canvas.mpl_connect('pick_event', self.OnPickChrom)
         self.mzWidget.canvas.mpl_connect('pick_event', self.OnPickMZ)
+        
+        self.childList = []
 
     def loadFile(self,  filename):
         if filename:
@@ -129,9 +132,24 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
                 #self.setupDataFile(tempName)
 
 #            except:
-#                return QtGui.QMessageBox.information(self.MainWindow,'', "Problem loading data, check file")
+#                return QtGui.QMessageBox.information(self,'', "Problem loading data, check file")
         elif self.fileType == 'mzML':
                 print "mzML Selected"
+
+    def __initSpecDigger__(self):
+        if isinstance(self.curFile, mzXMLDoc):
+            for win in self.childList:
+                if isinstance(w, SpecDig):
+                    try:
+                        win.close()
+                    except:
+                        pass
+                    
+            w = SpecDig(mzXMLResult = self.curFile)
+            w.show()
+            self.childList.append(w)
+        else:
+            print "self.curFile is not a mzXMLDoc Instance"
 
     def resetXIC(self):
         self.ignoreSignal = True
@@ -145,7 +163,7 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
 
     def setupDataFile(self, fileKey):
         if self.dataFileDict.has_key(str(fileKey)):
-            self.curFile = self.dataFileDict[str(fileKey)]
+            self.curFile = self.dataFileDict[str(fileKey)]#grabs loaded mzXMLDoc from dictionary
             self.__setupChrom__()#sets up span, handle for picker
             self.__setupMZ__()#clears axis, sets up span
             self.resetXIC()
@@ -157,7 +175,7 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
 
     def __readDataFile__(self):
         if self.firstLoad:
-            dataFileName = QtGui.QFileDialog.getOpenFileName(self.MainWindow,\
+            dataFileName = QtGui.QFileDialog.getOpenFileName(self,\
                                                              self.OpenDataText,\
                                                              self.__curDir, 'mzXML (*.mzXML);;mzML (*.mzML)')
             if dataFileName:
@@ -167,7 +185,7 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
         else:
 #            if self.__askConfirm__("Data Reset",self.ResetAllDataText):
             self.startup()
-            dataFileName = QtGui.QFileDialog.getOpenFileName(self.MainWindow,\
+            dataFileName = QtGui.QFileDialog.getOpenFileName(self,\
                                                                  self.OpenDataText,\
                                                                  self.__curDir, 'mzXML (*.mzXML);;mzML (*.mzML)')
             if dataFileName:
@@ -230,6 +248,7 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
         #self.updateMZTab(self.fragIndex+1)
         #print "Frag Index", self.fragIndex
         #self.spectrumTabWidget.setCurrentIndex(self.fragIndex+1)
+
 
     def setChromHandle(self):
         line = self.curLine
@@ -314,7 +333,7 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
                 #self.chromWidget.canvas.ax.set_ylim(self.chromYScale[0], self.chromYScale[1])
                 self.chromWidget.canvas.xtitle="Scan #"
                 self.chromWidget.canvas.ytitle="Intensity"
-                self.chromWidget.canvas.plotTitle = self.curFile.filename
+                self.chromWidget.canvas.plotTitle = self.curFile.fileName
                 if ignoreDraw:
                     return True
                 else:
@@ -650,12 +669,12 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
 
 
     def __additionalConnections__(self):
-#        self.hZoom = QtGui.QAction("Horizontal Zoom",  self.MainWindow)
+#        self.hZoom = QtGui.QAction("Horizontal Zoom",  self)
 #        self.hZoom.setShortcut("Ctrl+Z")
 #        self.spectrumTabWidget.addAction(self.hZoom)
 #        QtCore.QObject.connect(self.hZoom,QtCore.SIGNAL("triggered()"), self.hZoomToggle)
 #
-#        self.actionAutoScale = QtGui.QAction("AutoScale",  self.MainWindow)
+#        self.actionAutoScale = QtGui.QAction("AutoScale",  self)
 #        self.actionAutoScale.setShortcut("Ctrl+A")
 #        self.spectrumTabWidget.addAction(self.actionAutoScale)
 #        QtCore.QObject.connect(self.actionAutoScale,QtCore.SIGNAL("triggered()"), self.autoscale_plot)
@@ -719,8 +738,9 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
 
         QtCore.QObject.connect(self.chromWidget,QtCore.SIGNAL("autoScaleAxis(bool)"),self.scaleChromYAxis)
 
-        QtCore.QMetaObject.connectSlotsByName(self.MainWindow)
-
+        QtCore.QMetaObject.connectSlotsByName(self)
+        QtCore.QObject.connect(self.actionSpectrum_Digger,QtCore.SIGNAL("triggered()"),self.__initSpecDigger__)
+        
         #self.xicList_CB.setDuplicatesEnabled(False)
 
     def getXIC(self):
@@ -728,7 +748,7 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
             hiVal = self.mzHi_SB.value()
             loVal = self.mzLo_SB.value()
             if hiVal <= loVal:
-                return QtGui.QMessageBox.warning(self.MainWindow, "XIC Error", "The High m/z value entered is lower than the Lo m/z value\nTry Again!")
+                return QtGui.QMessageBox.warning(self, "XIC Error", "The High m/z value entered is lower than the Lo m/z value\nTry Again!")
             else:
                 #executes getXIC for a given file
                 xicKey = '%.2f - %.2f'%(loVal,hiVal)
@@ -870,12 +890,26 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
         self.setChromHandle()
         self.ignoreSignal = False#reset the value for future
 
+    def closeEvent(self,  event = None):
+        print "Close Event"
+        self.__exitProgram__()
+
+    def closeEvent(self,  event = None):
+        print "Close Event"
+        self.__exitProgram__()
+
     def __exitProgram__(self):
+        print "__exitProgram__"
         if self.okToExit():
-            self.MainWindow.close()
+            for win in self.childList:#close any child windows
+                try:
+                    win.close()
+                except:
+                    pass
+            self.close()
 
     def okToExit(self):
-        reply = QtGui.QMessageBox.question(self.MainWindow, "Confirm Quit", "Exit now?",\
+        reply = QtGui.QMessageBox.question(self, "Confirm Quit", "Exit now?",\
                                            QtGui.QMessageBox.Yes|QtGui.QMessageBox.No)
         if reply == QtGui.QMessageBox.Yes:
             return True
@@ -883,14 +917,14 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
             return False
 
     def __askConfirm__(self,title,message):
-        clickedButton = QtGui.QMessageBox.question(self.MainWindow,\
+        clickedButton = QtGui.QMessageBox.question(self,\
                                                    title,message,\
                                                    QtGui.QMessageBox.Yes,QtGui.QMessageBox.Cancel)
         if clickedButton == QtGui.QMessageBox.Yes: return True
         return False
 
     def __showHints__(self):
-        return QtGui.QMessageBox.information(self.MainWindow,
+        return QtGui.QMessageBox.information(self,
                                              ("Hints and Known Issues"),
                                              ("<p> 1.	For files that contain spectra with a high degree of detail (i.e. not centroided (stick) mass spectra) use the profile mode for drawing (Ctrl+D).  Otherwise, the plotting will be slow.</p>"
                                              "<p> 2. I haven't incorporated MS^n (where n >= 3) spectrum views at this point--I didn't have an example file to test.</p>"
@@ -900,7 +934,7 @@ class mzViewer(ui_mzViewer.Ui_MainWindow):
                                              ""))
 
     def __showAbout__(self):
-        return QtGui.QMessageBox.information(self.MainWindow,
+        return QtGui.QMessageBox.information(self,
                                             ("mzViewer V.0.5, October, 2009"),
                                             ("<p><b>mzViewer</b> was written in Python by Brian H. Clowers (bhclowers@gmail.com).</p>"
         "<p>Please keep in mind that the entire effort is very much a"
@@ -1016,9 +1050,9 @@ def groupOneD(oneDVec, tol, origOrder):
 def run_main():
     import sys
     app = QtGui.QApplication(sys.argv)
-    MainWindow = QtGui.QMainWindow()
-    ui = mzViewer(MainWindow)
-    MainWindow.show()
+    #MainWindow = QtGui.QMainWindow()
+    ui = mzViewer()
+    ui.show()
     sys.exit(app.exec_())
 
 
