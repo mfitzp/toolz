@@ -83,7 +83,7 @@ class mzXMLDoc:
         self.elmName = None
         self.scanList = None
         self.getDocument(self.fileName, sumBool)
-        #self.getPeakList(self.fileName)
+        self.getPeakList(self.fileName)
 
 
     def getPeakList(self, filePath):
