@@ -4,6 +4,7 @@ import time
 
 import numpy as N
 import scipy as S
+from matplotlib.lines import Line2D
 from mpl_pyqt4_widget import MPL_Widget
 #from pepFragMain import pepFrag
 
@@ -18,7 +19,10 @@ my_array = [['00','01','50'],
 
 def main():
     app = QtGui.QApplication(sys.argv)
-    w = SpecDiggerModal()
+    mzXMLAns = mzXMLDoc('R19.mzXML', sumBool = False)
+    #xtAns = XT_RESULTS('R19.xml')
+    xtAns = None
+    w = SpecDiggerModal(mzXMLResult = mzXMLAns, xtResult = xtAns)
     w.show()
     sys.exit(app.exec_())
 
@@ -26,11 +30,6 @@ class SpecDiggerModal(QtGui.QWidget):
     def __init__(self, mzXMLResult = None, xtResult = None, title = None, annotation = None, colHeaderList = None, rowHeaderList = None, parent = None):
         QtGui.QWidget.__init__(self, parent)
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-        if title != None:
-            self.setWindowTitle(title)
-        else:
-            self.setWindowTitle('Spectrum Digger')
-
         self.resize(660, 600)
 
         self.vLayout = QtGui.QVBoxLayout(self)
@@ -61,26 +60,44 @@ class SpecDiggerModal(QtGui.QWidget):
         self.mzXMLOk = False
         self.xtOk = False
         
-        if mzXMLResult != None:
+        if isinstance(mzXMLResult, mzXMLDoc):
             self.mzXMLOk = self.setDataFile(dataFileInstance = mzXMLResult)
         else:
-            #if this fails need to abort
-            #self.setDataFile(fileName = self.__getFileName__())
-            self.mzXMLOk = self.setDataFile(fileName = 'R19.mzXML')
+            #if this fails need to abort TODO
+            self.mzXMLOk = self.setDataFile(fileName = self.__getFileName__())
+            #self.mzXMLOk = self.setDataFile(fileName = 'R19.mzXML')
 
             
-        if xtResult != None:
+        if isinstance(xtResult, XT_RESULTS):
             self.xtOk = self.setXTResults(xtInstance = xtResult)
         else:
-            self.xtOk = self.setXTResults(fileName = self.__getFileName__())
+            try:
+                coreName = os.path.splitext(self.curDataFileName)[0]
+                coreName = coreName+'.xml'
+                print "Trying %s as a default X!Tandem Result File"%coreName
+                self.xtOk = self.setXTResults(coreName)
+            except:
+                print "The Core X!Tandem file name is not the same"
+                self.xtOk = self.setXTResults(fileName = self.__getFileName__())
 #            self.setXTResults(fileName = 'R19.xml')
-            
+
+
+        if title != None:
+            self.setWindowTitle(title)
+        else:
+            try:
+                titleTemp = 'Spectrum Digger: ',self.curDataFileName
+                self.setWindowTitle(titleTemp)
+            except:
+                self.setWindowTitle('Spectrum Digger')
+
+                            
             
         if annotation != None:
             self.annotation = annotation
             
         if self.xtOk and self.mzXMLOk:
-            self.__testFunc__()
+            self.__updateGUI__()
         ######################
 
 #        if data != None:
@@ -98,11 +115,10 @@ class SpecDiggerModal(QtGui.QWidget):
 #        self.tableWidget.setCurrentCell(0, 0)#needed so selectedRanges does not fail initially
 
 
-    def __testFunc__(self):
+    def __updateGUI__(self):
         self.plotMZXML()
         self.plotXTVals()
         self.updatePlotWidget()
-
 
     def getXTResult(self):
         fn = self.__getFileName__()
@@ -146,7 +162,58 @@ class SpecDiggerModal(QtGui.QWidget):
 #            if dataFileName:
 #                self.loadFile(dataFileName)
 
+    def OnPickChrom(self, event):
+        if not isinstance(event.artist, Line2D):
+            return True
+
+        line = event.artist
+        lineLabel = line.get_label()
+        if lineLabel == 'X!Tandem Results':
+            xVals = self.xtScanVals#THESE ARE NOT SORTED.....
+            yVals = self.xtHitVals
+            self.handleA.set_color('r')
+            print "Length of xVals", len(xVals)
+            
+        elif lineLabel == 'mzXML':
+            xVals = self.scanVals
+            yVals = self.BPC
+            self.handleA.set_color('y')
+        #print lineLabel, type(lineLabel)     
+        self.curIndex = event.ind[0]
+        curLim = self.mzXMLax.get_xlim()[0]
+        lowInd = N.where(xVals<=curLim)[0]
+        if len(lowInd)>0:
+            lowInd = lowInd[-1]
+        else:
+            lowInd = 0
+        pickInd = lowInd+self.curIndex
+        print "Pick Ind: ", pickInd
+        xVal = xVals[pickInd]
+        yVal = yVals[pickInd]
+        print "%s Scan #: %s"%(lineLabel, xVal)
+#        xdata = line.get_xdata()
+#        ydata = line.get_ydata()
+        self.handleA.set_visible(True)
+#        self.handleAline.set_visible(True)
+        #self.handleA.set_data([xdata[self.curIndex], ydata[self.curIndex]])
+        self.handleA.set_data([xVal, yVal])
+
+#        if self.handleA:
+#            try:
+#                self.handleA.remove()
+#            except:
+#                pass
+#                print "Remove Line Error"
+        curXlim = self.mzXMLax.get_xlim()
+        #self.handleAline  = self.chromWidget.canvas.ax.axvline(x = xdata[self.curIndex], ls='--', alpha=0.4, color='blue')
+
+
+        #self.spectrumTabWidget.setCurrentIndex(0)
+        self.mzXMLax.set_xlim(curXlim)#needed to prevent autoscale of vline cursor
+        self.plotWidget.canvas.draw()
+
     def updatePlotWidget(self):
+        self.plotWidget.canvas.mpl_connect('pick_event', self.OnPickChrom)
         self.plotWidget.canvas.format_labels()
         self.plotWidget.canvas.draw()
 
@@ -158,15 +225,17 @@ class SpecDiggerModal(QtGui.QWidget):
 
     def plotMZXML(self):
         if len(self.BPC)>=1:
-            self.mzXMLax.plot(self.scanVals, self.BPC, '-ob', ms =2, picker = 5, alpha = 0.5)
+            self.mzXMLax.plot(self.scanVals, self.BPC, '-ob', ms =2, picker = 5, alpha = 0.5, label = 'mzXML')
             hitIND = []
             for scan in self.xtScanVals:
                 curHit = N.where(self.scanVals<scan)[0][-1]#xtXML.dataDict['scanID'] == scanVals)
                 #print 'CurHit', curHit
                 hitIND.append(curHit)
-            self.handleA,  = self.mzXMLax.plot([0], [0], 'o', ms=8, alpha=0.5, color='yellow', visible=False, label = 'Cursor A')
-            self.mzXMLax.plot(self.xtScanVals, self.BPC[N.array(hitIND)], 'og', ms = 5, alpha = 0.6)
-            self.mzXMLax.grid(True)
+            self.xtHitVals = self.BPC[N.array(hitIND)]
+            if self.xtHitVals != None:
+                self.handleA,  = self.mzXMLax.plot([0], [0], 'o', ms=8, alpha=0.5, color='yellow', visible=False, label = 'Cursor A')
+                self.mzXMLax.plot(self.xtScanVals, self.xtHitVals, 'og', ms = 5, picker = 5, alpha = 0.6, label = 'X!Tandem Results')
+                self.mzXMLax.grid(True)
 
     def setDataFile(self, fileName = None, dataFileInstance = None):
         '''
@@ -194,7 +263,8 @@ class SpecDiggerModal(QtGui.QWidget):
             else:
                 print "%s is not a File"%self.curDataFileName
         elif dataFileInstance != None:
-            self.curDataFile = dataFileInstnace
+            self.curDataFile = dataFileInstance
+            self.curDataFileName = self.curDataFile.fileName
             self.BPC = N.array(self.curDataFile.data.get('BPC'))
             self.scanVals = N.array(self.curDataFile.data.get('expTime'), dtype = N.int32)
             return True
@@ -211,11 +281,12 @@ class SpecDiggerModal(QtGui.QWidget):
         
         t0 = time.clock()
         if fileName != None:
-            self.curXTFileName = 'R19.xml'
-            self.curXTResults = XT_RESULTS(self.curXTFileName)
+            #self.curXTFileName = 'R19.xml'
+            self.curXTResults = XT_RESULTS(fileName)
         if xtInstance != None:
             self.curXTResults = xtInstance
         
+        self.curXTFileName = self.curXTResults.fileName
         self.xtScanVals = self.curXTResults.dataDict['scanID']
         self.scanScores = self.curXTResults.dataDict['hScore']
         self.nextScores = self.curXTResults.dataDict['deltaH']

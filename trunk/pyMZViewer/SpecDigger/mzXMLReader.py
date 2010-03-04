@@ -44,10 +44,10 @@ import struct
 #from dlg_select_msscan import dlgSelectScan
 
 def open_file():
-    filename = str(QFileDialog.getOpenFileName())
-    if filename:
-        print "Opened: ", filename
-        return filename
+    fileName = str(QFileDialog.getOpenFileName())
+    if fileName:
+        print "Opened: ", fileName
+        return fileName
 
 
 class mzXMLDoc:
@@ -78,12 +78,12 @@ class mzXMLDoc:
                     'XIC':{},
                     'xicVal':''
                     }
-        self.filename = path
+        self.fileName = path
         self.ns = None #namespace
         self.elmName = None
         self.scanList = None
-        self.getDocument(self.filename, sumBool)
-        self.getPeakList(self.filename)
+        self.getDocument(self.fileName, sumBool)
+        self.getPeakList(self.fileName)
 
 
     def getPeakList(self, filePath):
@@ -105,7 +105,7 @@ class mzXMLDoc:
 
         # parse XML
         try:
-            #self.filename = path
+            #self.fileName = path
             document = ET.parse(path).getroot()
             self.ns = document.tag.split('}')[0]+'}' #makes a string '{some namespace}'
         except:
