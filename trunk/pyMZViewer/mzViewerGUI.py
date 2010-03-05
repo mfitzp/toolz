@@ -147,9 +147,25 @@ class mzViewer(QtGui.QMainWindow, ui_mzViewer.Ui_MainWindow):
                     
             w = SpecDig(mzXMLResult = self.curFile)
             w.show()
+            QtCore.QObject.connect(w, QtCore.SIGNAL("specSelected(PyQt_PyObject)"), self.specDiggerSelect)
             self.childList.append(w)
         else:
             print "self.curFile is not a mzXMLDoc Instance"
+
+    def specDiggerSelect(self, returnObj = None):
+        if returnObj != None:
+            if returnObj[3] == 'mzXML':
+                self.curIndex = returnObj[0]
+                xVal = returnObj[1]
+                yVal = returnObj[2]
+                self.handleA.set_data([xVal, yVal])       
+                
+                self.getMZScan(self.curIndex)
+                #self.chromWidget.canvas.ax.set_xlim(curXlim)#needed to prevent autoscale of vline cursor
+                self.chromWidget.canvas.draw()        
+                print "Spec Digger Connect"
+                print returnObj
+        
 
     def resetXIC(self):
         self.ignoreSignal = True
@@ -891,15 +907,9 @@ class mzViewer(QtGui.QMainWindow, ui_mzViewer.Ui_MainWindow):
         self.ignoreSignal = False#reset the value for future
 
     def closeEvent(self,  event = None):
-        print "Close Event"
-        self.__exitProgram__()
-
-    def closeEvent(self,  event = None):
-        print "Close Event"
         self.__exitProgram__()
 
     def __exitProgram__(self):
-        print "__exitProgram__"
         if self.okToExit():
             for win in self.childList:#close any child windows
                 try:

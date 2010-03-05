@@ -11,6 +11,7 @@ from mpl_pyqt4_widget import MPL_Widget
 from DistanceTable.distanceTable import DiffTable
 from mzXMLReader import mzXMLDoc
 from xtandemParser import XT_RESULTS
+from FragmentPlot import FragPlotWidgets
 
 my_array = [['00','01','50'],
             ['10','11','12'],
@@ -79,7 +80,10 @@ class SpecDiggerModal(QtGui.QWidget):
                 self.xtOk = self.setXTResults(coreName)
             except:
                 print "The Core X!Tandem file name is not the same"
-                self.xtOk = self.setXTResults(fileName = self.__getFileName__())
+                try:
+                    self.xtOk = self.setXTResults(fileName = self.__getFileName__())
+                except:
+                    self.xtOk = False
 #            self.setXTResults(fileName = 'R19.xml')
 
 
@@ -87,7 +91,8 @@ class SpecDiggerModal(QtGui.QWidget):
             self.setWindowTitle(title)
         else:
             try:
-                titleTemp = 'Spectrum Digger: ',self.curDataFileName
+                titleTemp = 'Spectrum Digger: %s'%self.curDataFileName
+#                print "Temp Title: ", titleTemp
                 self.setWindowTitle(titleTemp)
             except:
                 self.setWindowTitle('Spectrum Digger')
@@ -125,8 +130,7 @@ class SpecDiggerModal(QtGui.QWidget):
         fn = self.__getFileName__()
         if fn != None:
             self.setXTResults()
-    
-    
+       
     def startup(self):
 
         self.mzXMLax = self.plotWidget.canvas.ax
@@ -143,6 +147,7 @@ class SpecDiggerModal(QtGui.QWidget):
         
         self.__curDir = os.getcwd()
         self.__setMessages__()
+        self.openWindows = []
 
     def __getFileName__(self):
 #        if self.firstLoad:
@@ -173,7 +178,7 @@ class SpecDiggerModal(QtGui.QWidget):
             xVals = self.xtScanVals
             yVals = self.xtHitVals
             self.handleA.set_color('r')
-            print "Length of xVals", len(xVals)
+            #print "Length of xVals", len(xVals)
             
         elif lineLabel == 'mzXML':
             xVals = self.scanVals
@@ -188,30 +193,76 @@ class SpecDiggerModal(QtGui.QWidget):
         else:
             lowInd = 0
         pickInd = lowInd+self.curIndex
-        print "Pick Ind: ", pickInd
+        #print "Pick Ind: ", pickInd
         xVal = xVals[pickInd]
         yVal = yVals[pickInd]
-        print "%s Scan #: %s"%(lineLabel, xVal)
+        #print "%s Scan #: %s"%(lineLabel, xVal)
+        #########Interact with parent
+        if lineLabel == 'mzXML':
+            self.emit(QtCore.SIGNAL("specSelected(PyQt_PyObject)"),[pickInd, xVal, yVal, lineLabel])
+        elif lineLabel == 'X!Tandem Results':
+            self.getFragSpectrum(pickInd)
+            print "HANDLE X!Tandem RESULTS LOAD FRAG PLOT\n"
+        
+        #########
 #        xdata = line.get_xdata()
 #        ydata = line.get_ydata()
         self.handleA.set_visible(True)
 #        self.handleAline.set_visible(True)
         #self.handleA.set_data([xdata[self.curIndex], ydata[self.curIndex]])
         self.handleA.set_data([xVal, yVal])
-
-#        if self.handleA:
-#            try:
-#                self.handleA.remove()
-#            except:
-#                pass
-#                print "Remove Line Error"
         curXlim = self.mzXMLax.get_xlim()
-        #self.handleAline  = self.chromWidget.canvas.ax.axvline(x = xdata[self.curIndex], ls='--', alpha=0.4, color='blue')
-
-
-        #self.spectrumTabWidget.setCurrentIndex(0)
         self.mzXMLax.set_xlim(curXlim)#needed to prevent autoscale of vline cursor
         self.plotWidget.canvas.draw()
+
+    def getFragSpectrum(self, indexVal):
+        try:
+            try:
+                self.openWindows[-1].close()#close and open children and respawn
+            except:
+                pass
+            #indexVal +=-1#this is because we are counting from zero, but the index table counts from 1
+            curSeq = self.curXTResults.dataDict['pepID'][indexVal]
+            xData = self.curXTResults.dataDict['xFrags'][indexVal]#this is text and needs to be converted
+            yData = self.curXTResults.dataDict['yFrags'][indexVal]
+            eValText = str(self.curXTResults.dataDict['pep_eVal'][indexVal])
+            theoMZText = '%.2f'%self.curXTResults.dataDict['theoMZ'][indexVal]
+            ppmText = '%d'%self.curXTResults.dataDict['ppm_error'][indexVal]
+            scanID = '%d'%self.curXTResults.dataDict['scanID'][indexVal]
+            hScore = '%.2f'%self.curXTResults.dataDict['hScore'][indexVal]
+            fragTitle = 'Index: '+str(indexVal)+', '+curSeq+', '+scanID
+            textTag='\n'
+            textTag+='e-Val: '
+            textTag+= eValText
+            textTag+='\nhScore: '
+            textTag+=hScore
+            textTag+='\n'
+            textTag+='m/z: '
+            textTag+=theoMZText
+            textTag+='\n'
+            textTag+='ppm error: '
+            textTag+=ppmText
+
+            tempXList = xData.split()
+            tempYList = yData.split()
+#                print type(tempXList), type(tempYList)
+#                print tempXList
+            xData = N.array(tempXList, dtype = N.float)#conver to array with dtype set or it will default to string types
+            yData = N.array(tempYList, dtype = N.float)
+            curFragPlot = FragPlotWidgets.FragPlot(curSeq, xData, yData, title = fragTitle, annotation = textTag)
+            curFragPlot.show()
+            self.openWindows.append(curFragPlot)
+#                print indexVal
+#                print curSeq
+#                print xData
+#                print yData
+
+#                curType = self.infoMap[str(curItem.text())]
+#                curVal = self.curSelectInfo[str(curItem.text())]
+#                curTbl = self.curTbl
+        except:
+            raise
+
 
     def updatePlotWidget(self):
         self.plotWidget.canvas.mpl_connect('pick_event', self.OnPickChrom)
@@ -226,7 +277,7 @@ class SpecDiggerModal(QtGui.QWidget):
 
     def plotMZXML(self):
         if len(self.BPC)>=1:
-            self.mzXMLax.plot(self.scanVals, self.BPC, '-ob', ms =2, picker = 5, alpha = 0.5, label = 'mzXML')
+            self.mzXMLax.plot(self.scanVals, self.BPC, '-ob', ms =2, picker = 3, alpha = 0.5, label = 'mzXML')
             hitIND = []
             for scan in self.xtScanVals:
                 curHit = N.where(self.scanVals<scan)[0][-1]#xtXML.dataDict['scanID'] == scanVals)
@@ -235,7 +286,7 @@ class SpecDiggerModal(QtGui.QWidget):
             self.xtHitVals = self.BPC[N.array(hitIND)]
             if self.xtHitVals != None:
                 self.handleA,  = self.mzXMLax.plot([0], [0], 'o', ms=8, alpha=0.5, color='yellow', visible=False, label = 'Cursor A')
-                self.mzXMLax.plot(self.xtScanVals, self.xtHitVals, 'og', ms = 5, picker = 5, alpha = 0.6, label = 'X!Tandem Results')
+                self.mzXMLax.plot(self.xtScanVals, self.xtHitVals, 'og', ms = 5, picker = 3, alpha = 0.6, label = 'X!Tandem Results')
                 self.mzXMLax.grid(True)
 
     def setDataFile(self, fileName = None, dataFileInstance = None):
@@ -301,10 +352,11 @@ class SpecDiggerModal(QtGui.QWidget):
         print "%s Load Time %.4f s"%(self.curXTFileName, time.clock()-t0)
         return True
 
+    def closeEvent(self,  event = None):
+        self.__exitProgram__()
 
     def __exitProgram__(self):
-        if self.okToExit():
-            self.close()
+        self.close()
 
     def okToExit(self):
         reply = QtGui.QMessageBox.question(self, "Confirm Quit", "Exit now?",\
