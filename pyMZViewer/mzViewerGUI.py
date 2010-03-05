@@ -139,7 +139,7 @@ class mzViewer(QtGui.QMainWindow, ui_mzViewer.Ui_MainWindow):
     def __initSpecDigger__(self):
         if isinstance(self.curFile, mzXMLDoc):
             for win in self.childList:
-                if isinstance(w, SpecDig):
+                if isinstance(win, SpecDig):
                     try:
                         win.close()
                     except:
