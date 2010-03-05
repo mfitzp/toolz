@@ -62,11 +62,14 @@ class DoubleMyMplCanvas(FigureCanvas):
         FigureCanvas.updateGeometry(self)
 
     def format_labels(self, xItalic = False):
-        for ax in self.axList:
+        axLabelList = []
+        axLabelList.append(['Scan #', 'Intensity'])
+        axLabelList.append(['Scan #', 'H Score'])
+        for i, ax in enumerate(self.axList):
             ax.set_title(self.plotTitle)
             ax.title.set_fontsize(10)
-            xLabel = self.xtitle#self.ax.get_xlabel()
-            yLabel = self.ytitle#self.ax.get_ylabel()
+            xLabel = axLabelList[i][0]#self.xtitle#self.ax.get_xlabel()
+            yLabel = axLabelList[i][1]#self.ytitle#self.ax.get_ylabel()
             if xItalic:
                 ax.set_xlabel(xLabel, fontsize = 9, fontstyle = 'italic')
             else:
