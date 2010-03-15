@@ -80,15 +80,15 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
 
         #Set file path defaults:
         tempInput = os.path.join(self.defaultDir,"input.xml")
-        tempInput = '/usr/local/sandbox/proteomics/XTandem/pyinput.xml'#on clowers' linux box
+        tempInput = '/home/clowers/Proteomics/XTandem/pyinput.xml'#on clowers' linux box
         self.inputFile_LE.setText(tempInput)
 
         tempOutput = os.path.join(self.defaultDir,"output.xml")
-        tempOutput = '/usr/local/sandbox/proteomics/XTandem/pyoutput.xml'#on clowers' linux box
+        tempOutput = '/home/clowers/Proteomics/XTandem/pyoutput.xml'#on clowers' linux box
         self.outputFile_LE.setText(tempOutput)
 
 #        specPath = "chickenInput.tmp"
-        specPath = '/usr/local/sandbox/proteomics/XTandem/test_spectra.mgf'#on clowers' linux box
+        specPath = '/home/clowers/Proteomics/XTandem/test_spectra.mgf'#on clowers' linux box
         self.rawData_LE.setText(specPath)
         self.rawInputDataPath = specPath
         #Setup default Values:
