@@ -318,16 +318,18 @@ class FileWatcher(QtGui.QWidget):
         self.fileTypeDict['.RAW']='RAW File Conversion'
         self.fileTypeDict['.raw']='RAW File Conversion'
         self.fileTypeDict['1SRef']='Bruker File Conversion'
-        self.fileTypeDict['.mzXML']='Unspecified'
-        self.fileTypeDict['.mzxml']='Unspecified'
+        self.fileTypeDict['.mzXML']='X!Tandem'
+        self.fileTypeDict['.mzxml']='X!Tandem'
         if os.path.isfile(filePath):
             root, fileType = os.path.splitext(filePath)
             if fileType != None:
                 if self.fileTypeDict.has_key(fileType):
                     jobType = self.fileTypeDict[fileType]
                     jobID = JOBDICT[jobType]
-                    if jobID is 1:
+                    if jobID is 1:#case for raw file conversion
                         outputFile = root+'.mzXML'
+                    elif jobID is 0:#case for X!Tandem Runs
+                        outputFile = root+'_XT.xml'
                     else:
                         outputFile = 'None'
 
@@ -597,7 +599,7 @@ def run_main():
     #fw.show()
 
     #This is lame as win32 won't allow watches on Network Drives....
-	#This is sooo ghetto...
+    #This is sooo ghetto...
     sysType = os.sys.platform
     if sysType == 'win32' and NETWORKSHARE:
         try:
