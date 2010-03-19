@@ -78,7 +78,7 @@ class mzXMLDoc:
                     'XIC':{},
                     'xicVal':''
                     }
-        self.fileName = path
+        self.fileName = os.path.abspath(str(path))
         self.ns = None #namespace
         self.elmName = None
         self.scanList = None

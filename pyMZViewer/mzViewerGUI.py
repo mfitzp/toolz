@@ -1,6 +1,11 @@
 
 """
 This is the explicit class for Subplot.
+
+Need to keep picked spec digger open and not reopen a new window
+Add protein to each plot, set limits on frag plot.
+
+
 """
 #Importing built-in python modules and functions
 import sys, os
@@ -110,7 +115,7 @@ class mzViewer(QtGui.QMainWindow, ui_mzViewer.Ui_MainWindow):
 
         self.chromWidget.canvas.mpl_connect('pick_event', self.OnPickChrom)
         self.mzWidget.canvas.mpl_connect('pick_event', self.OnPickMZ)
-        
+
         self.childList = []
 
     def loadFile(self,  filename):
@@ -144,7 +149,7 @@ class mzViewer(QtGui.QMainWindow, ui_mzViewer.Ui_MainWindow):
                         win.close()
                     except:
                         pass
-                    
+
             w = SpecDig(mzXMLResult = self.curFile)
             w.show()
             QtCore.QObject.connect(w, QtCore.SIGNAL("specSelected(PyQt_PyObject)"), self.specDiggerSelect)
@@ -158,14 +163,14 @@ class mzViewer(QtGui.QMainWindow, ui_mzViewer.Ui_MainWindow):
                 self.curIndex = returnObj[0]
                 xVal = returnObj[1]
                 yVal = returnObj[2]
-                self.handleA.set_data([xVal, yVal])       
-                
+                self.handleA.set_data([xVal, yVal])
+
                 self.getMZScan(self.curIndex)
                 #self.chromWidget.canvas.ax.set_xlim(curXlim)#needed to prevent autoscale of vline cursor
-                self.chromWidget.canvas.draw()        
+                self.chromWidget.canvas.draw()
                 print "Spec Digger Connect"
                 print returnObj
-        
+
 
     def resetXIC(self):
         self.ignoreSignal = True
@@ -358,9 +363,9 @@ class mzViewer(QtGui.QMainWindow, ui_mzViewer.Ui_MainWindow):
 
     def updateMZScan(self):
         if self.curFile.data.get('spectrum'):
-            
+
             self.mzscan = self.curFile.data.get('spectrum')
-            
+
             if self.drawProfile:
                 self.mzWidget.canvas.ax.plot(self.mzscan[0], self.mzscan[1],  'b')
             else:
@@ -374,9 +379,9 @@ class mzViewer(QtGui.QMainWindow, ui_mzViewer.Ui_MainWindow):
             self.mzYScale = (self.mzscan[1].min(), (self.mzscan[1].max()*1.1))
             self.mzWidget.canvas.ax.set_ylim(self.mzYScale[0], self.mzYScale[1])#so that high intensity vlines don't dominate
             self.mzWidget.canvas.format_labels()
-            print "access time: ", time.clock()-t0
+            #print "access time: ", time.clock()-t0
             self.mzWidget.canvas.draw()
-            
+
 
 
 
@@ -384,7 +389,7 @@ class mzViewer(QtGui.QMainWindow, ui_mzViewer.Ui_MainWindow):
         self.scanInfoList = []
         self.precLineList = []
         if self.curFile:
-                
+
                 #print self.curFile.data.get('')
                 if curIndexdjust:
                     if curIndexdjust == 0:
@@ -399,7 +404,7 @@ class mzViewer(QtGui.QMainWindow, ui_mzViewer.Ui_MainWindow):
                 #self.curScanInfo = self.curFile.getScanInfo(self.curParentScan)
                 self.fragScanList = self.curParentScan.findall(self.curFile.ns+'scan')
                 self.fragScanList.reverse()#we do this so that the mz values will be increasing
-                
+
 
 
                 self.mzWidget.canvas.ax.cla()
@@ -430,7 +435,7 @@ class mzViewer(QtGui.QMainWindow, ui_mzViewer.Ui_MainWindow):
                 self.scanSBox.setValue(self.curScanId)
                 #print self.curScanId
                 #print type(self.curScanId)
-                
+
                 self.updateMZScan()#this is the slow method call
                 self.updateScanInfo()
 
@@ -444,6 +449,7 @@ class mzViewer(QtGui.QMainWindow, ui_mzViewer.Ui_MainWindow):
         fragTab.setObjectName(tabName)
         #HISTOGRAM DISABLED
         fragPlot = MPL_Widget(fragTab, doublePlot = False)
+        fragPlot.canvas.ax.set_ylim(ymin = 0)
         #fragPlot.enableEdit()
         self.fragPlotList.append(fragPlot)
         self.fragTabDict[str(fragScan)] = '0'#this is a dummy value, we just want to be able to search quickly through the keys
@@ -477,6 +483,7 @@ class mzViewer(QtGui.QMainWindow, ui_mzViewer.Ui_MainWindow):
             fragPlot.canvas.ytitle="Intensity"
             self.labelPeaks(fragPlot.canvas.ax, precursorSpec)
             fragPlot.canvas.format_labels()
+            fragPlot.canvas.ax.set_ylim(ymin = 0)
             fragPlot.canvas.draw()
 
             self.fragPlotted +=1
@@ -756,7 +763,7 @@ class mzViewer(QtGui.QMainWindow, ui_mzViewer.Ui_MainWindow):
 
         QtCore.QMetaObject.connectSlotsByName(self)
         QtCore.QObject.connect(self.actionSpectrum_Digger,QtCore.SIGNAL("triggered()"),self.__initSpecDigger__)
-        
+
         #self.xicList_CB.setDuplicatesEnabled(False)
 
     def getXIC(self):
@@ -836,12 +843,27 @@ class mzViewer(QtGui.QMainWindow, ui_mzViewer.Ui_MainWindow):
             self.customEventHandler(self.curIndex)
 
     def customEventHandler(self, val):
+        '''
+        After a key stroke navigating through the spectra
+        self.valChange is called which then calls self.updateScan
+        '''
         if self.ignoreSignal:
             return True
         else:
             self.tempIndex = val
             QtCore.QTimer.singleShot(3, self.valChange)
             self.ignoreSignal = True
+
+    def handleSpectrumLines(self):
+        '''
+        Used to help make the transition from full scans to
+        ms/ms scans smoother and faster
+        '''
+        curIndex = self.spectrumTabWidget.currentIndex()
+        if curIndex == 0:
+            self.drawProfile = True
+        else:
+            self.drawProfile = False
 
     def tabRight(self):
 #        print "Tab Right"
@@ -860,6 +882,7 @@ class mzViewer(QtGui.QMainWindow, ui_mzViewer.Ui_MainWindow):
                     #print precurMZ
                     tabName = "m/z %.1f"%(precurMZ)
                     if not self.fragTabDict.has_key(str(fragScan)):
+                        self.drawProfile = False#used to speed up transitions
                         self.spectrumTabWidget.addTab(self.makePrecursorTab(fragScan, tabName), tabName)
 
                     for i in xrange(self.spectrumTabWidget.count()):
@@ -902,6 +925,9 @@ class mzViewer(QtGui.QMainWindow, ui_mzViewer.Ui_MainWindow):
             self.customEventHandler(self.curIndex)
 
     def updateScan(self, newInd = None):
+
+        self.handleSpectrumLines()#used to speed up full scan transitions
+
         self.getMZScan(self.curIndex, 1)
         self.setChromHandle()
         self.ignoreSignal = False#reset the value for future
@@ -910,28 +936,32 @@ class mzViewer(QtGui.QMainWindow, ui_mzViewer.Ui_MainWindow):
         self.__exitProgram__()
 
     def __exitProgram__(self):
-        if self.okToExit():
-            for win in self.childList:#close any child windows
-                try:
-                    win.close()
-                except:
-                    pass
-            self.close()
+        #if self.okToExit():
+        for win in self.childList:#close any child windows
+            try:
+                win.close()
+            except:
+                pass
+        self.close()
 
     def okToExit(self):
         reply = QtGui.QMessageBox.question(self, "Confirm Quit", "Exit now?",\
                                            QtGui.QMessageBox.Yes|QtGui.QMessageBox.No)
         if reply == QtGui.QMessageBox.Yes:
+            print "Ok to exit"
             return True
         else:
+            print "Declined to exit"
             return False
 
     def __askConfirm__(self,title,message):
         clickedButton = QtGui.QMessageBox.question(self,\
                                                    title,message,\
                                                    QtGui.QMessageBox.Yes,QtGui.QMessageBox.Cancel)
-        if clickedButton == QtGui.QMessageBox.Yes: return True
-        return False
+        if clickedButton == QtGui.QMessageBox.Yes:
+            return True
+        else:
+            return False
 
     def __showHints__(self):
         return QtGui.QMessageBox.information(self,

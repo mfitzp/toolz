@@ -88,6 +88,30 @@ class FragPlot(QtGui.QWidget):
         if self.seq != None and self.X != None and self.Y != None:
             pepFrag(self.seq, self.X, self.Y, self.plotWidget.canvas, annotation = self.annotation)
 
+    def redrawPlot(self, seq, X, Y, title = None, annotation = None):
+        #FragPlotWidgets.FragPlot(curSeq, xData, yData, title = fragTitle, annotation = textTag)
+        self.seq = None
+        self.X = None
+        self.Y = None
+        self.annotation = None
+
+        if seq != None:
+            self.seq = seq
+        if X != None:
+            self.X = X
+        if Y != None:
+            self.Y = Y
+        if annotation != None:
+            self.annotation = annotation
+
+        if title != None:
+            self.setWindowTitle(title)
+        else:
+            self.setWindowTitle('Fragment Plot')
+
+
+        self.setupPlot()
+
 
 class CustomTable(QtGui.QTableWidget):
     def __init__(self, parent = None):
