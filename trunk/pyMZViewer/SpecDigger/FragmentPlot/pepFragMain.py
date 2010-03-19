@@ -188,6 +188,9 @@ def pepFrag(seq, X, Y, plotCanvas, annotation = None, plotSpec = True):
     ax1 = plotCanvas.ax
     ax2 = plotCanvas.ax2
 
+    ax1.clear()
+    ax2.clear()
+
     pep = seq
     mz = X
     yVals = Y
@@ -301,6 +304,8 @@ def pepFrag(seq, X, Y, plotCanvas, annotation = None, plotSpec = True):
 
 #    ax2.axvline(ymax = errY.max(), color = 'k', ls = '--')
 #    ax2.set_xlim(xmin = N.abs(errs.max())*-1.1, xman = N.abs(errs.max())*1.1)
+
+    ax1.set_ylim(ymin = 0, ymax = 125)
 
     errMax = n-len(tempErrs)+1
     ax2.axvline(ymax = errMax, color = 'k', ls = '--')
