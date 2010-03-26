@@ -255,8 +255,14 @@ class SpecDiggerModal(QtGui.QWidget):
 #                pass
 
             if len(self.openWindows)>0:
-                curFragPlot = self.openWindows[-1]
-                curFragPlot.redrawPlot(curSeq, xData, yData, fragTitle, textTag)
+                try:
+                    curFragPlot = self.openWindows[-1]
+                    curFragPlot.redrawPlot(curSeq, xData, yData, fragTitle, textTag)
+                except:
+                    curFragPlot = FragPlotWidgets.FragPlot(curSeq, xData, yData, title = fragTitle, annotation = textTag)
+                    curFragPlot.show()
+                    self.openWindows.append(curFragPlot)
+
             else:
                 curFragPlot = FragPlotWidgets.FragPlot(curSeq, xData, yData, title = fragTitle, annotation = textTag)
                 curFragPlot.show()
@@ -279,14 +285,16 @@ class SpecDiggerModal(QtGui.QWidget):
         self.plotWidget.canvas.draw()
 
     def plotXTVals(self):
-        self.XTax.vlines(self.xtScanVals, 0, self.scanScores*-1, color='k', lw = 2.0, linestyles='solid')#, alpha = 0.1)
-        self.XTax.vlines(self.xtScanVals, 0, self.nextScores*-1, color='r', lw = 2.0, linestyles='solid')#, alpha = 0.7)
-        self.XTax.set_ylim((-100,0))
+        self.XTax.vlines(self.xtScanVals, 0, self.scanScores*1, color='#A83C0F', lw = 2.0, linestyles='solid')#, alpha = 0.1)
+        self.XTax.vlines(self.xtScanVals, 0, self.nextScores*1, color='#707276', lw = 2.0, linestyles='solid')#, alpha = 0.7)
+        #self.XTax.set_ylim((0,100))
+        self.XTax.invert_yaxis()
         self.XTax.grid(True)
 
     def plotMZXML(self):
         if len(self.BPC)>=1:
-            self.mzXMLax.plot(self.scanVals, self.BPC, '-ob', ms =2, picker = 3, alpha = 0.5, label = 'mzXML')
+            self.mzXMLax.plot(self.scanVals, self.BPC, '-o', color = '#242424', ms = 1, picker = 3, alpha = 0.3, label = 'mzXML')
+            #self.mzXMLax.semilogy(basey = 2)
             hitIND = []
             for scan in self.xtScanVals:
                 curHit = N.where(self.scanVals<scan)[0][-1]#xtXML.dataDict['scanID'] == scanVals)
@@ -295,7 +303,7 @@ class SpecDiggerModal(QtGui.QWidget):
             self.xtHitVals = self.BPC[N.array(hitIND)]
             if self.xtHitVals != None:
                 self.handleA,  = self.mzXMLax.plot([0], [0], 'o', ms=8, alpha=0.5, color='yellow', visible=False, label = 'Cursor A')
-                self.mzXMLax.plot(self.xtScanVals, self.xtHitVals, 'og', ms = 5, picker = 3, alpha = 0.6, label = 'X!Tandem Results')
+                self.mzXMLax.plot(self.xtScanVals, self.xtHitVals, 'o', color = '#007229',ms = 3, picker = 3, alpha = 0.6, label = 'X!Tandem Results')
                 self.mzXMLax.grid(True)
 
     def setDataFile(self, fileName = None, dataFileInstance = None):
