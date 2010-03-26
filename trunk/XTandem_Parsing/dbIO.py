@@ -97,6 +97,37 @@ class XT_DB(object):#X!Tandem Database Class
                     return False
             else:
                 return False
+<<<<<<< .mine
+        try:
+            for i in xrange(XT_RESULTS.iterLen):
+                self.cur.execute(
+                                'INSERT INTO "%s" VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'%tableName,#again I know %s is not recommended but I don't know how to do this more elegantly.
+                                (
+                                i,
+                                XT_RESULTS.dataDict.get('pepID')[i],
+                                XT_RESULTS.dataDict.get('pep_eVal')[i],
+                                XT_RESULTS.dataDict.get('scanID')[i],
+                                XT_RESULTS.dataDict.get('ppm_error')[i],
+                                XT_RESULTS.dataDict.get('theoMZ')[i],
+                                XT_RESULTS.dataDict.get('hScore')[i],
+                                XT_RESULTS.dataDict.get('nextScore')[i],
+                                XT_RESULTS.dataDict.get('deltaH')[i],
+                                XT_RESULTS.dataDict.get('pepLen')[i],
+                                XT_RESULTS.dataDict.get('pepStart')[i],
+                                XT_RESULTS.dataDict.get('pepStop')[i],
+                                XT_RESULTS.dataDict.get('proID')[i],
+                                XT_RESULTS.dataDict.get('pro_eVal')[i],
+                                XT_RESULTS.dataDict.get('xFrags')[i],
+                                XT_RESULTS.dataDict.get('yFrags')[i]
+                                ))
+            self.cnx.commit()
+            t2 = time.clock()
+            print "SQLite Commit Time (s): ", (t2-t1)
+            return True
+        except:
+            print "Insert into Table False"
+            return False
+=======
 #        try:
         for key in XT_RESULTS.dataDict.keys():
             print key, XT_RESULTS.dataDict[key], type(XT_RESULTS.dataDict[key])
@@ -130,6 +161,7 @@ class XT_DB(object):#X!Tandem Database Class
 #        except:
 #            print "Insert into Table False"
 #            return False
+>>>>>>> .r465
 
     def close(self):
         self.cur.close()
@@ -227,6 +259,8 @@ class XT_DB(object):#X!Tandem Database Class
         nextScore REAL,\
         deltaH REAL,\
         pepLen INTEGER,\
+        pepStart INTEGER,\
+        pepStop INTEGER,\
         proID TEXT,\
         pro_eVal REAL,\
         xFrags TEXT,\
@@ -399,6 +433,8 @@ class XT_DB(object):#X!Tandem Database Class
         proID = []
         pro_eVal = []
         deltaH = []
+        pepStart = []
+        pepStop = []
         xFrags = []
         yFrags = []
 
@@ -413,10 +449,12 @@ class XT_DB(object):#X!Tandem Database Class
             nextScore.append(row[7])
             deltaH.append(row[8])
             pepLen.append(row[9])
-            proID.append(row[10])
-            pro_eVal.append(row[11])
-            xFrags.append(row[12])
-            yFrags.append(row[13])
+            pepStart.append(row[10])
+            pepStop.append(row[11])
+            proID.append(row[12])
+            pro_eVal.append(row[13])
+            xFrags.append(row[14])
+            yFrags.append(row[15])
 
         arrayDict = {
                 'pepID': pepID,
@@ -427,6 +465,8 @@ class XT_DB(object):#X!Tandem Database Class
                 'hScore':N.array(hScores),
                 'nextScore':N.array(nextScore),
                 'pepLen':N.array(pepLen),
+                'pepStart':N.array(pepStart),
+                'pepStop':N.array(pepStop),
                 'proID':proID,
                 'pro_eVal':N.array(pro_eVal),
                 'deltaH':N.array(deltaH),

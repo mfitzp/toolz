@@ -34,10 +34,13 @@ class XT_RESULTS:
 
         pepID = []
         proID = []
+        pepStart = []
+        pepStop = []
 
         ppm_error = []
         theoMZ = []
         scanID = []
+        scanIntensity = []
         pro_eVal=[]
         pep_eValue=[]
         hScore = []
@@ -61,32 +64,44 @@ class XT_RESULTS:
             m = 0
             for group in groups:
                 if group.get('type') != 'no model obtained':
+                    #print group.get('maxI'), type(group.get('maxI'))
+                    maxI = group.get('maxI')
+                    if maxI != None:
+                        curIntensity = N.float(maxI)
+                    else:
+                        curIntensity = 0.0
                     for protein in group.findall('protein'):
                         cur_scan  = protein.get('id')
                         cur_protID = protein.attrib['label']
-                        cur_pro_eVal = float(protein.attrib['expect'])
+                        cur_pro_eVal = N.float(protein.attrib['expect'])
+                        #print '\t',protein.get('maxI')
                         #prot_result = XT_protein(protID,  pro_eVal)
                         for peptide in protein.findall('peptide'):
                             for domain in peptide.findall('domain'):
                                 cur_pepSeq = domain.attrib['seq']
-                                cur_eValue = float(domain.attrib['expect'])
-                                cur_hscore = float(domain.attrib['hyperscore'])
-                                cur_nextscore = float(domain.attrib['nextscore'])
+                                cur_seqStart = N.int(domain.attrib['start'])
+                                cur_seqStop = N.int(domain.attrib['end'])
+                                cur_eValue = N.float(domain.attrib['expect'])
+                                cur_hscore = N.float(domain.attrib['hyperscore'])
+                                cur_nextscore = N.float(domain.attrib['nextscore'])
                                 cur_deltaH = cur_hscore - cur_nextscore
-                                cur_mzTheor = float(domain.get('mh'))
-                                cur_ppm = 1e6*(float(domain.get('delta')))/cur_mzTheor
+                                cur_mzTheor = N.float(domain.get('mh'))
+                                cur_ppm = 1e6*(N.float(domain.get('delta')))/cur_mzTheor
                                 if cur_eValue < self.evalue_cutoff and abs(cur_ppm) < self.ppm_cutoff:
-                                    ppm_error.append(float(cur_ppm))
+                                    ppm_error.append(N.float(cur_ppm))
                                     theoMZ.append(cur_mzTheor)
                                     scanID.append(int(cur_scan.split('.')[0]))
                                     pro_eVal.append(cur_pro_eVal)
                                     proID.append(cur_protID)
                                     pep_eValue.append(cur_eValue)
                                     pepID.append(cur_pepSeq)
+                                    pepStart.append(cur_seqStart)
+                                    pepStop.append(cur_seqStop)
                                     pepLen.append(len(cur_pepSeq))
                                     hScore.append(cur_hscore)
                                     nextScore.append(cur_nextscore)
                                     deltaH.append(cur_deltaH)
+                                    scanIntensity.append(curIntensity)
                                     for subGroup in group.getchildren():
                                         if subGroup.get('label') == "fragment ion mass spectrum":
                                             fragText, fragInfo = subGroup.getchildren()
@@ -113,13 +128,6 @@ class XT_RESULTS:
                                                             tempYStr+=yStr
                     #                                    tempYStr.join(strYSplit)
                                                         fragYVals.append(tempYStr)#conver to array with dtype set or it will default to string types
-                    #                                    n+=1
-#                                                    if scanID[-1] == 8269:
-#                                                        print cur_scan
-#                                                        print cur_pepSeq
-#                                                        print tempXStr
-#                                                        print tempYStr
-#                                                        print n
 
 
             '''
@@ -132,21 +140,26 @@ class XT_RESULTS:
             print "Initial Read Time (s): ",(t2-t1)
             self.iterLen = len(scanID)
             #                    'index': N.arange(len(pepID)),
+            #need to sort the values
+            scanOrder = N.array(scanID).argsort()
             if len(pepID) != 0:
                 self.dataDict = {
-                    'pepID': pepID,
-                    'pep_eVal' : N.array(pep_eValue),
-                    'scanID' : N.array(scanID),
-                    'ppm_error':N.array(ppm_error),
-                    'theoMZ':N.array(theoMZ),
-                    'hScore':N.array(hScore),
-                    'nextScore':N.array(nextScore),
-                    'pepLen':N.array(pepLen),
-                    'proID':proID,
-                    'pro_eVal':N.array(pro_eVal),
-                    'deltaH':N.array(deltaH),
-                    'xFrags':fragXVals,
-                    'yFrags':fragYVals
+                    'pepID': N.array(pepID)[scanOrder],
+                    'pep_eVal' : N.array(pep_eValue)[scanOrder],
+                    'scanID' : N.array(scanID)[scanOrder],
+                    'ppm_error':N.array(ppm_error)[scanOrder],
+                    'theoMZ':N.array(theoMZ)[scanOrder],
+                    'hScore':N.array(hScore)[scanOrder],
+                    'nextScore':N.array(nextScore)[scanOrder],
+                    'pepLen':N.array(pepLen)[scanOrder],
+                    'proID':N.array(proID)[scanOrder],
+                    'pro_eVal':N.array(pro_eVal)[scanOrder],
+                    'deltaH':N.array(deltaH)[scanOrder],
+                    'xFrags':N.array(fragXVals)[scanOrder],
+                    'yFrags':N.array(fragYVals)[scanOrder],
+                    'scanIntensity':N.array(scanIntensity)[scanOrder],
+                    'pepStart':N.array(pepStart)[scanOrder],
+                    'pepStop':N.array(pepStop)[scanOrder]
                     }
                 self.dataLen = len(pepID)
 #                print n, m, self.dataLen, len(self.dataDict['xFrags'])
@@ -197,7 +210,7 @@ if __name__ == '__main__':
     import time
     t1 = time.clock()
     #the returned list contains tuples with  6 items, ppm, scan#, protein e-value, protein, peptide e-value, and peptide sequence
-    filename = 'XTTest.xml'
+    filename = 'R19.xml'
     x = XT_RESULTS(filename)
     t2 = time.clock()
 

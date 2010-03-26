@@ -101,7 +101,9 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         'Next Hyperscore':None,
         'Peptide Length':None,
         'Protein ID':None,
-        'Protein e-Value':None
+        'Protein e-Value':None,
+        'Seq Start':None,
+        'Seq Stop':None
         }
 
         self.keyTypeMap = {}
@@ -117,6 +119,8 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.keyTypeMap['pepLen'] = int
         self.keyTypeMap['proID'] = str
         self.keyTypeMap['pro_eVal'] = float
+        self.keyTypeMap['pepStart'] = int
+        self.keyTypeMap['pepStop'] = int
 
         '''
         id INTEGER PRIMARY KEY AUTOINCREMENT,\
@@ -145,6 +149,8 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         self.infoMap['Peptide Length'] = 'pepLen'
         self.infoMap['Protein ID'] ='proID'
         self.infoMap['Protein e-Value'] = 'pro_eVal'
+        self.infoMap['Seq Start'] = 'pepStart'
+        self.infoMap['Seq Stop'] = 'pepStop'
 
         self.db_XCols.clear()
         self.db_YCols.clear()
