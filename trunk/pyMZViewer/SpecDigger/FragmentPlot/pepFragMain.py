@@ -290,15 +290,15 @@ def pepFrag(seq, X, Y, plotCanvas, annotation = None, plotSpec = True):
     for m,frag in enumerate(fragRange):
         fragInd = N.where(fragType == frag)[0]
         tempFrag = fragMZ[fragInd]
-
-        errInd = N.where(ppmErrType == frag)[0]
-        tempErrs = errs[errInd]
-        tempErrY = N.arange(n,len(tempErrs)+n)
-        n+=len(tempErrs)
-        ax2.plot(tempErrs, tempErrY, linestyle = 'None', marker = tempMarkers[frag], color = tempColors[frag], ms = 5, alpha = 0.6)
-#        print frag, tempFrag
-        tempInt = fragYVals[fragInd]
-        ax1.vlines(tempFrag, 0, tempInt, colors = tempColors[frag], linestyles = 'solid', alpha = 0.8)#
+        if len(tempFrag)>0:
+            errInd = N.where(ppmErrType == frag)[0]
+            tempErrs = errs[errInd]
+            tempErrY = N.arange(n,len(tempErrs)+n)
+            n+=len(tempErrs)
+            ax2.plot(tempErrs, tempErrY, linestyle = 'None', marker = tempMarkers[frag], color = tempColors[frag], ms = 5, alpha = 0.6)
+    #        print frag, tempFrag
+            tempInt = fragYVals[fragInd]
+            ax1.vlines(tempFrag, 0, tempInt, colors = tempColors[frag], linestyles = 'solid', alpha = 0.8)#
 #    ax1.legend()#legend is broken in mpl 0.98.5
 
 
