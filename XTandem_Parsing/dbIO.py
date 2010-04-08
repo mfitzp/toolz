@@ -97,7 +97,6 @@ class XT_DB(object):#X!Tandem Database Class
                     return False
             else:
                 return False
-<<<<<<< .mine
         try:
             for i in xrange(XT_RESULTS.iterLen):
                 self.cur.execute(
@@ -127,7 +126,7 @@ class XT_DB(object):#X!Tandem Database Class
         except:
             print "Insert into Table False"
             return False
-=======
+
 #        try:
         for key in XT_RESULTS.dataDict.keys():
             print key, XT_RESULTS.dataDict[key], type(XT_RESULTS.dataDict[key])
@@ -161,7 +160,7 @@ class XT_DB(object):#X!Tandem Database Class
 #        except:
 #            print "Insert into Table False"
 #            return False
->>>>>>> .r465
+
 
     def close(self):
         self.cur.close()
