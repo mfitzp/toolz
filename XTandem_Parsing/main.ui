@@ -26,11 +26,10 @@
    <string>X!Tandem Results Viewer</string>
   </property>
   <property name="windowIcon" >
-   <iconset resource="SubPlot.qrc" >
-    <normaloff>:/new/prefix1/icons/games.png</normaloff>:/new/prefix1/icons/games.png</iconset>
+   <iconset resource="SubPlot.qrc" >:/new/prefix1/icons/games.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget" >
-   <layout class="QVBoxLayout" name="verticalLayout_2" >
+   <layout class="QVBoxLayout" >
     <item>
      <layout class="QHBoxLayout" >
       <item>
@@ -42,9 +41,9 @@
          <attribute name="title" >
           <string>SQL Query</string>
          </attribute>
-         <layout class="QVBoxLayout" name="verticalLayout_3" >
+         <layout class="QVBoxLayout" >
           <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_4" >
+           <layout class="QHBoxLayout" >
             <item>
              <layout class="QVBoxLayout" >
               <item>
@@ -161,11 +160,11 @@
           <item>
            <layout class="QHBoxLayout" >
             <item>
-             <spacer name="horizontalSpacer_4" >
+             <spacer>
               <property name="orientation" >
                <enum>Qt::Horizontal</enum>
               </property>
-              <property name="sizeHint" stdset="0" >
+              <property name="sizeHint" >
                <size>
                 <width>40</width>
                 <height>20</height>
@@ -213,11 +212,11 @@
              </widget>
             </item>
             <item>
-             <spacer name="horizontalSpacer_5" >
+             <spacer>
               <property name="orientation" >
                <enum>Qt::Horizontal</enum>
               </property>
-              <property name="sizeHint" stdset="0" >
+              <property name="sizeHint" >
                <size>
                 <width>40</width>
                 <height>20</height>
@@ -265,8 +264,7 @@
                <string/>
               </property>
               <property name="icon" >
-               <iconset resource="SubPlot.qrc" >
-                <normaloff>:/new/prefix1/icons/ok.png</normaloff>:/new/prefix1/icons/ok.png</iconset>
+               <iconset resource="SubPlot.qrc" >:/new/prefix1/icons/ok.png</iconset>
               </property>
               <property name="iconSize" >
                <size>
@@ -279,9 +277,9 @@
            </layout>
           </item>
           <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_2" >
+           <layout class="QHBoxLayout" >
             <item>
-             <layout class="QGridLayout" name="gridLayout_2" >
+             <layout class="QGridLayout" >
               <item row="0" column="0" >
                <widget class="QCheckBox" name="useMemDB_CB" >
                 <property name="text" >
@@ -329,11 +327,11 @@
              </layout>
             </item>
             <item>
-             <spacer name="horizontalSpacer_2" >
+             <spacer>
               <property name="orientation" >
                <enum>Qt::Horizontal</enum>
               </property>
-              <property name="sizeHint" stdset="0" >
+              <property name="sizeHint" >
                <size>
                 <width>40</width>
                 <height>20</height>
@@ -344,11 +342,6 @@
            </layout>
           </item>
          </layout>
-         <zorder>label_7</zorder>
-         <zorder>sqlErrorMessage</zorder>
-         <zorder>horizontalSpacer_2</zorder>
-         <zorder>horizontalSpacer_2</zorder>
-         <zorder>label</zorder>
         </widget>
         <widget class="QWidget" name="plotTab" >
          <attribute name="title" >
@@ -364,11 +357,11 @@
          <attribute name="title" >
           <string>Define Plot</string>
          </attribute>
-         <layout class="QGridLayout" name="gridLayout" >
-          <item row="0" column="0" >
-           <layout class="QHBoxLayout" name="horizontalLayout_3" >
+         <layout class="QVBoxLayout" >
+          <item>
+           <layout class="QHBoxLayout" >
             <item>
-             <layout class="QVBoxLayout" name="verticalLayout_4" >
+             <layout class="QVBoxLayout" >
               <item>
                <widget class="QLabel" name="label_4" >
                 <property name="text" >
@@ -382,7 +375,7 @@
              </layout>
             </item>
             <item>
-             <layout class="QVBoxLayout" name="verticalLayout_5" >
+             <layout class="QVBoxLayout" >
               <item>
                <widget class="QLabel" name="label_5" >
                 <property name="text" >
@@ -396,7 +389,7 @@
              </layout>
             </item>
             <item>
-             <layout class="QVBoxLayout" name="verticalLayout_6" >
+             <layout class="QVBoxLayout" >
               <item>
                <widget class="QLabel" name="label_6" >
                 <property name="text" >
@@ -411,14 +404,14 @@
             </item>
            </layout>
           </item>
-          <item row="1" column="0" >
-           <layout class="QHBoxLayout" name="horizontalLayout" >
+          <item>
+           <layout class="QHBoxLayout" >
             <item>
-             <spacer name="horizontalSpacer" >
+             <spacer>
               <property name="orientation" >
                <enum>Qt::Horizontal</enum>
               </property>
-              <property name="sizeHint" stdset="0" >
+              <property name="sizeHint" >
                <size>
                 <width>40</width>
                 <height>20</height>
@@ -427,95 +420,101 @@
              </spacer>
             </item>
             <item>
-             <layout class="QVBoxLayout" name="verticalLayout" >
-              <item>
-               <layout class="QGridLayout" >
-                <item row="0" column="1" >
-                 <widget class="QDoubleSpinBox" name="sizeModSpinBox" >
-                  <property name="minimum" >
-                   <double>0.000000000000000</double>
-                  </property>
-                  <property name="singleStep" >
-                   <double>0.500000000000000</double>
-                  </property>
-                  <property name="value" >
-                   <double>1.500000000000000</double>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="1" >
-                 <widget class="QComboBox" name="sizeArrayComboB" />
-                </item>
-                <item row="3" column="1" >
-                 <widget class="QPushButton" name="updatePlotBtn" >
+             <layout class="QGridLayout" >
+              <item row="0" column="0" >
+               <widget class="QLabel" name="label_8" >
+                <property name="text" >
+                 <string>Size Modifier:</string>
+                </property>
+                <property name="alignment" >
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1" >
+               <widget class="QDoubleSpinBox" name="sizeModSpinBox" >
+                <property name="minimum" >
+                 <double>0.000000000000000</double>
+                </property>
+                <property name="singleStep" >
+                 <double>0.500000000000000</double>
+                </property>
+                <property name="value" >
+                 <double>1.500000000000000</double>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0" >
+               <widget class="QLabel" name="label_9" >
+                <property name="text" >
+                 <string>Size Array:</string>
+                </property>
+                <property name="alignment" >
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1" >
+               <widget class="QComboBox" name="sizeArrayComboB" />
+              </item>
+              <item row="2" column="1" >
+               <layout class="QHBoxLayout" >
+                <item>
+                 <widget class="QCheckBox" name="cb_logx" >
                   <property name="text" >
-                   <string>Update Plot</string>
+                   <string>Log X</string>
                   </property>
                  </widget>
                 </item>
-                <item row="5" column="1" >
-                 <widget class="QPushButton" name="clearPlotBtn" >
+                <item>
+                 <widget class="QCheckBox" name="cb_logy" >
                   <property name="text" >
-                   <string>Clear Plot</string>
+                   <string>Log Y</string>
                   </property>
                  </widget>
-                </item>
-                <item row="0" column="0" >
-                 <widget class="QLabel" name="label_8" >
-                  <property name="text" >
-                   <string>Size Modifier:</string>
-                  </property>
-                  <property name="alignment" >
-                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="0" >
-                 <widget class="QLabel" name="label_9" >
-                  <property name="text" >
-                   <string>Size Array:</string>
-                  </property>
-                  <property name="alignment" >
-                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                  </property>
-                 </widget>
-                </item>
-                <item row="4" column="1" >
-                 <widget class="QCheckBox" name="clearPlotCB" >
-                  <property name="text" >
-                   <string>Clear on Update?</string>
-                  </property>
-                  <property name="checked" >
-                   <bool>true</bool>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="1" >
-                 <layout class="QHBoxLayout" >
-                  <item>
-                   <widget class="QCheckBox" name="cb_logx" >
-                    <property name="text" >
-                     <string>Log X</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QCheckBox" name="cb_logy" >
-                    <property name="text" >
-                     <string>Log Y</string>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
                 </item>
                </layout>
               </item>
-              <item>
-               <spacer name="verticalSpacer" >
+              <item row="3" column="1" >
+               <widget class="QPushButton" name="updatePlotBtn" >
+                <property name="text" >
+                 <string>Update Plot</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="1" >
+               <widget class="QCheckBox" name="clearPlotCB" >
+                <property name="text" >
+                 <string>Clear on Update?</string>
+                </property>
+                <property name="checked" >
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="5" column="1" >
+               <widget class="QPushButton" name="clearPlotBtn" >
+                <property name="text" >
+                 <string>Clear Plot</string>
+                </property>
+               </widget>
+              </item>
+              <item row="6" column="1" colspan="2" >
+               <widget class="QCheckBox" name="showLegendCB" >
+                <property name="text" >
+                 <string>Show Legend?</string>
+                </property>
+                <property name="checked" >
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="7" column="0" colspan="3" >
+               <spacer>
                 <property name="orientation" >
                  <enum>Qt::Vertical</enum>
                 </property>
-                <property name="sizeHint" stdset="0" >
+                <property name="sizeHint" >
                  <size>
                   <width>20</width>
                   <height>40</height>
@@ -568,7 +567,6 @@
      </layout>
     </item>
    </layout>
-   <zorder>SelectInfoWidget</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar" >
    <property name="geometry" >
@@ -659,8 +657,7 @@
   </action>
   <action name="action_Tools" >
    <property name="icon" >
-    <iconset resource="SubPlot.qrc" >
-     <normaloff>:/new/prefix1/icons/Service Manager.png</normaloff>:/new/prefix1/icons/Service Manager.png</iconset>
+    <iconset resource="SubPlot.qrc" >:/new/prefix1/icons/Service Manager.png</iconset>
    </property>
    <property name="text" >
     <string>&amp;Tools</string>
@@ -668,8 +665,7 @@
   </action>
   <action name="actionFileOpen" >
    <property name="icon" >
-    <iconset resource="SubPlot.qrc" >
-     <normaloff>:/new/prefix1/icons/fileopen.png</normaloff>:/new/prefix1/icons/fileopen.png</iconset>
+    <iconset resource="SubPlot.qrc" >:/new/prefix1/icons/fileopen.png</iconset>
    </property>
    <property name="text" >
     <string>fileOpen</string>
@@ -680,8 +676,7 @@
   </action>
   <action name="actionFileSave" >
    <property name="icon" >
-    <iconset resource="SubPlot.qrc" >
-     <normaloff>:/new/prefix1/icons/filesave2.png</normaloff>:/new/prefix1/icons/filesave2.png</iconset>
+    <iconset resource="SubPlot.qrc" >:/new/prefix1/icons/filesave2.png</iconset>
    </property>
    <property name="text" >
     <string>fileSave</string>
@@ -692,8 +687,7 @@
   </action>
   <action name="actionFileSaveAs" >
    <property name="icon" >
-    <iconset resource="SubPlot.qrc" >
-     <normaloff>:/new/prefix1/icons/filesaveas.png</normaloff>:/new/prefix1/icons/filesaveas.png</iconset>
+    <iconset resource="SubPlot.qrc" >:/new/prefix1/icons/filesaveas.png</iconset>
    </property>
    <property name="text" >
     <string>fileSaveAs</string>
@@ -701,8 +695,7 @@
   </action>
   <action name="actionNewFile" >
    <property name="icon" >
-    <iconset resource="SubPlot.qrc" >
-     <normaloff>:/new/prefix1/icons/filenew.png</normaloff>:/new/prefix1/icons/filenew.png</iconset>
+    <iconset resource="SubPlot.qrc" >:/new/prefix1/icons/filenew.png</iconset>
    </property>
    <property name="text" >
     <string>newFile</string>
@@ -713,8 +706,7 @@
   </action>
   <action name="actionTools" >
    <property name="icon" >
-    <iconset resource="SubPlot.qrc" >
-     <normaloff>:/new/prefix1/icons/Service Manager.png</normaloff>:/new/prefix1/icons/Service Manager.png</iconset>
+    <iconset resource="SubPlot.qrc" >:/new/prefix1/icons/Service Manager.png</iconset>
    </property>
    <property name="text" >
     <string>Transfer</string>
@@ -728,8 +720,7 @@
   </action>
   <action name="action_getSelection" >
    <property name="icon" >
-    <iconset resource="SubPlot.qrc" >
-     <normaloff>:/new/prefix1/icons/kspread_ksp.png</normaloff>:/new/prefix1/icons/kspread_ksp.png</iconset>
+    <iconset resource="SubPlot.qrc" >:/new/prefix1/icons/kspread_ksp.png</iconset>
    </property>
    <property name="text" >
     <string>getSelection</string>
@@ -740,8 +731,7 @@
   </action>
   <action name="actionClear" >
    <property name="icon" >
-    <iconset resource="SubPlot.qrc" >
-     <normaloff>:/new/prefix1/icons/cleanlarge.png</normaloff>:/new/prefix1/icons/cleanlarge.png</iconset>
+    <iconset resource="SubPlot.qrc" >:/new/prefix1/icons/cleanlarge.png</iconset>
    </property>
    <property name="text" >
     <string>clear</string>
@@ -752,8 +742,7 @@
   </action>
   <action name="action_New" >
    <property name="icon" >
-    <iconset resource="SubPlot.qrc" >
-     <normaloff>:/new/prefix1/icons/filenew.png</normaloff>:/new/prefix1/icons/filenew.png</iconset>
+    <iconset resource="SubPlot.qrc" >:/new/prefix1/icons/filenew.png</iconset>
    </property>
    <property name="text" >
     <string>&amp;New</string>
@@ -764,8 +753,7 @@
   </action>
   <action name="action_Open" >
    <property name="icon" >
-    <iconset resource="SubPlot.qrc" >
-     <normaloff>:/new/prefix1/icons/fileopen.png</normaloff>:/new/prefix1/icons/fileopen.png</iconset>
+    <iconset resource="SubPlot.qrc" >:/new/prefix1/icons/fileopen.png</iconset>
    </property>
    <property name="text" >
     <string>&amp;Open</string>
@@ -776,8 +764,7 @@
   </action>
   <action name="action_Save" >
    <property name="icon" >
-    <iconset resource="SubPlot.qrc" >
-     <normaloff>:/new/prefix1/icons/filesave2.png</normaloff>:/new/prefix1/icons/filesave2.png</iconset>
+    <iconset resource="SubPlot.qrc" >:/new/prefix1/icons/filesave2.png</iconset>
    </property>
    <property name="text" >
     <string>&amp;Save</string>
@@ -788,8 +775,7 @@
   </action>
   <action name="actionSave_As" >
    <property name="icon" >
-    <iconset resource="SubPlot.qrc" >
-     <normaloff>:/new/prefix1/icons/filesaveas.png</normaloff>:/new/prefix1/icons/filesaveas.png</iconset>
+    <iconset resource="SubPlot.qrc" >:/new/prefix1/icons/filesaveas.png</iconset>
    </property>
    <property name="text" >
     <string>Save &amp;As</string>
@@ -797,8 +783,7 @@
   </action>
   <action name="action_Exit" >
    <property name="icon" >
-    <iconset resource="SubPlot.qrc" >
-     <normaloff>:/new/prefix1/icons/exit.png</normaloff>:/new/prefix1/icons/exit.png</iconset>
+    <iconset resource="SubPlot.qrc" >:/new/prefix1/icons/exit.png</iconset>
    </property>
    <property name="text" >
     <string>&amp;Exit</string>
@@ -809,8 +794,7 @@
   </action>
   <action name="action_Clear" >
    <property name="icon" >
-    <iconset resource="SubPlot.qrc" >
-     <normaloff>:/new/prefix1/icons/cleanlarge.png</normaloff>:/new/prefix1/icons/cleanlarge.png</iconset>
+    <iconset resource="SubPlot.qrc" >:/new/prefix1/icons/cleanlarge.png</iconset>
    </property>
    <property name="text" >
     <string>Clea&amp;r</string>
@@ -818,8 +802,7 @@
   </action>
   <action name="action_Table_Selection" >
    <property name="icon" >
-    <iconset resource="SubPlot.qrc" >
-     <normaloff>:/new/prefix1/icons/kspread_ksp.png</normaloff>:/new/prefix1/icons/kspread_ksp.png</iconset>
+    <iconset resource="SubPlot.qrc" >:/new/prefix1/icons/kspread_ksp.png</iconset>
    </property>
    <property name="text" >
     <string>&amp;Table Selection</string>
@@ -827,8 +810,7 @@
   </action>
   <action name="action_Cut" >
    <property name="icon" >
-    <iconset resource="SubPlot.qrc" >
-     <normaloff>:/new/prefix1/icons/editcut.png</normaloff>:/new/prefix1/icons/editcut.png</iconset>
+    <iconset resource="SubPlot.qrc" >:/new/prefix1/icons/editcut.png</iconset>
    </property>
    <property name="text" >
     <string>&amp;Cut</string>
@@ -839,8 +821,7 @@
   </action>
   <action name="action_Paste" >
    <property name="icon" >
-    <iconset resource="SubPlot.qrc" >
-     <normaloff>:/new/prefix1/icons/editpaste.png</normaloff>:/new/prefix1/icons/editpaste.png</iconset>
+    <iconset resource="SubPlot.qrc" >:/new/prefix1/icons/editpaste.png</iconset>
    </property>
    <property name="text" >
     <string>&amp;Paste</string>
@@ -851,8 +832,7 @@
   </action>
   <action name="actionRunScript" >
    <property name="icon" >
-    <iconset resource="SubPlot.qrc" >
-     <normaloff>:/new/prefix1/icons/software-development.png</normaloff>:/new/prefix1/icons/software-development.png</iconset>
+    <iconset resource="SubPlot.qrc" >:/new/prefix1/icons/software-development.png</iconset>
    </property>
    <property name="text" >
     <string>runScript</string>
@@ -863,8 +843,7 @@
   </action>
   <action name="actionAbout" >
    <property name="icon" >
-    <iconset resource="SubPlot.qrc" >
-     <normaloff>:/new/prefix1/icons/help.png</normaloff>:/new/prefix1/icons/help.png</iconset>
+    <iconset resource="SubPlot.qrc" >:/new/prefix1/icons/help.png</iconset>
    </property>
    <property name="text" >
     <string>About</string>
@@ -872,8 +851,7 @@
   </action>
   <action name="actionPlot" >
    <property name="icon" >
-    <iconset resource="SubPlot.qrc" >
-     <normaloff>:/new/prefix1/icons/120px-Icon_Mathematical_Plot.svg.png</normaloff>:/new/prefix1/icons/120px-Icon_Mathematical_Plot.svg.png</iconset>
+    <iconset resource="SubPlot.qrc" >:/new/prefix1/icons/120px-Icon_Mathematical_Plot.svg.png</iconset>
    </property>
    <property name="text" >
     <string>Plot</string>
@@ -881,8 +859,7 @@
   </action>
   <action name="actionDelete" >
    <property name="icon" >
-    <iconset resource="SubPlot.qrc" >
-     <normaloff>:/new/prefix1/icons/xkill.png</normaloff>:/new/prefix1/icons/xkill.png</iconset>
+    <iconset resource="SubPlot.qrc" >:/new/prefix1/icons/xkill.png</iconset>
    </property>
    <property name="text" >
     <string>Delete</string>
@@ -890,8 +867,7 @@
   </action>
   <action name="actionDeleteAll" >
    <property name="icon" >
-    <iconset resource="SubPlot.qrc" >
-     <normaloff>:/new/prefix1/icons/xkill.png</normaloff>:/new/prefix1/icons/xkill.png</iconset>
+    <iconset resource="SubPlot.qrc" >:/new/prefix1/icons/xkill.png</iconset>
    </property>
    <property name="text" >
     <string>DeleteAll</string>
@@ -899,8 +875,7 @@
   </action>
   <action name="actionPlotItem" >
    <property name="icon" >
-    <iconset resource="SubPlot.qrc" >
-     <normaloff>:/new/prefix1/icons/120px-Icon_Mathematical_Plot.svg.png</normaloff>:/new/prefix1/icons/120px-Icon_Mathematical_Plot.svg.png</iconset>
+    <iconset resource="SubPlot.qrc" >:/new/prefix1/icons/120px-Icon_Mathematical_Plot.svg.png</iconset>
    </property>
    <property name="text" >
     <string>PlotItem</string>
@@ -919,8 +894,7 @@
   </action>
   <action name="actionLoad_Folder" >
    <property name="icon" >
-    <iconset resource="SubPlot.qrc" >
-     <normaloff>:/new/prefix1/icons/fileimport.png</normaloff>:/new/prefix1/icons/fileimport.png</iconset>
+    <iconset resource="SubPlot.qrc" >:/new/prefix1/icons/fileimport.png</iconset>
    </property>
    <property name="text" >
     <string>Load Folder</string>
@@ -928,8 +902,7 @@
   </action>
   <action name="actionSave_All_Tables" >
    <property name="icon" >
-    <iconset resource="SubPlot.qrc" >
-     <normaloff>:/new/prefix1/icons/kchart_chrt.png</normaloff>:/new/prefix1/icons/kchart_chrt.png</iconset>
+    <iconset resource="SubPlot.qrc" >:/new/prefix1/icons/kchart_chrt.png</iconset>
    </property>
    <property name="text" >
     <string>Save All Tables to CSV</string>
@@ -937,8 +910,7 @@
   </action>
   <action name="actionCopy_Current_Database" >
    <property name="icon" >
-    <iconset resource="SubPlot.qrc" >
-     <normaloff>:/new/prefix1/icons/editpaste.png</normaloff>:/new/prefix1/icons/editpaste.png</iconset>
+    <iconset resource="SubPlot.qrc" >:/new/prefix1/icons/editpaste.png</iconset>
    </property>
    <property name="text" >
     <string>Copy Current Database</string>
