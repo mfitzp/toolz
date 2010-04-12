@@ -3,6 +3,9 @@
 This is the explicit class for viewing Parsed XT Files
 
 /usr/bin/pyuic4 /home/clowers/workspace/XTandem_Parsing/main.ui  -o /home/clowers/workspace/XTandem_Parsing/ui_main.py
+
+To Do:
+Commit cross table peptide search with stats to DB
 """
 #Importing built-in python modules and functions
 import sys, os
@@ -635,7 +638,7 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
     def __setupPlot__(self):
         '''Sets up the plot variables used for interaction'''
         self.handleA,  = self.plotWidget.canvas.ax.plot([0], [0], 'o',\
-                                        ms=8, alpha=.5, color='yellow', visible=False,  label = 'Cursor A')
+                                        ms=8, alpha=.5, color='yellow', visible=False,  label = '_nolegend_')
         self.is_hZoom = False
         self.plotWidget.canvas.mpl_connect('pick_event', self.OnPickPlot)
 
@@ -666,6 +669,13 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
 
             self.plotScatter = self.plotWidget.canvas.ax.scatter(self.x, self.y,  color = self.getPlotColor(),  marker = self.getPlotMarker(), alpha = 0.3,  label = self.curTbl,  picker = 5,  s = sizeList)
             #self.plotScatter = self.plotWidget.canvas.ax.plot(self.x, self.y,  color = self.getPlotColor(),  marker = self.getPlotMarker(), alpha = 0.3,  label = self.curTbl,  picker = 5)
+            if self.showLegendCB.isChecked():
+                self.plotWidget.canvas.ax.legend(borderaxespad = 0.03, axespad=0.25)
+                if self.plotWidget.canvas.ax.get_legend() != None:
+                    texts = self.plotWidget.canvas.ax.get_legend().get_texts()
+                    for text in texts:
+                        text.set_fontsize(8)
+                
             if self.cb_logx.isChecked():
                 self.plotWidget.canvas.ax.set_xscale('log')
                 xmin = N.min(self.x)/10
@@ -760,9 +770,11 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         for item in self.curSelectInfo.iteritems():
             m = 0
             for entry in item:
-                newitem = QtGui.QTableWidgetItem(entry)
-                self.SelectInfoWidget.setItem(n, m, newitem)
-                m+=1
+                if entry != None:
+                    #print type(entry), str(entry)
+                    newitem = QtGui.QTableWidgetItem(entry)
+                    self.SelectInfoWidget.setItem(n, m, newitem)
+                    m+=1
             n+=1
 
         self.SelectInfoWidget.resizeColumnsToContents()
@@ -1075,6 +1087,7 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
     def parseCombined(self, combinedResults, headerList = None, tblNames = None):
         '''
         Parses and formats the combined results from UNIQUE_PEP_PRO_FULL
+        How to commit to database?
         '''
         newResults = []
         print "Col Names ", headerList
@@ -1093,6 +1106,8 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         '''
         The idea here is to get a full on list of peptides
         across tables along with the status associated with each
+        Using a _CommonList the peptides for each table are compared and
+        the stats computed
         '''
         cmnTableName = '_CommonList'
         tblList = []
