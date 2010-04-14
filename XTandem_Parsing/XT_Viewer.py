@@ -478,25 +478,25 @@ class XTViewer(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
             if self.dbStatus:
                 fnCore = os.path.basename(str(filename)).split('.')[0]#self.getFNCore(str(filename))
                 self.curTbl = fnCore
-                try:
+#                try:
 #                    print filename
-                    results = XT_RESULTS(filename)
-                    if results.dataDict == False:
-                        raise Exception,  self.EmptyArrayText
-    
-                    else:
-                        insertOK = self.curDB.INSERT_XT_VALUES(fnCore, results)
-                        self.loadOK = True
-                        if insertOK:
-                            self.activeDict[fnCore] = results
-                            self.initiatePlot()
-                            self.updatePlotOptionsGUI()
-                            self.updateQueryGUI()
-                            self.firstLoad = False
-                except:
-                    errorMsg = "Error: %s\n\n%s\n"%(sys.exc_type, sys.exc_value)
-                    errorMsg+='\n There was an error reading the xml file.  Are you sure it is an X!Tandem output file?'
-                    return QtGui.QMessageBox.information(self,'Error Reading File', errorMsg)
+                results = XT_RESULTS(filename)
+                if results.dataDict == False:
+                    raise Exception,  self.EmptyArrayText
+
+                else:
+                    insertOK = self.curDB.INSERT_XT_VALUES(fnCore, results)
+                    self.loadOK = True
+                    if insertOK:
+                        self.activeDict[fnCore] = results
+                        self.initiatePlot()
+                        self.updatePlotOptionsGUI()
+                        self.updateQueryGUI()
+                        self.firstLoad = False
+#                except:
+#                    errorMsg = "Error: %s\n\n%s\n"%(sys.exc_type, sys.exc_value)
+#                    errorMsg+='\n There was an error reading the xml file.  Are you sure it is an X!Tandem output file?'
+#                    return QtGui.QMessageBox.information(self,'Error Reading File', errorMsg)
 #
         elif self.fileType == 'h5':
 #            try:
