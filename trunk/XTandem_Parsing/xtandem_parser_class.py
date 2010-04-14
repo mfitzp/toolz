@@ -104,12 +104,15 @@ class XT_RESULTS:
                                     scanIntensity.append(curIntensity)
                                     for subGroup in group.getchildren():
                                         if subGroup.get('label') == "fragment ion mass spectrum":
+                                            #print "Frag"
                                             fragText, fragInfo = subGroup.getchildren()
-                                            tempStr = 'scan '+str(scanID[-1])
-                                            if tempStr in fragText.text:
+                                            fragScan = fragInfo.get('id')
+                                            tempStr = str(scanID[-1])
+                                            if tempStr == fragScan:
                                                 n+=1
                                                 for fragElem in fragInfo.getchildren():
                                                     if 'Xdata' in fragElem.tag:
+                                                        #print "XData"
                                                         xStr = fragElem[0].text
                                                         strXSplit = xStr.split('\n')
                                                         tempXStr = ''
@@ -119,6 +122,7 @@ class XT_RESULTS:
                     #                                    tempXStr.join(strXSplit)#this should work but doesn't
                                                         fragXVals.append(tempXStr)#need to split because there are the return characters
                                                     elif 'Ydata' in fragElem.tag:
+                                                        #print 'YData'
                                                         yStr = fragElem[0].text
                                                         #fragYVals.append(N.array(yStr.split('\n')[1].split(), dtype = N.float))#conver to array with dtype set or it will default to string types
                                                         strYSplit = yStr.split('\n')
@@ -142,6 +146,7 @@ class XT_RESULTS:
             #                    'index': N.arange(len(pepID)),
             #need to sort the values
             scanOrder = N.array(scanID).argsort()
+            #print len(scanOrder), len(fragXVals), len(fragYVals)
             if len(pepID) != 0:
                 self.dataDict = {
                     'pepID': N.array(pepID)[scanOrder],
@@ -211,6 +216,7 @@ if __name__ == '__main__':
     t1 = time.clock()
     #the returned list contains tuples with  6 items, ppm, scan#, protein e-value, protein, peptide e-value, and peptide sequence
     filename = 'R19.xml'
+    #filename = 'C01.xml'
     x = XT_RESULTS(filename)
     t2 = time.clock()
 
