@@ -118,6 +118,8 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
         QtCore.QObject.connect(self.defaultSourceParamCB, QtCore.SIGNAL("currentIndexChanged (int)"), self.setSourceDefaults)
         QtCore.QObject.connect(self.defaultAnalyzerParamCB, QtCore.SIGNAL("currentIndexChanged (int)"), self.setAnalyzerDefault)
 
+        self.setSourceDefaults()#make sure that the charge values get set correctly
+
     def setupDefaults(self):
         fileName = "default.ini"
         if os.path.isfile(fileName):
@@ -406,6 +408,8 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
         self.inputDict['aaModStr'] = str(self.aaMod_LE.text())#"residue, modification mass"
         #self.inputDict['potentialModMass'] = "residue, potential modification mass"
         self.inputDict['potentialModMotif'] = str(self.userDefinedMods_LE.text())#"residue, potential modification motif"
+        self.inputDict['refinePotAAModMass'] = str(self.refinePotAAMod_LE.text())#"refine, potential modification mass"
+        self.inputDict['residuePotAAModMass'] = str(self.potAAMod_LE.text())#"residue, potential modification mass"
         ###############
         self.inputDict['taxon'] = self.taxa#"protein, taxon"
         ###############
@@ -431,7 +435,7 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
         #self.inputDict['refinePotModMotif'] = "refine, potential modification motif"#></note>
         #self.inputDict['minIonCount'] = "scoring, minimum ion count"
         self.inputDict['maxMissedCleavages'] = self.maxMissedCleaves_SB.value()
-        self.inputDict['xIons'] = self.fragDict['x']#
+        self.inputDict['xIons'] = self.fragDict['x']#"scoring, x ions"
         self.inputDict['yIons'] = self.fragDict['y']#"scoring, y ions"
         self.inputDict['zIons'] = self.fragDict['z']#"scoring, z ions"
         self.inputDict['aIons'] = self.fragDict['a']#"scoring, a ions"
@@ -551,7 +555,7 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
             return None
 
     #GUI ELEMENT HANDLERS
-    def setSourceDefaults(self, intVal):
+    def setSourceDefaults(self, intVal = None):
         '''
         Options:
         ESI
@@ -562,8 +566,10 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
         if val == 'MALDI':
             self.maxCharge_SB.setValue(1)
             self.minParent_SB.setValue(400)
-
         elif val == 'ESI':
+            self.maxCharge_SB.setValue(4)
+            self.minParent_SB.setValue(400)
+        else:
             self.maxCharge_SB.setValue(4)
             self.minParent_SB.setValue(400)
 

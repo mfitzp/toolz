@@ -39,6 +39,8 @@ xtInputDict['minFragMZ'] = "spectrum, minimum fragment mz"
 xtInputDict['minPeaks'] = "spectrum, minimum peaks"
 xtInputDict['threads'] = "spectrum, threads"
 xtInputDict['aaModStr'] = "residue, modification mass"
+
+xtInputDict['residuePotAAModMass'] = "residue, potential modification mass"
 '''
 The format of this parameter is m@X, where m is the modfication
 mass in Daltons and X is the appropriate residue to modify. Lists of
@@ -82,6 +84,7 @@ xtInputDict['protNModMass'] = "protein, N-terminal residue modification mass"#>0
 xtInputDict['protCModMass'] = "protein, C-terminal residue modification mass"#>0.0</note>
 
 xtInputDict['refine'] = "refine"#>yes</note>
+xtInputDict['refinePotAAModMass'] = "refine, potential modification mass"
 #xtInputDict['refineModMass'] = "refine, modification mass"#></note>
 #xtInputDict[''] = "refine, sequence path"#></note>
 #xtInputDict['ticPercent'] = "refine, tic percent"#>20</note>
