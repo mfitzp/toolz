@@ -16,8 +16,7 @@ import supportElements as SE
 import miscFunc as MF
 import ui_mainGUI
 
-DEBUG = True
-INPUTGEN = True #used to set whether or not the program can be used to run xtandem or just generate the input files
+XTRUN = False #used to set whether or not the program can be used to run xtandem or just generate the input files
 
 '''
 /usr/bin/pyuic4 /home/clowers/workspace/pyXTandem/mainGUI.ui  -o /home/clowers/workspace/pyXTandem/ui_mainGUI.py
@@ -77,15 +76,15 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
 
         #Set file path defaults:
         tempInput = os.path.join(self.defaultDir,"input.xml")
-        tempInput = '/home/clowers/Proteomics/XTandem/pyinput.xml'#on clowers' linux box
+        tempInput = '/home/chembio/Proteomics/XTandem/pyinput.xml'#on clowers' linux box
         self.inputFile_LE.setText(tempInput)
 
         tempOutput = os.path.join(self.defaultDir,"output.xml")
-        tempOutput = '/home/clowers/Proteomics/XTandem/pyoutput.xml'#on clowers' linux box
+        tempOutput = '/home/chembio/Proteomics/XTandem/pyoutput.xml'#on clowers' linux box
         self.outputFile_LE.setText(tempOutput)
 
 #        specPath = "chickenInput.tmp"
-        specPath = '/home/clowers/Proteomics/XTandem/test_spectra.mgf'#on clowers' linux box
+        specPath = '/home/chembio/Proteomics/XTandem/test_spectra.mgf'#on clowers' linux box
         self.rawData_LE.setText(specPath)
         self.rawInputDataPath = specPath
         #Setup default Values:
@@ -96,8 +95,17 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
 
         self.setupDefaults()
 
-        if INPUTGEN:
+        if not XTRUN:
             self.runXT_Btn.setEnabled(False)
+            self.rawData_Btn.setEnabled(False)
+            self.xtOutputFile_Btn.setEnabled(False)
+            self.defaultTaxFile_Btn.setEnabled(False)
+            self.defaultXTEXE_Btn.setEnabled(False)
+            self.defaultMethod_Btn.setEnabled(False)
+            errMsg = "Direct X!Tandem Interface is disabled.\nPlease submit jobs through DaQueue!\nUse this program to generate input control files only."
+            return QtGui.QMessageBox.warning(self, "Search Aborted", errMsg)
+
+		
 
 
     def _setConnections_(self):
@@ -185,7 +193,7 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
                     self.taxonListWidget.addItem(curTaxon)
 
     def startXT(self):
-        if DEBUG:
+        if XTRUN:
             self.makeXTOutput()
             xtPath = os.path.abspath(str(self.defaultXTEXE_LE.text()))
             inputPath = os.path.abspath(str(self.inputFile_LE.text()))
