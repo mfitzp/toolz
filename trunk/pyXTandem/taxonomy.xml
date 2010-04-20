@@ -1,301 +1,56 @@
 <?xml version="1.0"?>
 <bioml label="x! taxon-to-file matching list">
-	<note type="description">The paths in this file must be changed to point to the fasta
-		or fasta.pro files on your system
-	</note>
-	<taxon label="human">
-		<file format="peptide" URL="../fasta/human_e.fasta.pro" />
-		<file format="peptide" URL="../fasta/crap.fasta.pro" />
-		<file format="mods" URL="../mods/human_mod.xml" />
-		<file format="saps" URL="../saps/human_saps.xml" />
-		<file format="spectrum" URL="../lib/human_cmp_20.hlf"/>
-		<file format="spectrum" URL="../lib/crap_cmp_20.hlf"/>
-	</taxon>
-	<taxon label="rat">
-		<file format="peptide" URL="../fasta/rat_e.fasta.pro" />
-		<file format="peptide" URL="../fasta/crap.fasta.pro" />
-		<file format="mods" URL="../mods/rat_mod.xml" />
-		<file format="saps" URL="../saps/rat_saps.xml" />
-		<file format="spectrum" URL="../lib/rat_cmp_20.hlf"/>
-		<file format="spectrum" URL="../lib/crap_cmp_20.hlf"/>
-	</taxon>
-	<taxon label="mouse">
-		<file format="peptide" URL="../fasta/mouse_e.fasta.pro" />
-		<file format="peptide" URL="../fasta/crap.fasta.pro" />
-		<file format="mods" URL="../mods/mouse_mod.xml" />
-		<file format="saps" URL="../saps/mouse_saps.xml" />
-		<file format="spectrum" URL="../lib/mouse_cmp_20.hlf"/>
-		<file format="spectrum" URL="../lib/crap_cmp_20.hlf"/>
-	</taxon>
 	<taxon label="yeast">
-		<file format="peptide" URL="../fasta/scd.fasta.pro" />
-		<file format="peptide" URL="../fasta/scd_1.fasta.pro" />
-		<file format="mods" URL="../mods/yeast_mod.xml" />
-		<file format="spectrum" URL="../lib/yeast_cmp_20.hlf"/>
-		<file format="spectrum" URL="../lib/crap_cmp_20.hlf"/>
-		<file format="peptide" URL="../fasta/crap.fasta.pro" />
+		<file format="peptide" URL="fasta/scd.fasta.pro" />
+		<file format="peptide" URL="fasta/scd_1.fasta.pro" />
+		<file format="peptide" URL="fasta/crap.fasta.pro" />
 	</taxon>
 	<taxon label="cow">
-		<file format="peptide" URL="../fasta/cow_e.fasta.pro" />
-		<file format="spectrum" URL="../lib/cow_cmp_20.hlf"/>
-		<file format="spectrum" URL="../lib/crap_cmp_20.hlf"/>
-		<file format="peptide" URL="../fasta/crap.fasta.pro" />
+		<file format="peptide" URL="fasta/crap.fasta.pro" />
+		<file format="peptide" URL="fasta/B_taurus_070507.fasta.pro" />
 	</taxon>
-	<taxon label="cat">
-		<file format="peptide" URL="../fasta/cat_e.fasta.pro" />
-		<file format="spectrum" URL="../lib/cat_cmp_20.hlf"/>
-		<file format="spectrum" URL="../lib/crap_cmp_20.hlf"/>
-		<file format="peptide" URL="../fasta/crap.fasta.pro" />
+	<taxon label="pig">
+		<file format="peptide" URL="fasta/pig_uniprot-taxonomy-9823.fasta.pro" />
+		<file format="peptide" URL="fasta/crap.fasta.pro" />
 	</taxon>
-	<taxon label="chicken">
-		<file format="peptide" URL="../fasta/chicken_e.fasta.pro" />
-		<file format="mods" URL="../mods/chicken_mod.xml" />
-		<file format="spectrum" URL="../lib/chicken_cmp_20.hlf"/>
-		<file format="spectrum" URL="../lib/crap_cmp_20.hlf"/>
-		<file format="peptide" URL="../fasta/crap.fasta.pro" />
+	<taxon label="sheep">
+		<file format="peptide" URL="fasta/sheep_uniprot-taxonomy-9940.fasta.pro" />
+		<file format="peptide" URL="fasta/crap.fasta.pro" />
 	</taxon>
-	<taxon label="dog">
-		<file format="peptide" URL="../fasta/dog_e.fasta.pro" />
-		<file format="spectrum" URL="../lib/dog_cmp_20.hlf"/>
-		<file format="spectrum" URL="../lib/crap_cmp_20.hlf"/>
-		<file format="peptide" URL="../fasta/crap.fasta.pro" />
+	<taxon label="e coli">
+		<file format="peptide" URL="fasta/e_coli.fasta.pro" />
+		<file format="peptide" URL="fasta/crap.fasta.pro" />
 	</taxon>
-
-	<taxon label="e_coli">
-		<file format="peptide" URL="../fasta/bacteria/e_coli.fasta.pro"/>
-		<file format="peptide" URL="../fasta/crap.fasta.pro"/>
-		<file format="spectrum" URL="../lib/bacteria/e_coli_cmp_20.hlf"/>
-		<file format="spectrum" URL="../lib/crap_cmp_20.hlf"/>
+	<taxon label="soy bean">
+		<file format="peptide" URL="fasta/Glycine_max.fasta.pro" />
+		<file format="peptide" URL="fasta/crap.fasta.pro" />
 	</taxon>
-	<taxon label="d_radiodurans">
-		<file format="peptide" URL="../fasta/bacteria/d_radiodurans.fasta.pro"/>
-		<file format="peptide" URL="../fasta/crap.fasta.pro"/>
-		<file format="spectrum" URL="../lib/bacteria/d_radiodurans_cmp_20.hlf"/>
-		<file format="spectrum" URL="../lib/crap_cmp_20.hlf"/>
+	<taxon label="uniprot mammals">
+		<file format="peptide" URL="fasta/uniprot_sprot_mammals.fasta.pro" />
+		<file format="peptide" URL="fasta/crap.fasta.pro" />
 	</taxon>
-	<taxon label="m_smegmatis">
-		<file format="peptide" URL="../fasta/bacteria/m_smegmatis.fasta.pro"/>
-		<file format="peptide" URL="../fasta/crap.fasta.pro"/>
-		<file format="spectrum" URL="../lib/bacteria/m_smegmatis_cmp_20.hlf"/>
-		<file format="spectrum" URL="../lib/crap_cmp_20.hlf"/>
+	<taxon label="yersinia">
+		<file format="peptide" URL="fasta/Yersinia_070507.fasta.pro" />
+		<file format="peptide" URL="fasta/crap.fasta.pro" />
 	</taxon>
-	<taxon label="m_tuberculosis">
-		<file format="peptide" URL="../fasta/bacteria/m_tuberculosis.fasta.pro"/>
-		<file format="peptide" URL="../fasta/crap.fasta.pro"/>
-		<file format="spectrum" URL="../lib/bacteria/m_tuberculosis_cmp_20.hlf"/>
-		<file format="spectrum" URL="../lib/crap_cmp_20.hlf"/>
+	<taxon label="B cereus">
+		<file format="peptide" URL="fasta/Bcereus_group_022305.fasta.pro" />
+		<file format="peptide" URL="fasta/crap.fasta.pro" />
 	</taxon>
-	<taxon label="s_enterica">
-		<file format="peptide" URL="../fasta/bacteria/s_enterica.fasta.pro"/>
-		<file format="peptide" URL="../fasta/crap.fasta.pro"/>
-		<file format="spectrum" URL="../lib/bacteria/s_enterica_cmp_20.hlf"/>
-		<file format="spectrum" URL="../lib/crap_cmp_20.hlf"/>
-		</taxon>
-	<taxon label="s_oneidensis">
-		<file format="peptide" URL="../fasta/bacteria/s_oneidensis.fasta.pro"/>
-		<file format="peptide" URL="../fasta/crap.fasta.pro"/>
-		<file format="spectrum" URL="../lib/bacteria/s_oneidensis_cmp_20.hlf"/>
-		<file format="spectrum" URL="../lib/crap_cmp_20.hlf"/>
+	<taxon label="B anthracis">
+		<file format="peptide" URL="fasta/Banthracis_all.fasta.pro" />
+		<file format="peptide" URL="fasta/crap.fasta.pro" />
 	</taxon>
-	<taxon label="s_pyogenes">
-		<file format="peptide" URL="../fasta/bacteria/s_pyogenes.fasta.pro"/>
-		<file format="peptide" URL="../fasta/crap.fasta.pro"/>
-		<file format="spectrum" URL="../lib/bacteria/s_pyogenes_cmp_20.hlf"/>
-		<file format="spectrum" URL="../lib/crap_cmp_20.hlf"/>
+	<taxon label="S oneidensis">
+		<file format="peptide" URL="fasta/s_oneidensis.fasta.pro" />
+		<file format="peptide" URL="fasta/crap.fasta.pro" />
 	</taxon>
-	<taxon label="halobacterium">
-		<file format="peptide" URL="../fasta/bacteria/halobacterium.fasta.pro"/>
-		<file format="peptide" URL="../fasta/crap.fasta.pro"/>
-		<file format="spectrum" URL="../lib/bacteria/halobacterium_cmp_20.hlf"/>
-		<file format="spectrum" URL="../lib/crap_cmp_20.hlf"/>
+	<taxon label="S typhimurium">
+		<file format="peptide" URL="fasta/s_typhimurium.fasta.pro" />
+		<file format="peptide" URL="fasta/crap.fasta.pro" />
 	</taxon>
-	<taxon label="s_typhi">
-		<file format="peptide" URL="../fasta/bacteria/s_typhi.fasta.pro"/>
-		<file format="peptide" URL="../fasta/crap.fasta.pro"/>
-		<file format="spectrum" URL="../lib/bacteria/s_typhi_cmp_20.hlf"/>
-		<file format="spectrum" URL="../lib/crap_cmp_20.hlf"/>
-	</taxon>
-	<taxon label="s_typhimurium">
-		<file format="peptide" URL="../fasta/bacteria/s_typhimurium.fasta.pro"/>
-		<file format="peptide" URL="../fasta/crap.fasta.pro"/>
-		<file format="spectrum" URL="../lib/bacteria/s_typhimurium_cmp_20.hlf"/>
-		<file format="spectrum" URL="../lib/crap_cmp_20.hlf"/>
-	</taxon>
-
-	<taxon label="Arabidopsis thaliana">
-		<file format="peptide" URL="../fasta/unigene/Arabidopsis_thaliana.fasta.pro"/>
-		<file format="peptide" URL="../fasta/crap.fasta.pro"/>
-	</taxon>
-	<taxon label="Saccharum officinarum">
-		<file format="peptide" URL="../fasta/unigene/Saccharum_officinarum.fasta.pro"/>
-		<file format="peptide" URL="../fasta/crap.fasta.pro"/>
-	</taxon>
-	<taxon label="Pinus taeda">
-		<file format="peptide" URL="../fasta/unigene/Pinus_taeda.fasta.pro"/>
-		<file format="peptide" URL="../fasta/crap.fasta.pro"/>
-	</taxon>
-	<taxon label="Populus balsamifera">
-		<file format="peptide" URL="../fasta/unigene/Populus_balsamifera.fasta.pro"/>
-		<file format="peptide" URL="../fasta/crap.fasta.pro"/>
-	</taxon>
-		<taxon label="Oryza sativa">
-		<file format="peptide" URL="../fasta/unigene/Oryza_sativa.fasta.pro"/>
-		<file format="peptide" URL="../fasta/crap.fasta.pro"/>
-	</taxon>
-	<taxon label="nicotiana est">
-		<file format="peptide" URL="../fasta/unigene/nicotiana_est.fasta.pro"/>
-		<file format="peptide" URL="../fasta/crap.fasta.pro"/>
-	</taxon>
-	<taxon label="Medicago truncatula">
-		<file format="peptide" URL="../fasta/unigene/Medicago_truncatula.fasta.pro"/>
-		<file format="peptide" URL="../fasta/crap.fasta.pro"/>
-	</taxon>
-	<taxon label="Malus x domestica">
-		<file format="peptide" URL="../fasta/unigene/Malus_x_domestica.fasta.pro"/>
-		<file format="peptide" URL="../fasta/crap.fasta.pro"/>
-	</taxon>
-	<taxon label="Lycopersicon esculentum">
-		<file format="peptide" URL="../fasta/unigene/Lycopersicon_esculentum.fasta.pro"/>
-		<file format="peptide" URL="../fasta/crap.fasta.pro"/>
-	</taxon>
-	<taxon label="Lotus corniculatus">
-		<file format="peptide" URL="../fasta/unigene/Lotus_corniculatus.fasta.pro"/>
-		<file format="peptide" URL="../fasta/crap.fasta.pro"/>
-	</taxon>
-	<taxon label="Lactuca sativa">
-		<file format="peptide" URL="../fasta/unigene/Lactuca_sativa.fasta.pro"/>
-		<file format="peptide" URL="../fasta/crap.fasta.pro"/>
-	</taxon>
-	<taxon label="Hordeum vulgare">
-		<file format="peptide" URL="../fasta/unigene/Hordeum_vulgare.fasta.pro"/>
-		<file format="peptide" URL="../fasta/crap.fasta.pro"/>
-	</taxon>
-	<taxon label="Gossypium raimondii">
-		<file format="peptide" URL="../fasta/unigene/Gossypium_raimondii.fasta.pro"/>
-		<file format="peptide" URL="../fasta/crap.fasta.pro"/>
-	</taxon>
-	<taxon label="Gossypium hirsutum">
-		<file format="peptide" URL="../fasta/unigene/Gossypium_hirsutum.fasta.pro"/>
-		<file format="peptide" URL="../fasta/crap.fasta.pro"/>
-	</taxon>
-	<taxon label="Gossypium hirsutum">
-		<file format="peptide" URL="../fasta/unigene/Gossypium_hirsutum.fasta.pro"/>
-		<file format="peptide" URL="../fasta/crap.fasta.pro"/>
-	</taxon>
-	<taxon label="Glycinemax">
-		<file format="peptide" URL="../fasta/unigene/Glycine_max.fasta.pro"/>
-		<file format="peptide" URL="../fasta/crap.fasta.pro"/>
-	</taxon>
-	<taxon label="Citrus sinensis">
-		<file format="peptide" URL="../fasta/unigene/GCitrus_sinensis.fasta.pro"/>
-		<file format="peptide" URL="../fasta/crap.fasta.pro"/>
-	</taxon>
-	<taxon label="Gossypium hirsutum">
-		<file format="peptide" URL="../fasta/unigene/Gossypium_hirsutum.fasta.pro"/>
-		<file format="peptide" URL="../fasta/crap.fasta.pro"/>
-	</taxon>
-	<taxon label="Brassica napus">
-		<file format="peptide" URL="../fasta/unigene/Brassica_napus.fasta.pro"/>
-		<file format="peptide" URL="../fasta/crap.fasta.pro"/>
-	</taxon>
-	<taxon label="Hordeum vulgare">
-		<file format="peptide" URL="../fasta/unigene/Hordeum_vulgare.fasta.pro"/>
-		<file format="peptide" URL="../fasta/crap.fasta.pro"/>
-	</taxon>
-	<taxon label="Populus tremula x Populus tremuloides">
-		<file format="peptide" URL="../fasta/unigene/Populus_tremula_x_Populus_tremuloides.fasta.pro"/>
-		<file format="peptide" URL="../fasta/crap.fasta.pro"/>
-	</taxon>
-	<taxon label="Solanum tuberosum">
-		<file format="peptide" URL="../fasta/unigene/Solanum_tuberosum.fasta.pro"/>
-		<file format="peptide" URL="../fasta/crap.fasta.pro"/>
-	</taxon>
-	<taxon label="Sorghum bicolor">
-		<file format="peptide" URL="../fasta/unigene/Sorghum_bicolor.fasta.pro"/>
-		<file format="peptide" URL="../fasta/crap.fasta.pro"/>
-	</taxon>
-	<taxon label="Triticum aestivum">
-		<file format="peptide" URL="../fasta/unigene/Triticum_aestivum.fasta.pro"/>
-		<file format="peptide" URL="../fasta/crap.fasta.pro"/>
-	</taxon>
-	<taxon label="Vitis vinifera">
-		<file format="peptide" URL="../fasta/unigene/Vitis_vinifera.fasta.pro"/>
-		<file format="peptide" URL="../fasta/crap.fasta.pro"/>
-	</taxon>
-	<taxon label="Zea mays">
-		<file format="peptide" URL="../fasta/unigene/Zea_mays.fasta.pro"/>
-		<file format="peptide" URL="../fasta/crap.fasta.pro"/>
-	</taxon>
-	<taxon label="uniref100">
-		<file format="peptide" URL="../fasta/UniProt/uniref100.fasta.pro"/>
-		<file format="peptide" URL="../fasta/crap.fasta.pro"/>
-	</taxon>
-	<taxon label="MSDB">
-		<file format="peptide" URL="../fasta/msdb.fasta.pro"/>
-		<file format="peptide" URL="../fasta/crap.fasta.pro"/>
-	</taxon>
-	<taxon label="uniref50">
-		<file format="peptide" URL="../fasta/UniProt/uniref50.fasta.pro"/>
-		<file format="peptide" URL="../fasta/crap.fasta.pro"/>
-	</taxon>
-	<taxon label="uniprot_sprot_archaea">
-		<file format="peptide" URL="../fasta/UniProt/uniprot_sprot_archaea.fasta.pro"/>
-		<file format="peptide" URL="../fasta/crap.fasta.pro"/>
-	</taxon>
-	<taxon label="uniprot_sprot_bacteria">
-		<file format="peptide" URL="../fasta/UniProt/uniprot_sprot_bacteria.fasta.pro"/>
-		<file format="peptide" URL="../fasta/crap.fasta.pro"/>
-	</taxon>
-	<taxon label="uniprot_sprot_fungi">
-		<file format="peptide" URL="../fasta/UniProt/uniprot_sprot_fungi.fasta.pro"/>
-		<file format="peptide" URL="../fasta/crap.fasta.pro"/>
-	</taxon>
-	<taxon label="uniprot_sprot_human">
-		<file format="peptide" URL="../fasta/UniProt/uniprot_sprot_human.fasta.pro"/>
-		<file format="peptide" URL="../fasta/crap.fasta.pro"/>
-	</taxon>
-	<taxon label="uniprot_sprot_invertebrates">
-		<file format="peptide" URL="../fasta/UniProt/uniprot_sprot_invertebrates.fasta.pro"/>
-		<file format="peptide" URL="../fasta/crap.fasta.pro"/>
-	</taxon>
-	<taxon label="uniprot_sprot_mammals">
-		<file format="peptide" URL="../fasta/UniProt/uniprot_sprot_mammals.fasta.pro"/>
-		<file format="peptide" URL="../fasta/crap.fasta.pro"/>
-	</taxon>
-	<taxon label="uniprot_sprot_plants">
-		<file format="peptide" URL="../fasta/UniProt/uniprot_sprot_plants.fasta.pro"/>
-		<file format="peptide" URL="../fasta/crap.fasta.pro"/>
-	</taxon>
-	<taxon label="uniprot_sprot_rodents">
-		<file format="peptide" URL="../fasta/UniProt/uniprot_sprot_rodents.fasta.pro"/>
-		<file format="peptide" URL="../fasta/crap.fasta.pro"/>
-	</taxon>
-	<taxon label="uniprot_sprot_vertebrates">
-		<file format="peptide" URL="../fasta/UniProt/uniprot_sprot_vertebrates.fasta.pro"/>
-		<file format="peptide" URL="../fasta/crap.fasta.pro"/>
-	</taxon>
-	<taxon label="uniprot_sprot_viruses">
-		<file format="peptide" URL="../fasta/UniProt/uniprot_sprot_viruses.fasta.pro"/>
-		<file format="peptide" URL="../fasta/crap.fasta.pro"/>
-	</taxon>
-	<taxon label="uniprot_sprot_composite">
-		<file format="peptide" URL="../fasta/UniProt/uniprot_sprot_archaea.fasta.pro"/>
-		<file format="peptide" URL="../fasta/UniProt/uniprot_sprot_bacteria.fasta.pro"/>
-		<file format="peptide" URL="../fasta/UniProt/uniprot_sprot_fungi.fasta.pro"/>
-		<file format="peptide" URL="../fasta/UniProt/uniprot_sprot_human.fasta.pro"/>
-		<file format="peptide" URL="../fasta/UniProt/uniprot_sprot_invertebrates.fasta.pro"/>
-		<file format="peptide" URL="../fasta/UniProt/uniprot_sprot_mammals.fasta.pro"/>
-		<file format="peptide" URL="../fasta/UniProt/uniprot_sprot_plants.fasta.pro"/>
-		<file format="peptide" URL="../fasta/UniProt/uniprot_sprot_rodents.fasta.pro"/>
-		<file format="peptide" URL="../fasta/UniProt/uniprot_sprot_vertebrates.fasta.pro"/>
-		<file format="peptide" URL="../fasta/UniProt/uniprot_sprot_viruses.fasta.pro"/>
-		<file format="peptide" URL="../fasta/crap.fasta.pro"/>
-	</taxon>
-	<taxon label="uniprot_KB">
-		<file format="peptide" URL="../fasta/UniProt/uniprot_sprot.fasta.pro"/>
-		<file format="peptide" URL="../fasta/crap.fasta.pro"/>
-	</taxon>
-	<taxon label="MYFASTA">
-		<file format="peptide" URL="../fasta/myFasta.fasta.pro"/>
+	<taxon label="uniRef 50">
+		<file format="peptide" URL="fasta/u_scd.fasta.pro" />
+		<file format="peptide" URL="fasta/crap.fasta.pro" />
 	</taxon>
 </bioml>
