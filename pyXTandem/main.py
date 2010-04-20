@@ -17,6 +17,7 @@ import miscFunc as MF
 import ui_mainGUI
 
 DEBUG = True
+INPUTGEN = True #used to set whether or not the program can be used to run xtandem or just generate the input files
 
 '''
 /usr/bin/pyuic4 /home/clowers/workspace/pyXTandem/mainGUI.ui  -o /home/clowers/workspace/pyXTandem/ui_mainGUI.py
@@ -49,8 +50,6 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
         self.defaultAnalyzerParamCB.setEditable(False)
 #        self.defaultAnalyzerParamCB.setSizeAdjustPolicy(0)
 
-
-
         #populate types of fragments
         defaultFrags = ['b', 'y', 'a']#default fragments, add to list if needed
         for frag in SE.fragTypes:
@@ -63,8 +62,6 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
                 curFrag.setCheckState(QtCore.Qt.Unchecked)
 
             self.fragTypeListWidget.addItem(curFrag)
-
-
 
         #populate digestion parameters
         enzymeKeys = SE.enzymeTypes.keys()
@@ -98,6 +95,9 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
         self.highlighter = MF.PythonHighlighter(self.output_TE.document())
 
         self.setupDefaults()
+
+        if INPUTGEN:
+            self.runXT_Btn.setEnabled(False)
 
 
     def _setConnections_(self):
