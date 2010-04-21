@@ -92,7 +92,8 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
         self.refineEVal_SB.setValue(0.1)
         #Setup Highlighter
         self.highlighter = MF.PythonHighlighter(self.output_TE.document())
-
+        
+        
         self.setupDefaults()
 
         if not XTRUN:
@@ -129,12 +130,18 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
         self.setSourceDefaults()#make sure that the charge values get set correctly
 
     def setupDefaults(self):
+        
+        self.numThreads_SB.setMaximum(6)
+        self.numThreads_SB.setValue(5)
+        
         fileName = "default.ini"
         if os.path.isfile(fileName):
             defaultFile = open(fileName, 'r')
             confValues = defaultFile.readlines()
             defaultFile.close()
             '''
+            The XTRUN boolean is a hack.  This is so the input file 
+            generated on a Win32 machine can be used on the Linux Server.
             #pyXTandem Default Configuration File
             XTandem Executable=/usr/local/sandbox/proteomics/XTandem/tandem.exe
             Taxonomy Location=/usr/local/sandbox/proteomics/XTandem/taxonomy.xml
@@ -152,28 +159,41 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
                     if "XTandem Executable" in defType:
                         self.defaultXTEXE_LE.clear()
                         pathStr = os.path.abspath(defValue)
-                        if os.path.isfile(pathStr):
-                            self.defaultXTEXE_LE.setText(pathStr)
+                        if XTRUN:
+                            if os.path.isfile(pathStr):
+                                self.defaultXTEXE_LE.setText(pathStr)
+                        else:
+                            self.defaultXTEXE_LE.setText(defValue)
                     elif "Taxonomy Location" in defType:
                         taxaFile = os.path.abspath(os.path.abspath(defValue))
 #                        taxaFile = os.path.normpath(taxaFile)
                         self.defaultTaxFile_LE.clear()
-                        self.defaultTaxFile_LE.setText(taxaFile)
-                        print taxaFile, os.path.isfile(taxaFile)
-                        if os.path.isfile(taxaFile):
-                            self.populateTaxa(taxaFile)
+                        if XTRUN:
+                            self.defaultTaxFile_LE.setText(taxaFile)
+                            print taxaFile, os.path.isfile(taxaFile)                            
+                            if os.path.isfile(taxaFile):
+                                self.populateTaxa(taxaFile)
+                            else:
+                                print "Taxa file not valid"
                         else:
-                            print "Taxa file not valid"
+                            self.defaultTaxFile_LE.setText(defValue)
+                            self.populateTaxa('taxonomy.xml')#this file must be included for standalone generator
                     elif "Default Input File" in defType:
                         self.defaultMethod_LE.clear()
                         pathStr = os.path.abspath(defValue)
-                        if os.path.isfile(pathStr):
-                            self.defaultMethod_LE.setText(pathStr)
+                        if XTRUN:
+                            if os.path.isfile(pathStr):
+                                self.defaultMethod_LE.setText(pathStr)
+                        else:
+                            self.defaultMethod_LE.setText(defValue)
                     elif "Default Output Directory" in defType:
                         self.defaultOutput_LE.clear()
                         pathStr = os.path.abspath(defValue)
-                        if os.path.isdir(pathStr):
-                            self.defaultOutput_LE.setText(pathStr)
+                        if XTRUN:
+                            if os.path.isdir(pathStr):
+                                self.defaultOutput_LE.setText(pathStr)
+                        else:
+                            self.defaultOutput_LE.setText(defValue)
 
         else:
             errMsg = "'default.ini' is missing or corrupted. Re-install to fix problem!"
@@ -369,34 +389,45 @@ class XTandem_Widget(QtGui.QMainWindow,  ui_mainGUI.Ui_MainWindow):
         #####################
         defaultPath = str(self.defaultMethod_LE.text())
         defaultInput = os.path.abspath(defaultPath)#, 'default_input.xml')
-        if os.path.isfile(defaultInput):
-            self.inputDict['defaultPath'] = defaultInput#"list path, default parameters"
-        else:
-            errorMsg = "Sorry: %s\n is not a valid file.\nIs your tandem directory specified?\n"%(defaultInput)
-            return False, QtGui.QMessageBox.warning(self, "Error Setting X!Tandem Default Input", errorMsg)
-            print errorMsg
-        #####################
-        taxPath = str(self.defaultTaxFile_LE.text())
-        if os.path.isfile(taxPath):
-            self.inputDict['taxonomyPath'] = taxPath
-        else:#self.taxonomyFile#"list path, taxonomy information"
-            defaultFolder = self.defaultFolder_LE.text()
-            taxPath2 = os.path.join(defaultFolder, "taxonomy.xml")
-            if os.path.isfile(taxPath2):
-                self.inputDict['taxonomyPath'] = taxPath2
+        if XTRUN:
+            if os.path.isfile(defaultInput):
+                self.inputDict['defaultPath'] = defaultInput#"list path, default parameters"
             else:
-                errorMsg = "Sorry: %s\n no valid taxonomy file was established an searching cannot continue\n"%(taxPath2)
+                errorMsg = "Sorry: %s\n is not a valid file.\nIs your tandem directory specified?\n"%(defaultInput)
                 return False, QtGui.QMessageBox.warning(self, "Error Setting X!Tandem Default Input", errorMsg)
                 print errorMsg
+        else:
+            self.inputDict['defaultPath'] = defaultPath#"list path, default parameters"
+        #####################
+        taxPath = str(self.defaultTaxFile_LE.text())
+        if XTRUN:
+            
+            if os.path.isfile(taxPath):
+                self.inputDict['taxonomyPath'] = taxPath
+            else:#self.taxonomyFile#"list path, taxonomy information"
+                defaultFolder = self.defaultFolder_LE.text()
+                taxPath2 = os.path.join(defaultFolder, "taxonomy.xml")
+                if os.path.isfile(taxPath2):
+                    self.inputDict['taxonomyPath'] = taxPath2
+                else:
+                    errorMsg = "Sorry: %s\n no valid taxonomy file was established an searching cannot continue\n"%(taxPath2)
+                    return False, QtGui.QMessageBox.warning(self, "Error Setting X!Tandem Default Input", errorMsg)
+                    print errorMsg
+        else:
+            self.inputDict['taxonomyPath'] = taxPath
 
         #####################
         specPath = self.rawInputDataPath#str(self.rawData_LE.text())
-        if os.path.isfile(specPath):
-            self.inputDict['specPath'] = specPath
+        if XTRUN:
+            
+            if os.path.isfile(specPath):
+                self.inputDict['specPath'] = specPath
+            else:
+                errorMsg = "Sorry: %s\n no valid input file was selected\n"%(specPath)
+                return False, QtGui.QMessageBox.warning(self, "Error Setting X!Tandem Raw Data Input", errorMsg)
+                print errorMsg
         else:
-            errorMsg = "Sorry: %s\n no valid input file was selected\n"%(specPath)
-            return False, QtGui.QMessageBox.warning(self, "Error Setting X!Tandem Raw Data Input", errorMsg)
-            print errorMsg
+            self.inputDict['specPath'] = specPath
 
         #####################
         self.inputDict['fragSpecError'] = self.fragErr_SB.value()
