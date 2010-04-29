@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 '''
-/usr/bin/pyuic4 /home/clowers/workspace/DaQueue/workerGUI.ui  -o /home/clowers/workspace/DaQueue/ui_workerGUI.py
+/usr/bin/pyuic4 /home/chembio/workspace/DaQueue/workerGUI.ui  -o /home/chembio/workspace/DaQueue/ui_workerGUI.py
 
 NEED TO ADD A THE FOLLOWING JOB STATES
 QUEUED
@@ -34,7 +34,9 @@ import subprocess as sub
 
 from uiSupport import STATUSIDS, STATUSTYPES, JOBKEYS, JOBTYPES,\
                       JOBDICT, DBNAME, QUEUETABLE, ROOTUSER, XT_EXE_PATH,\
-                      USERNAME, STATUSDICT
+                      USERNAME, STATUSDICT, EXECPATHDICT
+
+from modXT import modXML#adjusts the input and output files in the X!Tandem input file
 #STATUSIDS = [0,1,2,3,4]
 #STATUSTYPES = ['Queued', 'Processing', 'Finished', 'Failed', 'Waiting for User Action']
 #
@@ -219,7 +221,7 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         This is the main worker loop that is called whenever a job finishes are there
         are no more jobs to run
         '''
-        print "Task Loop Called"
+        #print "Task Loop Called"
 
         waitTime = 2000
         QtCore.QTimer.singleShot(waitTime, self.getUnprocessedTask)
@@ -395,7 +397,16 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
             inputDict['Param File'] = None
 
         #Need to add a check for whether a config file is required
-        inputDict['Executable Path'] = None
+        #Select type of executable
+        if jobType == 'X!Tandem':
+            if EXECPATHDICT.has_key(jobType):
+                execPath = EXECPATHDICT[jobType]
+            else:
+                execPath = None
+        else:
+            execPath = None
+
+        inputDict['Executable Path'] = execPath
 
         #Get Output File
         outputFile = dbRowDict['outputFile']
@@ -783,8 +794,8 @@ class runThread(QtCore.QThread):
             self.processType = inputDict['Process Type']
             print "Thread Process Type: ", self.processType, type(self.processType)
             if self.processType == 'RAW File Conversion':
-                self.inputFile = inputDict['Input File']
-                self.outputFile = inputDict['Output File']
+                self.inputFile = str(inputDict['Input File'])
+                self.outputFile = str(inputDict['Output File'])
                 print 'ReAdW Params:\t',self.inputFile, self.outputFile
                 if os.path.isfile(self.inputFile):
                     self.curInputDict = inputDict
@@ -802,10 +813,12 @@ class runThread(QtCore.QThread):
                 return False
 
             elif self.processType == 'X!Tandem':
-                self.paramFile = inputDict['Param File']
-
-                self.execPath = inputDict['Executable Path']
+                self.paramFile = str(inputDict['Param File'])
+                self.execPath = str(inputDict['Executable Path'])
+                self.inputFile = str(inputDict['Input File'])
+                self.outputFile = str(inputDict['Output File'])
                 self.curInputDict = inputDict
+                #print self.execPath, self.paramFile, self.inputFile
                 if os.path.isfile(self.execPath) and os.path.isfile(self.paramFile) and os.path.isfile(self.inputFile):
                     self.ready = True
                     return True
@@ -824,8 +837,8 @@ class runThread(QtCore.QThread):
         def run(self):
             if self.ready:
                 if self.processType == 'X!Tandem':
-                    self.emit(QtCore.SIGNAL("threadFinished(PyQt_PyObject)"),[99,'None Implemented'])
-#                    self.exeTandem()
+                    #self.emit(QtCore.SIGNAL("threadFinished(PyQt_PyObject)"),[99,'None Implemented'])#a return value other than 0 or 1 gives an error
+                    self.exeTandem()
                 if self.processType == 'RAW File Conversion':
                     self.exeRAW(self.inputFile, self.outputFile)
                 self.ready = False
@@ -863,36 +876,39 @@ class runThread(QtCore.QThread):
             Also to be done is the create a database (i.e. sqlite3 db) to store the processed info and have a log!!!
 
             '''
+
+            #need to adjust the modified input file so that the correct
+            #data files and output files are used
+            '''
+            def modXML(fileName, inputFile, outputPath):
+
+                modifies a standard x!tandem input file to utilize a different input and output path
+                inputFile = Raw Data File
+                outputPath = Output Path File Name
+                returns Success and XT input file path
+            '''
+
             t1 = time.clock()
             self.cmdOut = [self.execPath]
-            self.cmdOut.append(self.inputFile)
+
+            modSuccess, xtInputPath = modXML(self.paramFile, self.inputFile, self.outputFile)
+            if modSuccess:
+                self.cmdOut.append(xtInputPath)
+            else:
+                self.emit(QtCore.SIGNAL("threadFinished(PyQt_PyObject)"),[99,'modXT Failed'])
+                return False
+
 
             cmdStr = ''
             for item in self.cmdOut:
                 cmdStr += item
                 cmdStr += ' ' #add space
             cmdStr +='\n'
+            #print self.cmdOut
             print cmdStr
+            print "Working Dir: %s"%os.path.dirname(self.execPath)
             try:
-                subHandle = sub.Popen(cmdStr, bufsize = 0, shell = True,  cwd = self.cwd, stdout=sub.PIPE, stderr=sub.PIPE,  stdin=sub.PIPE)
-
-#                print subHandle.poll()
-#                timer = QtCore.QTimer()
-#                while subHandle.poll() == None:
-#                    timer.start(10)
-#                    msg = subHandle.stdout.read()
-#                    self.emit(QtCore.SIGNAL("itemLoaded(PyQt_PyObject)"),msg)
-
-#                    print subHandle.stderr.read()
-
-
-#                    msg = subHandle.stderr.readline()
-#                    self.emit(QtCore.SIGNAL("itemLoaded(PyQt_PyObject)"),msg)
-#                    msg = subHandle.stdout.readline()
-#                    self.emit(QtCore.SIGNAL("itemLoaded(PyQt_PyObject)"),msg)
-#                    self.outMsg = subHandle.stdout.read()
-#                    print subHandle.stderr.read()
-#                    QtCore.QTimer.singleShot(20, self.updateMsg)
+                subHandle = sub.Popen(cmdStr, bufsize = 0, shell = True, cwd = os.path.dirname(self.execPath), stdout=sub.PIPE, stderr=sub.PIPE,  stdin=sub.PIPE)
 
 
                 self.outMsg = subHandle.stdout.read()
@@ -1015,7 +1031,7 @@ class runThread(QtCore.QThread):
             print os.getcwd()
             try:
 
-                subHandle = sub.Popen(cmdStr, bufsize = 0, shell = True,  stdout=sub.PIPE, stderr=sub.PIPE,  stdin = sub.PIPE)
+                subHandle = sub.Popen(cmdStr, bufsize = 0, shell = True, stdout=sub.PIPE, stderr=sub.PIPE,  stdin = sub.PIPE)
 
                 self.outMsg = subHandle.stdout.read()
                 self.errMsg = subHandle.stderr.read()
