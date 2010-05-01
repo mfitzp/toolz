@@ -9,6 +9,8 @@ The Question:
 Do we kill the process and respawn a new one or keep regenerating...
 I vote for kill and respawn
 
+Need to add return signals for different actions
+
 '''
 
 
@@ -48,6 +50,17 @@ class XTandem:
             inputFile = Raw Data File
             outputPath = Output Path File Name
             returns Success and XT input file path
+        
+        ############ADD ME##############
+        
+        modSuccess, xtInputPath = modXML(self.paramFile, self.inputFile, self.outputFile)
+        if modSuccess:
+            self.cmdOut.append(xtInputPath)
+        else:
+            self.emit(QtCore.SIGNAL("threadFinished(PyQt_PyObject)"),[99,'modXT Failed'])
+            return False
+
+
             
         '''
         
