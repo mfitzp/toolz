@@ -4,7 +4,12 @@ import os, sys, traceback
 from PyQt4 import QtGui, QtCore
 import time
 
+'''
+The Question:
+Do we kill the process and respawn a new one or keep regenerating...
+I vote for kill and respawn
 
+'''
 class QUEUEJOB(QtCore.QObject):
     def __init__(self, execCmd = "", optionStr = "", execPath = None, parent = None):
         QtCore.QObject.__init__(self, parent)
@@ -26,7 +31,7 @@ class QUEUEJOB(QtCore.QObject):
         if type(execCmd) == str:
             if len(execCmd)>0:
                 self.execCmd = execCmd
-        
+
     def setExecPath(self, execPath):
         self.execPath = os.getcwd()
         if type(execPath) == str:
@@ -45,7 +50,7 @@ class QUEUEJOB(QtCore.QObject):
 
     def __resetConnections__(self):
         if self.execCmd != None:
-            if len(self.execCmd)>0:        
+            if len(self.execCmd)>0:
                 QtCore.QObject.connect(self.process, QtCore.SIGNAL("finished(int)"), self.finished)
                 QtCore.QObject.connect(self.process, QtCore.SIGNAL("readyReadStandardOutput()"), self.OnProcessOutputReady)
                 QtCore.QObject.connect(self.process, QtCore.SIGNAL("readyReadStandardError()"), self.OnProcessOutputError)
@@ -60,12 +65,13 @@ class QUEUEJOB(QtCore.QObject):
                 del self.processList[0]
                 print(sublist)
                 if len(sublist) > 1:
+                    #print "GO"
                     self.startTime = time.ctime()
                     self.process.start(sublist)
-                    
-                elif len(sublist) == 1:
-                    self.startTime = time.ctime()
-                    self.process.start(sublist[0])
+
+#                elif len(sublist) == 1:
+#                    self.startTime = time.ctime()
+#                    self.process.start(sublist[0])
             else:
                 print "Empty execution string"
         else:
@@ -143,12 +149,17 @@ class QUEUEJOB(QtCore.QObject):
         self.process.start(sublist[0], sublist[1])
 
 if __name__ == "__main__":
-    
+
     jq = QUEUEJOB()
     #jq.setExecCmd('CompassXPort')
-    jq.setExecPath('C:\\Documents and Settings\\d3p483\\My Documents\\Python\\DaQueue')
-    jq.setExecCmd('ReAdW.exe')
+    if os.sys.platform == 'linux2':
+        jq.setExecCmd('ls')
+        jq.setOptionStr('-l')
+    elif os.sys.platform == 'win32':
+        jq.setExecPath('C:\\Documents and Settings\\d3p483\\My Documents\\Python\\DaQueue')
+        jq.setExecCmd('ReAdW.exe')
     jq.run()
     jq.process.waitForFinished()
+
     print jq.startTime
     print jq.stopTime
