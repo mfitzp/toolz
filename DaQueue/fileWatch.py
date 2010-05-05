@@ -1,4 +1,4 @@
-#!/usr/bin/python
+sad#!/usr/bin/python
 
 import os
 from os import walk, path, listdir
