@@ -28,9 +28,6 @@ to allow the primary program to access fragment ion spectra'''
 
 from PyQt4.QtGui import QFileDialog,  QApplication
 import numpy as N
-from matplotlib.pyplot import *
-
-import numpy as N
 
 import os.path
 import sys
@@ -653,53 +650,18 @@ if __name__ == "__main__":
     from base64 import b64encode
     import matplotlib.pyplot as P
     from matplotlib.lines import Line2D
-    from xtandemParser import XT_RESULTS
-#    app = QApplication(sys.argv)
-#    fn = open_file()
-#    fn = '/home/clowers/workspace/SimpleView/Blank_B.mzXML'
-#    fn = 'C:/Data/Clowers/OrganicSignatures/BSATest/BSA.mzXML'
     fn = 'R19.mzXML'
-    fn2 = 'R19.xml'
+    #fn = '10VRnB.mzXML'
 
 
     def convertScanNum(val):
         return val/60
 
-
-    def OnPick(event):
-        print "Pick"
-        if not isinstance(event.artist, Line2D):
-            return True
-
-        line = event.artist
-        indexA = event.ind[0]
-        xdata = line.get_xdata()
-        ydata = line.get_ydata()
-        print indexA,  xdata[indexA]
-        handleA.set_visible(True)
-        handleA.set_data([xdata[indexA]], [ydata[indexA]])
-        fig.canvas.draw()
-
-    if fn and fn2:
+    if fn:
 
         fig = P.figure(figsize=(8,6))
-        cid = fig.canvas.mpl_connect('pick_event', OnPick)
-        ax = fig.add_subplot(211)#, axisbg='#FFFFCC')
-        #ax2 = ax.twinx()
-        ax2 = fig.add_subplot(212, sharex = ax)
-        xtXML = XT_RESULTS(fn2)
-        ax2.vlines(xtXML.dataDict['scanID'], 0, xtXML.dataDict['hScore']*-1, color='k', lw = 2.0, linestyles='solid')#, alpha = 0.1)
-        ax2.vlines(xtXML.dataDict['scanID'], 0, xtXML.dataDict['deltaH']*-1, color='r', lw = 2.0, linestyles='solid')#, alpha = 0.7)
-        ax2.set_ylim((-100,0))
-        ax2.grid(True)
+        ax = fig.add_subplot(111)#, axisbg='#FFFFCC'
         ax.grid(True)
-        #ax.vlines(x, ymin, ymax, color='k', linestyles='solid')
-        #'hScore':N.array(hScore),
-        #'nextScore':N.array(nextScore),
-        #'pepLen':N.array(pepLen),
-        #'proID':proID,
-        #'pro_eVal':N.array(pro_eVal),
-        #'deltaH':N.array(deltaH),
         mzx = mzXMLDoc(fn, sumBool = False)
         BPC = mzx.data.get('BPC')
         xvalues = mzx.data.get('expTime')
@@ -707,56 +669,7 @@ if __name__ == "__main__":
         if len(BPC) >=1:
             scanVals = N.array(xvalues, dtype = N.int32)
             ax.plot(scanVals, N.array(BPC), '-ob', ms =2, picker = 5, alpha = 0.5)
-            hitIND = []
-            for scan in xtXML.dataDict['scanID']:
-                curHit = N.where(scanVals<scan)[0][-1]#xtXML.dataDict['scanID'] == scanVals)
-                #print 'CurHit', curHit
-                hitIND.append(curHit)
-            handleA,  = ax.plot([0], [0], 'o', ms=8, alpha=.5, color='yellow', visible=False,  label = 'Cursor A')
-            ax.plot(xtXML.dataDict['scanID'], N.array(BPC)[N.array(hitIND)], 'og', ms = 5, alpha = 0.6)
-
 
         P.show()
-    #print mzx.data
-#    sys.exit(app.exec_())
-'''
-"""
-compute the mean and stddev of 100 data sets and plot mean vs stddev.
-When you click on one of the mu, sigma points, plot the raw data from
-the dataset that generated the mean and stddev
-"""
-import numpy as np
-import matplotlib.pyplot as plt
-
-X = np.random.rand(100, 1000)
-xs = np.mean(X, axis=1)
-ys = np.std(X, axis=1)
-
-fig = plt.figure()
-ax = fig.add_subplot(111)
-ax.set_title('click on point to plot time series')
-line, = ax.plot(xs, ys, 'o', picker=5)  # 5 points tolerance
-
-
-def onpick(event):
-
-    if event.artist!=line: return True
-
-    N = len(event.ind)
-    if not N: return True
-
-
-    figi = plt.figure()
-    for subplotnum, dataind in enumerate(event.ind):
-        ax = figi.add_subplot(N,1,subplotnum+1)
-        ax.plot(X[dataind])
-        ax.text(0.05, 0.9, 'mu=%1.3f\nsigma=%1.3f'%(xs[dataind], ys[dataind]),
-                transform=ax.transAxes, va='top')
-        ax.set_ylim(-0.5, 1.5)
-    figi.show()
-    return True
-
-fig.canvas.mpl_connect('pick_event', onpick)
-
-plt.show()
-'''
+    else:
+        print "%s does not exist"%fn
