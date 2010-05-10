@@ -1,4 +1,4 @@
-# -------------------------------------------------------------------------
+#---------------------------------------------------------------------
 #     This file is part of mMass - the spectrum analysis tool for MS.
 #     Copyright (C) 2005-07 Martin Strohalm <mmass@biographics.cz>
 
@@ -14,9 +14,15 @@
 
 #     Complete text of GNU GPL can be found in the file LICENSE in the
 #     main directory of the program
-# -------------------------------------------------------------------------
+#---------------------------------------------------------------------
 
 # Function: Load and parse data from mzData format.
+'''
+Modified by BHC.
+I believe there is a newer version of the mzData format that
+contains the basepeak intensity already as a parameter but
+I don't have one of those files to test as of 5.10.2010
+'''
 
 # load libs
 #import wx
@@ -27,6 +33,8 @@ import xml.etree.cElementTree as ET
 import base64
 import struct
 
+import matplotlib.pyplot as P
+
 # load modules
 #from dlg_select_msscan import dlgSelectScan
 
@@ -34,7 +42,7 @@ import struct
 class mzDataDoc:
     """ Get and format data from mzData document. """
 
-    # ----
+
     def __init__(self, path,  parent = None):
         if parent:
             self.parent = parent
@@ -48,10 +56,10 @@ class mzDataDoc:
                     'instrument':'',
                     'notes':'',
                     'peaklist':[],
-                    'spectrum':[], 
-                    'totalScans':'', 
-                    'expTime':[], 
-                    'BPC':[], 
+                    'spectrum':[],
+                    'totalScans':'',
+                    'expTime':[],
+                    'BPC':[],
                     'TIC':[]
                     }
         self.filename = path
@@ -59,36 +67,44 @@ class mzDataDoc:
         self.elmName = None
         self.scanList = None
         self.getDocument(self.filename)
-    # ----
+#        if not self.getDocument(self.filename):
+#            "Failure to load %s"%self.filename
 
 
-    # ----
+
+
     def getDocument(self, path):
         """ Read and parse all data from document. """
 
         # parse XML
-        try:
-            document = ET.parse(path).getroot()
-            self.ns = document.tag#.split('}')[0]+'}'
-            #document = xml.dom.minidom.parse(path)
-        except:
-            return False
+        #try:
+        document = ET.parse(path).getroot()
+        self.ns = document.tag.split('}')[0]
+        #print document.tag.split('}')
+        #print self.ns
+        #self.ns = document.tag#.split('}')[0]+'}'
+        #document = xml.dom.minidom.parse(path)
+        #return True
+        #except:
+            #return False
 
         # check document type
 #        element = document.find(self.ns)
-#        #element = document.getElementsByTagName('mzData')
+#        #element = document.find(self.ns+'mzData')
 #        if not element:
 #            return False
 
         # get description
-        element = document.find('description')
-        if element:
-            self.handleDescription(element)
+        #element = document.find('description')
+        #print int(element.get('count'))
+#        if element:
+#            self.handleDescription(element)
 
         # get spectrum
         element = document.find('spectrumList')
+        self.data['totalScans'] = int(element.get('count'))
         if element:
-            self.scanList = element.getchildren()
+            self.scanList = element.findall('spectrum')
             status = self.handleSpectrumList(self.scanList)
 
             # error in data
@@ -100,10 +116,10 @@ class mzDataDoc:
                 return None
 
         return self.data
-    # ----
 
 
-    # ----
+
+
     def getElement(self, name, path):
         """ Read and parse selected elements' data from document. """
 
@@ -114,15 +130,15 @@ class mzDataDoc:
             return False
 
         # check document type
-        element = document.getElementsByTagName('mzData')
+        element = document.find(self.ns+'mzData')
         if not element:
             return False
 
         # get data
         if name == 'description':
-            element = document.getElementsByTagName('description')
+            element = document.find(self.ns+'description')
         elif name == 'spectrum' or name == 'peaklist':
-            element = document.getElementsByTagName('spectrumList')
+            element = document.find(self.ns+'spectrumList')
 
         if element:
 
@@ -144,20 +160,20 @@ class mzDataDoc:
                     return None
 
         return self.data
-    # ----
 
 
-    # ----
+
+
     def handleDescription(self, elements):
         """ Get document description from <description> element. """
 
         # admin
         admin = elements.find('admin')
-        #admin = elements.getElementsByTagName('admin')
+        #admin = elements.find(self.ns+'admin')
         if admin:
 
             # sampleName
-            #sampleName = admin[0].getElementsByTagName('sampleName')
+            #sampleName = admin.find(self.ns+'sampleName')
             sampleName = admin.find('sampleName')
             if sampleName:
                 self.data['notes'] =  sampleName.text
@@ -191,91 +207,164 @@ class mzDataDoc:
                 self.data['instrument'] = instrumentName.text
 
         return True
-    # ----
 
 
-    # ----
+
+
     def handleSpectrumList(self, elements):
         """ Get list of spectra from <spectrumList> element. """
 
         # get all spectra
-        spectra = elements#elements.getElementsByTagName('spectrum')
+        spectra = elements#elements.find(self.ns+'spectrum')
         if not spectra:
             return False
 
         # get one spectrum
         #if len(spectra) == 1:
-        self.handleSpectrum(spectra[0])
+        #print len(spectra)
+        for scan in spectra:
+            #print type(scan.get("id")), int(scan.get("id")), type(int(scan.get("id")))
+            if int(scan.get("id")) == 283:
+                self.handleSpectrum(scan)
+                print scan.get("id")
+#        self.handleSpectrum(spectra[0])
         self.getChrom(spectra)
         return True
-    # ----
+
     def getChrom(self, spectra):
         '''Create the chromatogram, Base Peak, and Total Ion'''
         xTime = self.data.get('expTime')
         BPC = self.data.get('BPC')
         TIC = self.data.get('TIC')
         for scan in spectra:
-            if scan.find(self.ns+'precursorMz') is None:
-                xTime.append(scan.get('num'))
-                BPC.append(scan.get('basePeakIntensity'))
-                TIC.append(scan.get('totIonCurrent'))
+            '''
+            <spectrumDesc>
+                    <spectrumSettings>
+                      <acqSpecification spectrumType="discrete" methodOfCombination="average" count="1">
+                        <acquisition acqNumber="0" />
+                      </acqSpecification>
+                      <spectrumInstrument
+            '''
+            description = scan.find('spectrumDesc')
+            specSettings = description.find('spectrumSettings')
+#            spectrumInstrument = specSettings.find('spectrumInstrument')# v1.05
+            if specSettings:
+                spectrumInstrument = specSettings.find('spectrumInstrument')# v1.04
 
-    # ----
-    def handleSpectrum(self, spectrum):
+                if spectrumInstrument:
+
+                # get MS level
+                    scanLevel = int(spectrumInstrument.get('msLevel'))
+                    if scanLevel == 1:
+                        xTime.append(scan.get('id'))
+                        #print scan.get('id')
+#                        BPC.append(scan.get('basePeakIntensity'))
+                        BPC.append(self.handleSpectrum(scan, getBPC=True))
+                        #TIC.append(scan.get('totIonCurrent'))
+
+
+    def handleSpectrum(self, spectrum, getBPC = False):
         """ Get spectrum data from <spectrum> element. """
 
         mzArray = None
         intArray = None
 
         # get spectrum type
-        acqSpecification = spectrum.getElementsByTagName('acqSpecification')
-        specType = acqSpecification[0].getAttribute('spectrumType')
+        description = spectrum.find('spectrumDesc')
+        specSettings = description.find('spectrumSettings')
+        acqSpecification = specSettings.find('acqSpecification')
+        #acqSpecification = spectrum.find(self.ns+'acqSpecification')
+        specType = acqSpecification.get('spectrumType')
+        #specType = acqSpecification.get('spectrumType')
 
         # get mzArray
-        mzArrayBinary = spectrum.getElementsByTagName('mzArrayBinary')
+
+        mzArrayBinary = spectrum.find('mzArrayBinary')
+        #mzArrayBinary = spectrum.find(self.ns+'mzArrayBinary')
+        mzPrec = 'f'
         if mzArrayBinary:
 
             # get data
-            mzArrayData = mzArrayBinary[0].getElementsByTagName('data')
-            mzArray = self.getText(mzArrayData[0].childNodes)
+            mzArrayData = mzArrayBinary.find('data')
+            #mzArrayData = mzArrayBinary.find(self.ns+'data')
+            #mzArray = self.getText(mzArrayData.childNodes)
+            mzArray = mzArrayData.text
+#            mzArray = self.getText(mzArrayData.text)
 
             # get endian
             mzEndian = '<'
-            if mzArrayData[0].getAttribute('endian') == 'big':
+            if mzArrayData.get('endian') == 'big':
+#            if mzArrayData.get('endian') == 'big':
                 mzEndian = '>'
 
+            if mzArrayData.get('precision') == '64':
+                mzPrec = 'd'
+            elif mzArrayData.get('precision') == '32':
+                mzPrec = 'f'
+
         # get intArray
-        intenArrayBinary = spectrum.getElementsByTagName('intenArrayBinary')
+        intenArrayBinary = spectrum.find('intenArrayBinary')
+        #intenArrayBinary = spectrum.find(self.ns+'intenArrayBinary')
+        intPrec = 'f'
         if intenArrayBinary:
 
             # get data
-            intenArrayData = intenArrayBinary[0].getElementsByTagName('data')
-            intArray = self.getText(intenArrayData[0].childNodes)
+            #intenArrayData = intenArrayBinary.find(self.ns+'data')
+            intenArrayData = intenArrayBinary.find('data')
+            intArray = intenArrayData.text
+            #intArray = self.getText(intenArrayData.text)
+            #intArray = self.getText(intenArrayData.childNodes)
 
             # get endian
             intEndian = '<'
-            if intenArrayData[0].getAttribute('endian') == 'big':
+            if intenArrayData.get('endian') == 'big':
+            #if intenArrayData.get('endian') == 'big':
                 intEndian = '>'
 
+            if intenArrayData.get('precision') == '64':
+                intPrec = 'd'
+            elif intenArrayData.get('precision') == '32':
+                intPrec = 'f'
         # check data
         if not mzArray or not intArray:
+            print "SCAN DATA READ FAILED"
             return False
 
         # decode data
         try:
             mzData = base64.b64decode(mzArray)
             intData = base64.b64decode(intArray)
+#            if mzBits == 64:
+#                mzData = base64.b64decode(mzArray)
+#            elif mzBits == 32:
+#                mzData = base64.b32decode(mzArray)
+#
+#            if intBits == 64:
+#                intData = base64.b64decode(intArray)
+#            elif intBits == 32:
+#                intData = base64.b32decode(intArray)
         except:
+            print "DECODE FAILED"
             return False
 
         # convert from binary format
-        mzData = self.convertFromBinary(mzData, mzEndian)
-        intData = self.convertFromBinary(intData, intEndian)
+        mzData = self.convertFromBinary(mzData, mzEndian, mzPrec)
+        intData = self.convertFromBinary(intData, intEndian, intPrec)
+#        print mzData, intData
+#        print len(mzData), len(intData)
+        mzData = N.array(mzData)#doing this because there seems to be two values returned?
+        intData = N.array(intData)
+
+        if getBPC:
+            return intData.max()
+
 
         # check data
-        if not mzData or not intData or (len(mzData) != len(intData)):
+        if len(mzData) != len(intData):
+            print "LENGTH MISMATCH"
             return False
-
+#        P.vlines(mzData, 0, intData)
+#        P.show()
         # "zip" mzData and intData
         formatedData = zip(mzData, intData)
 
@@ -297,10 +386,10 @@ class mzDataDoc:
             self.data['notes'] += '\nActivation Method: %s' % (scanInfo['method'])
 
         return True
-    # ----
 
 
-    # ----
+
+
     def getScans(self, spectra):
         """ Get basic info about all the ms scans. """
 
@@ -323,10 +412,10 @@ class mzDataDoc:
             scans[x][7] = scanInfo['type']
 
         return scans
-    # ----
 
 
-    # ----
+
+
     def getScanInfo(self, scan):
         """ Get basic info about selected scan. """
 
@@ -342,85 +431,99 @@ class mzDataDoc:
         scanInfo['method'] = '---'
 
         # get ID
-        scanInfo['id'] = scan.getAttribute('id')
+        #scanInfo['id'] = scan.getAttribute('id')
+        scanInfo['id'] = int(scan.get('id'))
+        #print int(scan.get('id'))
 
         # get spectrum type
-        acqSpecification = scan.getElementsByTagName('acqSpecification')
+        description = scan.find('spectrumDesc')
+        specSettings = description.find('spectrumSettings')
+        acqSpecification = specSettings.find('acqSpecification')
+        #acqSpecification = scan.find('acqSpecification')
         if acqSpecification:
-            scanInfo['type'] = acqSpecification[0].getAttribute('spectrumType')
+            scanInfo['type'] = acqSpecification.get('spectrumType')
 
         # get number of points
-        mzArrayBinaryData = scan.getElementsByTagName('data')
+        mzArrayBinaryData = scan.find('mzArrayBinary')
         if mzArrayBinaryData:
-            scanInfo['points'] = mzArrayBinaryData[0].getAttribute('length')
+            scanInfo['points'] = mzArrayBinaryData.get('length')
 
         # find instrument's params
-        spectrumInstrument = scan.getElementsByTagName('spectrumInstrument')# v1.05
+        spectrumInstrument = specSettings.find('spectrumInstrument')# v1.05
+        #print spectrumInstrument.getchildren()
         if not spectrumInstrument:
-            spectrumInstrument = scan.getElementsByTagName('acqInstrument')# v1.04
-
+            spectrumInstrument = scan.find('acqInstrument')# v1.04
         if spectrumInstrument:
 
             # get MS level
-            scanInfo['level'] = spectrumInstrument[0].getAttribute('msLevel')
+            scanInfo['level'] = int(spectrumInstrument.get('msLevel'))
 
             # get range
-            mzRangeStart = spectrumInstrument[0].getAttribute('mzRangeStart')
-            mzRangeStop = spectrumInstrument[0].getAttribute('mzRangeStop')
+            mzRangeStart = spectrumInstrument.get('mzRangeStart')
+            mzRangeStop = spectrumInstrument.get('mzRangeStop')
             try:
                 scanInfo['range'] = '%d - %d' % (float(mzRangeStart), float(mzRangeStop))
             except:
                 scanInfo['range'] = '%s - %s' % (mzRangeStart, mzRangeStop)
 
             # get params
-            cvParams = spectrumInstrument[0].getElementsByTagName('cvParam')
+            cvParams = spectrumInstrument.findall('cvParam')
+            #print "CVPARAMS",cvParams.get('name')
             for cvParam in cvParams:
 
                 # get polarity
-                if cvParam.getAttribute('name') in ('Polarity', 'polarity'):
-                    scanInfo['polarity'] = cvParam.getAttribute('value')
+                #print "Parent cvParams", cvParam.get('name')
+                if cvParam.get('name') == 'Polarity':
+                    scanInfo['polarity'] = cvParam.get('value')
 
                 # get retention time
-                elif cvParam.getAttribute('name') in ('TimeInMinutes', 'time.min'):
+                elif cvParam.get('name') == 'TimeInMinutes':
                     try:
-                        time = float(cvParam.getAttribute('value'))
+                        time = float(cvParam.get('value'))
                         scanInfo['time'] = str(round(time, 3))
                     except:
-                        scanInfo['time'] = cvParam.getAttribute('value')
+                        scanInfo['time'] = cvParam.get('value')
 
         # find precursor params
-        ionSelection = scan.getElementsByTagName('ionSelection')
-        if ionSelection:
+        #precursorList
 
-            # get params
-            cvParams = ionSelection[0].getElementsByTagName('cvParam')
-            for cvParam in cvParams:
 
-                # get m/z
-                if cvParam.getAttribute('name') in ('MassToChargeRatio', 'mz'):
-                    scanInfo['mz'] = cvParam.getAttribute('value')
+        precursorList = description.find('precursorList')
+        if precursorList:
+            precursor = precursorList.find('precursor')
+            ionSelection = precursor.find('ionSelection')
+            if ionSelection:
 
-                # get charge
-                elif cvParam.getAttribute('name') in ('ChargeState', 'charge'):
-                    scanInfo['charge'] = cvParam.getAttribute('value')
+                # get params
+                cvParams = ionSelection.findall('cvParam')
+                for cvParam in cvParams:
 
-        # find activation params
-        activation = scan.getElementsByTagName('activation')
-        if activation:
+                    # get m/z
+                    #print cvParam.get("name"), cvParam.get("value")
+                    if cvParam.get('name') == 'MassToChargeRatio':
+                        scanInfo['mz'] = float(cvParam.get('value'))
 
-            # get params
-            cvParams = activation[0].getElementsByTagName('cvParam')
-            for cvParam in cvParams:
+                    # get charge
+                    elif cvParam.get('name') == 'ChargeState':
+                        scanInfo['charge'] = int(cvParam.get('value'))
 
-                # get method
-                if cvParam.getAttribute('name') in ('Method', 'method'):
-                    scanInfo['method'] = cvParam.getAttribute('value')
+            # find activation params
+            activation = ionSelection.find('activation')
+            if activation:
 
+                # get params
+                cvParams = activation.find('cvParam')
+                for cvParam in cvParams:
+
+                    # get method
+                    if cvParam.get('name') == 'Method':
+                        scanInfo['method'] = cvParam.get('value')
+        #print scanInfo
         return scanInfo
-    # ----
 
 
-    # ----
+
+
     def getText(self, nodelist):
         """ Get text from node list. """
 
@@ -431,24 +534,24 @@ class mzDataDoc:
                 buff += node.data
 
         return buff
-    # ----
 
 
-    # ----
-    def convertFromBinary(self, data, endian):
+
+
+    def convertFromBinary(self, data, endian, precision):
         """ Convert binary data to the list of values. """
 
         try:
-          pointsCount = len(data)/struct.calcsize(endian+'f')
+          pointsCount = len(data)/struct.calcsize(endian+precision)
           start, end = 0, len(data)
-          points = struct.unpack(endian+'f'*pointsCount, data[start:end])
+          points = struct.unpack(endian+precision*pointsCount, data[start:end])
           return points
         except:
             return None
-    # ----
 
 
-    # ----
+
+
     def convertSpectrumToPeaklist(self, spectrum):
         """ Convert spectrum to peaklist. """
 
@@ -457,4 +560,25 @@ class mzDataDoc:
             peaklist.append([point[0], point[1], '', 0])
 
         return peaklist
-    # ----
+
+
+if __name__ == "__main__":
+
+    import sys
+    #import numpy as N
+    from base64 import b64encode
+    import matplotlib.pyplot as P
+    from matplotlib.lines import Line2D
+#    app = QApplication(sys.argv)
+#    fn = open_file()
+#    fn = '/home/clowers/workspace/SimpleView/Blank_B.mzXML'
+#    fn = 'C:/Data/Clowers/OrganicSignatures/BSATest/BSA.mzXML'
+    fn = 'RnB10V_2.mzData'
+    fn = '/home/clowers/Desktop/Froehlich/RnB10V_3.mzData'
+    mzx = mzDataDoc(fn)
+#    print mzx.data['BPC']
+    P.plot(mzx.data['BPC'], '-ob', ms = 2)
+    P.show()
+    #mzx.getScans(mzx.scanList)
+#    for i in mzx.getScans(mzx.scanList):
+#        print i
