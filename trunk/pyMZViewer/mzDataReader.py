@@ -222,12 +222,12 @@ class mzDataDoc:
         # get one spectrum
         #if len(spectra) == 1:
         #print len(spectra)
-        for scan in spectra:
-            #print type(scan.get("id")), int(scan.get("id")), type(int(scan.get("id")))
-            if int(scan.get("id")) == 283:
-                self.handleSpectrum(scan)
-                print scan.get("id")
-#        self.handleSpectrum(spectra[0])
+#        for scan in spectra:
+#            #print type(scan.get("id")), int(scan.get("id")), type(int(scan.get("id")))
+#            if int(scan.get("id")) == 283:
+#                self.handleSpectrum(scan)
+#                print scan.get("id")
+        self.handleSpectrum(spectra[0])
         self.getChrom(spectra)
         return True
 
@@ -327,8 +327,9 @@ class mzDataDoc:
                 intPrec = 'f'
         # check data
         if not mzArray or not intArray:
-            print "SCAN DATA READ FAILED"
-            return False
+            print "SCAN DATA READ FAILED ON SCAN #%s"%self.getScanInfo(spectrum)["id"]
+            print self.getScanInfo(spectrum)
+            return False, None, None
 
         # decode data
         try:
@@ -344,8 +345,8 @@ class mzDataDoc:
 #            elif intBits == 32:
 #                intData = base64.b32decode(intArray)
         except:
-            print "DECODE FAILED"
-            return False
+            print "DECODE FAILED ON SCAN #%s"%self.getScanInfo(spectrum)["id"]
+            return False, None, None
 
         # convert from binary format
         mzData = self.convertFromBinary(mzData, mzEndian, mzPrec)
@@ -361,8 +362,8 @@ class mzDataDoc:
 
         # check data
         if len(mzData) != len(intData):
-            print "LENGTH MISMATCH"
-            return False
+            print "LENGTH MISMATCH ON SCAN #%s"%self.getScanInfo(spectrum)["id"]
+            return False, None, None
 #        P.vlines(mzData, 0, intData)
 #        P.show()
         # "zip" mzData and intData
@@ -385,7 +386,7 @@ class mzDataDoc:
             self.data['notes'] += '\nPrecursor Polarity: %s' % (scanInfo['polarity'])
             self.data['notes'] += '\nActivation Method: %s' % (scanInfo['method'])
 
-        return True
+        return True, mzData, intData
 
 
 
@@ -401,15 +402,18 @@ class mzDataDoc:
             scanInfo = self.getScanInfo(scan)
 
             # ID, time, range, MS level, prec.mass, pre.charge, spec. type
-            scans.append(['---', '---', '---', '---', '---', '---', '---', '---'])
-            scans[x][0] = scanInfo['id']
-            scans[x][1] = scanInfo['time']
-            scans[x][2] = scanInfo['range']
-            scans[x][3] = scanInfo['points']
-            scans[x][4] = scanInfo['level']
-            scans[x][5] = scanInfo['mz']
-            scans[x][6] = scanInfo['charge']
-            scans[x][7] = scanInfo['type']
+#            scans.append(['---', '---', '---', '---', '---', '---', '---', '---'])
+#            scans[x][0] = scanInfo['id']
+#            scans[x][1] = scanInfo['time']
+#            scans[x][2] = scanInfo['range']
+#            scans[x][3] = scanInfo['points']
+#            scans[x][4] = scanInfo['level']
+#            scans[x][5] = scanInfo['mz']
+#            scans[x][6] = scanInfo['charge']
+#            scans[x][7] = scanInfo['type']
+
+            scans.append(scanInfo)
+
 
         return scans
 
