@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Documents and Settings\d3p483\My Documents\Python\pyMZViewer\Plot_Options.ui'
 #
-# Created: Mon Mar 01 09:17:40 2010
+# Created: Mon May 17 20:20:12 2010
 #      by: PyQt4 UI code generator 4.5.4
 #
 # WARNING! All changes made in this file will be lost!

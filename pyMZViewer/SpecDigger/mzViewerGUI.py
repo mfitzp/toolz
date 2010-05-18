@@ -26,7 +26,8 @@ backend_qt4.qApp = QtGui.qApp
 
 
 #from io import hdfIO
-from mzXML_reader import mzXMLDoc
+#from mzXML_reader import mzXMLDoc
+from mzXMLReader import mzXMLDoc
 from dbscan import dbscan#used to consolidate peaks
 
 from matplotlib.lines import Line2D
