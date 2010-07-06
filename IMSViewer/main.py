@@ -562,6 +562,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
     def setupGUI(self):
         self.specNameEdit.clear()
         self.groupTreeWidget.setHeaderLabel('Loaded Spectra:')
+        self.loadWSU_CB.setChecked(False)
 
 
 #        self.indexHSlider.setMaximum(0)
@@ -610,7 +611,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
         fileName = QtGui.QFileDialog.getOpenFileName(self,
                                          "Select IMS File to Load",
                                          "",
-                                         "TXT (*.TXT);; IMS-TOF GZIP (*.gz);; IMS-TOF HDF5 (*.h5);; All Files (*.*)")
+                                         "TXT (*.TXT);; IMS-TOF GZIP (*.gz);; IMS-TOF HDF5 (*.h5);; XY Data File (*.csv);;All Files (*.*)")
         if not fileName.isEmpty():
 #            print fileName
             return os.path.abspath(str(fileName))
@@ -696,6 +697,7 @@ class Plot_Widget(QtGui.QMainWindow,  ui_main.Ui_MainWindow):
                     else:
                         tempSpec =  openIMSFile(fileName)
                         if tempSpec[-1]:
+                            print type(tempSpec[0]), type(tempSpec[1]), len(tempSpec[0]), len(tempSpec[1])
                             data2plot = DataClass(tempSpec[0],  tempSpec[1],  name = os.path.basename(fileName), path = fileName)
                             data2plot.setInfo(tempSpec[2])
                             self.loadOk = True
@@ -1866,63 +1868,91 @@ def openWSUTOF(fileName):
         return []
 
 def openIMSFile(fileName):
+    '''
+    General open class
+    '''
     if os.path.isfile(fileName):
-        try:
-            wsuFile = False
-            imsFile = open(fileName, 'r')
-            lines2Skip = 4#the case for an WSU-Labview File 12 is for a PCP
+        if '.csv' in fileName:
+            try:
+                imsFile = open(fileName, 'r')
+                t1 = time.clock()
+                lines = imsFile.readlines()
+                x = []
+                y = []
+                for l in lines:
+                    curX, curY = l.split(',')
+                    x.append(curX)
+                    y.append(curY)
+                header = None
+                imsFile.close()
+                t2 = time.clock()
+                print 'Load Time',t2-t1
+                return N.array(x, dtype = N.float), N.array(y, dtype = N.float), header, True                
 
-            t1 = time.clock()
-            header = imsFile.readline()
-            if 'TDC Resolution:' in header:#this is the case for a WSU-TOF txt file
-                errorMsg = 'Error loading "IMS File" not a PCP or WSU FORMAT!: %s'%fileName
+            except:
+                exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+                traceback.print_exception(exceptionType, exceptionValue, exceptionTraceback, file=sys.stdout)
+                print 'Error loading "IMS File" not a X,Y column in csv format: %s'%fileName
+                errorMsg = 'Error loading "IMS File" not a X,Y column in csv format: %s\n\n:%s\n%s\n'%(exceptionType, exceptionValue, exceptionTraceback)
                 print errorMsg
-                return [errorMsg, False]#
+                return [errorMsg, False]#returns and empty list            
+        else:
+            try:
+                wsuFile = False
+                imsFile = open(fileName, 'r')
+                lines2Skip = 4#the case for an WSU-Labview File 12 is for a PCP
 
-            if "Mass Counts" not in header:
-                for i in xrange(lines2Skip):
-                    header+=imsFile.readline()
+                t1 = time.clock()
+                header = imsFile.readline()
+                if 'TDC Resolution:' in header:#this is the case for a WSU-TOF txt file
+                    errorMsg = 'Error loading "IMS File" not a PCP or WSU FORMAT!: %s'%fileName
+                    print errorMsg
+                    return [errorMsg, False]#
 
-                if 'delta t' in header:
-#                    lines = imsFile.readlines()
-                    wsuFile = True
-                else:
-                    header = ''
-                    lines2Skip = 12
+                if "Mass Counts" not in header:
                     for i in xrange(lines2Skip):
                         header+=imsFile.readline()
-            lines = imsFile.readlines()
+
+                    if 'delta t' in header:
+    #                    lines = imsFile.readlines()
+                        wsuFile = True
+                    else:
+                        header = ''
+                        lines2Skip = 12
+                        for i in xrange(lines2Skip):
+                            header+=imsFile.readline()
+                lines = imsFile.readlines()
 
 
-    #            print header
+        #            print header
 
-            x = []
-            y = []
-            if wsuFile:
-                for line in lines:
-                    temp = line.split(':')
-                    xy = temp[-1].split('\t')
-                    x.append(float(xy[0]))
-                    y.append(-1*float(xy[1]))
+                x = []
+                y = []
+                if wsuFile:
+                    for line in lines:
+                        temp = line.split(':')
+                        xy = temp[-1].split('\t')
+                        x.append(float(xy[0]))
+                        y.append(-1*float(xy[1]))
 
-            else:
-                for line in lines:
-                    splitLine = line.split(' ')
-                    x.append(N.float(splitLine[1]))
-                    y.append(N.float(splitLine[2]))
+                else:
+                    for line in lines:
+                        splitLine = line.split(' ')
+                        x.append(N.float(splitLine[1]))
+                        y.append(N.float(splitLine[2]))
 
 
-            imsFile.close()
-            t2 = time.clock()
-            print 'Load Time',t2-t1
-            return N.array(x), N.array(y), header, True
-        except:
-            exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
-            traceback.print_exception(exceptionType, exceptionValue, exceptionTraceback, file=sys.stdout)
-            print 'Error loading "IMS File" not a PCP or WSU FORMAT!: %s'%fileName
-            errorMsg = 'Error loading "IMS File" not a PCP or WSU FORMAT!: %s\n\n:%s\n%s\n'%(exceptionType, exceptionValue, exceptionTraceback)
-            print errorMsg
-            return [errorMsg, False]#returns and empty list
+                imsFile.close()
+                t2 = time.clock()
+                print 'Load Time',t2-t1
+                return N.array(x), N.array(y), header, True
+            except:
+                exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+                traceback.print_exception(exceptionType, exceptionValue, exceptionTraceback, file=sys.stdout)
+                print 'Error loading "IMS File" not a PCP or WSU FORMAT!: %s'%fileName
+                errorMsg = 'Error loading "IMS File" not a PCP or WSU FORMAT!: %s\n\n:%s\n%s\n'%(exceptionType, exceptionValue, exceptionTraceback)
+                print errorMsg
+                return [errorMsg, False]#returns and empty list
     else:
         return ["That is not a file", False]
 

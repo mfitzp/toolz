@@ -7,7 +7,7 @@ import time
 
 
 class DataClass(object):
-    def __init__(self, xdata,  ydata,  name = None, path = None,normOk = False):
+    def __init__(self, xdata,  ydata,  name = None, path = None, normOk = False):
         self.x = xdata
         if ydata != None:
             self.y = ydata
