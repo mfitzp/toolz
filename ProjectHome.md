@@ -1,0 +1,1 @@
+A collection of random tools in python.  Mostly geared towards scientific data processing and visualization.
